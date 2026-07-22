@@ -1,4 +1,5 @@
-GEPRÜFTE MONATS- UND JAHRESSTÄNDE – Arbeitszeit-PWA V5.3
+GEPRÜFTE MONATS- UND JAHRESSTÄNDE – Arbeitszeit-PWA V5.4
+Historische Basiswerte unverändert aus V5.3 übernommen
 
 Geprüfte Tagesdatensätze: 1348
 Geprüfte Monatsstände: 55

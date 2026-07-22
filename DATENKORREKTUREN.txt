@@ -1,5 +1,6 @@
 TECHNISCHE BESCHREIBUNG DER DATENKORREKTUREN
-Arbeitszeit-PWA Offline V5.3 High-End
+Arbeitszeit-PWA Offline V5.4 High-End
+Datenbasis und historische Korrekturen unverändert aus V5.3 übernommen
 
 QUELLEN UND AUSWERTUNG
 - Verwendet wurden ausschließlich die fünf vorgegebenen Excel-Arbeitsmappen für 2022 bis 2026.

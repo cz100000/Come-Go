@@ -1,53 +1,79 @@
-TESTÜBERSICHT – Arbeitszeit-PWA Offline V5.3 High-End
-Stand: 22.07.2026
+TESTÜBERSICHT – Arbeitszeit-PWA Offline V5.4 High-End
+Stand: 23.07.2026
 
-ERGEBNIS
-- 23 von 23 automatisierten Browserprüfungen bestanden.
-- Offline-PWA-Neuladen bestanden.
-- Direkter Start der eigenständigen HTML-Datei bestanden.
+GESAMTERGEBNIS
+- 67 von 67 automatisierten Funktions- und Regressionstests bestanden.
+- 35 von 35 Hauptprüfungen bestanden.
+- 21 von 21 erweiterten Fachprüfungen bestanden.
+- 11 von 11 Zeitkonto- und Datenregressionsprüfungen bestanden.
 - JavaScript-Syntaxprüfung mit Node.js bestanden.
-- ZIP-Integrität und vollständiger Lieferumfang abschließend geprüft.
+- Manifest, Service Worker, Icons, Dokumentation und Lieferumfang statisch geprüft.
+- Keine externen Skripte, Stylesheets, Bilder, Bibliotheken, CDNs oder Webfonts enthalten.
 
-DATENPRÜFUNGEN
+HAUPTPRÜFUNGEN – 35/35
+- Start ohne JavaScript-Laufzeitfehler.
+- Version 5.4 im Dokumenttitel und in den Einstellungen.
+- Vier Navigationseinträge.
+- Gemeinsame Startseitenzeile für „Manuelle Pause“ und Plusbutton.
+- Pause-Funktion nur einmal vorhanden.
+- Kein horizontaler Überlauf bei 393 × 852 CSS-Pixeln.
+- Bottom Sheet mit fünf Schnelleinträgen.
+- Mehrtägiger Urlaub von Freitag bis Montag berücksichtigt zwei Arbeitstage und 16:00 Stunden.
+- Wochenenden werden ausgelassen.
+- Zusammengehörige Abwesenheitstage erhalten dieselbe Vorgangskennung.
+- Keine künstlichen Kommen-/Gehen-Buchungen für Abwesenheiten.
+- Schema 7 wird gespeichert.
+- Abwesenheiten erscheinen in der Tagesansicht.
+- Datum und rechter Navigationspfeil überlagern sich nicht.
+- „Importdaten wiederherstellen“ erscheint nur für tatsächlich importierte Tage.
+- Sollzeit- und Zeitkontofeld sind gleich breit.
+- Tages-, Monats- und Jahresberichtsfelder sind gleich breit.
+- Importtag kann dauerhaft leer gespeichert werden.
+- Gelöschte Importbuchungen bleiben nach vollständigem Dokumentneustart gelöscht.
+- Importdaten lassen sich bewusst wiederherstellen.
+- Ganztägige Abwesenheit zeigt einen Startseitenhinweis und deaktiviert Kommen.
+- Halbtägige Abwesenheit zeigt einen angepassten Hinweis und lässt Arbeitszeitbuchungen zu.
+- Sechs Arbeitsblöcke werden vollständig dargestellt.
+- Startseite bleibt bis oberhalb der Navigation scrollbar.
+
+ERWEITERTE FACHTESTS – 21/21
+- Deutlicher Druckzustand ausschließlich auf Kommen, Gehen, Manuelle Pause und Plusbutton.
+- Untere Navigation und übrige Standardbuttons behalten ihr bisheriges Verhalten.
+- Konfliktbehandlung: Abbrechen, Überspringen und bestätigtes Ersetzen.
+- Dreitägige Abwesenheit mit gemeinsamer Vorgangskennung.
+- Einzelnen Tag aus einem Zeitraum löschen.
+- Gesamten restlichen Zeitraum löschen.
+- Gesamten Zeitraum bearbeiten und Vorgangskennung erhalten.
+- Halber Abwesenheitstag plus vier Stunden Arbeit ergibt exakt die Sollzeit.
+- Ganzer Abwesenheitstag belastet das Zeitkonto nicht.
+- Tagesbericht weist Abwesenheitsart, Umfang und angerechnete Zeit aus.
+- Monatsbericht enthält Abwesenheitsauswertung.
+- CSV-Export enthält die neuen Abwesenheitsfelder.
+- Alte Werte „Halber Urlaub“ und „Gleittag“ werden korrekt migriert.
+- Wochenenden und vorhandene Feiertage werden ausgeschlossen.
+- Keine Laufzeitfehler.
+
+ZEITKONTO- UND DATENREGRESSION – 11/11
 - 2022 Schlussstand +23:54.
-- 2023 Schlussstand +89:16; Jahresveränderung +65:22.
-- 2024 Schlussstand +83:33; Jahresveränderung -05:43.
-- 2025 Schlussstand +154:51; Jahresveränderung +71:18.
-- 22.07.2026 Schlussstand +193:51; Jahresveränderung 2026 +39:00.
-- April 2026: Netto 185:15, Soll 160:00, Monatsdifferenz +25:15.
-- Juli 2023: +01:30.
-- September 2025: +34:35.
-- Juli 2026 bis 22.07.: -22:00.
+- 2023 Schlussstand +89:16.
+- 2024 Schlussstand +83:33.
+- 2025 Schlussstand +154:51.
+- 22.07.2026 Schlussstand +193:51.
+- April 2026: Netto 185:15, Soll 160:00, Differenz +25:15.
+- Juli 2023: Monatsdifferenz +01:30.
+- September 2025: Monatsdifferenz +34:35.
+- Juli 2026 bis 22.07.: Monatsdifferenz -22:00.
 - Alle 55 Monatsketten „Übertrag + Monatsdifferenz = Schlussstand“ konsistent.
-- Keine doppelte Anrechnung des 22.07.2026.
-- Keine rein numerischen Kommentarartefakte.
+- Keine JavaScript-Laufzeitfehler.
 
-BUCHUNGS- UND MIGRATIONSTESTS
-- Tagesbeginn: Kommen aktiv, Gehen technisch gesperrt.
-- Kommen/Gehen alternieren korrekt.
-- Kommen wird aufgerundet, Gehen abgerundet.
-- Mindestabstand von fünf Minuten wird erzwungen.
-- Mehrere Arbeitsblöcke und offene Arbeitsblöcke werden korrekt dargestellt.
-- Manuelle Pause bleibt nutzbar.
-- Unveränderte Importwerte werden migriert.
-- Bearbeitete, nachträglich erfasste und nach dem Stichtag liegende Daten bleiben geschützt.
-- Lokale Speicherung bleibt nach Neuladen erhalten.
+OFFLINE- UND PWA-PRÜFUNG
+- Anwendung besteht weiterhin aus einer eigenständig ausführbaren HTML-Datei und lokalen PWA-Dateien.
+- LocalStorage-Schlüssel bleibt unverändert.
+- Service Worker verwendet den neuen Cache „arbeitszeit-v5-4-high-end-2026-07-23“.
+- Cache-Dateiliste enthält Startseite, Manifest und beide Icons.
+- Keine Server-, Cloud-, Push- oder Notification-Abhängigkeiten.
+- Die automatisierten Abschlussläufe erfolgten als isolierter Einzeldatei-Dokumentstart mit vollständig neu aufgebautem Dokument und erhaltenem LocalStorage-Zustand.
+- Eine zusätzliche automatisierte Navigation über file:// beziehungsweise localhost wurde vom administrativen Browserprofil der Testumgebung mit ERR_BLOCKED_BY_ADMINISTRATOR verhindert. Dies ist eine Einschränkung der Testumgebung, nicht der Anwendung. Die PWA-Installation ist auf dem Zielgerät wie üblich über HTTPS zu prüfen.
 
-UI- UND RESPONSIVTESTS
-- Hauptprüfung mit 393 × 852 CSS-Pixeln im iPhone-16-Hochformat.
-- Startseite ohne unerwünschte Kopf- oder Zusatzbereiche.
-- Identische Abmessungen der Buchungstasten und SVG-Symbole.
-- Genau vier Navigationseinträge.
-- Tagesnavigation ohne Überlauf.
-- Einstellungen ohne Feldüberlauf.
-- Simulierte größere Systemschrift ohne horizontalen Body-Scroll.
-- Einheitliche Berichtsraster.
-- Monats- und Jahresdiagramm bedienbar.
-- Interne Druckvorschau für Berichte bedienbar.
-
-OFFLINE- UND ABHÄNGIGKEITSTESTS
-- Service Worker registriert und Cache vorhanden.
-- Vollständiges Neuladen bei deaktiviertem Netzwerk erfolgreich.
-- Einzeldatei per file:// erfolgreich geöffnet.
-- Keine externen Skripte, Stylesheets, Bilder, Bibliotheken, CDNs oder Webfonts.
-- Kein window.open; kein automatischer Druck beim Öffnen der Vorschau.
+ZIP-PRÜFUNG
+- ZIP-Integrität und vollständiger Lieferumfang abschließend geprüft.

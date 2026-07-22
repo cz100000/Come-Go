@@ -1,0 +1,9 @@
+DATENMIGRATION V5.4
+
+- Automatische Schemaerweiterung von Version 6 auf Version 7 beim ersten Start.
+- Keine manuelle Aktion erforderlich.
+- Bestehende Abwesenheitswerte werden auf die neuen Felder Art und Umfang abgebildet.
+- „Halber Urlaub“ wird als Urlaub mit Umfang „halber Tag“ weitergeführt.
+- „Gleittag“ wird als Zeitausgleich weitergeführt.
+- Neue Felder: absenceCode, absenceDuration, absenceMinutes, absenceNote, absenceGroupId, absenceCreatedAt und absenceUpdatedAt.
+- Der bestehende Speicherschlüssel arbeitszeit-pwa-v1 bleibt erhalten.

@@ -1,55 +1,37 @@
-ÄNDERUNGEN – Arbeitszeit-PWA Offline V5.3 High-End
-Stand: 22.07.2026
+ÄNDERUNGEN – Arbeitszeit-PWA Offline V5.4 High-End
+Stand: 23.07.2026
 
-1. GEPRÜFTE DATENBASIS 2022 BIS 2026
-- 1.348 Tagesdatensätze und 55 Monatsstände aus fünf Excel-Dateien systematisch ausgewertet.
-- Stichtag von 21.07.2026 auf 22.07.2026 aktualisiert.
-- Zeitkontostand auf +193:51 beziehungsweise 11.631 Minuten korrigiert.
-- Jahresendstände und Jahresveränderungen als geprüfte Baselines eingebettet.
-- April 2026 trotz verschobener Spalten korrekt nach Überschriften importiert: Netto 185:15, Soll 160:00, Differenz +25:15.
-- Juli 2023 auf +01:30 und September 2025 auf +34:35 korrigiert.
-- Rein numerische Artefakte werden nicht als Bemerkungen übernommen.
-- Historische Monate werden nicht mehr allein rückwärts aus dem aktuellen Stichtag rekonstruiert.
+1. STARTSEITE
+- „Heute erfasst“ zeigt alle Arbeitsblöcke vollständig; die Startseite ist bis oberhalb der Navigation scrollbar.
+- Safe-Area- und Navigationsabstände für das iPhone 16 korrigiert.
+- Gemeinsame Button-Zeile mit „Manuelle Pause“ und Akzent-Plusbutton.
+- Deutlicher Druckzustand nur für Kommen, Gehen, Manuelle Pause und Plusbutton.
+- Ganztägige und halbtägige Abwesenheiten werden auf der Startseite eindeutig erklärt.
 
-2. MIGRATION UND DATENSCHUTZ
-- Bestehender LocalStorage-Schlüssel bleibt unverändert.
-- Schema auf 6 und Importdatenversion auf 2 angehoben.
-- Unveränderte Importtage werden auf die geprüfte Quelle aktualisiert.
-- Manuell bearbeitete oder nachträglich erfasste Tage bleiben geschützt.
-- Daten nach dem Stichtag bleiben vollständig erhalten.
-- Schutz gegen doppelte Anrechnung des 22.07.2026.
+2. LÖSCHEN UND WIEDERHERSTELLEN
+- „Tag zurücksetzen“ durch „Alle Buchungen löschen“ ersetzt.
+- Kommen-, Gehen- und Pausenbuchungen können vollständig gelöscht werden, ohne eine Abwesenheit oder Tagesnotiz zu entfernen.
+- Importierte Buchungen bleiben nach dem Löschen dauerhaft leer.
+- Separate Aktion „Importdaten wiederherstellen“ ist nur bei vorhandenen Originalimportdaten sichtbar.
+- Alle abhängigen Ansichten werden nach Änderungen unmittelbar neu aufgebaut.
 
-3. STARTSEITE „HEUTE“
-- Seitentitel, Datum, Zeitkontostand, Informationssymbol und zusätzliche Schnellübersichten oberhalb der Buchungstasten entfernt.
-- Zwei gleich große, dezente und sichtbar drückbare Kommen-/Gehen-Tasten.
-- Identisches Grund-SVG für beide Symbole; nur die Richtung unterscheidet sich.
-- Ruhige Grün-/Rot-Tönung, feiner Rahmen, dezenter Schatten und kurze Druckbewegung.
-- Buchungslogik, Haptik, Wechselreihenfolge, Rundung und Mindestabstand bleiben erhalten.
-- „Heute erfasst“ durch Abstand und Trennlinie klar getrennt; Buchungen weiterhin zu Arbeitsblöcken gruppiert.
-- Unterhalb steht nur noch „Manuelle Pause eintragen“ direkt oberhalb der vierteiligen Navigation.
+3. SCHNELLEINTRÄGE UND ABWESENHEITEN
+- Neues Bottom Sheet für Urlaub, Krankheit, Zeitausgleich, sonstige Abwesenheit und manuelle Zeitergänzung.
+- Mehrtägige Erfassung mit Von-/Bis-Datum, ganzem oder halbem Tag und optionaler Notiz.
+- Wochenenden und bestehende Feiertagslogik werden automatisch berücksichtigt.
+- Vorschau mit Arbeitstagen, angerechneter Gesamtzeit und Konflikten.
+- Konfliktoptionen: abbrechen, betroffene Tage überspringen oder ausdrücklich ersetzen.
+- Gemeinsame Vorgangskennung je Zeitraum; einzelner Tag oder gesamter Zeitraum kann bearbeitet oder gelöscht werden.
+- Keine künstlichen Kommen-/Gehen-Buchungen für Abwesenheiten.
 
-4. ZEITEN
-- Tagesnavigation als stabiles Raster „Pfeil | Datum | Pfeil“ umgesetzt.
-- Kein Überlappen oder Abschneiden bei 393 × 852 CSS-Pixeln und größerer Schrift.
-- Monatskarten zeigen oben rechts ausschließlich die Monatsdifferenz.
-- Zeitkonto am Monatsende beziehungsweise zum Stichtag wird separat ausgewiesen.
-- Monatsdifferenz, Übertrag und Schlussstand folgen den geprüften Excel-Baselines zuzüglich geschützter lokaler Änderungen.
+4. ZEITEN, AUSWERTUNG UND EINSTELLUNGEN
+- Tagesnavigation gegen Überlagerung von Datum und rechtem Pfeil abgesichert.
+- Tages-, Monats- und Jahresberichtsfelder einheitlich kompakt.
+- Sollzeit- und Zeitkontofeld exakt gleich breit und rechtsbündig.
+- Dezente zentrale Versionsanzeige „Arbeitszeit PWA · Version 5.4“.
+- Tages-, Monats- und Jahresberichte sowie CSV weisen Abwesenheitsart, Umfang und angerechnete Zeit aus.
 
-5. AUSWERTUNG UND DIAGRAMM
-- Eingabefelder und Berichtsschaltflächen für Tages-, Monats- und Jahresbericht einheitlich ausgerichtet.
-- Neue vollständig offline arbeitende SVG-Überstundengrafik.
-- Umschaltung zwischen Monats- und Jahresansicht.
-- Monatsbalken zeigen Monatsdifferenzen ober- beziehungsweise unterhalb der Nulllinie.
-- Jahresbalken zeigen die tatsächliche Jahresveränderung.
-- Detailwerte sind per Antippen oder Tastatur abrufbar.
-
-6. EINSTELLUNGEN
-- Sollzeitfeld und übrige Einstellungszeilen responsiv abgesichert.
-- Kein Überlaufen aus der Karte, auch bei größerer Systemschrift.
-
-7. BERICHTE, DRUCK UND PDF
-- Neues internes Vorschau-Overlay für Tages-, Monats- und Jahresberichte.
-- Kein window.open und kein automatischer Druckdialog.
-- Gut sichtbare Rückkehr zur App; aktueller Bildschirm und Auswahl bleiben erhalten.
-- Druck/PDF erst nach ausdrücklicher Betätigung der Schaltfläche.
-- Navigation und Bedienelemente werden im Ausdruck ausgeblendet; A4- und Seitenumbruchregeln bleiben erhalten.
+5. TECHNIK
+- Zentrale Versionskonstante APP_VERSION.
+- Datenschema 7, rückwärtskompatible automatische Migration.
+- Bestehender LocalStorage-Schlüssel und Offline-/PWA-Struktur unverändert.

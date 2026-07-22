@@ -9,7 +9,7 @@
 <meta name="apple-mobile-web-app-title" content="Arbeitszeit">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="icon-192.png">
-<title>Arbeitszeit V5.3 High-End</title>
+<title>Arbeitszeit PWA</title>
 <style>
 :root{
   --bg:#f7f8fb;--card:#fff;--text:#0d1420;--muted:#687181;--line:#e4e7ed;
@@ -121,7 +121,7 @@ body.today-fixed .app{height:100dvh;min-height:0;overflow:hidden;padding-bottom:
 @media(max-width:540px){#times .page-header{padding-bottom:10px}.booking-table-wrap{display:none}.booking-mobile-list{display:grid;gap:8px}.day-summary .day-heading{align-items:center;margin-bottom:7px}.day-summary .balance-hero{padding-top:7px}.tabbar{width:min(calc(100% - 18px),596px)}}
 @media(max-width:390px){.entry-editor-head,.entry-edit-row{grid-template-columns:72px 1fr 1fr 32px;gap:5px}.entry-edit-row select,.entry-edit-row input{font-size:12px;padding:7px 3px}.metric-grid{gap:6px}.metric{padding:8px}.day-heading h2{font-size:18px}.badge{padding:5px 8px;font-size:11px}}
 
-/* V5.3 – filigranes High-End-Design */
+/* V5.4 – filigranes High-End-Design */
 :root{
   --bg:#f7f8fb;--card:rgba(255,255,255,.92);--text:#101826;--muted:#6d7789;--line:#e7eaf0;
   --blue:#1475ff;--blue-soft:#edf4ff;--green:#178d4b;--green-dark:#117c40;
@@ -211,7 +211,7 @@ body.today-fixed .app{padding-top:calc(env(safe-area-inset-top) + 9px);padding-b
 
 @media print{.tabbar,.page-header,.segmented,.primary-btn,.secondary-btn,.danger-btn,.modal,.toast{display:none!important}.app{width:auto;max-width:none;padding:0}.card,.period-card{box-shadow:none}.screen{display:none!important}.screen.active{display:block!important}}
 
-/* V5.3 – schlanke iPhone-16-Startseite, Diagramm und interne Druckvorschau */
+/* V5.4 – schlanke iPhone-16-Startseite, Diagramm und interne Druckvorschau */
 body.today-fixed .app{padding-top:calc(env(safe-area-inset-top) + 12px)}
 #today.active{grid-template-rows:auto auto minmax(0,1fr);gap:0;align-content:stretch}
 .punch-grid{gap:12px;margin-top:2px}
@@ -238,11 +238,45 @@ body.today-fixed .app{padding-top:calc(env(safe-area-inset-top) + 12px)}
 @media(max-height:760px){#today.active{gap:0}.punch-grid{margin-top:0}.punch-btn{min-height:110px}.today-capture{margin-top:14px}.pause-btn{margin-top:8px}.capture-head{height:42px}}
 @media print{@page{size:A4;margin:13mm}body>*:not(.print-preview){display:none!important}.print-preview,.print-preview.open{display:block!important;position:static;background:#fff}.print-preview-bar,.print-action{display:none!important}.print-preview-scroll{overflow:visible;padding:0}.print-report{width:auto;min-height:0;margin:0;padding:0;box-shadow:none}.print-report tr{break-inside:avoid;page-break-inside:avoid}}
 
+/* V5.4 – iPhone-16-Layout, Schnelleinträge und Abwesenheiten */
+body.modal-open{overflow:hidden!important}
+body.today-fixed{height:100dvh;overflow:hidden;touch-action:pan-y;overscroll-behavior:none}
+body.today-fixed .app{height:100dvh;min-height:0;overflow-y:auto;overscroll-behavior-y:contain;-webkit-overflow-scrolling:touch;padding-top:calc(env(safe-area-inset-top) + 12px);padding-bottom:calc(var(--nav-h) + env(safe-area-inset-bottom) + 34px);scroll-padding-bottom:calc(var(--nav-h) + env(safe-area-inset-bottom) + 34px)}
+#today.active{display:flex;height:auto;min-height:calc(100dvh - var(--nav-h) - env(safe-area-inset-bottom) - 34px);overflow:visible;flex-direction:column;gap:0}
+.today-capture{min-height:0;overflow:visible;flex:none}.capture-list{overflow:visible;max-height:none}.capture-details{flex:none}
+.today-absence-banner{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:0 0 12px;padding:13px 14px;border:1px solid #bdd8ff;border-radius:17px;background:#edf5ff;color:#163f72}
+.today-absence-banner[hidden]{display:none}.today-absence-banner div{min-width:0;display:grid;gap:4px}.today-absence-banner b{font-size:15px}.today-absence-banner span{font-size:12px;line-height:1.35}.today-absence-banner button{flex:0 0 auto;border:0;border-radius:11px;background:#fff;color:#075fc5;padding:9px 10px;font-size:12px;font-weight:750}
+.punch-grid.absence-full .punch-btn{opacity:.72}
+.quick-action-row{display:grid;grid-template-columns:minmax(0,3fr) minmax(56px,1fr);gap:9px;width:100%;margin-top:12px;align-items:stretch}
+.quick-action-row .pause-btn{width:100%;margin:0;align-self:auto;height:56px;min-width:0;justify-content:flex-start;padding:0 13px;text-align:left}
+.pause-copy{display:grid;min-width:0;flex:1;line-height:1.12}.pause-copy b{font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.pause-copy small{font-size:11px;font-weight:600;color:#5779a7;margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.pause-chev{flex:0 0 auto}
+.quick-add-btn{height:56px;min-width:56px;border:0;border-radius:16px;background:linear-gradient(145deg,#1475ff,#0863db);color:#fff;font-size:34px;font-weight:400;line-height:1;box-shadow:0 8px 20px rgba(20,117,255,.22);touch-action:manipulation;transition:transform .1s ease,box-shadow .1s ease,filter .1s ease}
+.home-pressable{touch-action:manipulation;transition:transform .1s ease,box-shadow .1s ease,filter .1s ease}
+.home-pressable:active,.home-pressable.pressed{transform:translateY(7px) scale(.98);filter:brightness(.94);box-shadow:0 1px 4px rgba(22,34,52,.08)}
+.punch-btn.pressed,.punch-btn:active:not(:disabled){transform:translateY(7px) scale(.98);filter:brightness(.95);box-shadow:0 1px 4px rgba(25,39,58,.07);transition-duration:.1s}
+.date-nav{grid-template-columns:44px minmax(0,1fr) 44px;gap:7px}.date-nav button{min-width:44px;width:44px}.date-nav input{min-width:0;width:100%;max-width:100%;padding:0 5px;font-size:15px;overflow:hidden;-webkit-appearance:none;appearance:none}
+.report-controls{grid-template-columns:118px minmax(0,1fr);justify-content:end}.report-controls input,.report-controls select{width:118px;min-width:118px;max-width:118px}.report-controls button{width:100%;min-width:0}
+#targetHours,#checkpointBalance{width:132px;max-width:132px;justify-self:end}
+.app-version{margin:18px 0 calc(10px + env(safe-area-inset-bottom));text-align:center;color:#9098a6;font-size:12px}
+.field-summary{border:1px solid var(--line);border-radius:12px;background:#fff;padding:11px;font-size:13px;line-height:1.4;color:#43516a}.secondary-btn.compact{margin-top:8px;padding:11px}
+.day-data-actions{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:13px}.day-data-actions button{min-width:0;border:0;border-radius:13px;padding:12px 9px;font-weight:750;font-size:12px}.day-data-actions .delete{background:var(--danger-soft);color:var(--danger)}.day-data-actions .restore{background:#edf5ff;color:#075fc5}.day-data-actions button[hidden]{display:none}
+.quick-sheet{padding-bottom:calc(22px + env(safe-area-inset-bottom))}.quick-list{display:grid;gap:8px}.quick-list button{width:100%;min-height:62px;border:1px solid var(--line);border-radius:15px;background:#fff;display:grid;grid-template-columns:minmax(0,1fr) auto;grid-template-rows:auto auto;text-align:left;padding:11px 13px}.quick-list button span{font-weight:750}.quick-list button small{grid-column:1;color:var(--muted);margin-top:3px}.quick-list button b{grid-column:2;grid-row:1/3;align-self:center;color:#7b8491;font-size:24px;font-weight:400}
+.absence-sheet{padding-bottom:calc(24px + env(safe-area-inset-bottom))}.absence-date-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.absence-date-grid .field{min-width:0}.absence-summary{margin:13px 0 2px;border:1px solid #cfe0f5;border-radius:15px;background:#f4f8fd;padding:12px;font-size:13px;line-height:1.45}.absence-summary b{display:block;margin-bottom:4px}.absence-summary .summary-line{display:flex;justify-content:space-between;gap:12px;margin-top:4px}.absence-summary .summary-line span{color:var(--muted)}.absence-summary .conflict{color:var(--danger);font-weight:700;margin-top:7px}.absence-actions-inline{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}.absence-actions-inline button{border:1px solid var(--line);border-radius:12px;background:#fff;padding:10px;font-weight:700;font-size:12px}.absence-actions-inline .danger{color:var(--danger);background:var(--danger-soft);border-color:#f4cecb}
+.absence-detail-card{border-color:#cfe0f5;background:#f8fbff}.absence-detail-card .detail-row:first-child b{color:#075fc5}.absence-credit{color:#075fc5}
+.capture-empty{min-height:72px}
+@media(max-width:370px){.quick-action-row{grid-template-columns:minmax(0,3fr) 58px}.report-controls{grid-template-columns:108px minmax(0,1fr)}.report-controls input,.report-controls select{width:108px;min-width:108px;max-width:108px}.absence-date-grid{grid-template-columns:1fr}.day-data-actions{grid-template-columns:1fr}}
+@media(max-height:760px){body.today-fixed .app{padding-bottom:calc(var(--nav-h) + env(safe-area-inset-bottom) + 28px)}#today.active{min-height:auto}.quick-action-row{margin-top:8px}.quick-action-row .pause-btn,.quick-add-btn{height:50px}.today-absence-banner{margin-bottom:8px;padding:10px 12px}}
+
 </style>
 </head>
 <body class="today-fixed">
 <main class="app">
 <section id="today" class="screen active" aria-label="Heute">
+
+  <section id="todayAbsenceBanner" class="today-absence-banner" hidden aria-live="polite">
+    <div><b id="todayAbsenceTitle"></b><span id="todayAbsenceText"></span></div>
+    <button type="button" id="todayAbsenceEdit">Bearbeiten</button>
+  </section>
 
   <div class="punch-grid" aria-label="Arbeitszeit buchen">
     <button id="punchIn" class="punch-btn punch-in" type="button" data-punch="in">
@@ -271,11 +305,14 @@ body.today-fixed .app{padding-top:calc(env(safe-area-inset-top) + 12px)}
     </button>
   </section>
 
-  <button id="pauseToday" class="pause-btn" type="button">
-    <svg class="icon" viewBox="0 0 24 24"><path d="M5 7h11v7a5 5 0 0 1-5 5H10a5 5 0 0 1-5-5Z"/><path d="M16 9h2a3 3 0 0 1 0 6h-2M4 21h14"/></svg>
-    <span id="pauseButtonLabel">Manuelle Pause eintragen</span>
-    <svg class="icon pause-chev" viewBox="0 0 24 24"><path d="m9 6 6 6-6 6"/></svg>
-  </button>
+  <div class="quick-action-row" aria-label="Manuelle Einträge">
+    <button id="pauseToday" class="pause-btn home-pressable" type="button">
+      <svg class="icon" viewBox="0 0 24 24"><path d="M5 7h11v7a5 5 0 0 1-5 5H10a5 5 0 0 1-5-5Z"/><path d="M16 9h2a3 3 0 0 1 0 6h-2M4 21h14"/></svg>
+      <span class="pause-copy"><b id="pauseButtonLabel">Manuelle Pause</b><small id="pauseButtonSub">Pause eintragen</small></span>
+      <svg class="icon pause-chev" viewBox="0 0 24 24"><path d="m9 6 6 6-6 6"/></svg>
+    </button>
+    <button id="quickAddBtn" class="quick-add-btn home-pressable" type="button" aria-label="Schnelleintrag öffnen">+</button>
+  </div>
 </section>
 
 <section id="times" class="screen" aria-label="Zeiten">
@@ -324,7 +361,8 @@ body.today-fixed .app{padding-top:calc(env(safe-area-inset-top) + 12px)}
     <div class="form-row"><label><b>Silvester frei</b><small>Betrieblicher freier Tag</small></label><label class="switch"><input id="freeNewYearsEve" type="checkbox"><span></span></label></div>
     <div class="form-row"><label><b>Unterschriftsbereich</b><small>In Monats- und Jahresberichten</small></label><label class="switch"><input id="reportSignature" type="checkbox"><span></span></label></div>
   </div>
-  <div class="card"><b>Offline-Nutzung</b><p class="muted" style="font-size:13px;line-height:1.45;margin-bottom:0">In Safari öffnen, „Teilen“ und anschließend „Zum Home-Bildschirm“ wählen. Daten bleiben lokal auf diesem Gerät. Bestehende Daten der Version V4 werden automatisch übernommen.</p></div>
+  <div class="card"><b>Offline-Nutzung</b><p class="muted" style="font-size:13px;line-height:1.45;margin-bottom:0">In Safari öffnen, „Teilen“ und anschließend „Zum Home-Bildschirm“ wählen. Daten bleiben lokal auf diesem Gerät. Bestehende Daten werden automatisch übernommen.</p></div>
+  <p class="app-version" id="appVersion" aria-label="Anwendungsversion"></p>
 </section>
 </main>
 
@@ -341,10 +379,10 @@ body.today-fixed .app{padding-top:calc(env(safe-area-inset-top) + 12px)}
     <div class="field"><label for="editDate">Datum</label><input id="editDate" type="date"></div>
     <div class="field"><label>Buchungen – tatsächlich und dokumentiert</label><div id="entryEditors"></div><button type="button" class="secondary-btn" id="addEntryBtn">Buchung hinzufügen</button></div>
     <div class="field"><label for="editPause">Manuelle Pause (Minuten)</label><input id="editPause" type="number" min="0" step="1"></div>
-    <div class="field"><label for="editAbsence">Abwesenheit</label><select id="editAbsence"><option value="">Keine</option><option>Urlaub</option><option>Halber Urlaub</option><option>Krankheit</option><option>Gleittag</option><option>Feiertag</option><option>Frei</option><option>Sonstige Abwesenheit</option></select></div>
+    <div class="field"><label>Abwesenheit</label><div id="dayAbsenceEditorSummary" class="field-summary">Keine Abwesenheit eingetragen</div><button type="button" class="secondary-btn compact" id="manageAbsenceFromDay">Abwesenheit verwalten</button></div>
     <div class="field"><label for="editNote">Kommentar / Tagesnotiz</label><textarea id="editNote" rows="3"></textarea></div>
     <div class="modal-actions"><button type="button" class="cancel" data-close="dayModal">Abbrechen</button><button type="button" class="save" id="saveDayBtn">Speichern</button></div>
-    <div class="modal-actions"><button type="button" class="delete" id="deleteDayBtn">Tag zurücksetzen</button><button type="button" class="cancel" data-close="dayModal">Schließen</button></div>
+    <div class="day-data-actions"><button type="button" class="delete" id="deleteDayBtn">Alle Buchungen löschen</button><button type="button" class="restore" id="restoreImportBtn">Importdaten wiederherstellen</button></div>
   </div>
 </div>
 
@@ -355,6 +393,34 @@ body.today-fixed .app{padding-top:calc(env(safe-area-inset-top) + 12px)}
     <div class="modal-actions"><button type="button" class="cancel" data-close="pauseModal">Abbrechen</button><button type="button" class="save" id="savePauseBtn">Speichern</button></div>
   </div>
 </div>
+
+<div id="quickAddModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="quickAddTitle">
+  <div class="sheet quick-sheet">
+    <div class="sheet-head"><h2 id="quickAddTitle">Schnelleintrag</h2><button class="close-btn" type="button" data-close="quickAddModal" aria-label="Schließen">×</button></div>
+    <div class="quick-list">
+      <button type="button" data-quick-absence="vacation"><span>Urlaub</span><small>Ein- oder mehrtägig</small><b>›</b></button>
+      <button type="button" data-quick-absence="sick"><span>Krankheit</span><small>Ein- oder mehrtägig</small><b>›</b></button>
+      <button type="button" data-quick-absence="timeOff"><span>Zeitausgleich</span><small>Ein- oder mehrtägig</small><b>›</b></button>
+      <button type="button" data-quick-absence="other"><span>Sonstige Abwesenheit</span><small>Mit optionaler Notiz</small><b>›</b></button>
+      <button type="button" id="manualTimeQuick"><span>Zeit manuell ergänzen</span><small>Vorhandene Tagesbearbeitung öffnen</small><b>›</b></button>
+    </div>
+  </div>
+</div>
+
+<div id="absenceModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="absenceModalTitle">
+  <div class="sheet absence-sheet">
+    <div class="sheet-head"><h2 id="absenceModalTitle">Abwesenheit eintragen</h2><button class="close-btn" type="button" data-close="absenceModal" aria-label="Schließen">×</button></div>
+    <div class="field"><label for="absenceType">Art der Abwesenheit</label><select id="absenceType"><option value="vacation">Urlaub</option><option value="sick">Krankheit</option><option value="timeOff">Zeitausgleich</option><option value="other">Sonstige Abwesenheit</option></select></div>
+    <div class="absence-date-grid"><div class="field"><label for="absenceFrom">Von</label><input id="absenceFrom" type="date"></div><div class="field"><label for="absenceTo">Bis</label><input id="absenceTo" type="date"></div></div>
+    <div class="field"><label for="absenceExtent">Umfang je Arbeitstag</label><select id="absenceExtent"><option value="full">Ganzer Tag</option><option value="half">Halber Tag</option></select></div>
+    <div class="field"><label for="absenceNote">Optionale Notiz</label><textarea id="absenceNote" rows="2" placeholder="z. B. Arztbesuch oder Anlass"></textarea></div>
+    <div class="field"><label for="absenceConflictPolicy">Bei vorhandenen Buchungen oder Abwesenheiten</label><select id="absenceConflictPolicy"><option value="abort">Vorgang abbrechen</option><option value="skip">Betroffene Tage überspringen</option><option value="replace">Vorhandene Einträge ersetzen</option></select></div>
+    <div id="absenceSummary" class="absence-summary" aria-live="polite"></div>
+    <div class="modal-actions"><button type="button" class="cancel" data-close="absenceModal">Abbrechen</button><button type="button" class="save" id="saveAbsenceBtn">Abwesenheit speichern</button></div>
+    <div id="absenceDeleteActions" class="day-data-actions" hidden><button type="button" class="delete" id="deleteAbsenceDayBtn">Diesen Tag löschen</button><button type="button" class="delete" id="deleteAbsenceGroupBtn">Gesamten Zeitraum löschen</button></div>
+  </div>
+</div>
+
 <div id="toast" class="toast" role="status" aria-live="polite"></div>
 <section id="printPreview" class="print-preview" aria-hidden="true">
   <header class="print-preview-bar">
@@ -377,13 +443,16 @@ const IMPORTED_BY_DATE=Object.fromEntries(IMPORTED.map(d=>[d.date,d]));
 const STORAGE_KEY='arbeitszeit-pwa-v1';
 const CHECKPOINT_DATE='2026-07-22';
 const CHECKPOINT_MINUTES=11631;
-const CURRENT_SCHEMA=6;
+const APP_VERSION='5.4';
+const CURRENT_SCHEMA=7;
 const IMPORT_DATA_VERSION=2;
 let state=loadState();
 let currentView='day';
 let cursorDate=parseDateKey(state.settings.lastEditedDay||todayKey());
 let monthDrill=null;
 let editingEntries=[];
+let absenceEditorContext=null;
+let lastModalFocus=null;
 
 const $=id=>document.getElementById(id);
 const SVG={
@@ -411,7 +480,7 @@ function clone(v){return JSON.parse(JSON.stringify(v))}
 function isProtectedLocalDay(d){
   if(!d)return false;
   if(d.date>CHECKPOINT_DATE)return true;
-  if(d.edited||d.capturedAfterImport||d.modifiedAt)return true;
+  if(d.edited||d.capturedAfterImport||d.modifiedAt||d.importCleared)return true;
   if(!d.sourceYear&&hasMeaningfulData(d))return true;
   return (d.entries||[]).some(e=>e&&(['capture','manual'].includes(e.source)||e.edited));
 }
@@ -438,6 +507,12 @@ function migrateState(raw){
     if(!Array.isArray(d.entries))d.entries=[];
     d.entries=d.entries.map(e=>({type:e.type==='out'?'out':'in',actual:e.actual||'',logged:e.logged||roundLogged(e.actual||'00:00',e.type==='out'?'out':'in'),source:e.source||((d.sourceYear&&!d.edited)?'import':'manual'),createdAt:e.createdAt||null,edited:!!e.edited}));
     if(!Number.isFinite(Number(d.pauseMinutes)))d.pauseMinutes=0;
+    if(d.absence==='Halber Urlaub'){d.absence='Urlaub';d.absenceCode='vacation';d.absenceDuration='half'}
+    if(d.absence==='Gleittag'){d.absence='Zeitausgleich';d.absenceCode='timeOff'}
+    if(d.absence&&!d.absenceCode)d.absenceCode=absenceCodeFromLabel(d.absence);
+    if(d.absence&&!d.absenceDuration)d.absenceDuration='full';
+    if(d.absenceNote==null)d.absenceNote='';
+    if(d.absenceMinutes!=null&&!Number.isFinite(Number(d.absenceMinutes)))delete d.absenceMinutes;
   });
   if(!s.lastEditedDay||!/^[0-9]{4}-[0-9]{2}-[0-9]{2}$/.test(s.lastEditedDay))s.lastEditedDay=findLatestRelevantDay(migrated.days);
   return migrated;
@@ -489,14 +564,48 @@ function validateEntries(entries){
   const complete=entries.length>0&&entries.length%2===0&&entries.every((e,i)=>e.type===(i%2===0?'in':'out'));
   return{complete,plausible};
 }
+
+function absenceCodeFromLabel(label){
+  const v=String(label||'').toLowerCase();
+  if(v.includes('urlaub'))return'vacation';
+  if(v.includes('krank'))return'sick';
+  if(v.includes('gleit')||v.includes('zeitausgleich'))return'timeOff';
+  if(v.includes('feiertag'))return'holiday';
+  if(v.includes('frei'))return'free';
+  return label?'other':null;
+}
+function absenceLabel(code){return({vacation:'Urlaub',sick:'Krankheit',timeOff:'Zeitausgleich',other:'Sonstige Abwesenheit',holiday:'Feiertag',free:'Frei'})[code]||'Sonstige Abwesenheit'}
+function absenceDuration(d){return d?.absenceDuration==='half'||d?.absence==='Halber Urlaub'?'half':'full'}
+function absenceFraction(d){return absenceDuration(d)==='half'?0.5:1}
+function targetMinutesForDate(k){const wd=parseDateKey(k).getDay();return wd>=1&&wd<=5?Number(state.settings.targetMinutes)||480:0}
+function absenceCreditMinutes(d,target=targetMinutesForDate(d?.date||todayKey())){
+  if(!d?.absence)return 0;
+  if(Number.isFinite(Number(d.absenceMinutes)))return Math.max(0,Number(d.absenceMinutes));
+  return absenceDuration(d)==='half'?Math.round(target/2):target;
+}
+function absenceSummaryText(d){
+  if(!d?.absence)return'Keine Abwesenheit eingetragen';
+  const extent=absenceDuration(d)==='half'?'Halber Tag':'Ganzer Tag';
+  return `${d.absence} · ${extent} · ${formatDuration(absenceCreditMinutes(d),{signed:false})} angerechnet`;
+}
+function absenceGroupDays(groupId){return groupId?Object.values(state.days).filter(d=>d.absenceGroupId===groupId).sort((a,b)=>a.date.localeCompare(b.date)):[]}
+function hasFullAbsence(d){return !!(d?.absence&&absenceDuration(d)==='full')}
+function clearAbsenceFields(d){
+  d.absence=null;d.absenceCode=null;d.absenceDuration=null;d.absenceMinutes=0;d.absenceNote='';d.absenceGroupId=null;d.absenceCreatedAt=null;d.absenceUpdatedAt=null;
+}
+function dateRange(from,to){const a=parseDateKey(from),b=parseDateKey(to),r=[];for(let d=new Date(a);d<=b;d.setDate(d.getDate()+1))r.push(dateKey(d));return r}
+function holidayNameForDate(k){const d=state.days[k];if(d?.holiday||d?.generatedHoliday||d?.absenceCode==='holiday')return d.holiday||'Feiertag';return hessenHolidays(Number(k.slice(0,4)))[k]||null}
+function isAbsenceWorkday(k){const wd=parseDateKey(k).getDay();return wd>=1&&wd<=5&&!holidayNameForDate(k)}
+function newAbsenceGroupId(){return `absence-${Date.now()}-${Math.random().toString(36).slice(2,8)}`}
+function formatDayCount(v){return Number.isInteger(v)?String(v):String(v).replace('.',',')}
+
 function calculateDay(d){
   if(!d)return{gross:0,net:0,target:0,diff:0,complete:true,plausible:true};
   if(d.sourceYear&&!isProtectedLocalDay(d)&&d.date<=CHECKPOINT_DATE&&Number.isFinite(d.excelDiffMinutes)){
     const net=Number(d.excelNetMinutes)||0,target=Number(d.excelTargetMinutes)||0;
     return{gross:Math.max(0,net+(Number(d.pauseMinutes)||0)),net,target,diff:Number(d.excelDiffMinutes)||0,complete:true,plausible:true};
   }
-  const wd=parseDateKey(d.date).getDay();
-  const target=wd>=1&&wd<=5?Number(state.settings.targetMinutes)||480:0;
+  const target=targetMinutesForDate(d.date);
   if(d.date>CHECKPOINT_DATE&&!hasMeaningfulData(d))return{gross:0,net:0,target,diff:0,complete:true,plausible:true};
   const entries=d.entries||[],validation=validateEntries(entries);
   let gross=0;
@@ -506,10 +615,10 @@ function calculateDay(d){
     const from=minutes(start.logged||start.actual),to=minutes(end.logged||end.actual);
     if(to>=from)gross+=to-from;
   }
-  let net=Math.max(0,gross-(Number(d.pauseMinutes)||0));
-  if(d.absence&&['Urlaub','Krankheit','Feiertag','Frei'].includes(d.absence))net=target;
-  if(d.absence==='Halber Urlaub')net+=Math.round(target/2);
-  return{gross,net,target,diff:net-target,complete:validation.complete,plausible:validation.plausible};
+  const workedNet=Math.max(0,gross-(Number(d.pauseMinutes)||0));
+  const credited=absenceCreditMinutes(d,target);
+  const net=workedNet+credited;
+  return{gross,net,target,diff:net-target,complete:validation.complete,plausible:validation.plausible,workedNet,absenceMinutes:credited};
 }
 function isCountable(d,cutoff=todayKey()){
   if(!d||d.date>cutoff)return false;
@@ -520,24 +629,25 @@ function isCountable(d,cutoff=todayKey()){
   return c.complete&&c.plausible;
 }
 function metricForDay(d,cutoff=todayKey()){
-  if(!isCountable(d,cutoff))return{net:0,target:0,pause:0,diff:0,vacation:0,sick:0,other:0,incomplete:0};
-  const c=calculateDay(d);
+  if(!isCountable(d,cutoff))return{net:0,target:0,pause:0,diff:0,vacation:0,sick:0,timeOff:0,other:0,incomplete:0};
+  const c=calculateDay(d),fraction=absenceFraction(d);
   return{net:c.net,target:c.target,pause:Number(d.pauseMinutes)||0,diff:c.diff,
-    vacation:(d.absence==='Urlaub'||d.absence==='Halber Urlaub')?1:0,
-    sick:d.absence==='Krankheit'?1:0,
-    other:d.absence&& !['Urlaub','Halber Urlaub','Krankheit','Feiertag'].includes(d.absence)?1:0,
+    vacation:d.absenceCode==='vacation'||d.absence==='Urlaub'?fraction:0,
+    sick:d.absenceCode==='sick'||d.absence==='Krankheit'?fraction:0,
+    timeOff:d.absenceCode==='timeOff'||d.absence==='Zeitausgleich'||d.absence==='Gleittag'?fraction:0,
+    other:d.absence&& !['vacation','sick','timeOff','holiday'].includes(d.absenceCode||absenceCodeFromLabel(d.absence))?fraction:0,
     incomplete:(d.entries||[]).length&&(!c.complete||!c.plausible)?1:0};
 }
 function originalMetric(k){
   const d=IMPORTED_BY_DATE[k];
-  if(!d||d.excelIncludedInSummary===false)return{net:0,target:0,pause:0,diff:0,vacation:0,sick:0,other:0,incomplete:0};
+  if(!d||d.excelIncludedInSummary===false)return{net:0,target:0,pause:0,diff:0,vacation:0,sick:0,timeOff:0,other:0,incomplete:0};
+  const code=d.absenceCode||absenceCodeFromLabel(d.absence),fraction=d.absence==='Halber Urlaub'?0.5:1;
   return{net:Number(d.excelNetMinutes)||0,target:Number(d.excelTargetMinutes)||0,pause:Number(d.pauseMinutes)||0,diff:Number(d.excelDiffMinutes)||0,
-    vacation:(d.absence==='Urlaub'||d.absence==='Halber Urlaub')?1:0,sick:d.absence==='Krankheit'?1:0,
-    other:d.absence&& !['Urlaub','Halber Urlaub','Krankheit','Feiertag'].includes(d.absence)?1:0,
-    incomplete:0};
+    vacation:code==='vacation'?fraction:0,sick:code==='sick'?fraction:0,timeOff:code==='timeOff'?fraction:0,
+    other:d.absence&&!['vacation','sick','timeOff','holiday'].includes(code)?fraction:0,incomplete:0};
 }
-function metricDelta(current,original){const r={};for(const k of ['net','target','pause','diff','vacation','sick','other','incomplete'])r[k]=(current[k]||0)-(original[k]||0);return r}
-function addMetric(a,b){for(const k of ['net','target','pause','diff','vacation','sick','other','incomplete'])a[k]=(a[k]||0)+(b[k]||0);return a}
+function metricDelta(current,original){const r={};for(const k of ['net','target','pause','diff','vacation','sick','timeOff','other','incomplete'])r[k]=(current[k]||0)-(original[k]||0);return r}
+function addMetric(a,b){for(const k of ['net','target','pause','diff','vacation','sick','timeOff','other','incomplete'])a[k]=(a[k]||0)+(b[k]||0);return a}
 function historicalAdjustment(start,end){
   const sum={net:0,target:0,pause:0,diff:0,vacation:0,sick:0,other:0,incomplete:0};
   Object.values(state.days).filter(d=>d.date>=start&&d.date<=end&&d.date<=CHECKPOINT_DATE&&isProtectedLocalDay(d)).forEach(d=>addMetric(sum,metricDelta(metricForDay(d,end),originalMetric(d.date))));
@@ -571,7 +681,7 @@ function balanceThrough(k){
   return (Number(base.opening)||0)+prior+originalDiff+within+sourceAdjustment;
 }
 function dayStatus(d){
-  if(d.absence)return d.absence;
+  if(d.absence)return `${d.absence}${absenceDuration(d)==='half'?' · ½ Tag':''}`;
   if(d.sourceYear&&!d.edited&&!d.capturedAfterImport&&d.date<=CHECKPOINT_DATE)return 'Importiert';
   if(!(d.entries||[]).length)return 'Noch nicht erfasst';
   const c=calculateDay(d);
@@ -617,6 +727,11 @@ function updateTodayPunchState(){
   const d=dayObject(todayKey()),expected=nextActionForDay(d),now=hm(),last=(d.entries||[]).at(-1),availability=punchAvailability(d,expected,now);
   const inBtn=$('punchIn'),outBtn=$('punchOut'),inStatus=$('inStatus'),outStatus=$('outStatus'),inClock=$('inClock'),outClock=$('outClock');
   const currentIn=roundLogged(now,'in'),currentOut=roundLogged(now,'out');
+  if(hasFullAbsence(d)){
+    applyPunchVisual(inBtn,inStatus,inClock,{kind:'blocked',status:'Abwesenheit eingetragen',clock:'–',disabled:true});
+    applyPunchVisual(outBtn,outStatus,outClock,{kind:'blocked',status:'Abwesenheit eingetragen',clock:'–',disabled:true});
+    return;
+  }
   if(expected==='in'){
     applyPunchVisual(inBtn,inStatus,inClock,{kind:availability.allowed?'active':'waiting',status:availability.allowed?'Jetzt möglich':`möglich ab ${availability.availableAt}`,clock:currentIn,disabled:!availability.allowed});
     if(last&&last.type==='out')applyPunchVisual(outBtn,outStatus,outClock,{kind:'booked',status:`Gebucht um ${last.logged||roundLogged(last.actual,'out')}`,clock:last.logged||roundLogged(last.actual,'out'),disabled:true});
@@ -632,16 +747,24 @@ function updateClock(){
   if(document.body.classList.contains('today-fixed'))updateTodayPunchState();
 }
 function renderToday(){
-  ensureHolidayYear(new Date().getFullYear());const d=dayObject(todayKey());
-  updateClock();$('pauseButtonLabel').textContent=Number(d.pauseMinutes)?`Manuelle Pause · ${d.pauseMinutes} Min. ändern`:'Manuelle Pause eintragen';renderTodayCapture(d);
+  ensureHolidayYear(new Date().getFullYear());const d=dayObject(todayKey()),pause=Number(d.pauseMinutes)||0;
+  document.title=`Arbeitszeit PWA · Version ${APP_VERSION}`;
+  updateClock();
+  $('pauseButtonLabel').textContent='Manuelle Pause';$('pauseButtonSub').textContent=pause?`${pause} Minuten eingetragen · ändern`:'Pause eintragen';
+  const banner=$('todayAbsenceBanner'),full=hasFullAbsence(d),half=d.absence&&absenceDuration(d)==='half';
+  banner.hidden=!d.absence;document.querySelector('.punch-grid').classList.toggle('absence-full',full);
+  if(d.absence){
+    $('todayAbsenceTitle').textContent=half?`Heute: ${d.absence} (halber Tag)`:`Heute ist ${d.absence} eingetragen`;
+    $('todayAbsenceText').textContent=half?`${formatDuration(absenceCreditMinutes(d),{signed:false})} Stunden werden angerechnet; Arbeitszeitbuchungen bleiben möglich.`:`${formatDuration(absenceCreditMinutes(d),{signed:false})} Stunden werden als Sollzeit berücksichtigt.`;
+  }
+  renderTodayCapture(d);
 }
 function renderTodayCapture(d){
   const entries=d.entries||[],blocks=[];
   for(let i=0;i<entries.length;i+=2){const come=entries[i]?.type==='in'?entries[i]:null,go=entries[i+1]?.type==='out'?entries[i+1]:null;if(come)blocks.push({come,go})}
-  const maxBlocks=window.innerHeight<700?3:4,omitted=Math.max(0,blocks.length-maxBlocks),visible=blocks.slice(-maxBlocks);
-  const count=entries.length;$('todayBookingCount').innerHTML=`${count} ${count===1?'Buchung':'Buchungen'}${omitted?` <span class="capture-overflow">· ${omitted} frühere</span>`:''}`;
-  if(!visible.length){$('todayCaptureList').innerHTML='<div class="capture-empty"><div><b>Noch keine Buchungen</b>Starte den Tag mit „Kommen“.</div></div>';return}
-  $('todayCaptureList').innerHTML=visible.map((b,i)=>{const no=omitted+i+1,come=b.come.logged||roundLogged(b.come.actual,'in'),go=b.go?(b.go.logged||roundLogged(b.go.actual,'out')):'offen';return `<button type="button" class="block-row" onclick="openTodayInTimes()" aria-label="Arbeitsblock ${no} unter Zeiten öffnen"><span class="block-no">${no}</span><span class="block-time in"><i class="block-dot"></i>${esc(come)}</span><span class="block-time out ${b.go?'':'open'}"><i class="block-dot"></i>${esc(go)}</span><svg class="block-chev icon" viewBox="0 0 24 24"><path d="m9 6 6 6-6 6"/></svg></button>`}).join('');
+  const count=entries.length;$('todayBookingCount').textContent=`${count} ${count===1?'Buchung':'Buchungen'}`;
+  if(!blocks.length){const text=hasFullAbsence(d)?'Für die ganztägige Abwesenheit sind keine Arbeitszeitbuchungen erforderlich.':'Starte den Tag mit „Kommen“.';$('todayCaptureList').innerHTML=`<div class="capture-empty"><div><b>Noch keine Buchungen</b>${esc(text)}</div></div>`;return}
+  $('todayCaptureList').innerHTML=blocks.map((b,i)=>{const no=i+1,come=b.come.logged||roundLogged(b.come.actual,'in'),go=b.go?(b.go.logged||roundLogged(b.go.actual,'out')):'offen';return `<button type="button" class="block-row" onclick="openTodayInTimes()" aria-label="Arbeitsblock ${no} unter Zeiten öffnen"><span class="block-no">${no}</span><span class="block-time in"><i class="block-dot"></i>${esc(come)}</span><span class="block-time out ${b.go?'':'open'}"><i class="block-dot"></i>${esc(go)}</span><svg class="block-chev icon" viewBox="0 0 24 24"><path d="m9 6 6 6-6 6"/></svg></button>`}).join('');
 }
 function openTodayInTimes(){state.settings.lastEditedDay=todayKey();saveState();showScreen('times')}
 function performPunch(type){
@@ -685,14 +808,17 @@ function renderDayView(k){
   const rows=entries.length?entries.map((e,i)=>`<tr><td>${i+1}</td><td>${e.type==='in'?'Kommen':'Gehen'}</td><td class="num">${esc(e.actual||'–')}</td><td class="num">${esc(e.logged||'–')}</td><td><span class="booking-source">${esc(entrySource(d,e))}</span></td></tr>`).join(''):`<tr><td colspan="5" class="empty">Keine Buchungen vorhanden</td></tr>`;
   let inNo=0,outNo=0;
   const mobileRows=entries.length?entries.map(e=>{const no=e.type==='in'?++inNo:++outNo,label=e.type==='in'?`Kommen ${no}`:`Gehen ${no}`;return `<article class="booking-mobile-item ${e.type}"><div class="booking-mobile-head"><span class="booking-type-icon">${e.type==='in'?SVG.in:SVG.out}</span><div><b class="booking-mobile-title">${label}</b><span class="booking-mobile-source">${esc(entrySource(d,e))}</span></div><button type="button" class="edit-icon-btn" onclick="openDayEditor('${k}')" aria-label="${label} bearbeiten">${SVG.edit}</button></div><div class="booking-mobile-times"><div class="booking-mobile-time"><span>Tatsächlich</span><b>${esc(e.actual||'–')}</b></div><div class="booking-mobile-time"><span>Dokumentiert</span><b>${esc(e.logged||'–')}</b></div></div></article>`}).join(''):`<div class="empty">Keine Buchungen vorhanden</div>`;
+  const groupCount=d.absenceGroupId?absenceGroupDays(d.absenceGroupId).length:1;
+  const absenceCard=d.absence?`<div class="card detail-list absence-detail-card"><div class="detail-row"><span>Abwesenheit</span><b>${esc(d.absence)}</b></div><div class="detail-row"><span>Umfang</span><b>${absenceDuration(d)==='half'?'Halber Tag':'Ganzer Tag'}</b></div><div class="detail-row"><span>Angerechnete Zeit</span><b class="absence-credit">${formatDuration(absenceCreditMinutes(d),{signed:false})}</b></div><div class="detail-row"><span>Notiz</span><div class="value">${esc(d.absenceNote||'–')}</div></div><div class="absence-actions-inline"><button type="button" onclick="openAbsenceEditorForDay('${k}','day')">Diesen Tag bearbeiten</button>${groupCount>1?`<button type="button" onclick="openAbsenceEditorForDay('${k}','group')">Zeitraum bearbeiten</button>`:''}<button type="button" class="danger" onclick="deleteAbsenceForDay('${k}','day')">Diesen Tag löschen</button>${groupCount>1?`<button type="button" class="danger" onclick="deleteAbsenceForDay('${k}','group')">Zeitraum löschen</button>`:''}</div></div>`:'';
   $('timesContent').innerHTML=`
     <div class="date-nav"><button type="button" onclick="changeDay(-1)" aria-label="Vorheriger Tag">‹</button><input type="date" id="dayPicker" value="${k}" aria-label="Datum auswählen"><button type="button" onclick="changeDay(1)" aria-label="Nächster Tag">›</button></div>
     <div class="card day-summary"><div class="day-heading"><div><h2>${esc(formatDate(k,{weekday:'short',day:'2-digit',month:'2-digit',year:'numeric'}))}</h2><div class="day-meta">${esc(source)}</div></div><span class="badge ${statusClass}">${esc(status)}</span></div>
       <div class="balance-hero"><span>Zeitkontostand nach diesem Tag</span><strong class="${balanceThrough(k)<0?'red':'green'}">${formatDuration(balanceThrough(k))}</strong></div>
       <div class="metric-grid"><div class="metric"><span>Brutto</span><b>${formatDuration(c.gross,{signed:false})}</b></div><div class="metric"><span>Netto</span><b>${formatDuration(c.net,{signed:false})}</b></div><div class="metric"><span>Soll</span><b>${formatDuration(c.target,{signed:false})}</b></div><div class="metric"><span>Differenz</span><b class="${c.diff<0?'red':'green'}">${formatDuration(c.diff)}</b></div></div>
     </div>
+    ${absenceCard}
     <div class="card booking-card"><h3 class="booking-section-title">Buchungen</h3><div class="booking-table-wrap table-scroll"><table class="booking-table"><thead><tr><th>Nr.</th><th>Art</th><th class="num">Tatsächlich</th><th class="num">Dokumentiert</th><th>Herkunft</th></tr></thead><tbody>${rows}</tbody></table></div><div class="booking-mobile-list">${mobileRows}</div></div>
-    <div class="card detail-list"><div class="detail-row"><span>Manuelle Pause</span><b>${Number(d.pauseMinutes)||0} Min.</b></div><div class="detail-row"><span>Abwesenheit</span><b>${esc(d.absence||'–')}</b></div><div class="detail-row"><span>Kommentar / Tagesnotiz</span><div class="value">${esc(d.note||'–')}</div></div><div class="detail-row"><span>Herkunft / Änderung</span><div class="value">${esc(source)}</div></div></div>
+    <div class="card detail-list"><div class="detail-row"><span>Manuelle Pause</span><b>${Number(d.pauseMinutes)||0} Min.</b></div><div class="detail-row"><span>Kommentar / Tagesnotiz</span><div class="value">${esc(d.note||'–')}</div></div><div class="detail-row"><span>Herkunft / Änderung</span><div class="value">${esc(source)}</div></div></div>
     <button type="button" class="primary-btn" onclick="openDayEditor('${k}')">Tag bearbeiten</button><button type="button" class="secondary-btn" onclick="dayReport('${k}')">Tagesbericht öffnen</button>`;
   $('dayPicker').addEventListener('change',e=>{cursorDate=parseDateKey(e.target.value);renderDayView(e.target.value)});
 }
@@ -729,7 +855,7 @@ function earliestYear(){return Math.min(...Object.keys(state.days).map(k=>Number
 function renderMonthOverview(){
   const now=new Date(),items=[];
   for(let y=now.getFullYear();y>=earliestYear();y--){const maxM=y===now.getFullYear()?now.getMonth():11;for(let m=maxM;m>=0;m--)items.push({y,m})}
-  $('timesContent').innerHTML=`<div class="period-list">${items.map(({y,m})=>{const s=monthSummary(y,m),name=new Intl.DateTimeFormat('de-DE',{month:'long',year:'numeric'}).format(new Date(y,m,1)),running=s.cutoff<s.calendarEnd;return `<article class="period-card"><button type="button" onclick="openMonthDetail(${y},${m})"><div class="period-top"><div><h3>${esc(name)}</h3><div class="muted" style="font-size:12px;margin-top:3px">${running?'Stichtag '+formatDate(s.cutoff,{day:'2-digit',month:'2-digit',year:'numeric'}):'Abgeschlossener Monat'}</div></div><div class="period-balance"><span>Monatsdifferenz</span><strong class="${s.diff<0?'red':'green'}">${formatDuration(s.diff)}</strong></div></div><div class="metric-lines"><div class="metric-line"><span>Übertrag aus Vormonat</span><b>${formatDuration(s.opening)}</b></div><div class="metric-line"><span>${running?'Zeitkonto zum Stichtag':'Zeitkonto Monatsende'}</span><b class="${s.closing<0?'red':'green'}">${formatDuration(s.closing)}</b></div><div class="metric-line"><span>Soll / Netto / Pause</span><b>${formatDuration(s.target,{signed:false})} / ${formatDuration(s.net,{signed:false})} / ${formatDuration(s.pause,{signed:false})}</b></div><div class="metric-line"><span>Urlaub / Krankheit / Sonstige</span><b>${s.vacation} / ${s.sick} / ${s.other}</b></div><div class="metric-line"><span>Unvollständige Tage</span><b>${s.incomplete}</b></div></div></button></article>`}).join('')}</div>`;
+  $('timesContent').innerHTML=`<div class="period-list">${items.map(({y,m})=>{const s=monthSummary(y,m),name=new Intl.DateTimeFormat('de-DE',{month:'long',year:'numeric'}).format(new Date(y,m,1)),running=s.cutoff<s.calendarEnd;return `<article class="period-card"><button type="button" onclick="openMonthDetail(${y},${m})"><div class="period-top"><div><h3>${esc(name)}</h3><div class="muted" style="font-size:12px;margin-top:3px">${running?'Stichtag '+formatDate(s.cutoff,{day:'2-digit',month:'2-digit',year:'numeric'}):'Abgeschlossener Monat'}</div></div><div class="period-balance"><span>Monatsdifferenz</span><strong class="${s.diff<0?'red':'green'}">${formatDuration(s.diff)}</strong></div></div><div class="metric-lines"><div class="metric-line"><span>Übertrag aus Vormonat</span><b>${formatDuration(s.opening)}</b></div><div class="metric-line"><span>${running?'Zeitkonto zum Stichtag':'Zeitkonto Monatsende'}</span><b class="${s.closing<0?'red':'green'}">${formatDuration(s.closing)}</b></div><div class="metric-line"><span>Soll / Netto / Pause</span><b>${formatDuration(s.target,{signed:false})} / ${formatDuration(s.net,{signed:false})} / ${formatDuration(s.pause,{signed:false})}</b></div><div class="metric-line"><span>Urlaub / Krankheit / Zeitausgleich / Sonstige</span><b>${formatDayCount(s.vacation)} / ${formatDayCount(s.sick)} / ${formatDayCount(s.timeOff||0)} / ${formatDayCount(s.other)}</b></div><div class="metric-line"><span>Unvollständige Tage</span><b>${s.incomplete}</b></div></div></button></article>`}).join('')}</div>`;
 }
 function openMonthDetail(y,m){currentView='month';document.querySelectorAll('[data-view]').forEach(b=>b.classList.toggle('active',b.dataset.view==='month'));monthDrill={y,m};const start=`${y}-${pad(m+1)}-01`,end=dateKey(new Date(y,m+1,0,12)),s=monthSummary(y,m),name=new Intl.DateTimeFormat('de-DE',{month:'long',year:'numeric'}).format(new Date(y,m,1)),running=s.cutoff<s.calendarEnd;
   const rows=s.days.length?s.days.map(d=>{const c=calculateDay(d),first=(d.entries||[]).find(e=>e.type==='in'),last=[...(d.entries||[])].reverse().find(e=>e.type==='out');return `<tr><td class="date-cell">${formatDate(d.date,{day:'2-digit',month:'2-digit',year:'numeric'})}</td><td>${esc(dayStatus(d))}</td><td class="num">${esc(first?.logged||'–')}</td><td class="num">${esc(last?.logged||'–')}</td><td class="num">${Number(d.pauseMinutes)||0}</td><td class="num">${formatDuration(c.net,{signed:false})}</td><td class="num ${c.diff<0?'red':'green'}">${formatDuration(c.diff)}</td><td class="num">${formatDuration(balanceThrough(d.date))}</td><td class="action-cell"><button type="button" class="edit-icon-btn" onclick="openDayEditor('${d.date}')" aria-label="${d.date} bearbeiten">${SVG.edit}</button></td></tr>`}).join(''):`<tr><td colspan="9" class="empty">Keine relevanten Tagesdaten</td></tr>`;
@@ -737,14 +863,14 @@ function openMonthDetail(y,m){currentView='month';document.querySelectorAll('[da
 }
 function renderYearOverview(){
   const now=new Date(),years=[];for(let y=now.getFullYear();y>=earliestYear();y--)years.push(y);
-  $('timesContent').innerHTML=`<div class="period-list">${years.map(y=>{const s=yearSummary(y),imported=y<=2025?'Geprüftes / archiviertes Jahr':'Aktueller Stand';return `<article class="period-card"><button type="button" onclick="openYearDetail(${y})"><div class="period-top"><div><h3>${y}</h3><div class="muted" style="font-size:12px;margin-top:3px">${imported}</div></div><div class="period-balance"><span>Jahresveränderung</span><strong class="${s.diff<0?'red':'green'}">${formatDuration(s.diff)}</strong></div></div><div class="metric-lines"><div class="metric-line"><span>Übertrag aus dem Vorjahr</span><b>${formatDuration(s.opening)}</b></div><div class="metric-line"><span>Zeitkonto ${y===now.getFullYear()?'zum Stichtag':'Jahresende'}</span><b class="${s.closing<0?'red':'green'}">${formatDuration(s.closing)}</b></div><div class="metric-line"><span>Soll / Netto / Pause</span><b>${formatDuration(s.target,{signed:false})} / ${formatDuration(s.net,{signed:false})} / ${formatDuration(s.pause,{signed:false})}</b></div><div class="metric-line"><span>Urlaub / Krankheit / Sonstige</span><b>${s.vacation} / ${s.sick} / ${s.other}</b></div></div></button></article>`}).join('')}</div>`;
+  $('timesContent').innerHTML=`<div class="period-list">${years.map(y=>{const s=yearSummary(y),imported=y<=2025?'Geprüftes / archiviertes Jahr':'Aktueller Stand';return `<article class="period-card"><button type="button" onclick="openYearDetail(${y})"><div class="period-top"><div><h3>${y}</h3><div class="muted" style="font-size:12px;margin-top:3px">${imported}</div></div><div class="period-balance"><span>Jahresveränderung</span><strong class="${s.diff<0?'red':'green'}">${formatDuration(s.diff)}</strong></div></div><div class="metric-lines"><div class="metric-line"><span>Übertrag aus dem Vorjahr</span><b>${formatDuration(s.opening)}</b></div><div class="metric-line"><span>Zeitkonto ${y===now.getFullYear()?'zum Stichtag':'Jahresende'}</span><b class="${s.closing<0?'red':'green'}">${formatDuration(s.closing)}</b></div><div class="metric-line"><span>Soll / Netto / Pause</span><b>${formatDuration(s.target,{signed:false})} / ${formatDuration(s.net,{signed:false})} / ${formatDuration(s.pause,{signed:false})}</b></div><div class="metric-line"><span>Urlaub / Krankheit / Zeitausgleich / Sonstige</span><b>${formatDayCount(s.vacation)} / ${formatDayCount(s.sick)} / ${formatDayCount(s.timeOff||0)} / ${formatDayCount(s.other)}</b></div></div></button></article>`}).join('')}</div>`;
 }
 function openYearDetail(y){
   const cards=[];for(let m=11;m>=0;m--){if(y===new Date().getFullYear()&&m>new Date().getMonth())continue;const s=monthSummary(y,m),running=s.cutoff<s.calendarEnd;cards.push(`<article class="period-card"><button type="button" onclick="openMonthDetail(${y},${m})"><div class="period-top"><h3>${new Intl.DateTimeFormat('de-DE',{month:'long'}).format(new Date(y,m,1))}</h3><div class="period-balance"><span>Monatsdifferenz</span><strong class="${s.diff<0?'red':'green'}">${formatDuration(s.diff)}</strong></div></div><div class="metric-lines"><div class="metric-line"><span>${running?'Zeitkonto zum Stichtag':'Zeitkonto Monatsende'}</span><b>${formatDuration(s.closing)}</b></div><div class="metric-line"><span>Netto / Soll</span><b>${formatDuration(s.net,{signed:false})} / ${formatDuration(s.target,{signed:false})}</b></div></div></button></article>`)}
   $('timesContent').innerHTML=`<div class="back-row"><button type="button" onclick="renderYearOverview()">‹ Alle Jahre</button><b>${y}</b></div><div class="period-list">${cards.join('')}</div><button type="button" class="secondary-btn" onclick="yearReport(${y})">Jahresbericht öffnen</button>`;
 }
 function openDayEditor(k){
-  const d=dayObject(k);editingEntries=clone(d.entries||[]);$('editDate').value=k;$('editPause').value=Number(d.pauseMinutes)||0;$('editAbsence').value=d.absence||'';$('editNote').value=d.note||'';renderEntryEditors();openModal('dayModal')
+  const d=dayObject(k);editingEntries=clone(d.entries||[]);$('editDate').value=k;$('editPause').value=Number(d.pauseMinutes)||0;$('editNote').value=d.note||'';$('dayAbsenceEditorSummary').textContent=absenceSummaryText(d);$('restoreImportBtn').hidden=!IMPORTED_BY_DATE[k];$('deleteDayBtn').disabled=!(d.entries||[]).length&&!Number(d.pauseMinutes);renderEntryEditors();openModal('dayModal')
 }
 function renderEntryEditors(){
   $('entryEditors').innerHTML=editingEntries.length?`<div class="entry-editor"><div class="entry-editor-head"><span>Art</span><span>Tatsächlich</span><span>Dokumentiert</span><span></span></div>${editingEntries.map((e,i)=>`<div class="entry-edit-row"><select data-entry-type="${i}"><option value="in" ${e.type==='in'?'selected':''}>Kommen</option><option value="out" ${e.type==='out'?'selected':''}>Gehen</option></select><input data-entry-actual="${i}" type="time" value="${esc(e.actual||'')}"><input data-entry-logged="${i}" type="time" value="${esc(e.logged||'')}"><button type="button" class="remove-entry" data-remove-entry="${i}" aria-label="Buchung löschen">×</button></div>`).join('')}</div>`:'<div class="empty">Noch keine Buchungen</div>';
@@ -756,16 +882,20 @@ function renderEntryEditors(){
 function addEditingEntry(){const type=!editingEntries.length||editingEntries.at(-1).type==='out'?'in':'out',actual=hm();editingEntries.push({type,actual,logged:roundLogged(actual,type),source:'manual',edited:true});renderEntryEditors()}
 function saveEditedDay(){
   const oldKey=$('dayModal').dataset.originalDate||$('editDate').value,newKey=$('editDate').value;if(!newKey)return;
-  const existing=dayObject(oldKey),d=clone(existing);d.date=newKey;d.entries=editingEntries.map(e=>({...e,source:'manual',edited:true}));d.pauseMinutes=Math.max(0,Number($('editPause').value)||0);d.absence=$('editAbsence').value||null;d.note=$('editNote').value.trim();d.edited=true;d.modifiedAt=new Date().toISOString();d.archived=Number(newKey.slice(0,4))<new Date().getFullYear();
+  const existing=dayObject(oldKey),d=clone(existing);d.date=newKey;d.entries=editingEntries.map(e=>({...e,source:'manual',edited:true}));d.pauseMinutes=Math.max(0,Number($('editPause').value)||0);d.note=$('editNote').value.trim();d.edited=true;d.modifiedAt=new Date().toISOString();d.archived=Number(newKey.slice(0,4))<new Date().getFullYear();
   const validation=validateEntries(d.entries);if(d.entries.length&&!validation.plausible){alert('Die Buchungen können nicht gespeichert werden. Kommen und Gehen müssen sich abwechseln; jede dokumentierte Uhrzeit muss mindestens fünf Minuten nach der vorherigen liegen.');return}
-  if(oldKey!==newKey)delete state.days[oldKey];state.days[newKey]=d;touchDay(newKey);cursorDate=parseDateKey(newKey);closeModal('dayModal');renderTimes();showToast('Tag gespeichert');
+  if(oldKey!==newKey)delete state.days[oldKey];state.days[newKey]=d;touchDay(newKey);cursorDate=parseDateKey(newKey);closeModal('dayModal');refreshAllDerivedViews();showToast('Tag gespeichert');
 }
 function deleteEditedDay(){
-  const k=$('editDate').value;if(!confirm('Diesen Tag vollständig zurücksetzen? Importierte Ursprungsdaten werden, soweit vorhanden, wiederhergestellt.'))return;
-  const original=IMPORTED.find(d=>d.date===k);if(original)state.days[k]=clone(original);else delete state.days[k];touchDay(k);closeModal('dayModal');renderTimes();showToast('Tag zurückgesetzt');
+  const k=$('editDate').value,d=clone(dayObject(k,true));if(!confirm('Alle Kommen-, Gehen- und Pausenbuchungen dieses Tages dauerhaft löschen? Eine vorhandene Abwesenheit und Tagesnotiz bleiben erhalten.'))return;
+  d.entries=[];d.pauseMinutes=0;d.edited=true;d.importCleared=!!IMPORTED_BY_DATE[k];d.modifiedAt=new Date().toISOString();state.days[k]=d;touchDay(k);closeModal('dayModal');refreshAllDerivedViews();showToast('Alle Buchungen gelöscht');
 }
-function openModal(id){$(id).classList.add('open');if(id==='dayModal')$('dayModal').dataset.originalDate=$('editDate').value}
-function closeModal(id){$(id).classList.remove('open')}
+function openModal(id){
+  const modal=$(id);lastModalFocus=document.activeElement;modal.classList.add('open');document.body.classList.add('modal-open');if(id==='dayModal')$('dayModal').dataset.originalDate=$('editDate').value;setTimeout(()=>modal.querySelector('input,select,textarea,button')?.focus(),60)
+}
+function closeModal(id){
+  const modal=$(id);modal.classList.remove('open');if(!document.querySelector('.modal.open'))document.body.classList.remove('modal-open');if(lastModalFocus&&document.contains(lastModalFocus))lastModalFocus.focus({preventScroll:true})
+}
 function openPauseModal(){$('quickPause').value=Number(dayObject(todayKey()).pauseMinutes)||0;openModal('pauseModal');setTimeout(()=>$('quickPause').focus(),80)}
 function saveQuickPause(){const k=todayKey(),d=dayObject(k,true);d.pauseMinutes=Math.max(0,Number($('quickPause').value)||0);d.edited=true;d.modifiedAt=new Date().toISOString();state.days[k]=d;touchDay(k);closeModal('pauseModal');renderToday();showToast('Pause gespeichert')}
 
@@ -788,8 +918,73 @@ function renderOvertimeChart(){
   let picked=items.find(i=>i.key===chartSelection?.key&&chartSelection.kind===chartMode)||available.at(-1);if(!picked){detail.innerHTML='<span>Für diese Auswahl liegen noch keine Werte vor.</span>';return}chartSelection={kind:chartMode,key:picked.key};
   const s=picked.summary;detail.innerHTML=`<b>${esc(picked.name)}</b><div><span>${chartMode==='month'?'Monatsdifferenz':'Jahresveränderung'}</span><strong class="${s.diff<0?'red':'green'}">${formatDuration(s.diff)}</strong></div><div><span>Zeitkonto ${s.cutoff<`${picked.key}-99`?'zum Stichtag':'am Ende'}</span><strong>${formatDuration(s.closing)}</strong></div><div><span>Netto / Soll</span><strong>${formatDuration(s.net,{signed:false})} / ${formatDuration(s.target,{signed:false})}</strong></div>`;
 }
+
+function refreshAllDerivedViews(){
+  renderToday();
+  if($('times').classList.contains('active'))renderTimes();
+  if($('reports').classList.contains('active'))renderReports();
+  if($('settings').classList.contains('active'))renderSettings();
+}
+function restoreImportedDay(){
+  const k=$('editDate').value,original=IMPORTED_BY_DATE[k];if(!original)return;
+  if(!confirm('Lokale Änderungen dieses Tages verwerfen und die ursprünglichen Importdaten vollständig wiederherstellen?'))return;
+  state.days[k]=clone(original);touchDay(k);closeModal('dayModal');refreshAllDerivedViews();showToast('Importdaten wiederhergestellt');
+}
+function openQuickAdd(){openModal('quickAddModal')}
+function openManualTimeQuick(){closeModal('quickAddModal');showScreen('times');cursorDate=parseDateKey(todayKey());renderDayView(todayKey());openDayEditor(todayKey())}
+function setAbsenceType(code){$('absenceType').value=code||'vacation'}
+function openNewAbsence(code='vacation',date=todayKey()){
+  closeModal('quickAddModal');absenceEditorContext={mode:'new',scope:'range',originalGroupId:null,sourceDate:date};
+  $('absenceModalTitle').textContent='Abwesenheit eintragen';setAbsenceType(code);$('absenceFrom').value=date;$('absenceTo').value=date;$('absenceExtent').value='full';$('absenceNote').value='';$('absenceConflictPolicy').value='abort';$('absenceDeleteActions').hidden=true;updateAbsenceSummary();openModal('absenceModal');
+}
+function openAbsenceEditorForDay(k,scope='day'){
+  const d=dayObject(k);if(!d.absence){openNewAbsence('vacation',k);return}
+  const group=scope==='group'&&d.absenceGroupId?absenceGroupDays(d.absenceGroupId):[d],from=group[0]?.date||k,to=group.at(-1)?.date||k;
+  absenceEditorContext={mode:'edit',scope,originalGroupId:d.absenceGroupId||null,sourceDate:k,originalDates:group.map(x=>x.date)};
+  $('absenceModalTitle').textContent=scope==='group'?'Abwesenheitszeitraum bearbeiten':'Abwesenheitstag bearbeiten';setAbsenceType(d.absenceCode||absenceCodeFromLabel(d.absence));$('absenceFrom').value=from;$('absenceTo').value=to;$('absenceExtent').value=absenceDuration(d);$('absenceNote').value=d.absenceNote||'';$('absenceConflictPolicy').value='abort';$('absenceDeleteActions').hidden=false;$('deleteAbsenceGroupBtn').hidden=!(d.absenceGroupId&&absenceGroupDays(d.absenceGroupId).length>1);updateAbsenceSummary();openModal('absenceModal');
+}
+function absenceConflict(k,excludeGroupId){
+  const d=state.days[k];if(!d)return false;
+  const otherAbsence=d.absence&&(!excludeGroupId||d.absenceGroupId!==excludeGroupId);
+  return !!((d.entries||[]).length||Number(d.pauseMinutes)||otherAbsence);
+}
+function absencePlan(){
+  const from=$('absenceFrom').value,to=$('absenceTo').value,extent=$('absenceExtent').value;if(!from||!to||from>to)return{error:'Das Von-Datum darf nicht nach dem Bis-Datum liegen.'};
+  const range=dateRange(from,to),workdays=range.filter(isAbsenceWorkday),exclude=absenceEditorContext?.originalGroupId||null,conflicts=workdays.filter(k=>absenceConflict(k,exclude)),factor=extent==='half'?.5:1,total=workdays.reduce((n,k)=>n+Math.round(targetMinutesForDate(k)*factor),0);
+  return{from,to,range,workdays,conflicts,factor,total};
+}
+function updateAbsenceSummary(){
+  const box=$('absenceSummary'),plan=absencePlan();if(plan.error){box.innerHTML=`<b>Eingaben prüfen</b>${esc(plan.error)}`;return}
+  const type=absenceLabel($('absenceType').value),extent=$('absenceExtent').value==='half'?'Halber Tag':'Ganzer Tag',weekendCount=plan.range.length-plan.workdays.length;
+  box.innerHTML=`<b>${esc(type)} · ${extent}</b><div class="summary-line"><span>Kalenderzeitraum</span><strong>${formatDate(plan.from,{day:'2-digit',month:'2-digit',year:'numeric'})} – ${formatDate(plan.to,{day:'2-digit',month:'2-digit',year:'numeric'})}</strong></div><div class="summary-line"><span>Berücksichtigte Arbeitstage</span><strong>${plan.workdays.length}</strong></div><div class="summary-line"><span>Angerechnete Gesamtzeit</span><strong>${formatDuration(plan.total,{signed:false})}</strong></div>${weekendCount?`<div class="summary-line"><span>Ausgelassene Wochenend-/Feiertage</span><strong>${weekendCount}</strong></div>`:''}${plan.conflicts.length?`<div class="conflict">Konflikte an ${plan.conflicts.length} Tag(en): ${plan.conflicts.slice(0,4).map(k=>formatDate(k,{day:'2-digit',month:'2-digit'})).join(', ')}${plan.conflicts.length>4?' …':''}</div>`:'<div class="summary-line"><span>Konflikte</span><strong>Keine</strong></div>'}`;
+}
+function saveAbsence(){
+  const plan=absencePlan();if(plan.error){alert(plan.error);return}if(!plan.workdays.length){alert('Im ausgewählten Zeitraum liegt kein berücksichtigter Arbeitstag. Wochenenden und Feiertage werden ausgelassen.');return}
+  const policy=$('absenceConflictPolicy').value;if(plan.conflicts.length&&policy==='abort'){alert('Es bestehen Konflikte mit vorhandenen Buchungen oder einer anderen Abwesenheit. Wähle „überspringen“ oder „ersetzen“, oder passe den Zeitraum an.');return}
+  if(plan.conflicts.length&&policy==='replace'&&!confirm(`${plan.conflicts.length} betroffene Tag(e) enthalten vorhandene Buchungen oder Abwesenheiten. Diese Einträge wirklich ersetzen?`))return;
+  const context=absenceEditorContext||{mode:'new'},oldGroup=context.originalGroupId,groupId=context.scope==='group'&&oldGroup?oldGroup:newAbsenceGroupId(),code=$('absenceType').value,label=absenceLabel(code),extent=$('absenceExtent').value,note=$('absenceNote').value.trim(),nowIso=new Date().toISOString();
+  const selected=policy==='skip'?plan.workdays.filter(k=>!plan.conflicts.includes(k)):plan.workdays;
+  if(!selected.length){alert('Alle berücksichtigten Tage wurden wegen vorhandener Konflikte übersprungen.');return}
+  if(context.mode==='edit'){
+    const oldDates=context.scope==='group'&&oldGroup?absenceGroupDays(oldGroup).map(d=>d.date):[context.sourceDate];
+    oldDates.forEach(k=>{const d=state.days[k];if(d){clearAbsenceFields(d);d.edited=true;d.modifiedAt=nowIso;state.days[k]=d}});
+  }
+  selected.forEach(k=>{
+    const d=clone(dayObject(k,true));
+    if(policy==='replace'&&plan.conflicts.includes(k)){d.entries=[];d.pauseMinutes=0;if(IMPORTED_BY_DATE[k])d.importCleared=true;clearAbsenceFields(d)}
+    d.absence=label;d.absenceCode=code;d.absenceDuration=extent;d.absenceMinutes=Math.round(targetMinutesForDate(k)*(extent==='half'?.5:1));d.absenceNote=note;d.absenceGroupId=groupId;d.absenceCreatedAt=d.absenceCreatedAt||nowIso;d.absenceUpdatedAt=nowIso;d.edited=true;d.modifiedAt=nowIso;d.archived=Number(k.slice(0,4))<new Date().getFullYear();state.days[k]=d;
+  });
+  state.settings.lastEditedDay=selected[0];state.settings.lastActivityAt=nowIso;saveState();cursorDate=parseDateKey(selected[0]);closeModal('absenceModal');refreshAllDerivedViews();showToast(`${label} für ${selected.length} Arbeitstag(e) gespeichert`);
+}
+function deleteAbsenceForDay(k,scope='day'){
+  const d=state.days[k];if(!d?.absence)return;const dates=scope==='group'&&d.absenceGroupId?absenceGroupDays(d.absenceGroupId).map(x=>x.date):[k],what=dates.length>1?`den gesamten Abwesenheitszeitraum mit ${dates.length} Arbeitstagen`:'die Abwesenheit dieses Tages';
+  if(!confirm(`${what} löschen? Vorhandene Arbeitszeitbuchungen bleiben erhalten.`))return;
+  const nowIso=new Date().toISOString();dates.forEach(date=>{const day=state.days[date];if(!day)return;clearAbsenceFields(day);day.edited=true;day.modifiedAt=nowIso;if(IMPORTED_BY_DATE[date])day.importCleared=true;state.days[date]=day});state.settings.lastEditedDay=k;saveState();closeModal('absenceModal');refreshAllDerivedViews();showToast(dates.length>1?'Abwesenheitszeitraum gelöscht':'Abwesenheit gelöscht');
+}
+function deleteAbsenceFromModal(scope){const k=absenceEditorContext?.sourceDate||$('absenceFrom').value;deleteAbsenceForDay(k,scope)}
+
 function renderSettings(){
-  $('employeeName').value=state.settings.employeeName||'';$('targetHours').value=clockFromMinutes(state.settings.targetMinutes||480);$('checkpointBalance').value=formatDuration(state.settings.balanceCheckpointMinutes||CHECKPOINT_MINUTES);$('freeChristmasEve').checked=state.settings.freeChristmasEve!==false;$('freeNewYearsEve').checked=state.settings.freeNewYearsEve!==false;$('reportSignature').checked=state.settings.reportSignature!==false;
+  $('employeeName').value=state.settings.employeeName||'';$('targetHours').value=clockFromMinutes(state.settings.targetMinutes||480);$('checkpointBalance').value=formatDuration(state.settings.balanceCheckpointMinutes||CHECKPOINT_MINUTES);$('freeChristmasEve').checked=state.settings.freeChristmasEve!==false;$('freeNewYearsEve').checked=state.settings.freeNewYearsEve!==false;$('reportSignature').checked=state.settings.reportSignature!==false;$('appVersion').textContent=`Arbeitszeit PWA · Version ${APP_VERSION}`;
 }
 function saveSettings(){
   const cp=parseSignedTime($('checkpointBalance').value);if(cp===null){showToast('Zeitkonto als +HH:MM eingeben');$('checkpointBalance').value=formatDuration(state.settings.balanceCheckpointMinutes||CHECKPOINT_MINUTES);return}
@@ -799,8 +994,8 @@ function downloadFile(name,text,type){const a=document.createElement('a');a.href
 function exportJSON(){downloadFile(`Arbeitszeit_Backup_${todayKey()}.json`,JSON.stringify(state,null,2),'application/json')}
 function restoreJSON(file){if(!file)return;const r=new FileReader();r.onload=()=>{try{const parsed=JSON.parse(r.result);if(!parsed||typeof parsed!=='object'||!parsed.days)throw new Error('Struktur');state=migrateState(parsed);saveState();renderToday();showToast('Backup wiederhergestellt');setTimeout(()=>location.reload(),500)}catch(e){alert('Die ausgewählte Datei ist kein gültiges Arbeitszeit-Backup.')}};r.readAsText(file)}
 function exportCSV(){
-  const rows=[['Datum','Status','Buchungen tatsächlich','Buchungen dokumentiert','Pause Min.','Brutto Min.','Netto Min.','Soll Min.','Differenz Min.','Zeitkonto Min.','Abwesenheit','Kommentar','Herkunft','Nachträglich geändert']];
-  Object.values(state.days).sort((a,b)=>a.date.localeCompare(b.date)).forEach(d=>{if(!isCountable(d,todayKey()))return;const c=calculateDay(d),actual=(d.entries||[]).map(e=>`${e.type==='in'?'Kommen':'Gehen'} ${e.actual||''}`).join(' | '),logged=(d.entries||[]).map(e=>`${e.type==='in'?'Kommen':'Gehen'} ${e.logged||''}`).join(' | ');rows.push([d.date,dayStatus(d),actual,logged,d.pauseMinutes||0,c.gross,c.net,c.target,c.diff,balanceThrough(d.date),d.absence||'',d.note||'',d.sourceYear?`Import ${d.sourceYear}`:'Lokal',d.edited?'Ja':'Nein'])});
+  const rows=[['Datum','Status','Buchungen tatsächlich','Buchungen dokumentiert','Pause Min.','Brutto Min.','Netto Min.','Soll Min.','Differenz Min.','Zeitkonto Min.','Abwesenheit','Umfang','Angerechnet Min.','Abwesenheits-Vorgang','Abwesenheitsnotiz','Kommentar','Herkunft','Nachträglich geändert']];
+  Object.values(state.days).sort((a,b)=>a.date.localeCompare(b.date)).forEach(d=>{if(!isCountable(d,todayKey()))return;const c=calculateDay(d),actual=(d.entries||[]).map(e=>`${e.type==='in'?'Kommen':'Gehen'} ${e.actual||''}`).join(' | '),logged=(d.entries||[]).map(e=>`${e.type==='in'?'Kommen':'Gehen'} ${e.logged||''}`).join(' | ');rows.push([d.date,dayStatus(d),actual,logged,d.pauseMinutes||0,c.gross,c.net,c.target,c.diff,balanceThrough(d.date),d.absence||'',d.absence?absenceDuration(d):'',d.absence?absenceCreditMinutes(d):0,d.absenceGroupId||'',d.absenceNote||'',d.note||'',d.sourceYear?`Import ${d.sourceYear}`:'Lokal',d.edited?'Ja':'Nein'])});
   const csv='\ufeff'+rows.map(r=>r.map(v=>`"${String(v??'').replaceAll('"','""')}"`).join(';')).join('\n');downloadFile(`Arbeitszeit_${todayKey()}.csv`,csv,'text/csv;charset=utf-8')
 }
 
@@ -815,33 +1010,37 @@ function closePrintPreview(){$('printPreview').classList.remove('open');$('print
 function printCurrentReport(){window.print()}
 function dayReport(k){
   const d=dayObject(k),c=calculateDay(d),entries=d.entries||[],source=d.edited?'Nachträglich geändert':d.sourceYear?`Import ${d.sourceYear}`:'Lokale Erfassung';
-  const summary=`<div class="hero"><span>Zeitkontostand nach diesem Tag</span><strong>${formatDuration(balanceThrough(k))}</strong></div><div class="summary"><div><span>Tagesstatus</span><b>${esc(dayStatus(d))}</b></div><div><span>Bruttoarbeitszeit</span><b>${formatDuration(c.gross,{signed:false})}</b></div><div><span>Nettoarbeitszeit</span><b>${formatDuration(c.net,{signed:false})}</b></div><div><span>Sollzeit</span><b>${formatDuration(c.target,{signed:false})}</b></div><div><span>Tagesdifferenz</span><b>${formatDuration(c.diff)}</b></div><div><span>Pause</span><b>${Number(d.pauseMinutes)||0} Min.</b></div><div><span>Abwesenheit</span><b>${esc(d.absence||'–')}</b></div><div><span>Herkunft / Änderung</span><b>${esc(source)}</b></div><div><span>Kommentar</span><b class="wrap">${esc(d.note||'–')}</b></div></div>`;
+  const summary=`<div class="hero"><span>Zeitkontostand nach diesem Tag</span><strong>${formatDuration(balanceThrough(k))}</strong></div><div class="summary"><div><span>Tagesstatus</span><b>${esc(dayStatus(d))}</b></div><div><span>Bruttoarbeitszeit</span><b>${formatDuration(c.gross,{signed:false})}</b></div><div><span>Nettoarbeitszeit</span><b>${formatDuration(c.net,{signed:false})}</b></div><div><span>Sollzeit</span><b>${formatDuration(c.target,{signed:false})}</b></div><div><span>Tagesdifferenz</span><b>${formatDuration(c.diff)}</b></div><div><span>Pause</span><b>${Number(d.pauseMinutes)||0} Min.</b></div><div><span>Abwesenheit</span><b>${esc(d.absence?`${d.absence} · ${absenceDuration(d)==='half'?'Halber Tag':'Ganzer Tag'}`:'–')}</b></div><div><span>Angerechnete Abwesenheitszeit</span><b>${d.absence?formatDuration(absenceCreditMinutes(d),{signed:false}):'–'}</b></div><div><span>Abwesenheitsnotiz</span><b class="wrap">${esc(d.absenceNote||'–')}</b></div><div><span>Herkunft / Änderung</span><b>${esc(source)}</b></div><div><span>Kommentar</span><b class="wrap">${esc(d.note||'–')}</b></div></div>`;
   const body=entries.length?entries.map((e,i)=>`<tr><td>${i+1}</td><td>${e.type==='in'?'Kommen':'Gehen'}</td><td class="num">${esc(e.actual||'–')}</td><td class="num">${esc(e.logged||'–')}</td><td>${esc(entrySource(d,e))}</td></tr>`).join(''):'<tr><td colspan="5">Keine Buchungen</td></tr>';
   reportShell(`Tagesbericht ${formatDate(k,{day:'2-digit',month:'2-digit',year:'numeric'})}`,formatDate(k),summary,`<table><thead><tr><th>Nr.</th><th>Art</th><th class="num">Tatsächlich</th><th class="num">Dokumentiert</th><th>Herkunft</th></tr></thead><tbody>${body}</tbody></table>`)
 }
 function monthReport(y,m){
   const start=`${y}-${pad(m+1)}-01`,end=dateKey(new Date(y,m+1,0,12)),s=periodSummary(start,end),title=new Intl.DateTimeFormat('de-DE',{month:'long',year:'numeric'}).format(new Date(y,m,1));
-  const summary=`<div class="hero"><span>Zeitkonto Monatsende / Stichtag</span><strong>${formatDuration(s.closing)}</strong></div><div class="summary"><div><span>Übertrag Vormonat</span><b>${formatDuration(s.opening)}</b></div><div><span>Monatsdifferenz</span><b>${formatDuration(s.diff)}</b></div><div><span>Sollzeit</span><b>${formatDuration(s.target,{signed:false})}</b></div><div><span>Nettozeit</span><b>${formatDuration(s.net,{signed:false})}</b></div><div><span>Pausenzeit</span><b>${formatDuration(s.pause,{signed:false})}</b></div><div><span>Urlaubstage</span><b>${s.vacation}</b></div><div><span>Krankheitstage</span><b>${s.sick}</b></div><div><span>Sonstige Abwesenheiten</span><b>${s.other}</b></div><div><span>Unvollständige Tage</span><b>${s.incomplete}</b></div></div>`;
-  const body=s.days.map(d=>{const c=calculateDay(d),ins=(d.entries||[]).filter(e=>e.type==='in').map(e=>e.logged).join(', ')||'–',outs=(d.entries||[]).filter(e=>e.type==='out').map(e=>e.logged).join(', ')||'–';return `<tr><td>${formatDate(d.date,{day:'2-digit',month:'2-digit',year:'numeric'})}</td><td>${esc(dayStatus(d))}</td><td class="num">${esc(ins)}</td><td class="num">${esc(outs)}</td><td class="num">${Number(d.pauseMinutes)||0}</td><td class="num">${formatDuration(c.net,{signed:false})}</td><td class="num">${formatDuration(c.target,{signed:false})}</td><td class="num">${formatDuration(c.diff)}</td><td class="num">${formatDuration(balanceThrough(d.date))}</td><td class="wrap">${esc(d.note||'')}</td></tr>`}).join('');
-  reportShell(`Monatsbericht ${title}`,`Zeitraum: ${formatDate(start,{day:'2-digit',month:'2-digit',year:'numeric'})} bis ${formatDate(s.cutoff,{day:'2-digit',month:'2-digit',year:'numeric'})}`,summary,`<table><thead><tr><th>Datum</th><th>Status</th><th class="num">Kommen</th><th class="num">Gehen</th><th class="num">Pause</th><th class="num">Netto</th><th class="num">Soll</th><th class="num">Diff.</th><th class="num">Zeitkonto</th><th>Kommentar</th></tr></thead><tbody>${body}</tbody></table>`)
+  const summary=`<div class="hero"><span>Zeitkonto Monatsende / Stichtag</span><strong>${formatDuration(s.closing)}</strong></div><div class="summary"><div><span>Übertrag Vormonat</span><b>${formatDuration(s.opening)}</b></div><div><span>Monatsdifferenz</span><b>${formatDuration(s.diff)}</b></div><div><span>Sollzeit</span><b>${formatDuration(s.target,{signed:false})}</b></div><div><span>Nettozeit</span><b>${formatDuration(s.net,{signed:false})}</b></div><div><span>Pausenzeit</span><b>${formatDuration(s.pause,{signed:false})}</b></div><div><span>Urlaubstage</span><b>${formatDayCount(s.vacation)}</b></div><div><span>Krankheitstage</span><b>${formatDayCount(s.sick)}</b></div><div><span>Zeitausgleichstage</span><b>${formatDayCount(s.timeOff||0)}</b></div><div><span>Sonstige Abwesenheiten</span><b>${formatDayCount(s.other)}</b></div><div><span>Unvollständige Tage</span><b>${s.incomplete}</b></div></div>`;
+  const body=s.days.map(d=>{const c=calculateDay(d),ins=(d.entries||[]).filter(e=>e.type==='in').map(e=>e.logged).join(', ')||'–',outs=(d.entries||[]).filter(e=>e.type==='out').map(e=>e.logged).join(', ')||'–',absence=d.absence?`${d.absence} (${absenceDuration(d)==='half'?'½ Tag':'ganzer Tag'}, ${formatDuration(absenceCreditMinutes(d),{signed:false})})`:'–';return `<tr><td>${formatDate(d.date,{day:'2-digit',month:'2-digit',year:'numeric'})}</td><td>${esc(dayStatus(d))}</td><td>${esc(absence)}</td><td class="num">${esc(ins)}</td><td class="num">${esc(outs)}</td><td class="num">${Number(d.pauseMinutes)||0}</td><td class="num">${formatDuration(c.net,{signed:false})}</td><td class="num">${formatDuration(c.target,{signed:false})}</td><td class="num">${formatDuration(c.diff)}</td><td class="num">${formatDuration(balanceThrough(d.date))}</td><td class="wrap">${esc(d.absenceNote||d.note||'')}</td></tr>`}).join('');
+  reportShell(`Monatsbericht ${title}`,`Zeitraum: ${formatDate(start,{day:'2-digit',month:'2-digit',year:'numeric'})} bis ${formatDate(s.cutoff,{day:'2-digit',month:'2-digit',year:'numeric'})}`,summary,`<table><thead><tr><th>Datum</th><th>Status</th><th>Abwesenheit</th><th class="num">Kommen</th><th class="num">Gehen</th><th class="num">Pause</th><th class="num">Netto</th><th class="num">Soll</th><th class="num">Diff.</th><th class="num">Zeitkonto</th><th>Notiz</th></tr></thead><tbody>${body}</tbody></table>`)
 }
 function yearReport(y){
   const s=periodSummary(`${y}-01-01`,`${y}-12-31`),rows=[];for(let m=0;m<12;m++){if(y===new Date().getFullYear()&&m>new Date().getMonth())continue;const ms=periodSummary(`${y}-${pad(m+1)}-01`,dateKey(new Date(y,m+1,0,12)));rows.push({m,s:ms})}
-  const summary=`<div class="hero"><span>Zeitkonto Jahresende / aktueller Stichtag</span><strong>${formatDuration(s.closing)}</strong></div><div class="summary"><div><span>Übertrag Vorjahr</span><b>${formatDuration(s.opening)}</b></div><div><span>Jahresveränderung</span><b>${formatDuration(s.diff)}</b></div><div><span>Sollzeit</span><b>${formatDuration(s.target,{signed:false})}</b></div><div><span>Nettozeit</span><b>${formatDuration(s.net,{signed:false})}</b></div><div><span>Pausenzeit</span><b>${formatDuration(s.pause,{signed:false})}</b></div><div><span>Urlaubstage</span><b>${s.vacation}</b></div><div><span>Krankheitstage</span><b>${s.sick}</b></div><div><span>Sonstige Abwesenheiten</span><b>${s.other}</b></div></div>`;
-  const body=rows.map(r=>`<tr><td>${new Intl.DateTimeFormat('de-DE',{month:'long'}).format(new Date(y,r.m,1))}</td><td class="num">${formatDuration(r.s.target,{signed:false})}</td><td class="num">${formatDuration(r.s.net,{signed:false})}</td><td class="num">${formatDuration(r.s.pause,{signed:false})}</td><td class="num">${formatDuration(r.s.diff)}</td><td class="num">${formatDuration(r.s.closing)}</td><td class="num">${r.s.vacation}</td><td class="num">${r.s.sick}</td></tr>`).join('');
-  reportShell(`Jahresbericht ${y}`,`Jahr ${y}`,summary,`<table><thead><tr><th>Monat</th><th class="num">Soll</th><th class="num">Netto</th><th class="num">Pause</th><th class="num">Veränderung</th><th class="num">Zeitkonto</th><th class="num">Urlaub</th><th class="num">Krank</th></tr></thead><tbody>${body}</tbody></table>`)
+  const summary=`<div class="hero"><span>Zeitkonto Jahresende / aktueller Stichtag</span><strong>${formatDuration(s.closing)}</strong></div><div class="summary"><div><span>Übertrag Vorjahr</span><b>${formatDuration(s.opening)}</b></div><div><span>Jahresveränderung</span><b>${formatDuration(s.diff)}</b></div><div><span>Sollzeit</span><b>${formatDuration(s.target,{signed:false})}</b></div><div><span>Nettozeit</span><b>${formatDuration(s.net,{signed:false})}</b></div><div><span>Pausenzeit</span><b>${formatDuration(s.pause,{signed:false})}</b></div><div><span>Urlaubstage</span><b>${formatDayCount(s.vacation)}</b></div><div><span>Krankheitstage</span><b>${formatDayCount(s.sick)}</b></div><div><span>Zeitausgleichstage</span><b>${formatDayCount(s.timeOff||0)}</b></div><div><span>Sonstige Abwesenheiten</span><b>${formatDayCount(s.other)}</b></div></div>`;
+  const body=rows.map(r=>`<tr><td>${new Intl.DateTimeFormat('de-DE',{month:'long'}).format(new Date(y,r.m,1))}</td><td class="num">${formatDuration(r.s.target,{signed:false})}</td><td class="num">${formatDuration(r.s.net,{signed:false})}</td><td class="num">${formatDuration(r.s.pause,{signed:false})}</td><td class="num">${formatDuration(r.s.diff)}</td><td class="num">${formatDuration(r.s.closing)}</td><td class="num">${formatDayCount(r.s.vacation)}</td><td class="num">${formatDayCount(r.s.sick)}</td><td class="num">${formatDayCount(r.s.timeOff||0)}</td></tr>`).join('');
+  reportShell(`Jahresbericht ${y}`,`Jahr ${y}`,summary,`<table><thead><tr><th>Monat</th><th class="num">Soll</th><th class="num">Netto</th><th class="num">Pause</th><th class="num">Veränderung</th><th class="num">Zeitkonto</th><th class="num">Urlaub</th><th class="num">Krank</th><th class="num">Zeitausgleich</th></tr></thead><tbody>${body}</tbody></table>`)
 }
 
 function init(){
+  document.title=`Arbeitszeit PWA · Version ${APP_VERSION}`;
   ensureHolidayYear(new Date().getFullYear());saveState();
   document.querySelectorAll('.tabbar button').forEach(b=>b.addEventListener('click',()=>showScreen(b.dataset.screen)));
   document.querySelectorAll('[data-view]').forEach(b=>b.addEventListener('click',()=>setTimesView(b.dataset.view)));
   document.querySelectorAll('[data-close]').forEach(b=>b.addEventListener('click',()=>closeModal(b.dataset.close)));
   document.querySelectorAll('.modal').forEach(m=>m.addEventListener('click',e=>{if(e.target===m)closeModal(m.id)}));
+  document.addEventListener('keydown',e=>{if(e.key==='Escape'){const open=[...document.querySelectorAll('.modal.open')].at(-1);if(open)closeModal(open.id)}});
   bindPunchButton($('punchIn'),'in');bindPunchButton($('punchOut'),'out');
-  $('todayEditHint').addEventListener('click',openTodayInTimes);
-  $('pauseToday').addEventListener('click',openPauseModal);$('savePauseBtn').addEventListener('click',saveQuickPause);
-  $('addEntryBtn').addEventListener('click',addEditingEntry);$('saveDayBtn').addEventListener('click',saveEditedDay);$('deleteDayBtn').addEventListener('click',deleteEditedDay);
+  $('todayEditHint').addEventListener('click',openTodayInTimes);$('todayAbsenceEdit').addEventListener('click',()=>openAbsenceEditorForDay(todayKey(),'day'));
+  $('pauseToday').addEventListener('click',openPauseModal);$('savePauseBtn').addEventListener('click',saveQuickPause);$('quickAddBtn').addEventListener('click',openQuickAdd);
+  document.querySelectorAll('[data-quick-absence]').forEach(b=>b.addEventListener('click',()=>openNewAbsence(b.dataset.quickAbsence,todayKey())));$('manualTimeQuick').addEventListener('click',openManualTimeQuick);
+  ['absenceType','absenceFrom','absenceTo','absenceExtent','absenceConflictPolicy'].forEach(id=>$(id).addEventListener('change',updateAbsenceSummary));$('absenceNote').addEventListener('input',updateAbsenceSummary);$('saveAbsenceBtn').addEventListener('click',saveAbsence);$('deleteAbsenceDayBtn').addEventListener('click',()=>deleteAbsenceFromModal('day'));$('deleteAbsenceGroupBtn').addEventListener('click',()=>deleteAbsenceFromModal('group'));
+  $('addEntryBtn').addEventListener('click',addEditingEntry);$('saveDayBtn').addEventListener('click',saveEditedDay);$('deleteDayBtn').addEventListener('click',deleteEditedDay);$('restoreImportBtn').addEventListener('click',restoreImportedDay);$('manageAbsenceFromDay').addEventListener('click',()=>{const k=$('editDate').value,d=dayObject(k);closeModal('dayModal');d.absence?openAbsenceEditorForDay(k,d.absenceGroupId&&absenceGroupDays(d.absenceGroupId).length>1?'group':'day'):openNewAbsence('vacation',k)});
   $('dayReportBtn').addEventListener('click',()=>dayReport($('reportDay').value||todayKey()));
   $('monthReportBtn').addEventListener('click',()=>{const [y,m]=($('reportMonth').value||todayKey().slice(0,7)).split('-').map(Number);monthReport(y,m-1)});
   $('yearReportBtn').addEventListener('click',()=>yearReport(Number($('reportYear').value)||new Date().getFullYear()));

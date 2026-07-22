@@ -1,0 +1,37 @@
+ABSCHLUSSBERICHT – Arbeitszeit-PWA Offline V5.4 High-End
+Stand: 23.07.2026
+
+ERGEBNIS
+Die Version 5.4 wurde auf Basis der bereitgestellten V5.3-ZIP vollständig umgesetzt, dokumentiert und geprüft. Die Anwendung bleibt eine lokale, offlinefähige HTML-/PWA-Anwendung ohne Backend, Cloudanbindung, Push-Dienst oder native iOS-Hülle.
+
+WESENTLICHE ÄNDERUNGEN
+- Startseite für iPhone 16 korrigiert: vollständige Buchungsdarstellung, Safe-Area-Abstände und Scrollbarkeit.
+- Gemeinsame Zeile für „Manuelle Pause“ und Plusbutton.
+- Mobiles Schnelleintrags-Bottom-Sheet.
+- Eigene fachliche Abwesenheitsdaten für Urlaub, Krankheit, Zeitausgleich und sonstige Abwesenheit.
+- Ein- und mehrtägige Erfassung, ganze und halbe Tage, Notizen, Wochenend-/Feiertagsausschluss und Konfliktbehandlung.
+- Gemeinsame Vorgangskennung mit Bearbeitung und Löschung einzelner Tage oder ganzer Zeiträume.
+- Eindeutige Trennung von „Alle Buchungen löschen“ und „Importdaten wiederherstellen“.
+- Korrekturen an Tagesnavigation, Berichtsfeldern, Sollzeitfeld und Versionsanzeige.
+- Berichte, CSV, Monats-/Jahresauswertungen und Zeitkonto um Abwesenheiten erweitert.
+
+TESTERGEBNIS
+- Hauptprüfungen: 35/35 bestanden.
+- Erweiterte Fachprüfungen: 21/21 bestanden.
+- Zeitkonto- und Datenregression: 11/11 bestanden.
+- Gesamt: 67/67 bestanden.
+- JavaScript-Syntaxprüfung bestanden.
+- Keine externen Abhängigkeiten gefunden.
+
+DATENMIGRATION
+- Automatische Migration von Schema 6 auf Schema 7.
+- Keine manuelle Datenmigration erforderlich.
+- LocalStorage-Schlüssel „arbeitszeit-pwa-v1“ bleibt unverändert.
+- Bestehende Buchungen, Einstellungen, Importdaten und historische Zeitkontostände bleiben erhalten.
+- Alte Abwesenheitsbezeichnungen werden rückwärtskompatibel zugeordnet.
+- Export und Import enthalten die neuen Abwesenheitsfelder.
+
+VERBLEIBENDE EINSCHRÄNKUNGEN
+- Notifications, Push-Mitteilungen, App-Badges und eine native iOS-Hülle sind absichtlich nicht enthalten.
+- Eine installierte PWA und der Service Worker benötigen im Zielbrowser einen sicheren HTTPS-Kontext; das direkte Öffnen der HTML-Datei bleibt für die reine lokale Nutzung möglich, installiert jedoch keinen Service Worker.
+- Das administrative Browserprofil der Abschlussumgebung blockierte zusätzliche automatisierte file://- und localhost-Navigation. Deshalb wurden die finalen Browserprüfungen als isolierter Einzeldatei-Dokumentstart ausgeführt. Die Anwendung selbst zeigte dabei keine Laufzeitfehler.
