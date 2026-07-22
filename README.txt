@@ -1,4 +1,4 @@
-Arbeitszeit-PWA Offline V5
+Arbeitszeit-PWA Offline V5.1
 
 Installation / Aktualisierung auf dem iPhone:
 1. Den vollständigen Inhalt dieses Ordners über eine HTTPS-Adresse bereitstellen.

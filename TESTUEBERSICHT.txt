@@ -1,4 +1,4 @@
-Testübersicht V5
+Testübersicht V5.1
 
 Statisch geprüft:
 - HTML-/JavaScript-Syntax
@@ -14,6 +14,9 @@ Browserprüfungen:
 - aktive/deaktivierte Kommen-/Gehen-Schaltfläche
 - Pointerdown ohne Buchung, Pointerup mit Buchung, Bewegung/Abbruch ohne Buchung
 - sofortige Aktualisierung von „Heute erfasst“
+- unterschiedliche Kommen-/Gehen-Symbole und rote aktive Gehen-Darstellung
+- Status „Prüfung erforderlich“ bei unplausibler Reihenfolge oder Zeitfolge
+- mobile Buchungskarten in der Tagesansicht
 - Navigation und Standardöffnung von Zeiten in der Tagesansicht
 - mobile Monats-Tagesliste mit horizontalem Tabellen-Scroll und rechter Aktionsspalte
 - Berichtsfenster und Exportaktionen aufrufbar

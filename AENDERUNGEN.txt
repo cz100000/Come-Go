@@ -1,4 +1,4 @@
-Technische Änderungsübersicht V5
+Technische Änderungsübersicht V5.1
 
 - Verlauf und Archiv zum Bereich „Zeiten“ zusammengeführt.
 - Neue Navigation: Heute, Zeiten, Auswertung, Einstellungen.
@@ -6,9 +6,13 @@ Technische Änderungsübersicht V5
 - Kommen/Gehen mit 5-Minuten-Rundung, logischer Wechselsteuerung und Auslösung erst beim Loslassen.
 - Tatsächliche Uhrzeit bleibt intern gespeichert, wird auf Heute aber nicht angezeigt.
 - Kompakte Timeline „Heute erfasst“ mit offener nächster Buchung.
+- Eigenständige Symbole für Kommen und Gehen; aktives Gehen in abgestimmtem Rot.
+- Redundante Karte „Nächste logische Aktion“ entfernt.
 - Persistenter zuletzt bearbeiteter Tag und Tages-, Monats- und Jahresansichten.
 - Vollständiger Tageseditor für mehrere Buchungen, Pause, Abwesenheit und Kommentar.
 - Monats-/Jahreskennzahlen, mobile Tagesliste mit stabiler Aktionsspalte.
+- Tagesansicht verdichtet und Buchungen auf dem iPhone als mobile Karten dargestellt.
+- Plausibilitätsprüfung für falsche Reihenfolge oder rückwärts laufende Uhrzeiten.
 - Auswertung mit Tages-, Monats- und Jahresberichten, CSV, JSON-Backup und Wiederherstellung.
 - Feiertagsautomatik Hessen für neue Jahre; Heiligabend/Silvester optional.
 - V4-Datenmigration unter unverändertem localStorage-Schlüssel.
