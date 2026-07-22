@@ -1,0 +1,19 @@
+Testübersicht V5
+
+Statisch geprüft:
+- HTML-/JavaScript-Syntax
+- PWA-Dateistruktur, Manifest und Service Worker
+- Erhalt des lokalen Speicherschlüssels
+- Stichtagswert 21.07.2026 = +194:46
+- Rundungsfunktionen Kommen auf / Gehen ab auf 5 Minuten
+- Datenmigration der importierten Jahre 2022 bis 2026
+
+Browserprüfungen:
+- iPhone-16-Viewport 393 x 852 CSS-Pixel
+- Heute-Seite ohne vertikalen Body-Scroll
+- aktive/deaktivierte Kommen-/Gehen-Schaltfläche
+- Pointerdown ohne Buchung, Pointerup mit Buchung, Bewegung/Abbruch ohne Buchung
+- sofortige Aktualisierung von „Heute erfasst“
+- Navigation und Standardöffnung von Zeiten in der Tagesansicht
+- mobile Monats-Tagesliste mit horizontalem Tabellen-Scroll und rechter Aktionsspalte
+- Berichtsfenster und Exportaktionen aufrufbar

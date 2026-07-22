@@ -1,0 +1,14 @@
+Technische Änderungsübersicht V5
+
+- Verlauf und Archiv zum Bereich „Zeiten“ zusammengeführt.
+- Neue Navigation: Heute, Zeiten, Auswertung, Einstellungen.
+- Schlanke, nicht scrollende Heute-Seite nach iPhone-16-Mockup.
+- Kommen/Gehen mit 5-Minuten-Rundung, logischer Wechselsteuerung und Auslösung erst beim Loslassen.
+- Tatsächliche Uhrzeit bleibt intern gespeichert, wird auf Heute aber nicht angezeigt.
+- Kompakte Timeline „Heute erfasst“ mit offener nächster Buchung.
+- Persistenter zuletzt bearbeiteter Tag und Tages-, Monats- und Jahresansichten.
+- Vollständiger Tageseditor für mehrere Buchungen, Pause, Abwesenheit und Kommentar.
+- Monats-/Jahreskennzahlen, mobile Tagesliste mit stabiler Aktionsspalte.
+- Auswertung mit Tages-, Monats- und Jahresberichten, CSV, JSON-Backup und Wiederherstellung.
+- Feiertagsautomatik Hessen für neue Jahre; Heiligabend/Silvester optional.
+- V4-Datenmigration unter unverändertem localStorage-Schlüssel.
