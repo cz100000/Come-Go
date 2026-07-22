@@ -1,18 +1,16 @@
-Technische Änderungsübersicht V5.1
+Technische Änderungsübersicht V5.2 High-End
 
-- Verlauf und Archiv zum Bereich „Zeiten“ zusammengeführt.
-- Neue Navigation: Heute, Zeiten, Auswertung, Einstellungen.
-- Schlanke, nicht scrollende Heute-Seite nach iPhone-16-Mockup.
-- Kommen/Gehen mit 5-Minuten-Rundung, logischer Wechselsteuerung und Auslösung erst beim Loslassen.
-- Tatsächliche Uhrzeit bleibt intern gespeichert, wird auf Heute aber nicht angezeigt.
-- Kompakte Timeline „Heute erfasst“ mit offener nächster Buchung.
-- Eigenständige Symbole für Kommen und Gehen; aktives Gehen in abgestimmtem Rot.
-- Redundante Karte „Nächste logische Aktion“ entfernt.
-- Persistenter zuletzt bearbeiteter Tag und Tages-, Monats- und Jahresansichten.
-- Vollständiger Tageseditor für mehrere Buchungen, Pause, Abwesenheit und Kommentar.
-- Monats-/Jahreskennzahlen, mobile Tagesliste mit stabiler Aktionsspalte.
-- Tagesansicht verdichtet und Buchungen auf dem iPhone als mobile Karten dargestellt.
-- Plausibilitätsprüfung für falsche Reihenfolge oder rückwärts laufende Uhrzeiten.
-- Auswertung mit Tages-, Monats- und Jahresberichten, CSV, JSON-Backup und Wiederherstellung.
-- Feiertagsautomatik Hessen für neue Jahre; Heiligabend/Silvester optional.
-- V4-Datenmigration unter unverändertem localStorage-Schlüssel.
+- Heute-Seite optisch auf das freigegebene filigrane High-End-Zielbild umgestellt.
+- Leichte, schwebende Karten mit feinen Konturen, reduzierten Schatten und ruhiger Typografie.
+- Kommen grün und Gehen in abgestimmtem Rot; eigenständige Richtungs-Symbole bleiben erhalten.
+- Status wird direkt im jeweiligen Aktionsbutton angezeigt; keine zusätzliche Aktionskarte.
+- „Heute erfasst“ fasst Kommen und Gehen als Arbeitsblöcke in jeweils einer Zeile zusammen.
+- Auf der Heute-Seite werden ausschließlich dokumentierte Rundungszeiten gezeigt; tatsächliche Zeiten bleiben unter „Zeiten“ erhalten.
+- Acht Buchungen erscheinen als vier kompakte Arbeitsblöcke. Bei mehr Blöcken werden die jüngsten kompakt gezeigt und frühere gezählt.
+- Dynamische Plausibilitätssperre: Jede neue dokumentierte Zeit muss mindestens fünf Minuten nach der vorherigen dokumentierten Zeit liegen.
+- Gesperrte Aktion zeigt automatisch „möglich ab HH:MM“ und wird ohne Neuladen freigeschaltet.
+- Prüfung erfolgt zusätzlich unmittelbar beim Speichern, sodass schnelle Mehrfachtipps oder Zustandswechsel keine ungültige Buchung erzeugen.
+- Dieselbe Mindestabstands- und Reihenfolgenprüfung gilt für manuelle Änderungen unter „Zeiten“.
+- Heute-Seite enthält weiterhin nur Überschrift/Datum, Aktionsbuttons, „Heute erfasst“, manuelle Pause und Navigation.
+- Zeiten-Ansicht und Navigation wurden visuell ebenfalls filigraner und ruhiger abgestimmt.
+- LocalStorage-Schlüssel, Datenschema, importierte Daten und Stichtagssaldo bleiben unverändert.

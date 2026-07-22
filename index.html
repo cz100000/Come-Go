@@ -9,7 +9,7 @@
 <meta name="apple-mobile-web-app-title" content="Arbeitszeit">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="icon-192.png">
-<title>Arbeitszeit V5.1</title>
+<title>Arbeitszeit V5.2 High-End</title>
 <style>
 :root{
   --bg:#f7f8fb;--card:#fff;--text:#0d1420;--muted:#687181;--line:#e4e7ed;
@@ -120,6 +120,95 @@ body.today-fixed .app{height:100dvh;min-height:0;overflow:hidden;padding-bottom:
 .toast{position:fixed;left:50%;bottom:calc(var(--nav-h) + env(safe-area-inset-bottom) + 28px);z-index:150;transform:translate(-50%,15px);opacity:0;pointer-events:none;background:rgba(17,24,35,.94);color:#fff;border-radius:999px;padding:10px 16px;font-weight:700;font-size:13px;white-space:nowrap;transition:.22s}.toast.show{opacity:1;transform:translate(-50%,0)}
 @media(max-width:540px){#times .page-header{padding-bottom:10px}.booking-table-wrap{display:none}.booking-mobile-list{display:grid;gap:8px}.day-summary .day-heading{align-items:center;margin-bottom:7px}.day-summary .balance-hero{padding-top:7px}.tabbar{width:min(calc(100% - 18px),596px)}}
 @media(max-width:390px){.entry-editor-head,.entry-edit-row{grid-template-columns:72px 1fr 1fr 32px;gap:5px}.entry-edit-row select,.entry-edit-row input{font-size:12px;padding:7px 3px}.metric-grid{gap:6px}.metric{padding:8px}.day-heading h2{font-size:18px}.badge{padding:5px 8px;font-size:11px}}
+
+/* V5.2 – filigranes High-End-Design */
+:root{
+  --bg:#f7f8fb;--card:rgba(255,255,255,.92);--text:#101826;--muted:#6d7789;--line:#e7eaf0;
+  --blue:#1475ff;--blue-soft:#edf4ff;--green:#178d4b;--green-dark:#117c40;
+  --green-soft:#eef8f2;--out:#cf3e37;--out-dark:#b92f2b;--out-soft:#fff3f1;
+  --danger:#c83c3c;--danger-soft:#fff0ef;--shadow:0 14px 38px rgba(26,39,57,.065);
+  --nav-h:70px;--side:clamp(15px,4.4vw,22px)
+}
+body{background:linear-gradient(180deg,#fafbfd 0%,#f5f7fa 100%)}
+.card,.period-card,.action-row{border-color:rgba(224,228,235,.92);box-shadow:0 12px 34px rgba(29,42,59,.055)}
+.card{border-radius:23px}.period-card{border-radius:23px}
+
+body.today-fixed .app{padding-top:calc(env(safe-area-inset-top) + 9px);padding-bottom:calc(var(--nav-h) + env(safe-area-inset-bottom) + 18px)}
+#today.active{grid-template-rows:auto auto auto auto;align-content:start;gap:clamp(10px,1.45dvh,14px)}
+.today-head{padding:4px 2px 2px;align-items:flex-start}
+.today-title-group{min-width:0}
+.today-head h1{font-size:clamp(34px,9vw,41px);font-weight:730;letter-spacing:-.045em}
+.today-date-btn{display:block;padding:7px 0 2px;color:var(--muted);font-size:clamp(14px,4vw,17px);font-weight:520;letter-spacing:.002em;text-align:left}
+
+.punch-grid{gap:clamp(11px,3vw,15px)}
+.punch-btn{min-height:clamp(142px,20.5dvh,176px);border:1px solid var(--line);border-radius:24px;padding:16px 10px 13px;gap:6px;background:rgba(255,255,255,.68);box-shadow:0 15px 38px rgba(27,40,58,.055);color:var(--muted);overflow:hidden}
+.punch-btn:before{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;background:linear-gradient(145deg,rgba(255,255,255,.78),rgba(255,255,255,.18));opacity:.7}
+.punch-btn>*{position:relative;z-index:1}
+.punch-btn .icon{width:42px;height:42px;stroke-width:1.75;margin-bottom:2px}
+.punch-btn .label{font-size:clamp(20px,5.7vw,25px);font-weight:690}
+.punch-btn .clock{font-size:clamp(22px,6vw,28px);font-weight:500;letter-spacing:-.02em}
+.punch-status{min-height:19px;margin-top:7px;font-size:clamp(11px,3.3vw,14px);font-weight:520;white-space:nowrap}
+.punch-btn.punch-in.active{background:linear-gradient(145deg,rgba(235,248,240,.96),rgba(255,255,255,.92));border-color:rgba(23,141,75,.34);color:var(--green-dark);box-shadow:0 16px 40px rgba(23,141,75,.085)}
+.punch-btn.punch-out.active{background:linear-gradient(145deg,rgba(255,240,238,.96),rgba(255,255,255,.92));border-color:rgba(207,62,55,.30);color:var(--out-dark);box-shadow:0 16px 40px rgba(207,62,55,.075)}
+.punch-btn:disabled{opacity:1;background:rgba(255,255,255,.64);border-color:var(--line);color:#929aa8;box-shadow:0 9px 26px rgba(27,40,58,.035)}
+.punch-btn.waiting.punch-out{background:linear-gradient(145deg,rgba(255,246,245,.78),rgba(255,255,255,.72));border-color:rgba(207,62,55,.19)}
+.punch-btn.waiting.punch-in{background:linear-gradient(145deg,rgba(243,249,245,.78),rgba(255,255,255,.72));border-color:rgba(23,141,75,.19)}
+.punch-btn.waiting.punch-out .punch-status{color:var(--out-dark)}
+.punch-btn.waiting.punch-in .punch-status{color:var(--green-dark)}
+.punch-btn.booked .clock{color:var(--text)}
+.punch-btn.booked .punch-status,.punch-btn.blocked .punch-status{color:var(--muted)}
+.punch-btn.pressed{transform:scale(.965);filter:brightness(.985);box-shadow:0 5px 16px rgba(22,34,52,.11)}
+
+.today-capture{padding:0;background:var(--card);border:1px solid rgba(224,228,235,.94);border-radius:24px;box-shadow:var(--shadow);overflow:hidden;min-height:0}
+.capture-head{height:54px;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:0 17px;border-bottom:1px solid var(--line)}
+.today-capture h2{margin:0;font-size:clamp(16px,4.5vw,19px);font-weight:700;letter-spacing:-.015em}
+#todayBookingCount{color:var(--muted);font-size:clamp(11px,3.2vw,13px);white-space:nowrap}
+.capture-list{flex:1;min-height:0;overflow:hidden;padding:0 17px}
+.block-row{width:100%;height:clamp(46px,6.4dvh,54px);border:0;border-bottom:1px solid var(--line);background:transparent;display:grid;grid-template-columns:25px minmax(0,1fr) minmax(0,1fr) 18px;align-items:center;gap:10px;padding:0;text-align:left;color:var(--text)}
+.block-row:last-child{border-bottom:0}
+.block-no{color:var(--muted);font-size:13px;font-variant-numeric:tabular-nums}
+.block-time{display:flex;align-items:center;gap:9px;min-width:0;font-size:clamp(15px,4.2vw,18px);font-weight:570;font-variant-numeric:tabular-nums;white-space:nowrap}
+.block-time.in{color:var(--green-dark)}.block-time.out{color:var(--out-dark)}
+.block-dot{width:9px;height:9px;border-radius:50%;flex:0 0 auto;background:currentColor;box-shadow:0 0 0 4px rgba(17,24,38,.025)}
+.block-time.open{color:var(--muted);font-size:clamp(13px,3.8vw,16px)}
+.block-chev{width:18px;height:18px;color:#7e8796;stroke-width:1.8}
+.capture-empty{height:100%;min-height:96px;display:grid;place-content:center;text-align:center;color:var(--muted);font-size:13px;line-height:1.45;padding:14px}
+.capture-empty b{display:block;color:var(--text);font-size:15px;margin-bottom:3px}
+.capture-overflow{font-size:11px;color:var(--muted);margin-left:5px}
+.capture-details{height:45px;flex:0 0 45px;width:100%;border:0;border-top:1px solid var(--line);background:rgba(250,251,253,.66);display:flex;align-items:center;justify-content:center;gap:8px;color:var(--muted);font-size:13px;font-weight:520}
+.capture-details .icon{width:18px;height:18px;stroke-width:1.8}
+
+.pause-btn{position:relative;height:clamp(52px,6.8dvh,60px);border:1px solid rgba(224,228,235,.95);border-radius:20px;background:var(--card);color:var(--text);box-shadow:0 12px 34px rgba(29,42,59,.055);font-size:clamp(15px,4.3vw,18px);font-weight:560;justify-content:flex-start;padding:0 18px;gap:13px}
+.pause-btn .icon{width:25px;height:25px;color:var(--muted);stroke-width:1.75}.pause-btn .pause-chev{margin-left:auto;width:19px;height:19px}
+.pause-btn:active{transform:scale(.985)}
+
+.tabbar{height:var(--nav-h);padding:6px 7px;border-color:rgba(255,255,255,.84);border-radius:24px;background:rgba(253,253,254,.82);box-shadow:0 15px 42px rgba(24,39,60,.13)}
+.tabbar button{border-radius:17px;color:#657080;font-size:clamp(10px,3vw,12px);font-weight:500;gap:3px}
+.tabbar button .icon{width:24px;height:24px;stroke-width:1.85}
+.tabbar button.active{background:linear-gradient(145deg,rgba(235,248,240,.92),rgba(248,251,249,.92));color:var(--green-dark);font-weight:680}
+
+/* Filigranere Zeiten-Ansicht */
+#times .page-header{padding-bottom:13px}.page-header h1{font-weight:730}.page-header .sub{font-size:14px;font-weight:450}
+.segmented{background:#eceff3;border:1px solid #e4e7ec;border-radius:17px;padding:4px;margin-bottom:12px;box-shadow:inset 0 1px 1px rgba(20,31,45,.025)}
+.segmented button{border-radius:13px;padding:10px 6px;font-weight:600}
+.segmented button.active{color:var(--green-dark);box-shadow:0 5px 14px rgba(27,40,58,.08)}
+.date-nav{grid-template-columns:45px minmax(0,1fr) 45px;gap:10px;margin-bottom:13px}.date-nav button,.date-nav input{height:45px;border-radius:15px;box-shadow:0 7px 22px rgba(27,40,58,.035)}
+.day-summary{padding:17px}.day-heading{margin-bottom:8px}.day-heading h2{font-size:21px;font-weight:700;letter-spacing:-.02em}.badge{font-weight:650;padding:7px 11px}
+.day-summary .balance-hero{padding:14px 8px 15px}.day-summary .balance-hero strong{font-size:38px;font-weight:650;color:var(--green-dark)}
+.metric-grid{grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}.metric{background:linear-gradient(145deg,#fafbfc,#f5f7f9);border:1px solid #f0f2f5;border-radius:15px;padding:10px 7px}.metric span{text-align:center;font-size:10px}.metric b{text-align:center;font-size:15px;font-weight:620;margin-top:5px}
+.booking-section-title{font-size:18px;font-weight:700}.booking-mobile-item{border-radius:17px;padding:11px 12px;box-shadow:0 7px 22px rgba(27,40,58,.025)}
+.booking-mobile-time{background:#f8f9fb;border:1px solid #f1f2f5;border-radius:12px}.primary-btn,.secondary-btn{border-radius:16px;padding:14px;font-weight:650}.primary-btn{background:var(--green-dark)}
+
+@media(max-height:760px){
+  body.today-fixed .app{padding-top:calc(env(safe-area-inset-top) + 5px)}
+  #today.active{gap:7px}.today-head h1{font-size:30px}.today-date-btn{padding-top:4px;font-size:13px}
+  .punch-btn{min-height:112px;border-radius:20px;padding:9px;gap:3px}.punch-btn .icon{width:31px;height:31px}.punch-btn .label{font-size:19px}.punch-btn .clock{font-size:19px}.punch-status{margin-top:3px;font-size:11px}
+  .capture-head{height:43px;padding:0 13px}.today-capture h2{font-size:15px}.capture-list{padding:0 13px}.block-row{height:40px;grid-template-columns:22px 1fr 1fr 16px;gap:7px}.block-time{font-size:14px;gap:6px}.block-dot{width:8px;height:8px}.capture-details{height:38px;flex-basis:38px;font-size:12px}
+  .pause-btn{height:46px;border-radius:17px;font-size:14px;padding:0 14px}.pause-btn .icon{width:22px;height:22px}
+}
+@media(max-height:680px){.capture-details{display:none}.capture-head{height:40px}.block-row{height:37px}.punch-btn{min-height:100px}}
+@media(max-width:370px){.punch-grid{gap:8px}.punch-btn{border-radius:20px}.block-row{grid-template-columns:20px 1fr 1fr 15px;gap:6px}.block-time{font-size:13px}.metric-grid{grid-template-columns:1fr 1fr}}
+
 @media print{.tabbar,.page-header,.segmented,.primary-btn,.secondary-btn,.danger-btn,.modal,.toast{display:none!important}.app{width:auto;max-width:none;padding:0}.card,.period-card{box-shadow:none}.screen{display:none!important}.screen.active{display:block!important}}
 </style>
 </head>
@@ -127,34 +216,45 @@ body.today-fixed .app{height:100dvh;min-height:0;overflow:hidden;padding-bottom:
 <main class="app">
 <section id="today" class="screen active" aria-label="Heute">
   <header class="today-head">
-    <h1>Heute</h1>
-    <button class="today-date-btn" id="todayDateButton" type="button" aria-label="Heutigen Tag unter Zeiten öffnen">
-      <span id="todayDateShort">–</span>
-      <svg class="icon" viewBox="0 0 24 24"><path d="M7 2v3M17 2v3M3.5 8.5h17M5 4h14a2 2 0 0 1 2 2v14H3V6a2 2 0 0 1 2-2Z"/><path d="M7 12h2M11 12h2M15 12h2M7 16h2M11 16h2M15 16h2"/></svg>
-    </button>
+    <div class="today-title-group">
+      <h1>Heute</h1>
+      <button class="today-date-btn" id="todayDateButton" type="button" aria-label="Heutigen Tag unter Zeiten öffnen">
+        <span id="todayDateShort">–</span>
+      </button>
+    </div>
   </header>
-  <div class="punch-grid">
+
+  <div class="punch-grid" aria-label="Arbeitszeit buchen">
     <button id="punchIn" class="punch-btn punch-in" type="button" data-punch="in">
       <svg class="icon" viewBox="0 0 24 24"><path d="M11 5V3h8v18h-8v-2"/><path d="M3 12h11M10 8l4 4-4 4"/></svg>
-      <span class="label">Kommen</span><span class="clock" id="inClock">--:--</span>
+      <span class="label">Kommen</span>
+      <span class="clock" id="inClock">--:--</span>
+      <span class="punch-status" id="inStatus">Jetzt möglich</span>
     </button>
     <button id="punchOut" class="punch-btn punch-out" type="button" data-punch="out">
       <svg class="icon" viewBox="0 0 24 24"><path d="M13 5V3H5v18h8v-2"/><path d="M10 12h11M17 8l4 4-4 4"/></svg>
-      <span class="label">Gehen</span><span class="clock" id="outClock">--:--</span>
+      <span class="label">Gehen</span>
+      <span class="clock" id="outClock">--:--</span>
+      <span class="punch-status" id="outStatus">zuerst Kommen</span>
     </button>
   </div>
+
   <section class="today-capture" aria-labelledby="capturedTitle">
-    <h2 id="capturedTitle">Heute erfasst</h2>
-    <div id="todayCaptureList" class="capture-list"></div>
-    <div class="today-hint">
-      <svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 10v6M12 7h.01"/></svg>
-      <button type="button" id="todayEditHint"><span>Bearbeiten unter <span class="link">Zeiten</span></span></button>
-      <svg class="icon" viewBox="0 0 24 24"><path d="m9 6 6 6-6 6"/></svg>
+    <div class="capture-head">
+      <h2 id="capturedTitle">Heute erfasst</h2>
+      <span id="todayBookingCount">0 Buchungen</span>
     </div>
+    <div id="todayCaptureList" class="capture-list"></div>
+    <button type="button" id="todayEditHint" class="capture-details">
+      <span>Alle Details unter Zeiten</span>
+      <svg class="icon" viewBox="0 0 24 24"><path d="m9 6 6 6-6 6"/></svg>
+    </button>
   </section>
+
   <button id="pauseToday" class="pause-btn" type="button">
-    <svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9.5 8.5v7M14.5 8.5v7"/></svg>
-    <span id="pauseButtonLabel">Pause eintragen</span>
+    <svg class="icon" viewBox="0 0 24 24"><path d="M5 7h11v7a5 5 0 0 1-5 5H10a5 5 0 0 1-5-5Z"/><path d="M16 9h2a3 3 0 0 1 0 6h-2M4 21h14"/></svg>
+    <span id="pauseButtonLabel">Manuelle Pause eintragen</span>
+    <svg class="icon pause-chev" viewBox="0 0 24 24"><path d="m9 6 6 6-6 6"/></svg>
   </button>
 </section>
 
@@ -328,7 +428,7 @@ function validateEntries(entries){
   entries.forEach((e,i)=>{
     if(e.type!==(i%2===0?'in':'out'))plausible=false;
     if(e.actual){const t=minutes(e.actual);if(previousActual!==null&&t<previousActual)plausible=false;previousActual=t}
-    if(e.logged){const t=minutes(e.logged);if(previousLogged!==null&&t<previousLogged)plausible=false;previousLogged=t}
+    if(e.logged){const t=minutes(e.logged);if(previousLogged!==null&&t-previousLogged<5)plausible=false;previousLogged=t}
   });
   const complete=entries.length>0&&entries.length%2===0&&entries.every((e,i)=>e.type===(i%2===0?'in':'out'));
   return{complete,plausible};
@@ -400,36 +500,60 @@ function showScreen(id){
 }
 
 function nextActionForDay(d){const last=(d.entries||[]).at(-1);return !last||last.type==='out'?'in':'out'}
+function rawRoundedMinutes(t,type){const m=minutes(t);return type==='in'?Math.ceil(m/5)*5:Math.floor(m/5)*5}
+function punchAvailability(d,type,actual=hm()){
+  const entries=d.entries||[],expected=nextActionForDay(d),last=entries.at(-1),loggedMinutes=rawRoundedMinutes(actual,type);
+  if(type!==expected)return{allowed:false,expected,loggedMinutes,loggedText:clockFromMinutes(loggedMinutes),availableAt:null,reason:'sequence'};
+  if(loggedMinutes>=1440)return{allowed:false,expected,loggedMinutes,loggedText:'00:00',availableAt:'morgen',reason:'day-boundary'};
+  if(!last)return{allowed:true,expected,loggedMinutes,loggedText:clockFromMinutes(loggedMinutes),availableAt:null,reason:null};
+  const previous=minutes(last.logged||roundLogged(last.actual,last.type)),minimum=previous+5;
+  if(minimum>=1440)return{allowed:false,expected,loggedMinutes,loggedText:clockFromMinutes(loggedMinutes),availableAt:'morgen',reason:'day-boundary'};
+  const allowed=loggedMinutes>=minimum;
+  const actualThreshold=type==='in'?Math.max(0,minimum-4):minimum;
+  return{allowed,expected,loggedMinutes,loggedText:clockFromMinutes(loggedMinutes),minimum,availableAt:clockFromMinutes(actualThreshold),reason:allowed?null:'minimum-gap'};
+}
+function resetPunchClass(button){button.classList.remove('active','waiting','booked','blocked')}
+function applyPunchVisual(button,statusEl,clockEl,{kind,status,clock,disabled}){
+  resetPunchClass(button);button.classList.add(kind);button.disabled=disabled;statusEl.textContent=status;clockEl.textContent=clock;
+}
+function updateTodayPunchState(){
+  const d=dayObject(todayKey()),expected=nextActionForDay(d),now=hm(),last=(d.entries||[]).at(-1),availability=punchAvailability(d,expected,now);
+  const inBtn=$('punchIn'),outBtn=$('punchOut'),inStatus=$('inStatus'),outStatus=$('outStatus'),inClock=$('inClock'),outClock=$('outClock');
+  const currentIn=roundLogged(now,'in'),currentOut=roundLogged(now,'out');
+  if(expected==='in'){
+    applyPunchVisual(inBtn,inStatus,inClock,{kind:availability.allowed?'active':'waiting',status:availability.allowed?'Jetzt möglich':`möglich ab ${availability.availableAt}`,clock:currentIn,disabled:!availability.allowed});
+    if(last&&last.type==='out')applyPunchVisual(outBtn,outStatus,outClock,{kind:'booked',status:`Gebucht um ${last.logged||roundLogged(last.actual,'out')}`,clock:last.logged||roundLogged(last.actual,'out'),disabled:true});
+    else applyPunchVisual(outBtn,outStatus,outClock,{kind:'blocked',status:'zuerst Kommen',clock:currentOut,disabled:true});
+  }else{
+    if(last&&last.type==='in')applyPunchVisual(inBtn,inStatus,inClock,{kind:'booked',status:`Gebucht um ${last.logged||roundLogged(last.actual,'in')}`,clock:last.logged||roundLogged(last.actual,'in'),disabled:true});
+    else applyPunchVisual(inBtn,inStatus,inClock,{kind:'blocked',status:'zuerst Gehen',clock:currentIn,disabled:true});
+    applyPunchVisual(outBtn,outStatus,outClock,{kind:availability.allowed?'active':'waiting',status:availability.allowed?'Jetzt möglich':`möglich ab ${availability.availableAt}`,clock:currentOut,disabled:!availability.allowed});
+  }
+}
 function updateClock(){
-  const actual=hm(),inTime=roundLogged(actual,'in'),outTime=roundLogged(actual,'out');
-  $('inClock').textContent=inTime;$('outClock').textContent=outTime;
-  $('todayDateShort').textContent=new Intl.DateTimeFormat('de-DE',{weekday:'short',day:'2-digit',month:'2-digit',year:'numeric'}).format(new Date());
+  $('todayDateShort').textContent=new Intl.DateTimeFormat('de-DE',{weekday:'long',day:'2-digit',month:'long',year:'numeric'}).format(new Date());
+  if(document.body.classList.contains('today-fixed'))updateTodayPunchState();
 }
 function renderToday(){
-  updateClock();ensureHolidayYear(new Date().getFullYear());
-  const k=todayKey(),d=dayObject(k),next=nextActionForDay(d),inBtn=$('punchIn'),outBtn=$('punchOut');
-  inBtn.disabled=next!=='in';outBtn.disabled=next!=='out';inBtn.classList.toggle('active',next==='in');outBtn.classList.toggle('active',next==='out');
-  $('pauseButtonLabel').textContent=Number(d.pauseMinutes)?`Pause: ${d.pauseMinutes} Min. ändern`:'Pause eintragen';
-  renderTodayCapture(d,next);
+  ensureHolidayYear(new Date().getFullYear());const d=dayObject(todayKey());
+  updateClock();$('pauseButtonLabel').textContent=Number(d.pauseMinutes)?`Manuelle Pause · ${d.pauseMinutes} Min. ändern`:'Manuelle Pause eintragen';renderTodayCapture(d);
 }
-function renderTodayCapture(d,next){
-  let inNo=0,outNo=0;
-  const rows=(d.entries||[]).map(e=>({type:e.type,label:e.type==='in'?`Kommen ${++inNo}`:`Gehen ${++outNo}`,time:e.logged||roundLogged(e.actual,e.type),open:false}));
-  rows.push({type:next,label:next==='in'?`Kommen ${inNo+1}`:`Gehen ${outNo+1}`,time:'—:—',open:true});
-  let omitted=0,visible=rows;
-  if(rows.length>6){omitted=rows.length-5;visible=rows.slice(-5)}
-  $('todayCaptureList').innerHTML=(omitted?`<div class="capture-summary">${omitted} frühere Buchungen kompakt ausgeblendet</div>`:'')+visible.map(r=>`<div class="capture-row ${r.type} ${r.open?'open':''}"><span class="timeline-dot"></span><span class="capture-icon">${r.type==='in'?SVG.in:SVG.out}</span><span class="capture-name">${esc(r.label)}</span><span class="capture-time">${esc(r.time)}</span>${r.open?'<span class="open-badge">offen</span>':`<span class="done-mark">${SVG.check}</span>`}</div>`).join('');
+function renderTodayCapture(d){
+  const entries=d.entries||[],blocks=[];
+  for(let i=0;i<entries.length;i+=2){const come=entries[i]?.type==='in'?entries[i]:null,go=entries[i+1]?.type==='out'?entries[i+1]:null;if(come)blocks.push({come,go})}
+  const maxBlocks=window.innerHeight<700?3:4,omitted=Math.max(0,blocks.length-maxBlocks),visible=blocks.slice(-maxBlocks);
+  const count=entries.length;$('todayBookingCount').innerHTML=`${count} ${count===1?'Buchung':'Buchungen'}${omitted?` <span class="capture-overflow">· ${omitted} frühere</span>`:''}`;
+  if(!visible.length){$('todayCaptureList').innerHTML='<div class="capture-empty"><div><b>Noch keine Buchungen</b>Starte den Tag mit „Kommen“.</div></div>';return}
+  $('todayCaptureList').innerHTML=visible.map((b,i)=>{const no=omitted+i+1,come=b.come.logged||roundLogged(b.come.actual,'in'),go=b.go?(b.go.logged||roundLogged(b.go.actual,'out')):'offen';return `<button type="button" class="block-row" onclick="openTodayInTimes()" aria-label="Arbeitsblock ${no} unter Zeiten öffnen"><span class="block-no">${no}</span><span class="block-time in"><i class="block-dot"></i>${esc(come)}</span><span class="block-time out ${b.go?'':'open'}"><i class="block-dot"></i>${esc(go)}</span><svg class="block-chev icon" viewBox="0 0 24 24"><path d="m9 6 6 6-6 6"/></svg></button>`}).join('');
 }
+function openTodayInTimes(){state.settings.lastEditedDay=todayKey();saveState();showScreen('times')}
 function performPunch(type){
-  const k=todayKey(),d=dayObject(k,true),expected=nextActionForDay(d);
-  if(type!==expected){renderToday();return}
-  const actual=hm(),logged=roundLogged(actual,type);
-  d.entries.push({type,actual,logged,source:'capture',createdAt:new Date().toISOString()});
-  d.capturedAfterImport=true;
-  d.modifiedAt=new Date().toISOString();d.archived=false;state.days[k]=d;touchDay(k);
-  renderToday();
+  const k=todayKey(),d=dayObject(k,true),availability=punchAvailability(d,type,hm());
+  if(type!==availability.expected||!availability.allowed){renderToday();showToast(availability.availableAt&&availability.availableAt!=='morgen'?`${type==='in'?'Kommen':'Gehen'} möglich ab ${availability.availableAt}`:'Nächste Buchung erst morgen möglich');return}
+  const actual=hm(),logged=availability.loggedText;
+  d.entries.push({type,actual,logged,source:'capture',createdAt:new Date().toISOString()});d.capturedAfterImport=true;d.modifiedAt=new Date().toISOString();d.archived=false;state.days[k]=d;touchDay(k);renderToday();
   try{navigator.vibrate?.(28)}catch(e){}
-  showToast(`${type==='in'?'Kommen':'Gehen'} ${logged} gespeichert`);
+  showToast(`${type==='in'?'Kommen':'Gehen'} gebucht · ${logged}`);
 }
 function bindPunchButton(button,type){
   let pointer=null,startX=0,startY=0,cancelled=false;
@@ -515,6 +639,7 @@ function addEditingEntry(){const type=!editingEntries.length||editingEntries.at(
 function saveEditedDay(){
   const oldKey=$('dayModal').dataset.originalDate||$('editDate').value,newKey=$('editDate').value;if(!newKey)return;
   const existing=dayObject(oldKey),d=clone(existing);d.date=newKey;d.entries=editingEntries.map(e=>({...e,source:'manual',edited:true}));d.pauseMinutes=Math.max(0,Number($('editPause').value)||0);d.absence=$('editAbsence').value||null;d.note=$('editNote').value.trim();d.edited=true;d.modifiedAt=new Date().toISOString();d.archived=Number(newKey.slice(0,4))<new Date().getFullYear();
+  const validation=validateEntries(d.entries);if(d.entries.length&&!validation.plausible){alert('Die Buchungen können nicht gespeichert werden. Kommen und Gehen müssen sich abwechseln; jede dokumentierte Uhrzeit muss mindestens fünf Minuten nach der vorherigen liegen.');return}
   if(oldKey!==newKey)delete state.days[oldKey];state.days[newKey]=d;touchDay(newKey);cursorDate=parseDateKey(newKey);closeModal('dayModal');renderTimes();showToast('Tag gespeichert');
 }
 function deleteEditedDay(){
@@ -577,7 +702,7 @@ function init(){
   document.querySelectorAll('[data-close]').forEach(b=>b.addEventListener('click',()=>closeModal(b.dataset.close)));
   document.querySelectorAll('.modal').forEach(m=>m.addEventListener('click',e=>{if(e.target===m)closeModal(m.id)}));
   bindPunchButton($('punchIn'),'in');bindPunchButton($('punchOut'),'out');
-  $('todayDateButton').addEventListener('click',()=>{state.settings.lastEditedDay=todayKey();saveState();showScreen('times')});
+  $('todayDateButton').addEventListener('click',openTodayInTimes);
   $('todayEditHint').addEventListener('click',()=>showScreen('times'));
   $('pauseToday').addEventListener('click',openPauseModal);$('savePauseBtn').addEventListener('click',saveQuickPause);
   $('addEntryBtn').addEventListener('click',addEditingEntry);$('saveDayBtn').addEventListener('click',saveEditedDay);$('deleteDayBtn').addEventListener('click',deleteEditedDay);
@@ -586,7 +711,7 @@ function init(){
   $('yearReportBtn').addEventListener('click',()=>yearReport(Number($('reportYear').value)||new Date().getFullYear()));
   $('csvExportBtn').addEventListener('click',exportCSV);$('jsonExportBtn').addEventListener('click',exportJSON);$('jsonRestoreBtn').addEventListener('click',()=>$('restoreFile').click());$('restoreFile').addEventListener('change',e=>restoreJSON(e.target.files[0]));
   ['employeeName','targetHours','checkpointBalance','freeChristmasEve','freeNewYearsEve','reportSignature'].forEach(id=>$(id).addEventListener('change',saveSettings));
-  updateClock();setInterval(updateClock,1000);renderToday();
+  updateClock();setInterval(updateClock,1000);window.addEventListener('resize',()=>{if(document.body.classList.contains('today-fixed'))renderTodayCapture(dayObject(todayKey()))});renderToday();
   if('serviceWorker'in navigator&&location.protocol!=='file:')navigator.serviceWorker.register('./sw.js').catch(()=>{});
 }
 document.addEventListener('DOMContentLoaded',init);

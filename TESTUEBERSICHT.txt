@@ -1,22 +1,17 @@
-Testübersicht V5.1
+Testübersicht V5.2 High-End
 
-Statisch geprüft:
-- HTML-/JavaScript-Syntax
-- PWA-Dateistruktur, Manifest und Service Worker
-- Erhalt des lokalen Speicherschlüssels
-- Stichtagswert 21.07.2026 = +194:46
-- Rundungsfunktionen Kommen auf / Gehen ab auf 5 Minuten
-- Datenmigration der importierten Jahre 2022 bis 2026
-
-Browserprüfungen:
-- iPhone-16-Viewport 393 x 852 CSS-Pixel
-- Heute-Seite ohne vertikalen Body-Scroll
-- aktive/deaktivierte Kommen-/Gehen-Schaltfläche
-- Pointerdown ohne Buchung, Pointerup mit Buchung, Bewegung/Abbruch ohne Buchung
-- sofortige Aktualisierung von „Heute erfasst“
-- unterschiedliche Kommen-/Gehen-Symbole und rote aktive Gehen-Darstellung
-- Status „Prüfung erforderlich“ bei unplausibler Reihenfolge oder Zeitfolge
-- mobile Buchungskarten in der Tagesansicht
-- Navigation und Standardöffnung von Zeiten in der Tagesansicht
-- mobile Monats-Tagesliste mit horizontalem Tabellen-Scroll und rechter Aktionsspalte
-- Berichtsfenster und Exportaktionen aufrufbar
+Automatisch geprüft:
+- HTML- und JavaScript-Syntax.
+- PWA-Dateistruktur, Manifest, Service Worker und ZIP-Integrität.
+- LocalStorage-Schlüssel „arbeitszeit-pwa-v1“ und Schema 5 unverändert.
+- Stichtag 21.07.2026 weiterhin +194:46 Stunden.
+- Kommen rundet auf den nächsten, Gehen auf den vorherigen 5-Minuten-Wert.
+- Buchung wird erst beim Loslassen gespeichert; Wisch-/Abbruchbewegung erzeugt keine Buchung.
+- Nach Kommen 20:32 / dokumentiert 20:35 bleibt Gehen bis 20:40 gesperrt.
+- Gesperrter Button zeigt den frühestmöglichen Zeitpunkt und wird automatisch aktiv.
+- Speicherschutz prüft den Mindestabstand erneut unmittelbar vor dem Schreiben.
+- Manuell ungültige Reihenfolgen und dokumentierte Abstände unter fünf Minuten werden abgewiesen.
+- Heute-Ansicht zeigt keine tatsächlichen Uhrzeiten.
+- Acht Buchungen werden als vier Kommen-/Gehen-Arbeitsblöcke dargestellt.
+- iPhone-16-Viewport: Heute-Seite ohne Body-Scroll, Pause und Tab-Bar vollständig sichtbar.
+- Zeiten-Ansicht behält tatsächliche und dokumentierte Uhrzeiten sowie Bearbeitung und Berichte.
