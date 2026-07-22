@@ -1,16 +1,55 @@
-Technische Änderungsübersicht V5.2 High-End
+ÄNDERUNGEN – Arbeitszeit-PWA Offline V5.3 High-End
+Stand: 22.07.2026
 
-- Heute-Seite optisch auf das freigegebene filigrane High-End-Zielbild umgestellt.
-- Leichte, schwebende Karten mit feinen Konturen, reduzierten Schatten und ruhiger Typografie.
-- Kommen grün und Gehen in abgestimmtem Rot; eigenständige Richtungs-Symbole bleiben erhalten.
-- Status wird direkt im jeweiligen Aktionsbutton angezeigt; keine zusätzliche Aktionskarte.
-- „Heute erfasst“ fasst Kommen und Gehen als Arbeitsblöcke in jeweils einer Zeile zusammen.
-- Auf der Heute-Seite werden ausschließlich dokumentierte Rundungszeiten gezeigt; tatsächliche Zeiten bleiben unter „Zeiten“ erhalten.
-- Acht Buchungen erscheinen als vier kompakte Arbeitsblöcke. Bei mehr Blöcken werden die jüngsten kompakt gezeigt und frühere gezählt.
-- Dynamische Plausibilitätssperre: Jede neue dokumentierte Zeit muss mindestens fünf Minuten nach der vorherigen dokumentierten Zeit liegen.
-- Gesperrte Aktion zeigt automatisch „möglich ab HH:MM“ und wird ohne Neuladen freigeschaltet.
-- Prüfung erfolgt zusätzlich unmittelbar beim Speichern, sodass schnelle Mehrfachtipps oder Zustandswechsel keine ungültige Buchung erzeugen.
-- Dieselbe Mindestabstands- und Reihenfolgenprüfung gilt für manuelle Änderungen unter „Zeiten“.
-- Heute-Seite enthält weiterhin nur Überschrift/Datum, Aktionsbuttons, „Heute erfasst“, manuelle Pause und Navigation.
-- Zeiten-Ansicht und Navigation wurden visuell ebenfalls filigraner und ruhiger abgestimmt.
-- LocalStorage-Schlüssel, Datenschema, importierte Daten und Stichtagssaldo bleiben unverändert.
+1. GEPRÜFTE DATENBASIS 2022 BIS 2026
+- 1.348 Tagesdatensätze und 55 Monatsstände aus fünf Excel-Dateien systematisch ausgewertet.
+- Stichtag von 21.07.2026 auf 22.07.2026 aktualisiert.
+- Zeitkontostand auf +193:51 beziehungsweise 11.631 Minuten korrigiert.
+- Jahresendstände und Jahresveränderungen als geprüfte Baselines eingebettet.
+- April 2026 trotz verschobener Spalten korrekt nach Überschriften importiert: Netto 185:15, Soll 160:00, Differenz +25:15.
+- Juli 2023 auf +01:30 und September 2025 auf +34:35 korrigiert.
+- Rein numerische Artefakte werden nicht als Bemerkungen übernommen.
+- Historische Monate werden nicht mehr allein rückwärts aus dem aktuellen Stichtag rekonstruiert.
+
+2. MIGRATION UND DATENSCHUTZ
+- Bestehender LocalStorage-Schlüssel bleibt unverändert.
+- Schema auf 6 und Importdatenversion auf 2 angehoben.
+- Unveränderte Importtage werden auf die geprüfte Quelle aktualisiert.
+- Manuell bearbeitete oder nachträglich erfasste Tage bleiben geschützt.
+- Daten nach dem Stichtag bleiben vollständig erhalten.
+- Schutz gegen doppelte Anrechnung des 22.07.2026.
+
+3. STARTSEITE „HEUTE“
+- Seitentitel, Datum, Zeitkontostand, Informationssymbol und zusätzliche Schnellübersichten oberhalb der Buchungstasten entfernt.
+- Zwei gleich große, dezente und sichtbar drückbare Kommen-/Gehen-Tasten.
+- Identisches Grund-SVG für beide Symbole; nur die Richtung unterscheidet sich.
+- Ruhige Grün-/Rot-Tönung, feiner Rahmen, dezenter Schatten und kurze Druckbewegung.
+- Buchungslogik, Haptik, Wechselreihenfolge, Rundung und Mindestabstand bleiben erhalten.
+- „Heute erfasst“ durch Abstand und Trennlinie klar getrennt; Buchungen weiterhin zu Arbeitsblöcken gruppiert.
+- Unterhalb steht nur noch „Manuelle Pause eintragen“ direkt oberhalb der vierteiligen Navigation.
+
+4. ZEITEN
+- Tagesnavigation als stabiles Raster „Pfeil | Datum | Pfeil“ umgesetzt.
+- Kein Überlappen oder Abschneiden bei 393 × 852 CSS-Pixeln und größerer Schrift.
+- Monatskarten zeigen oben rechts ausschließlich die Monatsdifferenz.
+- Zeitkonto am Monatsende beziehungsweise zum Stichtag wird separat ausgewiesen.
+- Monatsdifferenz, Übertrag und Schlussstand folgen den geprüften Excel-Baselines zuzüglich geschützter lokaler Änderungen.
+
+5. AUSWERTUNG UND DIAGRAMM
+- Eingabefelder und Berichtsschaltflächen für Tages-, Monats- und Jahresbericht einheitlich ausgerichtet.
+- Neue vollständig offline arbeitende SVG-Überstundengrafik.
+- Umschaltung zwischen Monats- und Jahresansicht.
+- Monatsbalken zeigen Monatsdifferenzen ober- beziehungsweise unterhalb der Nulllinie.
+- Jahresbalken zeigen die tatsächliche Jahresveränderung.
+- Detailwerte sind per Antippen oder Tastatur abrufbar.
+
+6. EINSTELLUNGEN
+- Sollzeitfeld und übrige Einstellungszeilen responsiv abgesichert.
+- Kein Überlaufen aus der Karte, auch bei größerer Systemschrift.
+
+7. BERICHTE, DRUCK UND PDF
+- Neues internes Vorschau-Overlay für Tages-, Monats- und Jahresberichte.
+- Kein window.open und kein automatischer Druckdialog.
+- Gut sichtbare Rückkehr zur App; aktueller Bildschirm und Auswahl bleiben erhalten.
+- Druck/PDF erst nach ausdrücklicher Betätigung der Schaltfläche.
+- Navigation und Bedienelemente werden im Ausdruck ausgeblendet; A4- und Seitenumbruchregeln bleiben erhalten.

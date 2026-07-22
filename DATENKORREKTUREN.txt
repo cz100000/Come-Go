@@ -1,0 +1,30 @@
+TECHNISCHE BESCHREIBUNG DER DATENKORREKTUREN
+Arbeitszeit-PWA Offline V5.3 High-End
+
+QUELLEN UND AUSWERTUNG
+- Verwendet wurden ausschließlich die fünf vorgegebenen Excel-Arbeitsmappen für 2022 bis 2026.
+- Die XLSX-Dateien wurden tabellenblattweise und spaltenorientiert ausgewertet.
+- Felder wurden anhand der tatsächlichen Überschriften erkannt, nicht anhand starrer Spaltenpositionen.
+- Insgesamt wurden 1.348 Tagesdatensätze und 55 Monatsstände in die geprüfte Datenbasis übernommen.
+
+MONATS- UND ZEITKONTOLOGIK
+- Pro Monat sind Übertrag, Monatsdifferenz, Schlussstand, Nettozeit, Sollzeit, Pause und Tagesabgleich als Baseline gespeichert.
+- Historische Monatsdifferenzen stammen aus den geprüften Monatszusammenfassungen der Excel-Dateien.
+- Der Monatsendstand ergibt sich aus Übertrag plus Monatsdifferenz.
+- Der laufende Juli 2026 endet am Stichtag 22.07.2026.
+- Jahresveränderungen werden aus den geprüften Jahresschlussständen gebildet und nicht durch erneutes Aufaddieren kumulierter Stände.
+
+BEKANNTE KORREKTUREN
+- April 2026: Die Arbeitsmappe enthält eine Spaltenverschiebung. Durch die Überschriftenerkennung werden Netto 185:15, Soll 160:00 und Differenz +25:15 korrekt zugeordnet.
+- Juli 2023: Monatsdifferenz +01:30.
+- September 2025: Monatsdifferenz +34:35. Die in der Arbeitsmappe verwendete Monatsformel beginnt bei der dort maßgeblichen Datenzeile 5 und wurde als autoritative Monatszusammenfassung respektiert.
+- Juli 2026 bis 22.07.: Monatsdifferenz -22:00 und Schlussstand +193:51.
+- Zahlen ohne Textinhalt werden nicht als Bemerkung oder Kommentar importiert.
+
+MIGRATION BESTEHENDER LOKALER DATEN
+- Der Speicherschlüssel „arbeitszeit-pwa-v1“ bleibt erhalten.
+- Die korrigierten Quelldaten ersetzen nur unveränderte historische Importtage.
+- Tage mit Bearbeitungs- oder Nachimportmerkmalen wie „edited“, „capturedAfterImport“, „modifiedAt“ oder vergleichbarem lokalem Inhalt gelten als geschützt.
+- Für geschützte historische Tage wird die Abweichung gegenüber der geprüften Baseline zusätzlich berücksichtigt, statt den Tag zu überschreiben.
+- Alle lokalen Tage nach dem 22.07.2026 bleiben erhalten und fließen fortlaufend in das Zeitkonto ein.
+- Stichtagsdatum, Stichtagsminuten und Importdatenversion werden zusammen aktualisiert, damit der 22.07.2026 genau einmal berücksichtigt wird.

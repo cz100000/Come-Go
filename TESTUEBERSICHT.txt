@@ -1,17 +1,53 @@
-Testübersicht V5.2 High-End
+TESTÜBERSICHT – Arbeitszeit-PWA Offline V5.3 High-End
+Stand: 22.07.2026
 
-Automatisch geprüft:
-- HTML- und JavaScript-Syntax.
-- PWA-Dateistruktur, Manifest, Service Worker und ZIP-Integrität.
-- LocalStorage-Schlüssel „arbeitszeit-pwa-v1“ und Schema 5 unverändert.
-- Stichtag 21.07.2026 weiterhin +194:46 Stunden.
-- Kommen rundet auf den nächsten, Gehen auf den vorherigen 5-Minuten-Wert.
-- Buchung wird erst beim Loslassen gespeichert; Wisch-/Abbruchbewegung erzeugt keine Buchung.
-- Nach Kommen 20:32 / dokumentiert 20:35 bleibt Gehen bis 20:40 gesperrt.
-- Gesperrter Button zeigt den frühestmöglichen Zeitpunkt und wird automatisch aktiv.
-- Speicherschutz prüft den Mindestabstand erneut unmittelbar vor dem Schreiben.
-- Manuell ungültige Reihenfolgen und dokumentierte Abstände unter fünf Minuten werden abgewiesen.
-- Heute-Ansicht zeigt keine tatsächlichen Uhrzeiten.
-- Acht Buchungen werden als vier Kommen-/Gehen-Arbeitsblöcke dargestellt.
-- iPhone-16-Viewport: Heute-Seite ohne Body-Scroll, Pause und Tab-Bar vollständig sichtbar.
-- Zeiten-Ansicht behält tatsächliche und dokumentierte Uhrzeiten sowie Bearbeitung und Berichte.
+ERGEBNIS
+- 23 von 23 automatisierten Browserprüfungen bestanden.
+- Offline-PWA-Neuladen bestanden.
+- Direkter Start der eigenständigen HTML-Datei bestanden.
+- JavaScript-Syntaxprüfung mit Node.js bestanden.
+- ZIP-Integrität und vollständiger Lieferumfang abschließend geprüft.
+
+DATENPRÜFUNGEN
+- 2022 Schlussstand +23:54.
+- 2023 Schlussstand +89:16; Jahresveränderung +65:22.
+- 2024 Schlussstand +83:33; Jahresveränderung -05:43.
+- 2025 Schlussstand +154:51; Jahresveränderung +71:18.
+- 22.07.2026 Schlussstand +193:51; Jahresveränderung 2026 +39:00.
+- April 2026: Netto 185:15, Soll 160:00, Monatsdifferenz +25:15.
+- Juli 2023: +01:30.
+- September 2025: +34:35.
+- Juli 2026 bis 22.07.: -22:00.
+- Alle 55 Monatsketten „Übertrag + Monatsdifferenz = Schlussstand“ konsistent.
+- Keine doppelte Anrechnung des 22.07.2026.
+- Keine rein numerischen Kommentarartefakte.
+
+BUCHUNGS- UND MIGRATIONSTESTS
+- Tagesbeginn: Kommen aktiv, Gehen technisch gesperrt.
+- Kommen/Gehen alternieren korrekt.
+- Kommen wird aufgerundet, Gehen abgerundet.
+- Mindestabstand von fünf Minuten wird erzwungen.
+- Mehrere Arbeitsblöcke und offene Arbeitsblöcke werden korrekt dargestellt.
+- Manuelle Pause bleibt nutzbar.
+- Unveränderte Importwerte werden migriert.
+- Bearbeitete, nachträglich erfasste und nach dem Stichtag liegende Daten bleiben geschützt.
+- Lokale Speicherung bleibt nach Neuladen erhalten.
+
+UI- UND RESPONSIVTESTS
+- Hauptprüfung mit 393 × 852 CSS-Pixeln im iPhone-16-Hochformat.
+- Startseite ohne unerwünschte Kopf- oder Zusatzbereiche.
+- Identische Abmessungen der Buchungstasten und SVG-Symbole.
+- Genau vier Navigationseinträge.
+- Tagesnavigation ohne Überlauf.
+- Einstellungen ohne Feldüberlauf.
+- Simulierte größere Systemschrift ohne horizontalen Body-Scroll.
+- Einheitliche Berichtsraster.
+- Monats- und Jahresdiagramm bedienbar.
+- Interne Druckvorschau für Berichte bedienbar.
+
+OFFLINE- UND ABHÄNGIGKEITSTESTS
+- Service Worker registriert und Cache vorhanden.
+- Vollständiges Neuladen bei deaktiviertem Netzwerk erfolgreich.
+- Einzeldatei per file:// erfolgreich geöffnet.
+- Keine externen Skripte, Stylesheets, Bilder, Bibliotheken, CDNs oder Webfonts.
+- Kein window.open; kein automatischer Druck beim Öffnen der Vorschau.
