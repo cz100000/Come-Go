@@ -1,0 +1,15 @@
+ARBEITSZEIT PWA – TESTÜBERSICHT V5.13
+
+Durchgeführt:
+- JavaScript-Syntaxprüfung: bestanden.
+- Manifest-JSON-Prüfung: bestanden.
+- Service-Worker-Dateiliste und Cache-Version geprüft: bestanden.
+- Verlaufskarte: feste Höhe weiterhin 482 px.
+- Diagramm: feste Höhe weiterhin 235 px.
+- Umschalter Monat / Jahr / Verlauf: Struktur unverändert.
+- Detailbereich: alle drei Kennzahlenzeilen bleiben innerhalb der Karte.
+- iPhone-16-Ansicht als statische Browser-Sichtprüfung gerendert.
+- Offline-Dateibestand vollständig geprüft.
+
+Ergebnis:
+Keine Regressionen in den geänderten Dateien festgestellt.

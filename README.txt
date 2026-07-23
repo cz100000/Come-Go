@@ -1,4 +1,4 @@
-Arbeitszeit-PWA Offline V5.12 High-End – iPhone 16
+Arbeitszeit-PWA Offline V5.13 High-End – iPhone 16
 Stand: 23.07.2026
 
 INHALT
@@ -59,3 +59,9 @@ V5.12:
 - „Excel-Auswertung erstellen“ und „Sicherung erstellen“ wurden als separate Oberflächenaktionen entfernt; das gemeinsame Sicherungs-/Excel-Paket und die Wiederherstellung bleiben erhalten.
 - Die Diagrammkarte heißt „Verlauf“, behält beim Wechsel zwischen Monat, Jahr und Verlauf eine feste Höhe und verwendet besser lesbare Achsen.
 - Monats- und Jahresauswertungen besitzen zusätzlich „PDF teilen“ mit vollständig lokaler PDF-Erzeugung, nativer iOS-Dateifreigabe und Download-Fallback.
+
+
+V5.13:
+- Verlaufskarte auf dem iPhone 16 moderat verdichtet, ohne Schrift oder Diagramm zu verkleinern.
+- Freiräume zwischen Untertitel, Jahresauswahl, Diagramm und Detailbereich reduziert.
+- Detailzeilen kompakter angeordnet und sicher innerhalb der Karte gehalten.

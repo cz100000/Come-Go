@@ -1,0 +1,15 @@
+UMSETZUNGSBERICHT – ARBEITSZEIT PWA V5.13
+
+Ausgangsbasis:
+Arbeitszeit_PWA_Offline_V5_12_HighEnd_iPhone16.zip
+
+Umsetzung:
+Die Verlaufskarte auf der Seite „Auswertung“ wurde innerhalb ihrer bestehenden festen Höhe moderat verdichtet. Freiräume zwischen Untertitel, Jahresauswahl, Diagramm und Detailauswertung wurden reduziert. Die Detailzeilen verwenden geringere, weiterhin klar lesbare vertikale Abstände. Schriftgrößen, Diagrammhöhe, Kartenhöhe und die Position des Umschalters bleiben unverändert.
+
+Ergebnis:
+Die Zeile „Netto / Soll“ wird vollständig innerhalb der Karte angezeigt. Die Darstellung wirkt kompakter, bleibt aber bewusst luftig und gut lesbar.
+
+Versionierung:
+- Anwendung: V5.13
+- Service-Worker-Cache: arbeitszeit-v5-13-2026-07-24
+- Manifest: V5.13

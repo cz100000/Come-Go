@@ -1,0 +1,20 @@
+ARBEITSZEIT PWA – ÄNDERUNGEN V5.13
+
+1. Verlaufskarte kompakter gestaltet
+- Die feste Kartenhöhe und die feste Diagrammhöhe bleiben unverändert.
+- Der vertikale Abstand zwischen Untertitel und Jahresauswahl wurde moderat reduziert.
+- Die Jahresauswahl wurde näher an das Diagramm gerückt.
+- Der Abstand zwischen Diagramm und Detailauswertung wurde reduziert.
+- Die Detailzeilen wurden leicht kompakter angeordnet, ohne Schriftgrößen zu verkleinern.
+- Der untere Karteninhalt einschließlich „Netto / Soll“ bleibt vollständig innerhalb der Karte.
+
+2. Unverändert
+- Diagrammgröße und Achsenpositionen
+- Umschalter Monat / Jahr / Verlauf
+- Schriftgrößen und Lesbarkeit
+- übriges Design und sämtliche Funktionen
+
+3. Technik
+- App-Version auf V5.13 erhöht.
+- Manifest aktualisiert.
+- Service-Worker-Cache auf arbeitszeit-v5-13-2026-07-24 aktualisiert.
