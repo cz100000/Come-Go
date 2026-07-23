@@ -1,0 +1,26 @@
+ARBEITSZEIT PWA – TESTÜBERSICHT V5.11
+
+Automatisch/statisch geprüft:
+- Ausgangs-ZIP: Integrität ohne Fehler
+- JavaScript: node --check ohne Syntaxfehler
+- Manifest: gültiges JSON
+- HTML: eindeutige IDs; neue Bedienelemente vollständig vorhanden
+- Service Worker: Cachekennung V5.11 und vollständige lokale App-Dateiliste
+- Ziel-ZIP: Integritätsprüfung ohne Fehler
+- Keine externen CDN- oder Serverabhängigkeiten ergänzt
+
+Implementierungsseitig geprüft:
+- Umschalter Monat/Jahr/Verlauf in gemeinsamer Überschriftenzeile
+- iPhone-16-taugliche kompakte Segmentbreite ohne vorgesehenen Zeilenumbruch
+- Monats- und Jahresbalkendiagramme weiter nutzbar
+- Gesamtverlauf berücksichtigt historische Monatsstände und aktuellen Zeitkontostand
+- positive/negative Skala und sichtbare Nulllinie
+- Touch-/Tastaturauswahl der Diagrammpunkte
+- lokale Speicherung des Diagrammmodus
+- mobile Monatsbericht-Ansicht mit Kennzahlen und Tagesübersicht
+- mobile Jahresbericht-Ansicht mit Kennzahlen und Monatsübersicht
+- getrennte A4-Druckansicht
+- Versionsanzeige V5.11
+
+Hinweis:
+Eine reale Installation auf einem physischen iPhone 16 und der native iOS-Druckdialog können in der Containerumgebung nicht vollständig automatisiert werden. Die Ansichten wurden deshalb responsiv für die vorhandene iPhone-16-Breite umgesetzt und statisch geprüft.

@@ -5,7 +5,7 @@ const BACKUP_FORMAT='arbeitszeit-pwa-backup';
 let storageNotice='';
 const CHECKPOINT_DATE='2026-07-22';
 const CHECKPOINT_MINUTES=11631;
-const APP_VERSION='5.10';
+const APP_VERSION='5.11';
 const CURRENT_SCHEMA=9;
 const IMPORT_DATA_VERSION=2;
 let state=loadState();
@@ -635,24 +635,54 @@ function closeModal(id){
 function openPauseModal(){$('quickPause').value=Number(dayObject(todayKey()).pauseMinutes)||0;openModal('pauseModal');setTimeout(()=>$('quickPause').focus(),80)}
 function saveQuickPause(){const k=todayKey(),d=dayObject(k,true);d.pauseMinutes=Math.max(0,Number($('quickPause').value)||0);d.edited=true;d.modifiedAt=new Date().toISOString();state.days[k]=d;touchDay(k);closeModal('pauseModal');renderToday();showToast('Pause gespeichert')}
 
-let chartMode='month',chartSelection=null;
+let chartMode=['month','year','history'].includes(state.settings.chartMode)?state.settings.chartMode:'month',chartSelection=null;
 function renderReports(){
   const t=todayKey(),bal=balanceThrough(t);$('reportBalance').textContent=formatDuration(bal);$('reportBalance').className=bal<0?'red':'green';$('reportDay').value=t;$('reportMonth').value=t.slice(0,7);
-  const years=[];for(let y=new Date().getFullYear();y>=earliestYear();y--)years.push(`<option value="${y}">${y}</option>`);$('reportYear').innerHTML=years.join('');$('chartYear').innerHTML=years.join('');$('chartYear').value=String(new Date().getFullYear());renderOvertimeChart();
+  const years=[];for(let y=new Date().getFullYear();y>=earliestYear();y--)years.push(`<option value="${y}">${y}</option>`);$('reportYear').innerHTML=years.join('');$('chartYear').innerHTML=years.join('');if(!$('chartYear').value)$('chartYear').value=String(new Date().getFullYear());renderOvertimeChart();
 }
+function setChartMode(mode){chartMode=mode;chartSelection=null;state.settings.chartMode=mode;saveState();renderOvertimeChart()}
 function chartSelect(kind,key){chartSelection={kind,key};renderOvertimeChart()}
+function chartHistoryItems(){
+  const first=earliestYear(),now=new Date(),items=[];
+  for(let y=first;y<=now.getFullYear();y++)for(let m=0;m<12;m++){
+    if(y===now.getFullYear()&&m>now.getMonth())break;
+    const key=`${y}-${pad(m+1)}`,summary=monthSummary(y,m),available=!!MONTHLY_BASELINES[key]||summary.days.length>0;
+    if(available)items.push({key,label:key,name:new Intl.DateTimeFormat('de-DE',{month:'long',year:'numeric'}).format(new Date(y,m,1)),value:summary.closing,summary,available:true});
+  }
+  if(!items.length){const key=todayKey().slice(0,7),summary=monthSummary(Number(key.slice(0,4)),Number(key.slice(5,7))-1);items.push({key,label:key,name:key,value:balanceThrough(todayKey()),summary,available:true})}
+  const current=balanceThrough(todayKey()),last=items.at(-1);if(last)last.value=current;
+  return items;
+}
+function renderHistoryChart(host,detail,items){
+  const w=360,h=235,left=42,right=10,top=24,bottom=38,plotW=w-left-right,plotH=h-top-bottom;
+  const vals=items.map(i=>i.value),min=Math.min(0,...vals),max=Math.max(0,...vals),range=Math.max(60,max-min),y=v=>top+(max-v)/range*plotH,x=i=>left+(items.length===1?plotW:plotW*i/(items.length-1));
+  const tickVals=Array.from({length:5},(_,i)=>max-range*i/4),zeroY=y(0),points=items.map((it,i)=>`${x(i).toFixed(1)},${y(it.value).toFixed(1)}`).join(' ');
+  let area='';if(items.length>1)area=`<path class="history-area" d="M ${x(0)} ${zeroY} L ${points.replaceAll(' ',' L ')} L ${x(items.length-1)} ${zeroY} Z"/>`;
+  const years=[...new Set(items.map(i=>i.key.slice(0,4)))];
+  let svg=`<svg viewBox="0 0 ${w} ${h}" aria-hidden="true"><g class="chart-grid">${tickVals.map(v=>`<line x1="${left}" x2="${w-right}" y1="${y(v)}" y2="${y(v)}"/><text x="${left-6}" y="${y(v)+3}" text-anchor="end">${v===0?'0h':`${v>0?'+':''}${Math.round(v/60)}h`}</text>`).join('')}</g><line class="zero-line" x1="${left}" x2="${w-right}" y1="${zeroY}" y2="${zeroY}"/>${area}<polyline class="history-line" points="${points}"/>`;
+  items.forEach((it,i)=>{const showLabel=i===0||i===items.length-1||items[i-1].key.slice(0,4)!==it.key.slice(0,4),selected=chartSelection?.key===it.key;svg+=`<g class="history-point ${selected?'selected':''}" data-chart-key="${it.key}" role="button" tabindex="0" aria-label="${esc(it.name)} ${formatDuration(it.value)}"><rect class="chart-hit" x="${Math.max(left,x(i)-10)}" y="${top}" width="20" height="${plotH}"/><circle cx="${x(i)}" cy="${y(it.value)}" r="${selected?4.5:2.2}"/>${showLabel?`<text class="chart-label" x="${x(i)}" y="${h-14}" text-anchor="middle">${it.key.slice(0,4)}</text>`:''}</g>`});
+  host.innerHTML=svg+'</svg>';
+  host.querySelectorAll('[data-chart-key]').forEach(el=>{const act=()=>chartSelect('history',el.dataset.chartKey);el.addEventListener('click',act);el.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();act()}})});
+  const picked=items.find(i=>i.key===chartSelection?.key)||items.at(-1);chartSelection={kind:'history',key:picked.key};
+  detail.innerHTML=`<b>${esc(picked.name)}</b><div><span>Kumulierter Zeitkontostand</span><strong class="${picked.value<0?'red':'green'}">${formatDuration(picked.value)}</strong></div><div><span>Ausgewählter Zeitraum</span><strong>${items[0].key.slice(0,4)} – ${items.at(-1).key.slice(0,4)}</strong></div>`;
+}
 function renderOvertimeChart(){
   const host=$('overtimeChart'),detail=$('chartDetail');if(!host||!detail)return;
-  $('chartMonthMode').classList.toggle('active',chartMode==='month');$('chartYearMode').classList.toggle('active',chartMode==='year');$('chartYear').disabled=chartMode==='year';
+  $('chartMonthMode').classList.toggle('active',chartMode==='month');$('chartYearMode').classList.toggle('active',chartMode==='year');$('chartHistoryMode').classList.toggle('active',chartMode==='history');$('chartYear').disabled=chartMode==='year';
+  $('chartSubtitle').textContent=chartMode==='history'?'Verlauf des gesamten Zeitkontostands':'Monats- oder Jahresveränderung';
+  document.querySelector('.chart-filter').style.display=chartMode==='year'?'none':'flex';document.querySelector('.chart-filter label').textContent=chartMode==='history'?'Zeitraum':'Jahr';
+  if(chartMode==='history'){
+    const items=chartHistoryItems(),first=items[0].key.slice(0,4),last=items.at(-1).key.slice(0,4);$('chartYear').innerHTML=`<option>${first} – ${last}</option>`;renderHistoryChart(host,detail,items);return;
+  }
+  const years=[];for(let y=new Date().getFullYear();y>=earliestYear();y--)years.push(`<option value="${y}">${y}</option>`);const selectedYear=$('chartYear').value;if(chartMode==='month'){$('chartYear').innerHTML=years.join('');$('chartYear').value=years.some(o=>o.includes(`value="${selectedYear}"`))?selectedYear:String(new Date().getFullYear())}
   const items=chartMode==='month'?Array.from({length:12},(_,m)=>{const y=Number($('chartYear').value)||new Date().getFullYear(),s=monthSummary(y,m);return{key:`${y}-${pad(m+1)}`,label:['Jan','Feb','Mär','Apr','Mai','Jun','Jul','Aug','Sep','Okt','Nov','Dez'][m],name:new Intl.DateTimeFormat('de-DE',{month:'long',year:'numeric'}).format(new Date(y,m,1)),value:s.diff,summary:s,available:!!MONTHLY_BASELINES[`${y}-${pad(m+1)}`]||s.days.length>0}}):Object.keys(YEAR_BASELINES).map(Number).sort((a,b)=>a-b).map(y=>{const s=yearSummary(y);return{key:String(y),label:String(y),name:`Jahr ${y}`,value:s.diff,summary:s,available:true}});
   const available=items.filter(i=>i.available),max=Math.max(60,...available.map(i=>Math.abs(i.value))),w=360,h=210,padX=25,zero=96,plotH=76,step=(w-padX*2)/Math.max(items.length,1),bar=Math.max(10,Math.min(22,step*.58));
   const ticks=[max,Math.round(max/2),0,-Math.round(max/2),-max];
-  let svg=`<svg viewBox="0 0 ${w} ${h}" aria-hidden="true" focusable="false"><g class="chart-grid">${ticks.map((v,i)=>{const y=zero-(v/max)*plotH;return `<line x1="${padX}" x2="${w-padX}" y1="${y}" y2="${y}"/><text x="${padX-5}" y="${y+3}" text-anchor="end">${i===2?'0':Math.round(Math.abs(v)/60)+'h'}</text>`}).join('')}</g><line class="zero-line" x1="${padX}" x2="${w-padX}" y1="${zero}" y2="${zero}"/>`;
-  items.forEach((it,i)=>{const x=padX+i*step+(step-bar)/2,val=it.available?it.value:0,bh=Math.abs(val)/max*plotH,y=val>=0?zero-bh:zero,selected=chartSelection?.key===it.key,current=it.key===todayKey().slice(0,chartMode==='month'?7:4);svg+=`<g class="chart-item ${selected?'selected':''} ${current?'current':''} ${it.available?'':'unavailable'}" role="button" tabindex="0" data-chart-key="${it.key}" aria-label="${esc(it.name)} ${formatDuration(val)}"><rect class="chart-hit" x="${padX+i*step}" y="12" width="${step}" height="${h-25}"/><rect class="chart-bar ${val<0?'negative':'positive'}" x="${x}" y="${y}" width="${bar}" height="${Math.max(it.available?2:0,bh)}" rx="4"/><text class="chart-label" x="${x+bar/2}" y="${h-12}" text-anchor="middle">${it.label}</text></g>`});
-  host.innerHTML=svg+'</svg>';
-  host.querySelectorAll('[data-chart-key]').forEach(el=>{const act=()=>chartSelect(chartMode,el.dataset.chartKey);el.addEventListener('click',act);el.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();act()}})});
+  let svg=`<svg viewBox="0 0 ${w} ${h}" aria-hidden="true" focusable="false"><g class="chart-grid">${ticks.map((v,i)=>{const yy=zero-(v/max)*plotH;return `<line x1="${padX}" x2="${w-padX}" y1="${yy}" y2="${yy}"/><text x="${padX-5}" y="${yy+3}" text-anchor="end">${i===2?'0':Math.round(Math.abs(v)/60)+'h'}</text>`}).join('')}</g><line class="zero-line" x1="${padX}" x2="${w-padX}" y1="${zero}" y2="${zero}"/>`;
+  items.forEach((it,i)=>{const xx=padX+i*step+(step-bar)/2,val=it.available?it.value:0,bh=Math.abs(val)/max*plotH,yy=val>=0?zero-bh:zero,selected=chartSelection?.key===it.key,current=it.key===todayKey().slice(0,chartMode==='month'?7:4);svg+=`<g class="chart-item ${selected?'selected':''} ${current?'current':''} ${it.available?'':'unavailable'}" role="button" tabindex="0" data-chart-key="${it.key}" aria-label="${esc(it.name)} ${formatDuration(val)}"><rect class="chart-hit" x="${padX+i*step}" y="12" width="${step}" height="${h-25}"/><rect class="chart-bar ${val<0?'negative':'positive'}" x="${xx}" y="${yy}" width="${bar}" height="${Math.max(it.available?2:0,bh)}" rx="4"/><text class="chart-label" x="${xx+bar/2}" y="${h-12}" text-anchor="middle">${it.label}</text></g>`});
+  host.innerHTML=svg+'</svg>';host.querySelectorAll('[data-chart-key]').forEach(el=>{const act=()=>chartSelect(chartMode,el.dataset.chartKey);el.addEventListener('click',act);el.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();act()}})});
   let picked=items.find(i=>i.key===chartSelection?.key&&chartSelection.kind===chartMode)||available.at(-1);if(!picked){detail.innerHTML='<span>Für diese Auswahl liegen noch keine Werte vor.</span>';return}chartSelection={kind:chartMode,key:picked.key};
-  const s=picked.summary;detail.innerHTML=`<b>${esc(picked.name)}</b><div><span>${chartMode==='month'?'Monatsdifferenz':'Jahresveränderung'}</span><strong class="${s.diff<0?'red':'green'}">${formatDuration(s.diff)}</strong></div><div><span>Zeitkonto ${s.cutoff<`${picked.key}-99`?'zum Stichtag':'am Ende'}</span><strong>${formatDuration(s.closing)}</strong></div><div><span>Netto / Soll</span><strong>${formatDuration(s.net,{signed:false})} / ${formatDuration(s.target,{signed:false})}</strong></div>`;
+  const sm=picked.summary;detail.innerHTML=`<b>${esc(picked.name)}</b><div><span>${chartMode==='month'?'Monatsdifferenz':'Jahresveränderung'}</span><strong class="${sm.diff<0?'red':'green'}">${formatDuration(sm.diff)}</strong></div><div><span>Zeitkonto zum Stichtag</span><strong>${formatDuration(sm.closing)}</strong></div><div><span>Netto / Soll</span><strong>${formatDuration(sm.net,{signed:false})} / ${formatDuration(sm.target,{signed:false})}</strong></div>`;
 }
 
 function refreshAllDerivedViews(){
@@ -786,6 +816,25 @@ function exportXLSX(){try{const file=createExcelFile();downloadBlob(file.name,fi
 async function createPackage(){const backup=createBackupFile(),xlsx=createExcelFile(),note=`Arbeitszeit-Sicherung\n\nSicherungsdatum: ${new Date().toLocaleString('de-DE')}\nApp-Version: ${APP_VERSION}\n\nDie JSON-Datei dient zur vollständigen Wiederherstellung in der App.\nDie Excel-Datei dient ausschließlich zur Ansicht und Auswertung.\n`;const files=[{name:backup.name,data:new Uint8Array(await backup.arrayBuffer())},{name:xlsx.name,data:new Uint8Array(await xlsx.arrayBuffer())},{name:'Hinweise.txt',data:note}];return new File([zipStore(files)],`Arbeitszeit_Sicherung_${todayKey()}.zip`,{type:'application/zip'})}
 async function sharePackage(){try{const zip=await createPackage();if(navigator.share&&navigator.canShare?.({files:[zip]})){await navigator.share({title:'Arbeitszeit-Sicherung',text:'JSON-Backup und Excel-Auswertung',files:[zip]});showToast('Teilen-Menü geöffnet')}else{downloadBlob(zip.name,zip);alert('Das Teilen von Dateien wird hier nicht unterstützt. Das ZIP-Paket wurde stattdessen heruntergeladen.')}}catch(e){if(e?.name!=='AbortError'){console.error(e);alert(`Sicherung konnte nicht geteilt werden: ${e.message}`)}}}
 
+let mobileReportType=null,mobileReportYear=new Date().getFullYear(),mobileReportMonth=new Date().getMonth();
+function reportDiffClass(v){return v<0?'red':v>0?'green':''}
+function openMobileReport(type){
+  mobileReportType=type;const now=new Date();if(type==='month'){const v=$('reportMonth').value||todayKey().slice(0,7);mobileReportYear=Number(v.slice(0,4));mobileReportMonth=Number(v.slice(5,7))-1}else mobileReportYear=Number($('reportYear').value)||now.getFullYear();
+  $('mobileReport').classList.add('open');$('mobileReport').setAttribute('aria-hidden','false');document.body.classList.add('preview-open');renderMobileReport();
+}
+function closeMobileReport(){$('mobileReport').classList.remove('open');$('mobileReport').setAttribute('aria-hidden','true');document.body.classList.remove('preview-open')}
+function shiftMobileReport(delta){if(mobileReportType==='month'){const d=new Date(mobileReportYear,mobileReportMonth+delta,1);if(d>new Date())return;mobileReportYear=d.getFullYear();mobileReportMonth=d.getMonth();$('reportMonth').value=`${mobileReportYear}-${pad(mobileReportMonth+1)}`}else{const y=mobileReportYear+delta;if(y>new Date().getFullYear()||y<earliestYear())return;mobileReportYear=y;$('reportYear').value=String(y)}renderMobileReport()}
+function renderMobileReport(){
+  const month=mobileReportType==='month',s=month?monthSummary(mobileReportYear,mobileReportMonth):yearSummary(mobileReportYear),title=month?'Monatsbericht':'Jahresbericht';$('mobileReportTitle').textContent=title;
+  $('mobileReportPeriod').textContent=month?new Intl.DateTimeFormat('de-DE',{month:'long',year:'numeric'}).format(new Date(mobileReportYear,mobileReportMonth,1)):String(mobileReportYear);
+  $('mobileReportPrev').disabled=month?(mobileReportYear===earliestYear()&&mobileReportMonth===0):mobileReportYear<=earliestYear();$('mobileReportNext').disabled=month?(mobileReportYear===new Date().getFullYear()&&mobileReportMonth===new Date().getMonth()):mobileReportYear>=new Date().getFullYear();
+  const metrics=month?[['Zeitkontostand zu Monatsbeginn',s.opening],['Nettozeit (Ist)',s.net,false],['Sollzeit',s.target,false],['Monatsdifferenz',s.diff,true],['Pausenzeit',s.pause,false],['Arbeitstage',s.days.filter(d=>calculateDay(d).net>0||d.absence).length,'number'],['Zeitkontostand zum Stichtag',s.closing,true]]:[['Zeitkontostand zu Jahresbeginn',s.opening],['Nettozeit (Ist)',s.net,false],['Sollzeit',s.target,false],['Jahresveränderung',s.diff,true],['Pausenzeit',s.pause,false],['Arbeitstage',s.days.filter(d=>calculateDay(d).net>0||d.absence).length,'number'],['Zeitkontostand zum Stichtag',s.closing,true]];
+  const metricHtml=`<div class="mobile-report-metrics">${metrics.map(([label,val,signed])=>`<div><span>${label}</span><b class="${signed===true?reportDiffClass(val):''}">${signed==='number'?val:formatDuration(val,{signed:signed!==false})}</b></div>`).join('')}</div>`;
+  let rows='';if(month){rows=s.days.map(d=>{const c=calculateDay(d);return `<tr><td>${new Intl.DateTimeFormat('de-DE',{weekday:'short'}).format(parseDateKey(d.date))}<br><b>${formatDate(d.date,{day:'2-digit',month:'2-digit'})}</b></td><td class="num">${formatDuration(c.net,{signed:false})}</td><td class="num">${formatDuration(c.target,{signed:false})}</td><td class="num ${reportDiffClass(c.diff)}">${formatDuration(c.diff)}</td></tr>`}).join('')||'<tr><td colspan="4" class="empty">Keine Daten vorhanden</td></tr>'}else{rows=s.months.map((ms,m)=>`<tr><td>${new Intl.DateTimeFormat('de-DE',{month:'short'}).format(new Date(mobileReportYear,m,1))} ${mobileReportYear}</td><td class="num">${formatDuration(ms.net,{signed:false})}</td><td class="num">${formatDuration(ms.target,{signed:false})}</td><td class="num ${reportDiffClass(ms.diff)}">${formatDuration(ms.diff)}</td></tr>`).join('')}
+  $('mobileReportContent').innerHTML=`${metricHtml}<h2 class="mobile-report-section">${month?'Tagesübersicht':'Monatsübersicht'}</h2><div class="mobile-report-table"><table><thead><tr><th>${month?'Tag':'Monat'}</th><th class="num">Ist (Netto)</th><th class="num">Soll</th><th class="num">Diff.</th></tr></thead><tbody>${rows}</tbody></table></div>`;
+}
+function printMobileReport(){if(mobileReportType==='month')monthReport(mobileReportYear,mobileReportMonth);else yearReport(mobileReportYear)}
+
 let printReturnScreen='reports';
 function reportShell(title,subtitle,summary,table,type='day'){
   const name=state.settings.employeeName||'Arbeitszeitnachweis',created=new Intl.DateTimeFormat('de-DE',{dateStyle:'medium',timeStyle:'short'}).format(new Date()),signature=state.settings.reportSignature===false?'':`<div class="signatures"><div>Datum / Unterschrift Mitarbeiter</div><div>Datum / Bestätigung</div></div>`;
@@ -834,10 +883,10 @@ function init(){
   ['absenceType','absenceFrom','absenceTo','absenceExtent','absenceConflictPolicy'].forEach(id=>$(id).addEventListener('change',updateAbsenceSummary));$('absenceNote').addEventListener('input',updateAbsenceSummary);$('saveAbsenceBtn').addEventListener('click',saveAbsence);$('deleteAbsenceDayBtn').addEventListener('click',()=>deleteAbsenceFromModal('day'));$('deleteAbsenceGroupBtn').addEventListener('click',()=>deleteAbsenceFromModal('group'));
   $('addEntryBtn').addEventListener('click',addEditingEntry);$('saveDayBtn').addEventListener('click',saveEditedDay);$('deleteDayBtn').addEventListener('click',deleteEditedDay);$('restoreImportBtn').addEventListener('click',restoreImportedDay);$('manageAbsenceFromDay').addEventListener('click',()=>{const k=$('editDate').value,d=dayObject(k);closeModal('dayModal');d.absence?openAbsenceEditorForDay(k,d.absenceGroupId&&absenceGroupDays(d.absenceGroupId).length>1?'group':'day'):openNewAbsence('vacation',k)});
   $('dayReportBtn').addEventListener('click',()=>dayReport($('reportDay').value||todayKey()));
-  $('monthReportBtn').addEventListener('click',()=>{const [y,m]=($('reportMonth').value||todayKey().slice(0,7)).split('-').map(Number);monthReport(y,m-1)});
-  $('yearReportBtn').addEventListener('click',()=>yearReport(Number($('reportYear').value)||new Date().getFullYear()));
-  $('chartMonthMode').addEventListener('click',()=>{chartMode='month';chartSelection=null;renderOvertimeChart()});$('chartYearMode').addEventListener('click',()=>{chartMode='year';chartSelection=null;renderOvertimeChart()});$('chartYear').addEventListener('change',()=>{chartSelection=null;renderOvertimeChart()});
-  $('closePrintPreview').addEventListener('click',closePrintPreview);$('printReportBtn').addEventListener('click',printCurrentReport);
+  $('monthReportBtn').addEventListener('click',()=>openMobileReport('month'));
+  $('yearReportBtn').addEventListener('click',()=>openMobileReport('year'));
+  $('chartMonthMode').addEventListener('click',()=>setChartMode('month'));$('chartYearMode').addEventListener('click',()=>setChartMode('year'));$('chartHistoryMode').addEventListener('click',()=>setChartMode('history'));$('chartYear').addEventListener('change',()=>{chartSelection=null;renderOvertimeChart()});
+  $('closeMobileReport').addEventListener('click',closeMobileReport);$('mobileReportPrev').addEventListener('click',()=>shiftMobileReport(-1));$('mobileReportNext').addEventListener('click',()=>shiftMobileReport(1));$('mobileReportPrint').addEventListener('click',printMobileReport);$('closePrintPreview').addEventListener('click',closePrintPreview);$('printReportBtn').addEventListener('click',printCurrentReport);
   $('xlsxExportBtn').addEventListener('click',exportXLSX);$('jsonExportBtn').addEventListener('click',exportJSON);$('shareBackupBtn').addEventListener('click',sharePackage);$('jsonRestoreBtn').addEventListener('click',()=>$('restoreFile').click());$('restoreFile').addEventListener('change',e=>restoreJSON(e.target.files[0]));
   ['employeeName','targetHours','checkpointBalance','freeChristmasEve','freeNewYearsEve','countdownEnabled','reportSignature'].forEach(id=>$(id).addEventListener('change',saveSettings));
   updateClock();setInterval(updateClock,1000);window.addEventListener('resize',()=>{if(document.body.classList.contains('today-fixed')){renderTodayCapture(dayObject(todayKey()));updateCountdown({allowCelebrate:false})}});document.addEventListener('visibilitychange',()=>{if(!document.hidden&&document.body.classList.contains('today-fixed')){updateClock();updateCountdown()}});renderToday();

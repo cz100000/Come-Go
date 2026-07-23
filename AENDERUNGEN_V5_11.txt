@@ -1,0 +1,19 @@
+ARBEITSZEIT PWA – ÄNDERUNGEN V5.11
+
+1. Überstundenverlauf
+- Segment-Umschalter „Monat | Jahr | Verlauf“ in derselben Kopfzeile rechts neben „ÜBERSTUNDENVERLAUF“.
+- Bestehende Monats- und Jahresdifferenz bleiben erhalten.
+- Neuer Gesamtverlauf als kumulierter Liniengraph mit sichtbarer Nulllinie, Jahresachse und Touch-/Tastaturauswahl.
+- Letzter Verlaufspunkt wird mit dem aktuellen Zeitkontostand abgeglichen.
+- Zuletzt gewählter Diagrammmodus wird lokal gespeichert.
+
+2. Mobile Berichte
+- Monats- und Jahresberichte öffnen nun zuerst eine eigenständige mobile Bildschirmansicht.
+- Kompakte Kennzahlen und vollständig lesbare Tages- bzw. Monatsübersicht.
+- Zeitraumwechsel über Vor-/Zurück-Steuerung.
+- „Drucken / PDF“ öffnet getrennt die bestehende A4-Druckvorschau.
+
+3. Druck, Offline und Version
+- Tagesbericht bleibt A4 hoch; Monats- und Jahresbericht bleiben A4 quer.
+- Version, Manifest und Service-Worker-Cache auf V5.11 aktualisiert.
+- Export-, Sicherungs-, Wiederherstellungs- und Teilen-Funktionen unverändert erhalten.
