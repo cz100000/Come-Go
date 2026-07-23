@@ -1,4 +1,4 @@
-Arbeitszeit-PWA Offline V5.8 High-End – iPhone 16
+Arbeitszeit-PWA Offline V5.9 High-End – iPhone 16
 Stand: 23.07.2026
 
 INHALT
@@ -41,3 +41,9 @@ COUNTDOWN UND TAGESZIEL
 - Standard-Mindestpause: 30 Minuten bei mehr als 6 bis 9 Stunden, 45 Minuten bei mehr als 9 Stunden.
 - Bei ganztägiger Abwesenheit oder ausgeschaltetem Schalter wird die Karte vollständig ausgeblendet.
 - Das Konfetti läuft einmal pro Tag etwa zwei Sekunden und nur bei aktivem Countdown sowie vollständig erreichtem Arbeits- und Pausenziel.
+
+
+V5.9:
+- Auf der Seite „Auswertung“ steht der Überstundenverlauf jetzt direkt unter dem aktuellen Zeitkontostand.
+- Der Bereich „Berichte und PDF“ wurde darunter angeordnet.
+- Funktionen und Datenlogik der Berichte bleiben unverändert.

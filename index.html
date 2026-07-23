@@ -78,12 +78,6 @@
 <section id="reports" class="screen" aria-label="Auswertung">
   <header class="page-header"><div><h1>Auswertung</h1><div class="sub">Berichte, Exporte und Sicherung</div></div></header>
   <div class="card balance-hero"><span>Aktueller Zeitkontostand</span><strong id="reportBalance">+193:51</strong></div>
-  <div class="card">
-    <h2 class="card-title">Berichte und PDF</h2>
-    <div class="report-controls"><input id="reportDay" type="date"><button type="button" id="dayReportBtn">Tagesbericht</button></div>
-    <div class="report-controls"><input id="reportMonth" type="month"><button type="button" id="monthReportBtn">Monatsbericht</button></div>
-    <div class="report-controls"><select id="reportYear"></select><button type="button" id="yearReportBtn">Jahresbericht</button></div>
-  </div>
   <section class="card overtime-card" aria-labelledby="overtimeTitle">
     <div class="overtime-head">
       <div><h2 class="card-title" id="overtimeTitle">Überstundenverlauf</h2><p>Monats- oder Jahresveränderung</p></div>
@@ -93,6 +87,12 @@
     <div id="overtimeChart" class="overtime-chart" role="img" aria-label="Überstundengrafik"></div>
     <div id="chartDetail" class="chart-detail" aria-live="polite"></div>
   </section>
+  <div class="card">
+    <h2 class="card-title">Berichte und PDF</h2>
+    <div class="report-controls"><input id="reportDay" type="date"><button type="button" id="dayReportBtn">Tagesbericht</button></div>
+    <div class="report-controls"><input id="reportMonth" type="month"><button type="button" id="monthReportBtn">Monatsbericht</button></div>
+    <div class="report-controls"><select id="reportYear"></select><button type="button" id="yearReportBtn">Jahresbericht</button></div>
+  </div>
   <div class="action-list">
     <button type="button" class="action-row" id="csvExportBtn"><span class="icon-wrap"><svg class="icon" viewBox="0 0 24 24"><path d="M12 3v12M8 11l4 4 4-4M5 20h14"/></svg></span><span><b>CSV-Export</b><small>Alle Tagesdaten und Buchungen</small></span><span class="chev">›</span></button>
     <button type="button" class="action-row" id="jsonExportBtn"><span class="icon-wrap"><svg class="icon" viewBox="0 0 24 24"><path d="M7 3h8l4 4v14H7zM15 3v5h5"/></svg></span><span><b>JSON-Backup</b><small>Vollständige lokale Sicherung</small></span><span class="chev">›</span></button>

@@ -1,0 +1,9 @@
+Arbeitszeit-PWA V5.9 – Reihenfolge auf der Seite „Auswertung"
+
+Änderungen:
+- Der Abschnitt „Überstundenverlauf" wurde eine Position nach oben verschoben.
+- Der Abschnitt „Berichte und PDF" steht nun direkt darunter.
+- Aktueller Zeitkontostand bleibt weiterhin an erster Stelle.
+- CSV-Export, JSON-Backup und Wiederherstellung bleiben unterhalb der Berichte.
+- Keine Änderungen an Berechnungen, Datenbestand oder Berichtsinhalten.
+- App-Version und Offline-Cache auf V5.9 aktualisiert.

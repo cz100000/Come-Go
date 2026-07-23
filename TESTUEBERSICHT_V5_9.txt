@@ -1,0 +1,9 @@
+Arbeitszeit-PWA V5.9 – Testübersicht
+
+[OK] Auswertungsseite: Aktueller Zeitkontostand zuerst
+[OK] Auswertungsseite: Überstundenverlauf an zweiter Position
+[OK] Auswertungsseite: Berichte und PDF an dritter Position
+[OK] IDs und Event-Bindings unverändert
+[OK] JavaScript-Syntax geprüft
+[OK] Service-Worker-Cache auf V5.9 aktualisiert
+[OK] ZIP-Integrität geprüft
