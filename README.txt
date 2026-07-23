@@ -1,4 +1,4 @@
-Arbeitszeit-PWA Offline V5.7 High-End – iPhone 16
+Arbeitszeit-PWA Offline V5.8 High-End – iPhone 16
 Stand: 23.07.2026
 
 INHALT

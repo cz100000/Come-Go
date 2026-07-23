@@ -5,7 +5,7 @@ const BACKUP_FORMAT='arbeitszeit-pwa-backup';
 let storageNotice='';
 const CHECKPOINT_DATE='2026-07-22';
 const CHECKPOINT_MINUTES=11631;
-const APP_VERSION='5.7';
+const APP_VERSION='5.8';
 const CURRENT_SCHEMA=9;
 const IMPORT_DATA_VERSION=2;
 let state=loadState();
@@ -536,7 +536,7 @@ function renderDayView(k){
   const source=d.edited?'Nachträglich geändert':d.capturedAfterImport?'Lokale Erfassung':d.sourceYear?`Importierte Daten aus ${d.sourceYear}`:'Lokale Erfassung';
   const rows=entries.length?entries.map((e,i)=>`<tr><td>${i+1}</td><td>${e.type==='in'?'Kommen':'Gehen'}</td><td class="num">${esc(e.actual||'–')}</td><td class="num">${esc(e.logged||'–')}</td><td><span class="booking-source">${esc(entrySource(d,e))}</span></td></tr>`).join(''):`<tr><td colspan="5" class="empty">Keine Buchungen vorhanden</td></tr>`;
   let inNo=0,outNo=0;
-  const mobileRows=entries.length?entries.map(e=>{const no=e.type==='in'?++inNo:++outNo,label=e.type==='in'?`Kommen ${no}`:`Gehen ${no}`;return `<article class="booking-mobile-item ${e.type}"><div class="booking-mobile-head"><span class="booking-type-icon">${e.type==='in'?SVG.in:SVG.out}</span><div><b class="booking-mobile-title">${label}</b><span class="booking-mobile-source">${esc(entrySource(d,e))}</span></div><button type="button" class="edit-icon-btn" onclick="openDayEditor('${k}')" aria-label="${label} bearbeiten">${SVG.edit}</button></div><div class="booking-mobile-times"><div class="booking-mobile-time"><span>Tatsächlich</span><b>${esc(e.actual||'–')}</b></div><div class="booking-mobile-time"><span>Dokumentiert</span><b>${esc(e.logged||'–')}</b></div></div></article>`}).join(''):`<div class="empty compact-empty">Keine Buchungen vorhanden</div>`;
+  const mobileRows=entries.length?`<div class="booking-compact-head"><span></span><span>Tatsächlich</span><span>Dokumentiert</span><span></span></div>${entries.map(e=>{const no=e.type==='in'?++inNo:++outNo,label=e.type==='in'?`Kommen ${no}`:`Gehen ${no}`;return `<div class="booking-compact-row ${e.type}"><div class="booking-compact-label"><span class="booking-type-icon">${e.type==='in'?SVG.in:SVG.out}</span><span><b>${label}</b><small>${esc(entrySource(d,e))}</small></span></div><b class="booking-compact-time">${esc(e.actual||'–')}</b><b class="booking-compact-time">${esc(e.logged||'–')}</b><button type="button" class="edit-icon-btn" onclick="openDayEditor('${k}')" aria-label="${label} bearbeiten">${SVG.edit}</button></div>`}).join('')}`:`<div class="empty compact-empty">Keine Buchungen vorhanden</div>`;
   const groupCount=d.absenceGroupId?absenceGroupDays(d.absenceGroupId).length:1;
   const absenceCard=d.absence?`<div class="card detail-list absence-detail-card"><div class="detail-row"><span>Abwesenheit</span><b>${esc(d.absence)}</b></div><div class="detail-row"><span>Umfang</span><b>${absenceDuration(d)==='half'?'Halber Tag':'Ganzer Tag'}</b></div><div class="detail-row"><span>Angerechnete Zeit</span><b class="absence-credit">${formatDuration(absenceCreditMinutes(d),{signed:false})}</b></div><div class="detail-row"><span>Notiz</span><div class="value">${esc(d.absenceNote||'–')}</div></div><div class="absence-actions-inline"><button type="button" onclick="openAbsenceEditorForDay('${k}','day')">Diesen Tag bearbeiten</button>${groupCount>1?`<button type="button" onclick="openAbsenceEditorForDay('${k}','group')">Zeitraum bearbeiten</button>`:''}<button type="button" class="danger" onclick="deleteAbsenceForDay('${k}','day')">Diesen Tag löschen</button>${groupCount>1?`<button type="button" class="danger" onclick="deleteAbsenceForDay('${k}','group')">Zeitraum löschen</button>`:''}</div></div>`:'';
   const diffClass=c.diff<0?'red':c.diff>0?'green':'neutral';
@@ -552,8 +552,8 @@ function renderDayView(k){
     <div class="card booking-card compact-booking-card"><h3 class="booking-section-title">Buchungen</h3><div class="booking-table-wrap table-scroll"><table class="booking-table"><thead><tr><th>Nr.</th><th>Art</th><th class="num">Tatsächlich</th><th class="num">Dokumentiert</th><th>Herkunft</th></tr></thead><tbody>${rows}</tbody></table></div><div class="booking-mobile-list">${mobileRows}</div></div>
     <div class="card day-additional" role="button" tabindex="0" onclick="openDayEditor('${k}')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openDayEditor('${k}')}" aria-label="Zusätzliche Angaben bearbeiten">
       <h3>Zusätzliche Angaben</h3>
-      <div class="additional-row"><span class="additional-icon pause">${SVG.pause}</span><div><b>Manuelle Pause</b><span>${Number(d.pauseMinutes)||0} Min.</span></div></div>
-      <div class="additional-row"><span class="additional-icon note">${SVG.note||SVG.edit}</span><div><b>Kommentar</b><span>${esc(d.note||'Kein Kommentar eingetragen')}</span></div></div>
+      <div class="additional-row"><span class="additional-icon pause">${SVG.pause}</span><b>Manuelle Pause</b><span class="additional-value">${Number(d.pauseMinutes)||0} Min.</span></div>
+      <div class="additional-row"><span class="additional-icon note">${SVG.note||SVG.edit}</span><b>Kommentar</b><span class="additional-value comment">${esc(d.note||'Kein Kommentar')}</span></div>
     </div>`;
   $('dayPicker').addEventListener('change',e=>{cursorDate=parseDateKey(e.target.value);renderDayView(e.target.value)});
 }

@@ -1,0 +1,15 @@
+Arbeitszeit-PWA V5.8 – Testübersicht
+
+Automatisch geprüft:
+- JavaScript-Syntax
+- Service-Worker-Syntax und Cache-Version
+- Manifest-JSON
+- interne Dateiverweise
+- ZIP-Integrität
+- kompakte Buchungsdarstellung und Zusatzangaben im Quelltext
+
+Auf dem Zielgerät zusätzlich prüfen:
+- Tagesansicht auf iPhone 16 in installierter PWA
+- keine Überdeckung durch die untere Navigation
+- Tage mit mehreren Buchungspaaren und langen Kommentaren
+- Bearbeiten einer Buchung und der zusätzlichen Angaben

@@ -1,0 +1,11 @@
+Arbeitszeit-PWA V5.8 – kompakte iPhone-16-Tagesansicht
+
+- Tagesansicht weiter verdichtet, ohne das bestehende Design zu verändern.
+- Buchungen als kompakte Zeilentabelle mit einmaligen Spaltenüberschriften dargestellt.
+- Tatsächliche und dokumentierte Uhrzeiten bleiben vollständig sichtbar.
+- Herkunft und Bearbeitung bleiben je Buchung erreichbar.
+- Bereich „Zusätzliche Angaben“ auf zwei kompakte Ausgabezeilen reduziert.
+- Keine zusätzliche Infobox ergänzt.
+- Abstände und Kartenhöhen für die nutzbare Höhe eines iPhone 16 optimiert.
+- Sicherheitsabstand zur festen unteren Navigation berücksichtigt.
+- App-Version und Offline-Cache auf V5.8 aktualisiert.

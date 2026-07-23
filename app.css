@@ -496,3 +496,61 @@ body.today-fixed .app{
   #timesContent .day-additional{margin-bottom:0}
   #timesContent{padding-bottom:8px}
 }
+
+/* V5.8 – iPhone-16-Tagesansicht vollständig oberhalb der Navigation */
+#times.day-compact .page-header{padding-top:7px;padding-bottom:7px}
+#times.day-compact .page-header h1{font-size:32px}
+#times.day-compact .page-header .sub{margin-top:2px;font-size:12px}
+#times.day-compact .segmented{margin-bottom:8px;padding:3px}
+#times.day-compact .segmented button{padding:8px 6px}
+#times.day-compact #timesContent{padding-bottom:6px}
+#timesContent .date-nav-prominent{margin-bottom:8px}
+#timesContent .compact-day-summary{margin-bottom:8px;padding:10px 12px 11px}
+#timesContent .day-summary-top{min-height:24px}
+#timesContent .day-summary-top .day-meta{font-size:10px}
+#timesContent .day-summary-top .badge{padding:5px 9px;font-size:10px}
+#timesContent .compact-day-summary .balance-hero{padding:3px 4px 6px}
+#timesContent .compact-day-summary .balance-hero span{font-size:11px}
+#timesContent .compact-day-summary .balance-hero strong{font-size:32px;line-height:1.05}
+#timesContent .compact-day-summary .metric{padding:6px 4px;border-radius:12px}
+#timesContent .compact-day-summary .metric span{font-size:9px}
+#timesContent .compact-day-summary .metric b{font-size:13px;margin-top:2px}
+#timesContent .compact-booking-card{margin-bottom:8px;padding:9px 11px 8px}
+#timesContent .compact-booking-card .booking-section-title{margin:0 0 5px;font-size:16px}
+#timesContent .booking-mobile-list{display:block}
+#timesContent .booking-compact-head,
+#timesContent .booking-compact-row{display:grid;grid-template-columns:minmax(112px,1.35fr) minmax(62px,.72fr) minmax(70px,.82fr) 28px;gap:6px;align-items:center}
+#timesContent .booking-compact-head{min-height:20px;padding:0 2px;color:var(--muted);font-size:9px;text-align:right}
+#timesContent .booking-compact-row{min-height:45px;padding:5px 2px;border-top:1px solid var(--line)}
+#timesContent .booking-compact-label{min-width:0;display:grid;grid-template-columns:27px minmax(0,1fr);align-items:center;gap:7px}
+#timesContent .booking-compact-label .booking-type-icon{width:27px;height:27px;border-radius:9px}
+#timesContent .booking-compact-label .booking-type-icon .icon{width:17px;height:17px}
+#timesContent .booking-compact-row.in .booking-type-icon{background:var(--green-soft);color:var(--green-dark)}
+#timesContent .booking-compact-row.out .booking-type-icon{background:var(--out-soft);color:var(--out-dark)}
+#timesContent .booking-compact-label b{display:block;font-size:12px;white-space:nowrap}
+#timesContent .booking-compact-label small{display:block;margin-top:1px;color:var(--muted);font-size:9px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#timesContent .booking-compact-time{font-size:14px;font-variant-numeric:tabular-nums;text-align:right}
+#timesContent .booking-compact-row .edit-icon-btn{width:28px;height:28px;padding:5px}
+#timesContent .booking-compact-row .edit-icon-btn .icon{width:17px;height:17px}
+#timesContent .day-additional{margin-bottom:0;padding:8px 11px 7px}
+#timesContent .day-additional h3{margin:0 0 3px;font-size:15px}
+#timesContent .additional-row{grid-template-columns:25px minmax(94px,auto) minmax(0,1fr);gap:7px;min-height:35px;padding:4px 0}
+#timesContent .additional-icon{width:25px;height:25px;border-radius:8px}
+#timesContent .additional-icon .icon{width:15px;height:15px}
+#timesContent .additional-row b{font-size:12px;white-space:nowrap}
+#timesContent .additional-value{min-width:0;color:var(--muted);font-size:11px;text-align:right;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#timesContent .additional-value.comment{font-size:10px}
+
+@media(max-width:540px) and (max-height:900px){
+  body:not(.today-fixed) .app{padding-top:calc(env(safe-area-inset-top) + 5px);padding-bottom:8px}
+  #timesContent .date-nav-prominent{grid-template-columns:44px minmax(0,1fr) 44px;gap:7px}
+  #timesContent .date-nav-prominent button,#timesContent .date-nav-prominent input{height:44px;border-radius:14px;font-size:16px}
+  #timesContent .date-nav-prominent button{font-size:29px}
+}
+
+@media(max-width:390px){
+  #timesContent .booking-compact-head,#timesContent .booking-compact-row{grid-template-columns:minmax(98px,1.2fr) 58px 66px 26px;gap:4px}
+  #timesContent .booking-compact-label{grid-template-columns:24px minmax(0,1fr);gap:5px}
+  #timesContent .booking-compact-label .booking-type-icon{width:24px;height:24px}
+  #timesContent .booking-compact-time{font-size:13px}
+}
