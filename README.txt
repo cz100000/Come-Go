@@ -1,4 +1,4 @@
-Arbeitszeit-PWA Offline V5.9 High-End – iPhone 16
+Arbeitszeit-PWA Offline V5.10 High-End – iPhone 16
 Stand: 23.07.2026
 
 INHALT
@@ -43,7 +43,13 @@ COUNTDOWN UND TAGESZIEL
 - Das Konfetti läuft einmal pro Tag etwa zwei Sekunden und nur bei aktivem Countdown sowie vollständig erreichtem Arbeits- und Pausenziel.
 
 
-V5.9:
+V5.10:
 - Auf der Seite „Auswertung“ steht der Überstundenverlauf jetzt direkt unter dem aktuellen Zeitkontostand.
 - Der Bereich „Berichte und PDF“ wurde darunter angeordnet.
 - Funktionen und Datenlogik der Berichte bleiben unverändert.
+
+
+DATENSICHERUNG UND EXCEL (V5.10)
+- Unter „Auswertung“ können ein vollständiges JSON-Backup, eine echte XLSX-Auswertung und ein gemeinsames ZIP-Paket erstellt werden.
+- Die Wiederherstellung akzeptiert ausschließlich geprüfte Arbeitszeit-Backups und erzeugt zuvor eine Sicherheitskopie.
+- Das Teilen-Menü wird auf unterstützten iOS-Versionen über die Web Share API geöffnet; andernfalls wird das ZIP heruntergeladen.

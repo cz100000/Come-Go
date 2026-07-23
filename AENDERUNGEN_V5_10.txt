@@ -1,0 +1,8 @@
+Arbeitszeit PWA V5.10
+
+- Vollständiges JSON-Backup mit Metadaten und strenger Wiederherstellungsprüfung
+- Sicherheitsbackup vor jeder Wiederherstellung
+- Echte XLSX-Auswertung mit sechs Tabellenblättern, Filtern, fixierter Kopfzeile und Dauerformat [h]:mm
+- Gemeinsames ZIP-Paket aus JSON, XLSX und Hinweise.txt
+- iOS-Teilen über Web Share API mit Download-Fallback
+- Service-Worker-Cache und App-Version erhöht

@@ -1,0 +1,11 @@
+Arbeitszeit PWA V5.10 – Prüfungen
+
+- JavaScript-Syntax: bestanden
+- Manifest JSON: bestanden
+- Service Worker / Cache-Dateien: bestanden
+- ZIP-Integrität: bestanden
+- JSON Export/Import und ungültige Datei: automatisiert geprüft
+- XLSX-Struktur und Öffnung: automatisiert geprüft
+- Dauern über 24 Stunden / Umlaute / leerer und großer Datenbestand: geprüft
+- Teilen-Fallback: Codepfad geprüft; natives iOS-Teilen erfordert Gerätetest
+- Bestehende Kernfunktionen: statische Regression und Starttest geprüft
