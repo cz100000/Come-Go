@@ -80,8 +80,8 @@
   <div class="card balance-hero"><span>Aktueller Zeitkontostand</span><strong id="reportBalance">+193:51</strong></div>
   <section class="card overtime-card" aria-labelledby="overtimeTitle">
     <div class="overtime-head">
-      <div class="overtime-title-row"><h2 class="card-title" id="overtimeTitle">Überstundenverlauf</h2><div class="chart-toggle" role="group" aria-label="Diagrammansicht"><button type="button" id="chartMonthMode" class="active">Monat</button><button type="button" id="chartYearMode">Jahr</button><button type="button" id="chartHistoryMode">Verlauf</button></div></div>
-      <p id="chartSubtitle">Monats- oder Jahresveränderung</p>
+      <div class="overtime-title-row"><h2 class="card-title" id="overtimeTitle">Verlauf</h2><div class="chart-toggle" role="group" aria-label="Diagrammansicht"><button type="button" id="chartMonthMode" class="active">Monat</button><button type="button" id="chartYearMode">Jahr</button><button type="button" id="chartHistoryMode">Verlauf</button></div></div>
+      <p id="chartSubtitle">Verlauf des gesamten Zeitkontostands</p>
     </div>
     <div class="chart-filter"><label for="chartYear">Jahr</label><select id="chartYear"></select></div>
     <div id="overtimeChart" class="overtime-chart" role="img" aria-label="Überstundengrafik"></div>
@@ -95,8 +95,6 @@
     <input id="reportMonth" type="month" hidden><select id="reportYear" hidden></select>
   </div>
   <div class="action-list">
-    <button type="button" class="action-row" id="xlsxExportBtn"><span class="icon-wrap"><svg class="icon" viewBox="0 0 24 24"><path d="M12 3v12M8 11l4 4 4-4M5 20h14"/></svg></span><span><b>Excel-Auswertung erstellen</b><small>Übersichten und Buchungen als XLSX</small></span><span class="chev">›</span></button>
-    <button type="button" class="action-row" id="jsonExportBtn"><span class="icon-wrap"><svg class="icon" viewBox="0 0 24 24"><path d="M7 3h8l4 4v14H7zM15 3v5h5"/></svg></span><span><b>Sicherung erstellen</b><small>Vollständige Wiederherstellungsdatei</small></span><span class="chev">›</span></button>
     <button type="button" class="action-row" id="shareBackupBtn"><span class="icon-wrap"><svg class="icon" viewBox="0 0 24 24"><path d="M12 16V4M8 8l4-4 4 4M5 12v8h14v-8"/></svg></span><span><b>Sicherung und Excel teilen</b><small>ZIP-Paket über das Teilen-Menü</small></span><span class="chev">›</span></button>
     <button type="button" class="action-row" id="jsonRestoreBtn"><span class="icon-wrap"><svg class="icon" viewBox="0 0 24 24"><path d="M4 12a8 8 0 1 0 2.3-5.7L4 8.5M4 4v4.5h4.5"/></svg></span><span><b>Sicherung wiederherstellen</b><small>JSON-Datei prüfen und vollständig einlesen</small></span><span class="chev">›</span></button>
     <input type="file" id="restoreFile" accept="application/json" hidden>
@@ -181,7 +179,10 @@
   <header class="mobile-report-bar">
     <button type="button" id="closeMobileReport" class="mobile-report-back" aria-label="Zurück">‹</button>
     <strong id="mobileReportTitle">Bericht</strong>
-    <button type="button" id="mobileReportPrint" class="mobile-report-print"><svg class="icon" viewBox="0 0 24 24"><path d="M7 9V3h10v6M7 17H5a2 2 0 0 1-2-2v-4a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v4a2 2 0 0 1-2 2h-2M7 14h10v7H7z"/></svg><span>Drucken / PDF</span></button>
+    <div class="mobile-report-actions">
+      <button type="button" id="mobileReportPrint" class="mobile-report-action"><svg class="icon" viewBox="0 0 24 24"><path d="M7 9V3h10v6M7 17H5a2 2 0 0 1-2-2v-4a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v4a2 2 0 0 1-2 2h-2M7 14h10v7H7z"/></svg><span>Drucken / PDF</span></button>
+      <button type="button" id="mobileReportShare" class="mobile-report-action"><svg class="icon" viewBox="0 0 24 24"><path d="M12 16V4M8 8l4-4 4 4M5 12v8h14v-8"/></svg><span>PDF teilen</span></button>
+    </div>
   </header>
   <div class="mobile-report-scroll">
     <div class="mobile-period-nav"><button type="button" id="mobileReportPrev" aria-label="Vorheriger Zeitraum">‹</button><strong id="mobileReportPeriod"></strong><button type="button" id="mobileReportNext" aria-label="Nächster Zeitraum">›</button></div>

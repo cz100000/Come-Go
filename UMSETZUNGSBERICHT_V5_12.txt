@@ -1,0 +1,60 @@
+ARBEITSZEIT PWA – UMSETZUNGSBERICHT V5.12
+Stand: 23.07.2026
+
+AUSGANGSBASIS
+- Ausschließlich Arbeitszeit_PWA_Offline_V5_11_HighEnd_iPhone16.zip verwendet.
+- Bestehende Offline-Architektur, Datenschema und LocalStorage-Schlüssel unverändert beibehalten.
+
+UMGESETZTE ÄNDERUNGEN
+1. Bereich „Berichte und PDF“
+- Separate Oberflächenaktionen „Excel-Auswertung erstellen“ und „Sicherung erstellen“ entfernt.
+- „Sicherung und Excel teilen“ sowie „Sicherung wiederherstellen“ erhalten.
+- Interne JSON-, XLSX- und ZIP-Erzeugung unverändert weiterverwendet.
+
+2. Verlaufskarte
+- Überschrift in „Verlauf“ geändert.
+- Untertitel dauerhaft „Verlauf des gesamten Zeitkontostands“.
+- Umschalter Monat / Jahr / Verlauf rechts neben der Überschrift belassen.
+- Keine Zeilenumbrüche der Umschalter; kompakte iPhone-16-Auslegung beibehalten.
+
+3. Stabiles Diagramm
+- Feste Kartenhöhe von 482 px.
+- Einheitliche SVG-Höhe und ViewBox von 235 px in allen drei Modi.
+- Filterzeile behält auch im Jahresmodus ihren Layoutplatz.
+- Detailbereich besitzt eine feste Mindesthöhe.
+- Darunterliegende Bereiche werden beim Umschalten nicht mehr vertikal verschoben.
+
+4. Lesbarkeit
+- Y-Achsenbeschriftung vergrößert und kontrastreicher gestaltet.
+- X-Achsenbeschriftung harmonisiert.
+- Linker Diagramminnenabstand von 48 Einheiten für gut lesbare Achsenwerte.
+
+5. PDF teilen
+- Neuer Button „PDF teilen“ neben „Drucken / PDF“ in Monats- und Jahresauswertungen.
+- PDF-Erzeugung vollständig lokal und ohne externe Bibliothek, Server oder Cloud.
+- Native Dateifreigabe über Web Share API.
+- Dateinamen Arbeitszeit_Monat_MM-JJJJ.pdf und Arbeitszeit_Jahr_JJJJ.pdf.
+- Download-Fallback mit verständlichem Hinweis, falls die native Dateifreigabe nicht verfügbar ist oder fehlschlägt.
+- Bestehende Druck-/PDF-Vorschau unverändert erhalten.
+
+VERSIONIERUNG
+- Anwendung auf Version 5.12 erhöht.
+- Manifest auf V5.12 aktualisiert.
+- Service-Worker-Cache auf arbeitszeit-v5-12-2026-07-23 erhöht.
+- Changelog und Testübersicht ergänzt.
+
+TESTERGEBNISSE
+- JavaScript-Syntaxprüfung: bestanden.
+- 35 Struktur-, DOM-, Offline-, Versions- und Plausibilitätsprüfungen: 35 bestanden.
+- Kernlogik in isolierter Browser-VM: Monats-/Jahresberechnung, Backup, Backup-Prüfung, XLSX, ZIP-Paket und alle Diagrammmodi bestanden.
+- XLSX-Archivprüfung: keine Fehler.
+- Sicherungs-/Excel-ZIP-Prüfung: keine Fehler; JSON, XLSX und Hinweise enthalten.
+- PDF-Erzeugung Monat und Jahr: gültiger PDF-1.4-Aufbau, A4-Querformat, öffnungsfähig, nicht verschlüsselt.
+- PDF-Renderprüfung: Tabellen, Überschriften, Umlaute, Zahlen und Unterschriftsbereiche ohne Überlagerung oder abgeschnittene Inhalte.
+- Share-Erfolgsweg und Download-Fallback technisch bestanden.
+- Native Darstellung des iOS-Teilen-Menüs kann nur auf einem realen iPhone abschließend visuell geprüft werden.
+
+REGRESSION
+- Datenschema bleibt Version 9.
+- LocalStorage-Schlüssel bleibt arbeitszeit-pwa-v1.
+- Zeiterfassung, Abwesenheiten, Zeitkontoberechnung, bestehende Druckansichten, Sicherung, Wiederherstellung, XLSX-Erzeugung und Offline-Ressourcen wurden nicht fachlich verändert.

@@ -1,0 +1,25 @@
+ARBEITSZEIT PWA – ÄNDERUNGEN V5.12
+Stand: 23.07.2026
+
+1. BERICHTE UND PDF
+- Separate UI-Aktionen „Excel-Auswertung erstellen“ und „Sicherung erstellen“ entfernt.
+- „Sicherung und Excel teilen“ sowie „Sicherung wiederherstellen“ unverändert erhalten.
+- Interne JSON- und XLSX-Erzeugung bleibt für das gemeinsame Sicherungspaket bestehen.
+
+2. VERLAUFSKARTE
+- Überschrift „Überstundenverlauf“ in „Verlauf“ geändert.
+- Umschalter Monat / Jahr / Verlauf bleiben rechts neben der Überschrift.
+- Diagrammkarte, Diagrammfläche, Achsen, Filterzeile und Detailbereich besitzen stabile Abmessungen.
+- Jahresmodus blendet die Filtersteuerung nur optisch aus, ohne den belegten Raum zu entfernen.
+- Y-Achse und X-Achse mit größerer Schrift, höherem Kontrast und vergrößertem linken Innenabstand.
+
+3. PDF TEILEN
+- Neuer Button „PDF teilen“ in Monats- und Jahresauswertungen.
+- Lokale PDF-Erzeugung ohne Server, Cloud, CDN oder externe Bibliothek.
+- Native Web Share API mit Dateifreigabe für iOS.
+- Dateinamen: Arbeitszeit_Monat_MM-JJJJ.pdf bzw. Arbeitszeit_Jahr_JJJJ.pdf.
+- Download-Fallback bei nicht unterstützter oder fehlgeschlagener Dateifreigabe.
+- Bestehende Funktion „Drucken / PDF“ unverändert erhalten.
+
+4. VERSIONIERUNG
+- App-Version, Manifest und Service-Worker-Cache auf V5.12 aktualisiert.

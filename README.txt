@@ -1,4 +1,4 @@
-Arbeitszeit-PWA Offline V5.10 High-End – iPhone 16
+Arbeitszeit-PWA Offline V5.12 High-End – iPhone 16
 Stand: 23.07.2026
 
 INHALT
@@ -24,7 +24,7 @@ DATEN UND MIGRATION
 
 OFFLINE
 - Keine externen Bibliotheken, CDNs, Webfonts, Server- oder Cloudverbindungen.
-- Service-Worker-Cache: arbeitszeit-v5-7-2026-07-23.
+- Service-Worker-Cache: arbeitszeit-v5-12-2026-07-23.
 - Keine Notifications, Push-Mitteilungen, App-Badges oder native iOS-Hülle.
 
 
@@ -53,3 +53,9 @@ DATENSICHERUNG UND EXCEL (V5.10)
 - Unter „Auswertung“ können ein vollständiges JSON-Backup, eine echte XLSX-Auswertung und ein gemeinsames ZIP-Paket erstellt werden.
 - Die Wiederherstellung akzeptiert ausschließlich geprüfte Arbeitszeit-Backups und erzeugt zuvor eine Sicherheitskopie.
 - Das Teilen-Menü wird auf unterstützten iOS-Versionen über die Web Share API geöffnet; andernfalls wird das ZIP heruntergeladen.
+
+
+V5.12:
+- „Excel-Auswertung erstellen“ und „Sicherung erstellen“ wurden als separate Oberflächenaktionen entfernt; das gemeinsame Sicherungs-/Excel-Paket und die Wiederherstellung bleiben erhalten.
+- Die Diagrammkarte heißt „Verlauf“, behält beim Wechsel zwischen Monat, Jahr und Verlauf eine feste Höhe und verwendet besser lesbare Achsen.
+- Monats- und Jahresauswertungen besitzen zusätzlich „PDF teilen“ mit vollständig lokaler PDF-Erzeugung, nativer iOS-Dateifreigabe und Download-Fallback.

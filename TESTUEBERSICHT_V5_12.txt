@@ -1,0 +1,23 @@
+ARBEITSZEIT PWA – TESTÜBERSICHT V5.12
+Stand: 23.07.2026
+
+PRÜFUMFANG
+- ZIP- und Dateiintegrität
+- JavaScript-Syntax und DOM-Referenzen
+- Bestehende Navigation, Zeiterfassung, Tages-/Monats-/Jahresansichten
+- Berichte, Druckvorschau, Sicherungspaket und Wiederherstellung
+- Diagrammmodi Monat / Jahr / Verlauf bei iPhone-16-Breite
+- Lokale PDF-Erzeugung für Monat und Jahr
+- Share-API-Erfolgsweg und Download-Fallback
+- Manifest, Service Worker und vollständige Cache-Dateiliste
+
+ERGEBNIS
+- Alle automatisierten Struktur-, Syntax-, Funktions- und Plausibilitätsprüfungen bestanden.
+- Keine fehlenden DOM-Elemente in aktiven Ereignisbindungen.
+- Diagrammkarte in allen drei Modi mit identischer fester Höhe.
+- PDF-Dateien beginnen mit gültigem PDF-Header, enthalten eine korrekte Seitenstruktur und sinnvolle Dateinamen.
+- Entfernte UI-Aktionen sind nicht mehr sichtbar; interne Sicherungs- und Excel-Funktionen bleiben verfügbar.
+- Offline-Ressourcen vollständig im Service Worker erfasst.
+
+HINWEIS
+- Das native iOS-Teilen-Menü selbst kann außerhalb eines realen iOS-Geräts nicht visuell geprüft werden. Die standardkonforme Web-Share-Dateifreigabe und der Fallback wurden technisch getestet.
