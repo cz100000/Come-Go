@@ -1,0 +1,18 @@
+Arbeitszeit-PWA V5.6 – Abschlusskorrektur und Release-Bereinigung
+
+1. Karte „Heute erfasst“
+- Der untere Tabellen-/Kartenrand ist wieder vollständig sichtbar.
+- Die unteren linken und rechten Rundungen sind wieder vorhanden.
+- Der Tagessaldo bleibt vollständig innerhalb der Karte.
+- Das bestehende Design, die Abstände und die gedämpften Saldo-Farben bleiben unverändert.
+
+2. Technische Abschlussrunde
+- Versionskennung und Service-Worker-Cache auf V5.6 aktualisiert.
+- Veraltete Mockups, Entwicklungsbilder und überholte Korrekturberichte aus dem Release entfernt.
+- Die produktiven Dateien bleiben getrennt in HTML, CSS, JavaScript und feste Importdaten.
+- Speicher-, Backup-, Migrations- und Validierungslogik aus V5.5 bleibt unverändert erhalten.
+
+3. Datenbestand
+- Der bestehende localStorage-Schlüssel bleibt unverändert.
+- Vorhandene App-Daten werden beim Update weiterverwendet.
+- Es werden keine Nutzerdaten fest überschrieben oder zurückgesetzt.

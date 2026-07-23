@@ -1,4 +1,4 @@
-Arbeitszeit-PWA Offline V5.4 Korrektur 3 High-End – iPhone 16
+Arbeitszeit-PWA Offline V5.6 Korrektur 3 High-End – iPhone 16
 Stand: 23.07.2026
 
 INHALT
@@ -24,7 +24,7 @@ DATEN UND MIGRATION
 
 OFFLINE
 - Keine externen Bibliotheken, CDNs, Webfonts, Server- oder Cloudverbindungen.
-- Service-Worker-Cache: arbeitszeit-v5-4-korrektur3-countdown-2026-07-23.
+- Service-Worker-Cache: arbeitszeit-v5-6-2026-07-23.
 - Keine Notifications, Push-Mitteilungen, App-Badges oder native iOS-Hülle.
 
 

@@ -1,0 +1,16 @@
+Arbeitszeit-PWA V5.6 – durchgeführte Prüfungen
+
+Automatisch geprüft:
+- JavaScript-Syntax von app.js und imported-data.js
+- JSON-Syntax des Manifests
+- Service-Worker-Dateiliste gegen vorhandene Dateien
+- HTML-Verweise auf CSS, JavaScript, Manifest und Symbole
+- vollständiger unterer Kartenrand per CSS-Regel
+- Versionskennung V5.6 in App und Service Worker
+- ZIP-Integrität
+
+Weiterhin als Praxistest auf dem iPhone empfohlen:
+- Update der installierten PWA und Datenübernahme
+- Kommen/Gehen, Touch-Abbruch und manuelle Pause
+- Offline-Start nach vollständigem Schließen
+- Monats-/Jahresdruck über iOS

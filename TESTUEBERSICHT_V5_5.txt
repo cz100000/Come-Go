@@ -1,0 +1,18 @@
+Prüfübersicht V5.5
+
+Automatisch geprüft:
+- ZIP-Integrität
+- JavaScript-Syntax von app.js und imported-data.js
+- Manifest-JSON
+- vorhandene referenzierte App-Dateien
+- keine eingebetteten Style-/App-Script-Blöcke mehr
+- Importdaten vor App-Logik eingebunden
+- alter localStorage-Schlüssel bleibt unverändert
+- Service-Worker-Dateiliste vollständig
+
+Manuell auf dem iPhone zu prüfen:
+- bestehende Daten nach Update vorhanden
+- Kommen/Gehen, manuelle Pause und Abwesenheit
+- JSON-Export und Wiederherstellung
+- Offline-Start nach einmaligem Online-/Serverstart
+- App-Wechsel und erneutes Öffnen

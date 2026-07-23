@@ -1,0 +1,12 @@
+Arbeitszeit-PWA V5.5 – technische Bereinigung
+
+- Datenspeicherung mit automatischer Sicherung des vorherigen Zustands.
+- Beschädigter Hauptspeicher wird separat erhalten; letzte gültige Sicherung wird bevorzugt geladen.
+- Speicherfehler werden sichtbar gemeldet.
+- localStorage enthält nur noch Einstellungen und lokale Abweichungen von den unveränderlichen Importdaten.
+- Bestehende vollständige Speicherstände aus V5.4 werden automatisch übernommen und beim nächsten Speichern kompakt migriert.
+- JSON-Backups besitzen Kennung und Metadaten; alte vollständige Backups bleiben importierbar.
+- Struktur-, Datums-, Uhrzeit- und Pausenprüfung vor Wiederherstellung.
+- HTML, CSS, Programmlogik und Importdaten sind in getrennte lokale Dateien aufgeteilt.
+- Service Worker cached ausschließlich bekannte App-Dateien und prüft Antworten vor dem Caching.
+- Design und Fachfunktionen der freigegebenen Korrektur 6 bleiben unverändert.
