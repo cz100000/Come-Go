@@ -1,0 +1,11 @@
+ARBEITSZEIT PWA – V5.4 KORREKTUR 5
+
+- Zwei getrennte Kommen-/Gehen-Schaltflächen durch einen intelligenten Zustandsbutton ersetzt.
+- Button zeigt automatisch „Kommen“ oder „Gehen“ entsprechend der nächsten logischen Buchung.
+- Bestehende Buchungsregeln, Rundung und Mindestabstand bleiben unverändert.
+- „Heute erfasst“ zeigt Kommen-/Gehen-Zeiten weiterhin logisch als Arbeitsblöcke zusammengefasst.
+- Offener Arbeitsblock wird mit „läuft“ gekennzeichnet.
+- Arbeitszeit, Sollzeit, Pausensumme und Zeitkonto werden auf der Startseite nicht zusätzlich angezeigt.
+- Unter den Arbeitsblöcken erscheint ausschließlich der laufend aktualisierte „Tagessaldo heute“.
+- Tagessaldo: grün bei Plus, rot bei Minus, grau bei ausgeglichenem Stand.
+- Countdown bleibt über die bestehende Einstellung vollständig deaktivierbar.

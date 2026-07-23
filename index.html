@@ -8,7 +8,8 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="Arbeitszeit">
 <link rel="manifest" href="manifest.webmanifest">
-<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="apple-touch-icon" sizes="180x180" href="icon-180.png">
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
 <title>Arbeitszeit PWA</title>
 <style>
 :root{
@@ -236,7 +237,31 @@ body.today-fixed .app{padding-top:calc(env(safe-area-inset-top) + 12px)}
 @media(max-width:370px){.month-detail-summary{grid-template-columns:1fr}.month-detail-summary .balance-hero span{min-height:0}}
 @media(max-width:430px){.print-report{min-height:0;padding:8mm 6mm;font-size:8.4pt}.print-report .summary{grid-template-columns:1fr}.print-report .meta{display:grid;gap:2mm}.print-report table{font-size:7.1pt}.print-preview-scroll{padding-left:6px;padding-right:6px}}
 @media(max-height:760px){#today.active{gap:0}.punch-grid{margin-top:0}.punch-btn{min-height:110px}.today-capture{margin-top:14px}.pause-btn{margin-top:8px}.capture-head{height:42px}}
-@media print{@page{size:A4;margin:13mm}body>*:not(.print-preview){display:none!important}.print-preview,.print-preview.open{display:block!important;position:static;background:#fff}.print-preview-bar,.print-action{display:none!important}.print-preview-scroll{overflow:visible;padding:0}.print-report{width:auto;min-height:0;margin:0;padding:0;box-shadow:none}.print-report tr{break-inside:avoid;page-break-inside:avoid}}
+
+/* V5.4 Korrektur 4 – feste A4-Berichtsformate */
+.print-report.report-month,.print-report.report-year{width:min(100%,1123px);min-height:794px;padding:8mm;font-size:8.2pt}
+.print-report.report-month header,.print-report.report-year header{padding-bottom:3mm;margin-bottom:3mm}
+.print-report.report-month h1,.print-report.report-year h1{font-size:15pt}
+.print-report.report-month h2,.print-report.report-year h2{font-size:10pt}
+.print-report.report-month .meta,.print-report.report-year .meta{margin-top:2mm}
+.print-report.report-month .hero,.print-report.report-year .hero{padding:2.5mm;margin:2.5mm 0}
+.print-report.report-month .hero strong,.print-report.report-year .hero strong{font-size:18pt}
+.print-report.report-month .summary,.print-report.report-year .summary{grid-template-columns:repeat(5,minmax(0,1fr));gap:0 4mm;margin-bottom:3mm}
+.print-report.report-month .summary div,.print-report.report-year .summary div{padding:1.2mm 0;min-width:0}
+.print-report.report-month .summary span,.print-report.report-year .summary span{min-width:0;overflow-wrap:anywhere}
+.print-report.report-month table,.print-report.report-year table{width:100%!important;max-width:100%!important;table-layout:fixed!important;border-spacing:0;font-size:6.6pt}
+.print-report.report-month th,.print-report.report-month td,.print-report.report-year th,.print-report.report-year td{box-sizing:border-box;padding:1.05mm .55mm;max-width:0;overflow:hidden;text-overflow:clip}
+.print-report.report-month th,.print-report.report-year th{white-space:normal!important;overflow-wrap:anywhere;line-height:1.15}
+.print-report.report-month td.num,.print-report.report-year td.num{white-space:nowrap;font-variant-numeric:tabular-nums}
+.print-report.report-month td.wrap{white-space:normal!important;overflow-wrap:anywhere;word-break:break-word;line-height:1.18}
+.print-report.report-month .signatures,.print-report.report-year .signatures{margin-top:7mm;gap:14mm}
+@media(max-width:430px){
+  .print-report.report-month,.print-report.report-year{width:1123px;max-width:none;padding:8mm;font-size:8.2pt;transform-origin:top left}
+  .print-report.report-month .summary,.print-report.report-year .summary{grid-template-columns:repeat(5,minmax(0,1fr))}
+  .print-report.report-month table,.print-report.report-year table{font-size:6.6pt}
+}
+
+@media print{@page{size:A4 portrait;margin:13mm}body>*:not(.print-preview){display:none!important}.print-preview,.print-preview.open{display:block!important;position:static;background:#fff}.print-preview-bar,.print-action{display:none!important}.print-preview-scroll{overflow:visible;padding:0}.print-report{width:100%!important;max-width:none!important;min-height:0!important;margin:0!important;padding:0!important;box-shadow:none!important;transform:none!important}.print-report table{width:100%!important;max-width:100%!important}.print-report tr{break-inside:avoid;page-break-inside:avoid}}
 
 /* V5.4 – iPhone-16-Layout, Schnelleinträge und Abwesenheiten */
 body.modal-open{overflow:hidden!important}
@@ -377,6 +402,17 @@ body.today-fixed .app{
 @media(max-height:760px){.work-countdown{padding:10px 12px 9px;margin-top:9px;border-radius:17px}.countdown-main{grid-template-columns:36px minmax(0,1fr) 38px;gap:9px}.countdown-icon,.countdown-ring{width:36px;height:36px}.countdown-icon .icon{width:22px;height:22px}.countdown-ring:after{inset:5px}.countdown-pause{margin-top:7px;padding-top:7px}.work-countdown:not([hidden]) + .today-capture{margin-top:11px}}
 @media(prefers-reduced-motion:reduce){.confetti-piece{display:none}.goal-celebration{animation:goal-toast-reduced 1.5s ease-out forwards}@keyframes goal-toast-reduced{0%{opacity:0}15%,72%{opacity:1}100%{opacity:0}}}
 
+/* V5.4 Korrektur 5 – ein intelligenter Kommen/Gehen-Button und kompakter Tagessaldo */
+.punch-grid.single{grid-template-columns:1fr}
+.punch-grid.single .punch-btn{min-height:clamp(92px,13dvh,118px)}
+.today-balance-row{min-height:48px;display:flex;align-items:center;justify-content:space-between;gap:14px;padding:0 14px;border-top:1px solid var(--line);background:#f7f8fa;font-size:14px;font-variant-numeric:tabular-nums}
+.today-balance-row span{font-weight:680}.today-balance-row b{font-size:15px;white-space:nowrap}
+.today-balance-row.positive{background:#edf8f1;color:var(--green-dark)}
+.today-balance-row.negative{background:#fff1f0;color:var(--danger)}
+.today-balance-row.neutral{color:var(--muted)}
+.capture-empty+.today-balance-row{border-top:1px solid var(--line)}
+@media(max-height:760px){.punch-grid.single .punch-btn{min-height:88px}.today-balance-row{min-height:42px;font-size:13px}.today-balance-row b{font-size:14px}}
+
 </style>
 </head>
 <body class="today-fixed">
@@ -395,18 +431,12 @@ body.today-fixed .app{
     <button type="button" id="todayAbsenceEdit">Bearbeiten</button>
   </section>
 
-  <div class="punch-grid" aria-label="Arbeitszeit buchen">
-    <button id="punchIn" class="punch-btn punch-in" type="button" data-punch="in">
+  <div class="punch-grid single" aria-label="Arbeitszeit buchen">
+    <button id="punchAction" class="punch-btn punch-in" type="button" data-punch="in">
       <span class="punch-icon-box" aria-hidden="true"><svg class="icon" viewBox="0 0 32 32"><path class="door" d="M11 5.5h12v21H11"/><path d="M4.5 16h16M15.5 10.5 21 16l-5.5 5.5"/></svg></span>
-      <span class="label">Kommen</span>
-      <span class="clock" id="inClock">--:--</span>
-      <span class="punch-status" id="inStatus">Jetzt möglich</span>
-    </button>
-    <button id="punchOut" class="punch-btn punch-out" type="button" data-punch="out">
-      <span class="punch-icon-box" aria-hidden="true"><svg class="icon" viewBox="0 0 32 32"><path class="door" d="M21 5.5H9v21h12"/><path d="M27.5 16h-16M16.5 10.5 11 16l5.5 5.5"/></svg></span>
-      <span class="label">Gehen</span>
-      <span class="clock" id="outClock">--:--</span>
-      <span class="punch-status" id="outStatus">zuerst Kommen</span>
+      <span class="label" id="punchActionLabel">Kommen</span>
+      <span class="clock" id="punchActionClock">--:--</span>
+      <span class="punch-status" id="punchActionStatus">Jetzt möglich</span>
     </button>
   </div>
 
@@ -571,7 +601,7 @@ const IMPORTED_BY_DATE=Object.fromEntries(IMPORTED.map(d=>[d.date,d]));
 const STORAGE_KEY='arbeitszeit-pwa-v1';
 const CHECKPOINT_DATE='2026-07-22';
 const CHECKPOINT_MINUTES=11631;
-const APP_VERSION='5.4';
+const APP_VERSION='5.4 Korrektur 5';
 const CURRENT_SCHEMA=8;
 const IMPORT_DATA_VERSION=2;
 let state=loadState();
@@ -855,23 +885,15 @@ function applyPunchVisual(button,statusEl,clockEl,{kind,status,clock,disabled}){
   resetPunchClass(button);button.classList.add(kind);button.disabled=disabled;statusEl.textContent=status;clockEl.textContent=clock;
 }
 function updateTodayPunchState(){
-  const d=dayObject(todayKey()),expected=nextActionForDay(d),now=hm(),last=(d.entries||[]).at(-1),availability=punchAvailability(d,expected,now);
-  const inBtn=$('punchIn'),outBtn=$('punchOut'),inStatus=$('inStatus'),outStatus=$('outStatus'),inClock=$('inClock'),outClock=$('outClock');
-  const currentIn=roundLogged(now,'in'),currentOut=roundLogged(now,'out');
-  if(hasFullAbsence(d)){
-    applyPunchVisual(inBtn,inStatus,inClock,{kind:'blocked',status:'Abwesenheit eingetragen',clock:'–',disabled:true});
-    applyPunchVisual(outBtn,outStatus,outClock,{kind:'blocked',status:'Abwesenheit eingetragen',clock:'–',disabled:true});
-    return;
-  }
-  if(expected==='in'){
-    applyPunchVisual(inBtn,inStatus,inClock,{kind:availability.allowed?'active':'waiting',status:availability.allowed?'Jetzt möglich':`möglich ab ${availability.availableAt}`,clock:currentIn,disabled:!availability.allowed});
-    if(last&&last.type==='out')applyPunchVisual(outBtn,outStatus,outClock,{kind:'booked',status:`Gebucht um ${last.logged||roundLogged(last.actual,'out')}`,clock:last.logged||roundLogged(last.actual,'out'),disabled:true});
-    else applyPunchVisual(outBtn,outStatus,outClock,{kind:'blocked',status:'zuerst Kommen',clock:currentOut,disabled:true});
-  }else{
-    if(last&&last.type==='in')applyPunchVisual(inBtn,inStatus,inClock,{kind:'booked',status:`Gebucht um ${last.logged||roundLogged(last.actual,'in')}`,clock:last.logged||roundLogged(last.actual,'in'),disabled:true});
-    else applyPunchVisual(inBtn,inStatus,inClock,{kind:'blocked',status:'zuerst Gehen',clock:currentIn,disabled:true});
-    applyPunchVisual(outBtn,outStatus,outClock,{kind:availability.allowed?'active':'waiting',status:availability.allowed?'Jetzt möglich':`möglich ab ${availability.availableAt}`,clock:currentOut,disabled:!availability.allowed});
-  }
+  const d=dayObject(todayKey()),type=nextActionForDay(d),availability=punchAvailability(d,type,hm());
+  const button=$('punchAction'),label=$('punchActionLabel'),status=$('punchActionStatus'),clock=$('punchActionClock');
+  button.dataset.punch=type;button.classList.toggle('punch-in',type==='in');button.classList.toggle('punch-out',type==='out');
+  label.textContent=type==='in'?'Kommen':'Gehen';
+  button.querySelector('.punch-icon-box').innerHTML=type==='in'
+    ?'<svg class="icon" viewBox="0 0 32 32"><path class="door" d="M11 5.5h12v21H11"/><path d="M4.5 16h16M15.5 10.5 21 16l-5.5 5.5"/></svg>'
+    :'<svg class="icon" viewBox="0 0 32 32"><path class="door" d="M21 5.5H9v21h12"/><path d="M27.5 16h-16M16.5 10.5 11 16l5.5 5.5"/></svg>';
+  if(hasFullAbsence(d)){applyPunchVisual(button,status,clock,{kind:'blocked',status:'Abwesenheit eingetragen',clock:'–',disabled:true});return}
+  applyPunchVisual(button,status,clock,{kind:availability.allowed?'active':'waiting',status:availability.allowed?'Jetzt möglich':availability.availableAt==='morgen'?'Erst morgen wieder möglich':`möglich ab ${availability.availableAt}`,clock:availability.loggedText,disabled:!availability.allowed});
 }
 function minimumBreakMinutes(workMinutes){
   const work=Math.max(0,Number(workMinutes)||0);
@@ -986,12 +1008,21 @@ function renderToday(){
   renderTodayCapture(d);
   updateCountdown();
 }
+function liveTodayBalanceMinutes(d,now=new Date()){
+  const target=targetMinutesForDate(d?.date||todayKey());
+  const credit=absenceCreditMinutes(d,target);
+  const worked=Math.max(0,liveGrossMinutes(d,now)-(Number(d?.pauseMinutes)||0));
+  return worked+credit-target;
+}
 function renderTodayCapture(d){
   const entries=d.entries||[],blocks=[];
   for(let i=0;i<entries.length;i+=2){const come=entries[i]?.type==='in'?entries[i]:null,go=entries[i+1]?.type==='out'?entries[i+1]:null;if(come)blocks.push({come,go})}
   const count=entries.length;$('todayBookingCount').textContent=`${count} ${count===1?'Buchung':'Buchungen'}`;
-  if(!blocks.length){const text=hasFullAbsence(d)?'Für die ganztägige Abwesenheit sind keine Arbeitszeitbuchungen erforderlich.':'Starte den Tag mit „Kommen“.';$('todayCaptureList').innerHTML=`<div class="capture-empty"><div><b>Noch keine Buchungen</b>${esc(text)}</div></div>`;return}
-  $('todayCaptureList').innerHTML=blocks.map((b,i)=>{const no=i+1,come=b.come.logged||roundLogged(b.come.actual,'in'),go=b.go?(b.go.logged||roundLogged(b.go.actual,'out')):'offen';return `<button type="button" class="block-row" onclick="openTodayInTimes()" aria-label="Arbeitsblock ${no} unter Zeiten öffnen"><span class="block-no">${no}</span><span class="block-time in"><i class="block-dot"></i>${esc(come)}</span><span class="block-time out ${b.go?'':'open'}"><i class="block-dot"></i>${esc(go)}</span><svg class="block-chev icon" viewBox="0 0 24 24"><path d="m9 6 6 6-6 6"/></svg></button>`}).join('');
+  const rows=blocks.map((b,i)=>{const no=i+1,come=b.come.logged||roundLogged(b.come.actual,'in'),go=b.go?(b.go.logged||roundLogged(b.go.actual,'out')):'läuft';return `<button type="button" class="block-row" onclick="openTodayInTimes()" aria-label="Arbeitsblock ${no} unter Zeiten öffnen"><span class="block-no">${no}</span><span class="block-time in"><i class="block-dot"></i>${esc(come)}</span><span class="block-time out ${b.go?'':'open'}"><i class="block-dot"></i>${esc(go)}</span><svg class="block-chev icon" viewBox="0 0 24 24"><path d="m9 6 6 6-6 6"/></svg></button>`}).join('');
+  const empty=!blocks.length?`<div class="capture-empty"><div><b>Noch keine Buchungen</b>${esc(hasFullAbsence(d)?'Für die ganztägige Abwesenheit sind keine Arbeitszeitbuchungen erforderlich.':'Starte den Tag mit „Kommen“.')}</div></div>`:'';
+  const balance=liveTodayBalanceMinutes(d),balanceClass=balance>0?'positive':balance<0?'negative':'neutral';
+  const saldo=`<div class="today-balance-row ${balanceClass}" aria-live="polite"><span>Tagessaldo heute</span><b>${formatDuration(balance)} Std.</b></div>`;
+  $('todayCaptureList').innerHTML=empty+rows+saldo;
 }
 function openTodayInTimes(){state.settings.lastEditedDay=todayKey();saveState();showScreen('times')}
 function performPunch(type){
@@ -1002,7 +1033,7 @@ function performPunch(type){
   try{navigator.vibrate?.(28)}catch(e){}
   showToast(`${type==='in'?'Kommen':'Gehen'} gebucht · ${logged}`);
 }
-function bindPunchButton(button,type){
+function bindPunchButton(button){
   let pointer=null,startX=0,startY=0,cancelled=false;
   const reset=()=>{button.classList.remove('pressed');pointer=null;cancelled=false};
   button.addEventListener('pointerdown',e=>{
@@ -1021,7 +1052,7 @@ function bindPunchButton(button,type){
   button.addEventListener('pointerup',e=>{
     if(e.pointerId!==pointer)return;
     const r=button.getBoundingClientRect(),tol=14,inside=e.clientX>=r.left-tol&&e.clientX<=r.right+tol&&e.clientY>=r.top-tol&&e.clientY<=r.bottom+tol;
-    const valid=inside&&!cancelled&&!button.disabled;reset();if(valid)performPunch(type);
+    const valid=inside&&!cancelled&&!button.disabled;reset();if(valid)performPunch(button.dataset.punch);
   });
   button.addEventListener('pointercancel',reset);button.addEventListener('lostpointercapture',()=>{if(pointer!==null)reset()});
 }
@@ -1227,10 +1258,15 @@ function exportCSV(){
 }
 
 let printReturnScreen='reports';
-function reportShell(title,subtitle,summary,table){
+function reportShell(title,subtitle,summary,table,type='day'){
   const name=state.settings.employeeName||'Arbeitszeitnachweis',created=new Intl.DateTimeFormat('de-DE',{dateStyle:'medium',timeStyle:'short'}).format(new Date()),signature=state.settings.reportSignature===false?'':`<div class="signatures"><div>Datum / Unterschrift Mitarbeiter</div><div>Datum / Bestätigung</div></div>`;
   printReturnScreen=document.querySelector('.screen.active')?.id||'reports';
-  $('printReport').innerHTML=`<header><h1>${esc(name)}</h1><h2>${esc(title)}</h2><div class="meta"><span>${esc(subtitle)}</span><span>Erstellt: ${esc(created)}</span></div></header>${summary}${table}${signature}`;
+  const report=$('printReport');
+  report.className=`print-report report-${type}`;
+  report.innerHTML=`<header><h1>${esc(name)}</h1><h2>${esc(title)}</h2><div class="meta"><span>${esc(subtitle)}</span><span>Erstellt: ${esc(created)}</span></div></header>${summary}${table}${signature}`;
+  let pageStyle=$('dynamicPrintPage');
+  if(!pageStyle){pageStyle=document.createElement('style');pageStyle.id='dynamicPrintPage';document.head.appendChild(pageStyle)}
+  pageStyle.textContent=type==='day'?'@media print{@page{size:A4 portrait;margin:13mm}}':'@media print{@page{size:A4 landscape;margin:8mm}}';
   $('printPreview').classList.add('open');$('printPreview').setAttribute('aria-hidden','false');document.body.classList.add('preview-open');$('printPreview').scrollTop=0;
 }
 function closePrintPreview(){$('printPreview').classList.remove('open');$('printPreview').setAttribute('aria-hidden','true');document.body.classList.remove('preview-open')}
@@ -1239,19 +1275,19 @@ function dayReport(k){
   const d=dayObject(k),c=calculateDay(d),entries=d.entries||[],source=d.edited?'Nachträglich geändert':d.sourceYear?`Import ${d.sourceYear}`:'Lokale Erfassung';
   const summary=`<div class="hero"><span>Zeitkontostand nach diesem Tag</span><strong>${formatDuration(balanceThrough(k))}</strong></div><div class="summary"><div><span>Tagesstatus</span><b>${esc(dayStatus(d))}</b></div><div><span>Bruttoarbeitszeit</span><b>${formatDuration(c.gross,{signed:false})}</b></div><div><span>Nettoarbeitszeit</span><b>${formatDuration(c.net,{signed:false})}</b></div><div><span>Sollzeit</span><b>${formatDuration(c.target,{signed:false})}</b></div><div><span>Tagesdifferenz</span><b>${formatDuration(c.diff)}</b></div><div><span>Pause</span><b>${Number(d.pauseMinutes)||0} Min.</b></div><div><span>Abwesenheit</span><b>${esc(d.absence?`${d.absence} · ${absenceDuration(d)==='half'?'Halber Tag':'Ganzer Tag'}`:'–')}</b></div><div><span>Angerechnete Abwesenheitszeit</span><b>${d.absence?formatDuration(absenceCreditMinutes(d),{signed:false}):'–'}</b></div><div><span>Abwesenheitsnotiz</span><b class="wrap">${esc(d.absenceNote||'–')}</b></div><div><span>Herkunft / Änderung</span><b>${esc(source)}</b></div><div><span>Kommentar</span><b class="wrap">${esc(d.note||'–')}</b></div></div>`;
   const body=entries.length?entries.map((e,i)=>`<tr><td>${i+1}</td><td>${e.type==='in'?'Kommen':'Gehen'}</td><td class="num">${esc(e.actual||'–')}</td><td class="num">${esc(e.logged||'–')}</td><td>${esc(entrySource(d,e))}</td></tr>`).join(''):'<tr><td colspan="5">Keine Buchungen</td></tr>';
-  reportShell(`Tagesbericht ${formatDate(k,{day:'2-digit',month:'2-digit',year:'numeric'})}`,formatDate(k),summary,`<table><thead><tr><th>Nr.</th><th>Art</th><th class="num">Tatsächlich</th><th class="num">Dokumentiert</th><th>Herkunft</th></tr></thead><tbody>${body}</tbody></table>`)
+  reportShell(`Tagesbericht ${formatDate(k,{day:'2-digit',month:'2-digit',year:'numeric'})}`,formatDate(k),summary,`<table><thead><tr><th>Nr.</th><th>Art</th><th class="num">Tatsächlich</th><th class="num">Dokumentiert</th><th>Herkunft</th></tr></thead><tbody>${body}</tbody></table>`,'day')
 }
 function monthReport(y,m){
   const start=`${y}-${pad(m+1)}-01`,end=dateKey(new Date(y,m+1,0,12)),s=periodSummary(start,end),title=new Intl.DateTimeFormat('de-DE',{month:'long',year:'numeric'}).format(new Date(y,m,1));
   const summary=`<div class="hero"><span>Zeitkonto Monatsende / Stichtag</span><strong>${formatDuration(s.closing)}</strong></div><div class="summary"><div><span>Übertrag Vormonat</span><b>${formatDuration(s.opening)}</b></div><div><span>Monatsdifferenz</span><b>${formatDuration(s.diff)}</b></div><div><span>Sollzeit</span><b>${formatDuration(s.target,{signed:false})}</b></div><div><span>Nettozeit</span><b>${formatDuration(s.net,{signed:false})}</b></div><div><span>Pausenzeit</span><b>${formatDuration(s.pause,{signed:false})}</b></div><div><span>Urlaubstage</span><b>${formatDayCount(s.vacation)}</b></div><div><span>Krankheitstage</span><b>${formatDayCount(s.sick)}</b></div><div><span>Zeitausgleichstage</span><b>${formatDayCount(s.timeOff||0)}</b></div><div><span>Sonstige Abwesenheiten</span><b>${formatDayCount(s.other)}</b></div><div><span>Unvollständige Tage</span><b>${s.incomplete}</b></div></div>`;
   const body=s.days.map(d=>{const c=calculateDay(d),ins=(d.entries||[]).filter(e=>e.type==='in').map(e=>e.logged).join(', ')||'–',outs=(d.entries||[]).filter(e=>e.type==='out').map(e=>e.logged).join(', ')||'–',absence=d.absence?`${d.absence} (${absenceDuration(d)==='half'?'½ Tag':'ganzer Tag'}, ${formatDuration(absenceCreditMinutes(d),{signed:false})})`:'–';return `<tr><td>${formatDate(d.date,{day:'2-digit',month:'2-digit',year:'numeric'})}</td><td>${esc(dayStatus(d))}</td><td>${esc(absence)}</td><td class="num">${esc(ins)}</td><td class="num">${esc(outs)}</td><td class="num">${Number(d.pauseMinutes)||0}</td><td class="num">${formatDuration(c.net,{signed:false})}</td><td class="num">${formatDuration(c.target,{signed:false})}</td><td class="num">${formatDuration(c.diff)}</td><td class="num">${formatDuration(balanceThrough(d.date))}</td><td class="wrap">${esc(d.absenceNote||d.note||'')}</td></tr>`}).join('');
-  reportShell(`Monatsbericht ${title}`,`Zeitraum: ${formatDate(start,{day:'2-digit',month:'2-digit',year:'numeric'})} bis ${formatDate(s.cutoff,{day:'2-digit',month:'2-digit',year:'numeric'})}`,summary,`<table><thead><tr><th>Datum</th><th>Status</th><th>Abwesenheit</th><th class="num">Kommen</th><th class="num">Gehen</th><th class="num">Pause</th><th class="num">Netto</th><th class="num">Soll</th><th class="num">Diff.</th><th class="num">Zeitkonto</th><th>Notiz</th></tr></thead><tbody>${body}</tbody></table>`)
+  reportShell(`Monatsbericht ${title}`,`Zeitraum: ${formatDate(start,{day:'2-digit',month:'2-digit',year:'numeric'})} bis ${formatDate(s.cutoff,{day:'2-digit',month:'2-digit',year:'numeric'})}`,summary,`<table><colgroup><col style="width:9%"><col style="width:8%"><col style="width:15%"><col style="width:7%"><col style="width:7%"><col style="width:6%"><col style="width:7%"><col style="width:7%"><col style="width:7%"><col style="width:9%"><col style="width:18%"></colgroup><thead><tr><th>Datum</th><th>Status</th><th>Abwesenheit</th><th class="num">Kommen</th><th class="num">Gehen</th><th class="num">Pause</th><th class="num">Netto</th><th class="num">Soll</th><th class="num">Diff.</th><th class="num">Zeitkonto</th><th>Notiz</th></tr></thead><tbody>${body}</tbody></table>`,'month')
 }
 function yearReport(y){
   const s=periodSummary(`${y}-01-01`,`${y}-12-31`),rows=[];for(let m=0;m<12;m++){if(y===new Date().getFullYear()&&m>new Date().getMonth())continue;const ms=periodSummary(`${y}-${pad(m+1)}-01`,dateKey(new Date(y,m+1,0,12)));rows.push({m,s:ms})}
   const summary=`<div class="hero"><span>Zeitkonto Jahresende / aktueller Stichtag</span><strong>${formatDuration(s.closing)}</strong></div><div class="summary"><div><span>Übertrag Vorjahr</span><b>${formatDuration(s.opening)}</b></div><div><span>Jahresveränderung</span><b>${formatDuration(s.diff)}</b></div><div><span>Sollzeit</span><b>${formatDuration(s.target,{signed:false})}</b></div><div><span>Nettozeit</span><b>${formatDuration(s.net,{signed:false})}</b></div><div><span>Pausenzeit</span><b>${formatDuration(s.pause,{signed:false})}</b></div><div><span>Urlaubstage</span><b>${formatDayCount(s.vacation)}</b></div><div><span>Krankheitstage</span><b>${formatDayCount(s.sick)}</b></div><div><span>Zeitausgleichstage</span><b>${formatDayCount(s.timeOff||0)}</b></div><div><span>Sonstige Abwesenheiten</span><b>${formatDayCount(s.other)}</b></div></div>`;
   const body=rows.map(r=>`<tr><td>${new Intl.DateTimeFormat('de-DE',{month:'long'}).format(new Date(y,r.m,1))}</td><td class="num">${formatDuration(r.s.target,{signed:false})}</td><td class="num">${formatDuration(r.s.net,{signed:false})}</td><td class="num">${formatDuration(r.s.pause,{signed:false})}</td><td class="num">${formatDuration(r.s.diff)}</td><td class="num">${formatDuration(r.s.closing)}</td><td class="num">${formatDayCount(r.s.vacation)}</td><td class="num">${formatDayCount(r.s.sick)}</td><td class="num">${formatDayCount(r.s.timeOff||0)}</td></tr>`).join('');
-  reportShell(`Jahresbericht ${y}`,`Jahr ${y}`,summary,`<table><thead><tr><th>Monat</th><th class="num">Soll</th><th class="num">Netto</th><th class="num">Pause</th><th class="num">Veränderung</th><th class="num">Zeitkonto</th><th class="num">Urlaub</th><th class="num">Krank</th><th class="num">Zeitausgleich</th></tr></thead><tbody>${body}</tbody></table>`)
+  reportShell(`Jahresbericht ${y}`,`Jahr ${y}`,summary,`<table><colgroup><col style="width:18%"><col style="width:10%"><col style="width:10%"><col style="width:9%"><col style="width:12%"><col style="width:12%"><col style="width:9%"><col style="width:9%"><col style="width:11%"></colgroup><thead><tr><th>Monat</th><th class="num">Soll</th><th class="num">Netto</th><th class="num">Pause</th><th class="num">Veränderung</th><th class="num">Zeitkonto</th><th class="num">Urlaub</th><th class="num">Krank</th><th class="num">Zeitausgleich</th></tr></thead><tbody>${body}</tbody></table>`,'year')
 }
 
 function init(){
@@ -1262,7 +1298,7 @@ function init(){
   document.querySelectorAll('[data-close]').forEach(b=>b.addEventListener('click',()=>closeModal(b.dataset.close)));
   document.querySelectorAll('.modal').forEach(m=>m.addEventListener('click',e=>{if(e.target===m)closeModal(m.id)}));
   document.addEventListener('keydown',e=>{if(e.key==='Escape'){const open=[...document.querySelectorAll('.modal.open')].at(-1);if(open)closeModal(open.id)}});
-  bindPunchButton($('punchIn'),'in');bindPunchButton($('punchOut'),'out');
+  bindPunchButton($('punchAction'));
   $('todayEditHint').addEventListener('click',openTodayInTimes);$('todayAbsenceEdit').addEventListener('click',()=>openAbsenceEditorForDay(todayKey(),'day'));
   $('pauseToday').addEventListener('click',openPauseModal);$('savePauseBtn').addEventListener('click',saveQuickPause);$('quickAddBtn').addEventListener('click',openQuickAdd);
   document.querySelectorAll('[data-quick-absence]').forEach(b=>b.addEventListener('click',()=>openNewAbsence(b.dataset.quickAbsence,todayKey())));$('manualTimeQuick').addEventListener('click',openManualTimeQuick);

@@ -1,0 +1,11 @@
+Arbeitszeit PWA V5.4 - Korrektur 4 - Testuebersicht
+
+- JavaScript-Syntax: bestanden
+- Manifest-JSON: bestanden
+- Icon-Dateien 180/192/512/1024 px: vorhanden und auflösungsrichtig
+- SVG-Master: vorhanden
+- Service-Worker-Cache: aktualisiert
+- Monatsbericht: A4-Querformat, feste 100-%-Spaltenbreite, Notizumbruch geprüft
+- Jahresbericht: A4-Querformat, feste 100-%-Spaltenbreite geprüft
+- Tagesbericht: A4-Hochformat unverändert
+- Layout-Stresstest mit 31 Monatszeilen und langen Notizen: keine horizontale Abschneidung; Folgeseite bei Bedarf

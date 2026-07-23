@@ -1,0 +1,13 @@
+ARBEITSZEIT PWA – TESTÜBERSICHT V5.4 KORREKTUR 5
+
+Geprüft:
+- JavaScript-Syntax mit Node.js: bestanden
+- Referenzprüfung aller per $() verwendeten HTML-IDs: bestanden
+- Alter getrennter Kommen-/Gehen-Button aus DOM und Bindings entfernt
+- Intelligenter Button verwendet die bestehende Buchungsreihenfolge und Rundungslogik
+- Kommen/Gehen-Arbeitsblöcke bleiben paarweise gruppiert
+- Offener Arbeitsblock zeigt „läuft“
+- Laufender Tagessaldo wird aus Arbeitszeit, manueller Pause, Abwesenheitsgutschrift und Sollzeit berechnet
+- Farblogik Plus/Minus/Ausgeglichen vorhanden
+- Countdown-Einstellung und übrige Ansichten unverändert erhalten
+- Service-Worker-Cache auf Korrektur 5 angehoben

@@ -1,0 +1,14 @@
+Arbeitszeit PWA V5.4 – Korrektur 4
+
+1. Neues App-Icon
+- Freigegebenes minimalistisches Uhr-/Kommen-&-Gehen-Motiv umgesetzt.
+- Optisch zentriert und für iPhone-Homebildschirm optimiert.
+- Größen 180, 192, 512 und 1024 Pixel sowie SVG-Master enthalten.
+- Manifest, Apple-Touch-Icon und Offline-Cache aktualisiert.
+
+2. A4-Druckkorrektur
+- Monats- und Jahresbericht fest auf A4-Querformat gestellt.
+- Tabellen verwenden feste Spaltenraster innerhalb der bedruckbaren Breite.
+- Notizen umbrechen mehrzeilig; Zahlenfelder bleiben kompakt.
+- Rechte Spalten Tagessaldo/Zeitkonto/Notiz werden nicht mehr abgeschnitten.
+- Tagesbericht bleibt A4-Hochformat.
