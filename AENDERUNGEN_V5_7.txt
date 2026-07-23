@@ -1,0 +1,15 @@
+Arbeitszeit-PWA V5.7 – kompakte Tagesansicht
+
+- Datum innerhalb der Tageszusammenfassung entfernt; der Datumsnavigator ist nun das eindeutige und prominentere Navigationselement.
+- Pfeile und Datumsauswahl vergrößert.
+- Großer Hauptwert der Tageskarte von „Zeitkontostand nach diesem Tag“ auf „Tagessaldo heute“ umgestellt.
+- Untere Kennzahlen: Brutto, Netto, Soll und Zeitkonto.
+- Zeitkonto wird weiterhin als Gesamtwert angezeigt und steht in einer eigenen vierten Kennzahlenkachel.
+- Status und Herkunft/Änderung kompakt in der Kopfzeile der Tageskarte angeordnet.
+- Buchungsdarstellung auf dem iPhone vertikal verdichtet, ohne Inhalte oder Bearbeitungsmöglichkeit zu entfernen.
+- Unterer Bereich als reiner Ausgabeblock „Zusätzliche Angaben“ umgesetzt.
+- Der Ausgabeblock zeigt manuelle Pause und Kommentar; bei fehlendem Kommentar erscheint „Kein Kommentar eingetragen“.
+- Der Ausgabeblock öffnet bei Antippen weiterhin die Tagesbearbeitung.
+- Keine Eingabeschaltfläche und kein Startseiten-Pausenblock in der Zeitenansicht.
+- Höhenabhängige Kompaktregeln für iPhone-Displays ergänzt, damit ein typischer Tag mit einem Kommen-/Gehen-Paar möglichst ohne Scrollen sichtbar ist.
+- Bestehende Daten-, Speicher-, Backup-, Berechnungs- und Offline-Logik unverändert übernommen.

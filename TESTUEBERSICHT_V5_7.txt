@@ -1,0 +1,13 @@
+Arbeitszeit-PWA V5.7 – technische Prüfungen
+
+- JavaScript-Syntax mit Node.js geprüft.
+- Service-Worker-Dateiliste und Cache-Version geprüft.
+- Alle in index.html referenzierten lokalen Dateien geprüft.
+- Tagesansicht: Datum nur im Datumsnavigator.
+- Tagesansicht: Tagessaldo als großer Hauptwert.
+- Tagesansicht: Zeitkonto als vierte Kennzahl.
+- Tagesansicht: Buchungen und Bearbeitungsschaltflächen erhalten.
+- Tagesansicht: zusätzlicher Ausgabeblock für Pause und Kommentar.
+- ZIP-Integrität geprüft.
+
+Hinweis: Die endgültige Sichtprüfung der Höhenoptimierung sollte in der installierten PWA auf dem iPhone 16 erfolgen, da Safari/PWA je nach Anzeigeart unterschiedliche nutzbare Höhen bereitstellt.

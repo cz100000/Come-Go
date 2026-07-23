@@ -409,3 +409,90 @@ body.today-fixed .app{
   border-bottom:0;
   border-radius:0 0 18px 18px;
 }
+
+/* V5.7 – kompakte Tagesansicht im bestehenden App-Design */
+#timesContent .date-nav-prominent{
+  grid-template-columns:52px minmax(0,1fr) 52px;
+  gap:12px;
+  margin-bottom:12px;
+}
+#timesContent .date-nav-prominent button,
+#timesContent .date-nav-prominent input{
+  height:52px;
+  border-radius:17px;
+  font-size:18px;
+  font-weight:720;
+}
+#timesContent .date-nav-prominent button{font-size:32px;line-height:1}
+#timesContent .compact-day-summary{padding:14px 16px 15px}
+#timesContent .day-summary-top{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:30px}
+#timesContent .day-summary-top .day-meta{margin:0;font-size:12px}
+#timesContent .compact-day-summary .balance-hero{padding:8px 6px 10px}
+#timesContent .compact-day-summary .balance-hero span{font-size:12px}
+#timesContent .compact-day-summary .balance-hero strong{font-size:38px;margin-top:3px}
+#timesContent .compact-day-summary .balance-hero strong.red{color:#a94b47}
+#timesContent .compact-day-summary .balance-hero strong.green{color:#367c50}
+#timesContent .compact-day-summary .balance-hero strong.neutral{color:#667085}
+#timesContent .compact-day-summary .metric-grid{margin:0;gap:7px}
+#timesContent .compact-day-summary .metric{padding:8px 5px;border-radius:13px}
+#timesContent .compact-day-summary .metric span{font-size:10px}
+#timesContent .compact-day-summary .metric b{font-size:14px;margin-top:4px}
+#timesContent .compact-day-summary .metric-balance{border-color:#e4ebe7;background:linear-gradient(145deg,#fbfcfb,#f3f7f4)}
+#timesContent .compact-day-summary .metric-balance b.green{color:#367c50}
+#timesContent .compact-day-summary .metric-balance b.red{color:#a94b47}
+#timesContent .compact-day-summary .metric-balance b.neutral{color:#667085}
+#timesContent .compact-booking-card{padding:13px 14px}
+#timesContent .compact-booking-card .booking-section-title{margin-bottom:8px}
+#timesContent .day-additional{padding:13px 14px;cursor:pointer}
+#timesContent .day-additional h3{margin:0 0 8px;font-size:17px;letter-spacing:-.015em}
+#timesContent .additional-row{display:grid;grid-template-columns:36px minmax(0,1fr);align-items:center;gap:10px;padding:8px 0;border-top:1px solid var(--line)}
+#timesContent .additional-icon{width:34px;height:34px;border-radius:10px;display:grid;place-items:center}
+#timesContent .additional-icon .icon{width:20px;height:20px}
+#timesContent .additional-icon.pause{background:#edf4ff;color:#4b75b6}
+#timesContent .additional-icon.note{background:#f4efff;color:#7552b6}
+#timesContent .additional-row b{display:block;font-size:14px}
+#timesContent .additional-row div>span{display:block;margin-top:2px;color:var(--muted);font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#timesContent .compact-empty{padding:16px 8px}
+
+@media(max-width:540px){
+  #times.day-compact .page-header{padding-bottom:6px}
+  #timesContent .date-nav-prominent{grid-template-columns:48px minmax(0,1fr) 48px;gap:9px;margin-bottom:9px}
+  #timesContent .date-nav-prominent button,#timesContent .date-nav-prominent input{height:48px;border-radius:15px}
+  #timesContent .compact-day-summary{padding:11px 12px 12px}
+  #timesContent .compact-day-summary .balance-hero{padding:5px 4px 8px}
+  #timesContent .compact-day-summary .balance-hero strong{font-size:34px}
+  #timesContent .compact-booking-card{padding:11px 12px}
+  #timesContent .booking-mobile-list{gap:6px}
+  #timesContent .booking-mobile-item{padding:8px 9px;border-radius:14px}
+  #timesContent .booking-mobile-head{gap:7px}
+  #timesContent .booking-type-icon{width:28px;height:28px;border-radius:9px}
+  #timesContent .booking-type-icon .icon{width:18px;height:18px}
+  #timesContent .booking-mobile-title{font-size:14px}
+  #timesContent .booking-mobile-source{font-size:10px;margin-top:1px}
+  #timesContent .booking-mobile-times{margin-top:6px;gap:6px}
+  #timesContent .booking-mobile-time{padding:6px 8px;border-radius:10px}
+  #timesContent .booking-mobile-time b{font-size:14px}
+  #timesContent .day-additional{padding:10px 12px}
+  #timesContent .day-additional h3{font-size:16px;margin-bottom:5px}
+  #timesContent .additional-row{padding:6px 0;grid-template-columns:31px minmax(0,1fr);gap:8px}
+  #timesContent .additional-icon{width:29px;height:29px}
+  #timesContent .additional-icon .icon{width:18px;height:18px}
+}
+@media(max-height:860px) and (max-width:540px){
+  #times .page-header{padding-top:0;padding-bottom:4px}
+  #times .page-header h1{font-size:34px}
+  #times .page-header .sub{font-size:13px;margin-top:2px}
+  #times .segmented{margin-bottom:8px}
+  #times .segmented button{padding:8px 6px}
+  #timesContent .date-nav-prominent{margin-bottom:8px}
+  #timesContent .date-nav-prominent button,#timesContent .date-nav-prominent input{height:46px}
+  #timesContent .compact-day-summary{margin-bottom:9px}
+  #timesContent .compact-day-summary .balance-hero strong{font-size:32px}
+  #timesContent .compact-booking-card{margin-bottom:9px}
+  #timesContent .booking-section-title{font-size:16px}
+  #timesContent .booking-mobile-item{padding:7px 8px}
+  #timesContent .booking-mobile-times{margin-top:5px}
+  #timesContent .booking-mobile-time{padding:5px 7px}
+  #timesContent .day-additional{margin-bottom:0}
+  #timesContent{padding-bottom:8px}
+}

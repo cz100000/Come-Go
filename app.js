@@ -5,7 +5,7 @@ const BACKUP_FORMAT='arbeitszeit-pwa-backup';
 let storageNotice='';
 const CHECKPOINT_DATE='2026-07-22';
 const CHECKPOINT_MINUTES=11631;
-const APP_VERSION='5.6';
+const APP_VERSION='5.7';
 const CURRENT_SCHEMA=9;
 const IMPORT_DATA_VERSION=2;
 let state=loadState();
@@ -22,7 +22,9 @@ const SVG={
   in:`<svg class="icon" viewBox="0 0 32 32"><path d="M11 5.5h12v21H11"/><path d="M4.5 16h16M15.5 10.5 21 16l-5.5 5.5"/></svg>`,
   out:`<svg class="icon" viewBox="0 0 32 32"><path d="M21 5.5H9v21h12"/><path d="M27.5 16h-16M16.5 10.5 11 16l5.5 5.5"/></svg>`,
   check:`<svg class="icon" viewBox="0 0 24 24"><path d="m6 12 4 4 8-9"/></svg>`,
-  edit:`<svg class="icon" viewBox="0 0 24 24"><path d="M4 20h4l11-11-4-4L4 16zM13.5 6.5l4 4"/></svg>`
+  edit:`<svg class="icon" viewBox="0 0 24 24"><path d="M4 20h4l11-11-4-4L4 16zM13.5 6.5l4 4"/></svg>`,
+  pause:`<svg class="icon" viewBox="0 0 24 24"><path d="M5 7h11v6a5.5 5.5 0 0 1-11 0zM16 9h2.2a2.8 2.8 0 0 1 0 5.6H16M4 20h14"/></svg>`,
+  note:`<svg class="icon" viewBox="0 0 24 24"><path d="M21 12a8 8 0 0 1-8 8H7l-4 2 1.4-4.2A8 8 0 1 1 21 12Z"/></svg>`
 };
 
 function todayKey(){return dateKey(new Date())}
@@ -527,28 +529,35 @@ function bindPunchButton(button){
 }
 
 function setTimesView(v){currentView=v;monthDrill=null;document.querySelectorAll('[data-view]').forEach(b=>b.classList.toggle('active',b.dataset.view===v));renderTimes()}
-function renderTimes(){if(currentView==='day')renderDayView(dateKey(cursorDate));else if(currentView==='month')renderMonthOverview();else renderYearOverview()}
+function renderTimes(){const times=$('times');times?.classList.toggle('day-compact',currentView==='day');if(currentView==='day')renderDayView(dateKey(cursorDate));else if(currentView==='month')renderMonthOverview();else renderYearOverview()}
 function renderDayView(k){
   cursorDate=parseDateKey(k);const d=dayObject(k),c=calculateDay(d),status=dayStatus(d),entries=d.entries||[];
   const statusClass=status==='Vollständig'||d.absence?'success':status==='Prüfung erforderlich'?'review':status==='Unvollständig'?'warning':'';
   const source=d.edited?'Nachträglich geändert':d.capturedAfterImport?'Lokale Erfassung':d.sourceYear?`Importierte Daten aus ${d.sourceYear}`:'Lokale Erfassung';
   const rows=entries.length?entries.map((e,i)=>`<tr><td>${i+1}</td><td>${e.type==='in'?'Kommen':'Gehen'}</td><td class="num">${esc(e.actual||'–')}</td><td class="num">${esc(e.logged||'–')}</td><td><span class="booking-source">${esc(entrySource(d,e))}</span></td></tr>`).join(''):`<tr><td colspan="5" class="empty">Keine Buchungen vorhanden</td></tr>`;
   let inNo=0,outNo=0;
-  const mobileRows=entries.length?entries.map(e=>{const no=e.type==='in'?++inNo:++outNo,label=e.type==='in'?`Kommen ${no}`:`Gehen ${no}`;return `<article class="booking-mobile-item ${e.type}"><div class="booking-mobile-head"><span class="booking-type-icon">${e.type==='in'?SVG.in:SVG.out}</span><div><b class="booking-mobile-title">${label}</b><span class="booking-mobile-source">${esc(entrySource(d,e))}</span></div><button type="button" class="edit-icon-btn" onclick="openDayEditor('${k}')" aria-label="${label} bearbeiten">${SVG.edit}</button></div><div class="booking-mobile-times"><div class="booking-mobile-time"><span>Tatsächlich</span><b>${esc(e.actual||'–')}</b></div><div class="booking-mobile-time"><span>Dokumentiert</span><b>${esc(e.logged||'–')}</b></div></div></article>`}).join(''):`<div class="empty">Keine Buchungen vorhanden</div>`;
+  const mobileRows=entries.length?entries.map(e=>{const no=e.type==='in'?++inNo:++outNo,label=e.type==='in'?`Kommen ${no}`:`Gehen ${no}`;return `<article class="booking-mobile-item ${e.type}"><div class="booking-mobile-head"><span class="booking-type-icon">${e.type==='in'?SVG.in:SVG.out}</span><div><b class="booking-mobile-title">${label}</b><span class="booking-mobile-source">${esc(entrySource(d,e))}</span></div><button type="button" class="edit-icon-btn" onclick="openDayEditor('${k}')" aria-label="${label} bearbeiten">${SVG.edit}</button></div><div class="booking-mobile-times"><div class="booking-mobile-time"><span>Tatsächlich</span><b>${esc(e.actual||'–')}</b></div><div class="booking-mobile-time"><span>Dokumentiert</span><b>${esc(e.logged||'–')}</b></div></div></article>`}).join(''):`<div class="empty compact-empty">Keine Buchungen vorhanden</div>`;
   const groupCount=d.absenceGroupId?absenceGroupDays(d.absenceGroupId).length:1;
   const absenceCard=d.absence?`<div class="card detail-list absence-detail-card"><div class="detail-row"><span>Abwesenheit</span><b>${esc(d.absence)}</b></div><div class="detail-row"><span>Umfang</span><b>${absenceDuration(d)==='half'?'Halber Tag':'Ganzer Tag'}</b></div><div class="detail-row"><span>Angerechnete Zeit</span><b class="absence-credit">${formatDuration(absenceCreditMinutes(d),{signed:false})}</b></div><div class="detail-row"><span>Notiz</span><div class="value">${esc(d.absenceNote||'–')}</div></div><div class="absence-actions-inline"><button type="button" onclick="openAbsenceEditorForDay('${k}','day')">Diesen Tag bearbeiten</button>${groupCount>1?`<button type="button" onclick="openAbsenceEditorForDay('${k}','group')">Zeitraum bearbeiten</button>`:''}<button type="button" class="danger" onclick="deleteAbsenceForDay('${k}','day')">Diesen Tag löschen</button>${groupCount>1?`<button type="button" class="danger" onclick="deleteAbsenceForDay('${k}','group')">Zeitraum löschen</button>`:''}</div></div>`:'';
+  const diffClass=c.diff<0?'red':c.diff>0?'green':'neutral';
+  const balance=balanceThrough(k),balanceClass=balance<0?'red':balance>0?'green':'neutral';
   $('timesContent').innerHTML=`
-    <div class="date-nav"><button type="button" onclick="changeDay(-1)" aria-label="Vorheriger Tag">‹</button><input type="date" id="dayPicker" value="${k}" aria-label="Datum auswählen"><button type="button" onclick="changeDay(1)" aria-label="Nächster Tag">›</button></div>
-    <div class="card day-summary"><div class="day-heading"><div><h2>${esc(formatDate(k,{weekday:'short',day:'2-digit',month:'2-digit',year:'numeric'}))}</h2><div class="day-meta">${esc(source)}</div></div><span class="badge ${statusClass}">${esc(status)}</span></div>
-      <div class="balance-hero"><span>Zeitkontostand nach diesem Tag</span><strong class="${balanceThrough(k)<0?'red':'green'}">${formatDuration(balanceThrough(k))}</strong></div>
-      <div class="metric-grid"><div class="metric"><span>Brutto</span><b>${formatDuration(c.gross,{signed:false})}</b></div><div class="metric"><span>Netto</span><b>${formatDuration(c.net,{signed:false})}</b></div><div class="metric"><span>Soll</span><b>${formatDuration(c.target,{signed:false})}</b></div><div class="metric"><span>Differenz</span><b class="${c.diff<0?'red':'green'}">${formatDuration(c.diff)}</b></div></div>
+    <div class="date-nav date-nav-prominent"><button type="button" onclick="changeDay(-1)" aria-label="Vorheriger Tag">‹</button><input type="date" id="dayPicker" value="${k}" aria-label="Datum auswählen"><button type="button" onclick="changeDay(1)" aria-label="Nächster Tag">›</button></div>
+    <div class="card day-summary compact-day-summary">
+      <div class="day-summary-top"><div class="day-meta">${esc(source)}</div><span class="badge ${statusClass}">${esc(status)}</span></div>
+      <div class="balance-hero"><span>Tagessaldo heute</span><strong class="${diffClass}">${formatDuration(c.diff)}</strong></div>
+      <div class="metric-grid"><div class="metric"><span>Brutto</span><b>${formatDuration(c.gross,{signed:false})}</b></div><div class="metric"><span>Netto</span><b>${formatDuration(c.net,{signed:false})}</b></div><div class="metric"><span>Soll</span><b>${formatDuration(c.target,{signed:false})}</b></div><div class="metric metric-balance"><span>Zeitkonto</span><b class="${balanceClass}">${formatDuration(balance)}</b></div></div>
     </div>
     ${absenceCard}
-    <div class="card booking-card"><h3 class="booking-section-title">Buchungen</h3><div class="booking-table-wrap table-scroll"><table class="booking-table"><thead><tr><th>Nr.</th><th>Art</th><th class="num">Tatsächlich</th><th class="num">Dokumentiert</th><th>Herkunft</th></tr></thead><tbody>${rows}</tbody></table></div><div class="booking-mobile-list">${mobileRows}</div></div>
-    <div class="card detail-list"><div class="detail-row"><span>Manuelle Pause</span><b>${Number(d.pauseMinutes)||0} Min.</b></div><div class="detail-row"><span>Kommentar / Tagesnotiz</span><div class="value">${esc(d.note||'–')}</div></div><div class="detail-row"><span>Herkunft / Änderung</span><div class="value">${esc(source)}</div></div></div>
-    <button type="button" class="primary-btn" onclick="openDayEditor('${k}')">Tag bearbeiten</button><button type="button" class="secondary-btn" onclick="dayReport('${k}')">Tagesbericht öffnen</button>`;
+    <div class="card booking-card compact-booking-card"><h3 class="booking-section-title">Buchungen</h3><div class="booking-table-wrap table-scroll"><table class="booking-table"><thead><tr><th>Nr.</th><th>Art</th><th class="num">Tatsächlich</th><th class="num">Dokumentiert</th><th>Herkunft</th></tr></thead><tbody>${rows}</tbody></table></div><div class="booking-mobile-list">${mobileRows}</div></div>
+    <div class="card day-additional" role="button" tabindex="0" onclick="openDayEditor('${k}')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openDayEditor('${k}')}" aria-label="Zusätzliche Angaben bearbeiten">
+      <h3>Zusätzliche Angaben</h3>
+      <div class="additional-row"><span class="additional-icon pause">${SVG.pause}</span><div><b>Manuelle Pause</b><span>${Number(d.pauseMinutes)||0} Min.</span></div></div>
+      <div class="additional-row"><span class="additional-icon note">${SVG.note||SVG.edit}</span><div><b>Kommentar</b><span>${esc(d.note||'Kein Kommentar eingetragen')}</span></div></div>
+    </div>`;
   $('dayPicker').addEventListener('change',e=>{cursorDate=parseDateKey(e.target.value);renderDayView(e.target.value)});
 }
+
 function changeDay(n){cursorDate.setDate(cursorDate.getDate()+n);renderDayView(dateKey(cursorDate))}
 function periodDays(start,end){return Object.values(state.days).filter(d=>d.date>=start&&d.date<=end&&isCountable(d,Math.min(todayKey(),end))).sort((a,b)=>a.date.localeCompare(b.date))}
 function monthSummary(y,m){
