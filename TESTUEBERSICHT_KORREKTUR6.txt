@@ -1,0 +1,10 @@
+Prüfübersicht V5.4 Korrektur 6
+
+- JavaScript-Syntax geprüft.
+- Gelöschtes Element todayEditHint besitzt keine verbleibende JavaScript-Referenz.
+- Tagessaldo besitzt keine statusabhängige Hintergrundfarbe mehr.
+- Gedämpfte Wertfarben für positiv, negativ und neutral vorhanden.
+- Touch-Logik prüft Pointerposition exakt innerhalb des Hauptbuttons.
+- pointercancel und lostpointercapture setzen die gedrückte Optik zurück.
+- Seed-Datensatz 23.07.2026 wird nur bei fehlenden lokalen Tagesdaten angelegt.
+- Bestehender LocalStorage-Schlüssel bleibt unverändert, damit installierte Daten erhalten bleiben.

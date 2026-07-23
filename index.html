@@ -278,7 +278,7 @@ body.today-fixed .app{height:100dvh;min-height:0;overflow-y:auto;overscroll-beha
 .quick-add-btn{height:56px;min-width:56px;border:0;border-radius:16px;background:linear-gradient(145deg,#1475ff,#0863db);color:#fff;font-size:34px;font-weight:400;line-height:1;box-shadow:0 8px 20px rgba(20,117,255,.22);touch-action:manipulation;transition:transform .1s ease,box-shadow .1s ease,filter .1s ease}
 .home-pressable{touch-action:manipulation;transition:transform .1s ease,box-shadow .1s ease,filter .1s ease}
 .home-pressable:active,.home-pressable.pressed{transform:translateY(7px) scale(.98);filter:brightness(.94);box-shadow:0 1px 4px rgba(22,34,52,.08)}
-.punch-btn.pressed,.punch-btn:active:not(:disabled){transform:translateY(7px) scale(.98);filter:brightness(.95);box-shadow:0 1px 4px rgba(25,39,58,.07);transition-duration:.1s}
+.punch-btn.pressed{transform:translateY(7px) scale(.98);filter:brightness(.95);box-shadow:0 1px 4px rgba(25,39,58,.07);transition-duration:.1s}.punch-btn:active:not(.pressed){transform:none;filter:none}
 .date-nav{grid-template-columns:44px minmax(0,1fr) 44px;gap:7px}.date-nav button{min-width:44px;width:44px}.date-nav input{min-width:0;width:100%;max-width:100%;padding:0 5px;font-size:15px;overflow:hidden;-webkit-appearance:none;appearance:none}
 .report-controls{grid-template-columns:118px minmax(0,1fr);justify-content:end}.report-controls input,.report-controls select{width:118px;min-width:118px;max-width:118px}.report-controls button{width:100%;min-width:0}
 #targetHours,#checkpointBalance{width:132px;max-width:132px;justify-self:end}
@@ -405,11 +405,11 @@ body.today-fixed .app{
 /* V5.4 Korrektur 5 – ein intelligenter Kommen/Gehen-Button und kompakter Tagessaldo */
 .punch-grid.single{grid-template-columns:1fr}
 .punch-grid.single .punch-btn{min-height:clamp(92px,13dvh,118px)}
-.today-balance-row{min-height:48px;display:flex;align-items:center;justify-content:space-between;gap:14px;padding:0 14px;border-top:1px solid var(--line);background:#f7f8fa;font-size:14px;font-variant-numeric:tabular-nums}
-.today-balance-row span{font-weight:680}.today-balance-row b{font-size:15px;white-space:nowrap}
-.today-balance-row.positive{background:#edf8f1;color:var(--green-dark)}
-.today-balance-row.negative{background:#fff1f0;color:var(--danger)}
-.today-balance-row.neutral{color:var(--muted)}
+.today-balance-row{min-height:48px;display:flex;align-items:center;justify-content:space-between;gap:14px;padding:0 14px;border-top:1px solid var(--line);background:#fff;font-size:14px;font-variant-numeric:tabular-nums}
+.today-balance-row span{font-weight:680;color:var(--text)}.today-balance-row b{font-size:15px;white-space:nowrap}
+.today-balance-row.positive b{color:#367c50}
+.today-balance-row.negative b{color:#a94b47}
+.today-balance-row.neutral b{color:#667085}
 .capture-empty+.today-balance-row{border-top:1px solid var(--line)}
 @media(max-height:760px){.punch-grid.single .punch-btn{min-height:88px}.today-balance-row{min-height:42px;font-size:13px}.today-balance-row b{font-size:14px}}
 
@@ -455,10 +455,6 @@ body.today-fixed .app{
       <span id="todayBookingCount">0 Buchungen</span>
     </div>
     <div id="todayCaptureList" class="capture-list"></div>
-    <button type="button" id="todayEditHint" class="capture-details">
-      <span>Alle Details unter Zeiten</span>
-      <svg class="icon" viewBox="0 0 24 24"><path d="m9 6 6 6-6 6"/></svg>
-    </button>
   </section>
 
   <div class="quick-action-row" aria-label="Manuelle Einträge">
@@ -601,7 +597,7 @@ const IMPORTED_BY_DATE=Object.fromEntries(IMPORTED.map(d=>[d.date,d]));
 const STORAGE_KEY='arbeitszeit-pwa-v1';
 const CHECKPOINT_DATE='2026-07-22';
 const CHECKPOINT_MINUTES=11631;
-const APP_VERSION='5.4 Korrektur 5';
+const APP_VERSION='5.4 Korrektur 6';
 const CURRENT_SCHEMA=8;
 const IMPORT_DATA_VERSION=2;
 let state=loadState();
@@ -650,6 +646,13 @@ function migrateState(raw){
   for(const original of IMPORTED){
     const existing=migrated.days[original.date];
     if(!existing||!isProtectedLocalDay(existing))migrated.days[original.date]=clone(original);
+  }
+  const preservedDay=migrated.days['2026-07-23'];
+  if(!hasMeaningfulData(preservedDay)){
+    migrated.days['2026-07-23']={date:'2026-07-23',entries:[
+      {type:'in',actual:'11:35',logged:'11:35',source:'manual',createdAt:'2026-07-23T11:35:00'},
+      {type:'out',actual:'18:25',logged:'18:25',source:'manual',createdAt:'2026-07-23T18:25:00'}
+    ],pauseMinutes:80,absence:null,note:'',archived:false,sourceYear:null,capturedAfterImport:true,modifiedAt:'2026-07-23T18:25:00'};
   }
   const s=migrated.settings;
   if(!Number.isFinite(s.targetMinutes))s.targetMinutes=480;
@@ -1017,7 +1020,7 @@ function liveTodayBalanceMinutes(d,now=new Date()){
 function renderTodayCapture(d){
   const entries=d.entries||[],blocks=[];
   for(let i=0;i<entries.length;i+=2){const come=entries[i]?.type==='in'?entries[i]:null,go=entries[i+1]?.type==='out'?entries[i+1]:null;if(come)blocks.push({come,go})}
-  const count=entries.length;$('todayBookingCount').textContent=`${count} ${count===1?'Buchung':'Buchungen'}`;
+  const count=blocks.length;$('todayBookingCount').textContent=`${count} ${count===1?'Buchung':'Buchungen'}`;
   const rows=blocks.map((b,i)=>{const no=i+1,come=b.come.logged||roundLogged(b.come.actual,'in'),go=b.go?(b.go.logged||roundLogged(b.go.actual,'out')):'läuft';return `<button type="button" class="block-row" onclick="openTodayInTimes()" aria-label="Arbeitsblock ${no} unter Zeiten öffnen"><span class="block-no">${no}</span><span class="block-time in"><i class="block-dot"></i>${esc(come)}</span><span class="block-time out ${b.go?'':'open'}"><i class="block-dot"></i>${esc(go)}</span><svg class="block-chev icon" viewBox="0 0 24 24"><path d="m9 6 6 6-6 6"/></svg></button>`}).join('');
   const empty=!blocks.length?`<div class="capture-empty"><div><b>Noch keine Buchungen</b>${esc(hasFullAbsence(d)?'Für die ganztägige Abwesenheit sind keine Arbeitszeitbuchungen erforderlich.':'Starte den Tag mit „Kommen“.')}</div></div>`:'';
   const balance=liveTodayBalanceMinutes(d),balanceClass=balance>0?'positive':balance<0?'negative':'neutral';
@@ -1044,15 +1047,13 @@ function bindPunchButton(button){
   });
   button.addEventListener('pointermove',e=>{
     if(e.pointerId!==pointer)return;
-    const dx=e.clientX-startX,dy=e.clientY-startY;
-    if(Math.hypot(dx,dy)>18)cancelled=true;
-    const r=button.getBoundingClientRect(),tol=14,inside=e.clientX>=r.left-tol&&e.clientX<=r.right+tol&&e.clientY>=r.top-tol&&e.clientY<=r.bottom+tol;
-    button.classList.toggle('pressed',inside&&!cancelled);
+    const r=button.getBoundingClientRect(),inside=e.clientX>=r.left&&e.clientX<=r.right&&e.clientY>=r.top&&e.clientY<=r.bottom;
+    button.classList.toggle('pressed',inside);
   });
   button.addEventListener('pointerup',e=>{
     if(e.pointerId!==pointer)return;
-    const r=button.getBoundingClientRect(),tol=14,inside=e.clientX>=r.left-tol&&e.clientX<=r.right+tol&&e.clientY>=r.top-tol&&e.clientY<=r.bottom+tol;
-    const valid=inside&&!cancelled&&!button.disabled;reset();if(valid)performPunch(button.dataset.punch);
+    const r=button.getBoundingClientRect(),inside=e.clientX>=r.left&&e.clientX<=r.right&&e.clientY>=r.top&&e.clientY<=r.bottom;
+    const valid=inside&&!button.disabled;reset();if(valid)performPunch(button.dataset.punch);
   });
   button.addEventListener('pointercancel',reset);button.addEventListener('lostpointercapture',()=>{if(pointer!==null)reset()});
 }
@@ -1299,7 +1300,7 @@ function init(){
   document.querySelectorAll('.modal').forEach(m=>m.addEventListener('click',e=>{if(e.target===m)closeModal(m.id)}));
   document.addEventListener('keydown',e=>{if(e.key==='Escape'){const open=[...document.querySelectorAll('.modal.open')].at(-1);if(open)closeModal(open.id)}});
   bindPunchButton($('punchAction'));
-  $('todayEditHint').addEventListener('click',openTodayInTimes);$('todayAbsenceEdit').addEventListener('click',()=>openAbsenceEditorForDay(todayKey(),'day'));
+  $('todayAbsenceEdit').addEventListener('click',()=>openAbsenceEditorForDay(todayKey(),'day'));
   $('pauseToday').addEventListener('click',openPauseModal);$('savePauseBtn').addEventListener('click',saveQuickPause);$('quickAddBtn').addEventListener('click',openQuickAdd);
   document.querySelectorAll('[data-quick-absence]').forEach(b=>b.addEventListener('click',()=>openNewAbsence(b.dataset.quickAbsence,todayKey())));$('manualTimeQuick').addEventListener('click',openManualTimeQuick);
   ['absenceType','absenceFrom','absenceTo','absenceExtent','absenceConflictPolicy'].forEach(id=>$(id).addEventListener('change',updateAbsenceSummary));$('absenceNote').addEventListener('input',updateAbsenceSummary);$('saveAbsenceBtn').addEventListener('click',saveAbsence);$('deleteAbsenceDayBtn').addEventListener('click',()=>deleteAbsenceFromModal('day'));$('deleteAbsenceGroupBtn').addEventListener('click',()=>deleteAbsenceFromModal('group'));

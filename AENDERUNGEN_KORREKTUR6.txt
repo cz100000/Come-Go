@@ -1,0 +1,12 @@
+Arbeitszeit PWA V5.4 – Korrektur 6
+
+- Startseite bleibt im bestehenden freigegebenen Design.
+- Bereich „Alle Details unter Zeiten“ unter der Heute-Karte entfernt.
+- Tagessaldo ohne rote oder grüne Hintergrundfläche.
+- Positiver und negativer Saldo verwenden gedeckte Grün-/Rottöne; nur der Wert wird eingefärbt.
+- Buchungsanzahl zählt logisch zusammengehörige Kommen-/Gehen-Blöcke.
+- Hauptbutton: gedrückte Optik endet sofort beim Herausziehen des Fingers.
+- Loslassen außerhalb löst keine Buchung aus; Zurückführen in den Button stellt die gedrückte Optik wieder her.
+- Native :active-Optik des Hauptbuttons deaktiviert, damit kein gedrückter Zustand hängen bleibt.
+- Vorhandene lokale Daten werden nicht überschrieben.
+- Falls für den 23.07.2026 noch kein lokaler Datensatz vorhanden ist, werden übernommen: Kommen 11:35, Gehen 18:25, manuelle Pause 80 Minuten.
