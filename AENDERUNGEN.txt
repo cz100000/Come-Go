@@ -33,7 +33,7 @@ Stand: 23.07.2026
 
 5. TECHNIK
 - Zentrale Versionskonstante APP_VERSION.
-- Datenschema 7, rückwärtskompatible automatische Migration.
+- Datenschema 8, rückwärtskompatible automatische Migration.
 - Bestehender LocalStorage-Schlüssel und Offline-/PWA-Struktur unverändert.
 
 V5.4 Korrektur 1 – Startseite
@@ -43,3 +43,24 @@ V5.4 Korrektur 1 – Startseite
 - Gemeinsame Zeile „Manuelle Pause / +“ wird bei freiem Platz an den unteren Rand der Inhaltsfläche unmittelbar oberhalb der Navigation geschoben.
 - Bei zusätzlichem Inhalt bleibt die Startseite scrollbar; Schnellaktionen überlagern weder Buchungen noch Navigation.
 - Service-Worker-Cache zur sicheren Aktualisierung einer bereits installierten PWA erneuert.
+
+V5.4 KORREKTUR 2 - A4-BERICHTSDRUCK
+- Tagesbericht auf A4-Hochformat mit festen Seitenrändern optimiert.
+- Monatsbericht auf A4-Querformat umgestellt und Spaltenbreiten, Schriftgrößen sowie Abstände kompakt abgestimmt.
+- Jahresbericht auf A4-Querformat umgestellt und Tabellen-/Zusammenfassungsraster angepasst.
+- Wiederholte Tabellenköpfe und saubere Seitenumbrüche bei mehrseitigen Monatsberichten sichergestellt.
+- Druckvorschau bildet Hoch- und Querformat berichtsspezifisch ab.
+
+
+V5.4 KORREKTUR 3 – COUNTDOWN UND KONFETTI
+- Neue kompakte Countdown-Karte zwischen Kommen/Gehen und „Heute erfasst“.
+- Anzeige der verbleibenden Arbeitszeit, voraussichtlichen Endzeit und des Fortschritts.
+- Manuell eingetragene Pause wird sowohl bei der Nettoarbeitszeit als auch bei der offenen Mindestpause berücksichtigt.
+- Mindestpausenlogik: 30 Minuten bei mehr als 6 bis 9 Stunden, 45 Minuten bei mehr als 9 Stunden.
+- Zustände für noch nicht begonnen, laufende Arbeit, vorübergehend ausgestempelt, offene Mindestpause und erreichtes Tagesziel.
+- Ganztägige Abwesenheiten und arbeitsfreie Tage zeigen keinen Countdown.
+- Neuer Einstellungsschalter „Countdown auf der Startseite“; bei Aus werden Karte, Zielhinweis und Konfetti vollständig deaktiviert.
+- Kurze lokale Konfettianimation von rund zwei Sekunden beim vollständig erreichten Tagesziel.
+- Konfetti erscheint höchstens einmal pro Kalendertag und berücksichtigt „Bewegung reduzieren“.
+- Datenschema auf Version 8 erweitert; vorhandene Daten und Einstellungen bleiben erhalten.
+- Service-Worker-Cache zur sicheren Aktualisierung installierter PWAs erneuert.

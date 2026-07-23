@@ -22,7 +22,7 @@ HAUPTPRÜFUNGEN – 35/35
 - Wochenenden werden ausgelassen.
 - Zusammengehörige Abwesenheitstage erhalten dieselbe Vorgangskennung.
 - Keine künstlichen Kommen-/Gehen-Buchungen für Abwesenheiten.
-- Schema 7 wird gespeichert.
+- Schema 8 wird gespeichert.
 - Abwesenheiten erscheinen in der Tagesansicht.
 - Datum und rechter Navigationspfeil überlagern sich nicht.
 - „Importdaten wiederherstellen“ erscheint nur für tatsächlich importierte Tage.
@@ -69,7 +69,7 @@ ZEITKONTO- UND DATENREGRESSION – 11/11
 OFFLINE- UND PWA-PRÜFUNG
 - Anwendung besteht weiterhin aus einer eigenständig ausführbaren HTML-Datei und lokalen PWA-Dateien.
 - LocalStorage-Schlüssel bleibt unverändert.
-- Service Worker verwendet den neuen Cache „arbeitszeit-v5-4-high-end-2026-07-23“.
+- Service Worker verwendet den neuen Cache „arbeitszeit-v5-4-korrektur3-countdown-2026-07-23“.
 - Cache-Dateiliste enthält Startseite, Manifest und beide Icons.
 - Keine Server-, Cloud-, Push- oder Notification-Abhängigkeiten.
 - Die automatisierten Abschlussläufe erfolgten als isolierter Einzeldatei-Dokumentstart mit vollständig neu aufgebautem Dokument und erhaltenem LocalStorage-Zustand.
@@ -85,3 +85,38 @@ Ergänzende Prüfung V5.4 Korrektur 1
 - Vollständiger Kartenabschluss „Heute erfasst“ inklusive Detailzeile und Rundung: bestanden.
 - Pause-/Plus-Zeile bei freiem Platz direkt oberhalb der Navigation: bestanden.
 - Keine Überlagerung; Startseite bleibt bei zusätzlichem Inhalt scrollbar: bestanden.
+
+V5.4 KORREKTUR 2 - A4-DRUCKPRUEFUNG
+- JavaScript-Syntaxprüfung: bestanden.
+- Tagesbericht 22.07.2026 als PDF erzeugt: 1 Seite, A4 Hochformat (594,96 x 841,92 pt).
+- Monatsbericht April 2026 als PDF erzeugt: 1 Seite, A4 Querformat (841,92 x 594,96 pt).
+- Belastungstest Monatsbericht Dezember 2022 mit 25 Tabellenzeilen: 1 Seite, A4 Querformat, letzte Zeile und Unterschriftsbereich vollständig sichtbar.
+- Jahresbericht 2025 als PDF erzeugt: 1 Seite, A4 Querformat (841,92 x 594,96 pt).
+- Alle vier Prüfdokumente mit 150 dpi gerendert und visuell auf abgeschnittene Spalten, Überlagerungen, fehlende Tabellenzeilen und fehlerhafte Seitenumbrüche geprüft: bestanden.
+- Tabellenköpfe, letzte Datenzeilen und Unterschriftsbereiche vollständig enthalten.
+
+
+V5.4 KORREKTUR 3 – COUNTDOWN- UND KONFETTIPRÜFUNG
+- 25 von 25 funktionsbezogenen Browserprüfungen bestanden.
+- Countdown ist nach Migration standardmäßig aktiviert und über einen einzelnen Einstellungsschalter deaktivierbar.
+- Ausgeschalteter Countdown blendet die Karte aus und verhindert Zielhinweis sowie Konfetti.
+- Laufende Restarbeitszeit, voraussichtliche Endzeit und Fortschrittsring werden aktualisiert.
+- Manuelle Pause wird korrekt gegen die Mindestpause verrechnet.
+- Bei 4 Stunden Tagesziel ist keine Mindestpause erforderlich.
+- Bei mehr als 6 bis 9 Stunden werden 30 Minuten berücksichtigt.
+- Bei mehr als 9 Stunden werden 45 Minuten berücksichtigt.
+- Erreichte Arbeitszeit ohne erfüllte Mindestpause löst kein Konfetti aus.
+- Vollständig erreichtes Arbeits- und Pausenziel löst 72 lokale Konfettipartikel und den Zielhinweis aus.
+- Animation endet nach rund zwei Sekunden.
+- Einmal-pro-Tag-Sperre bleibt nach erneutem Aufbau aus dem gespeicherten Zustand erhalten.
+- Bei „Bewegung reduzieren“ werden keine fallenden Partikel erzeugt; der kurze statische Zielhinweis bleibt erhalten.
+- Ganztägige Abwesenheit blendet den Countdown aus.
+- iPhone-16-Prüfung bei 393 × 852 CSS-Pixeln ohne horizontalen Überlauf bestanden.
+- Keine JavaScript-Laufzeitfehler in den Countdown-Prüfungen.
+
+ERGÄNZENDE REGRESSION NACH KORREKTUR 3
+- 12 von 12 Daten- und Zeitkontoprüfungen bestanden.
+- Historische Schlussstände 2022 bis 2025 und Stichtag 22.07.2026 unverändert.
+- April 2026 sowie ausgewählte Monatsdifferenzen 2023, 2025 und 2026 unverändert.
+- Datenschema 8 korrekt gespeichert.
+- JavaScript-Syntaxprüfung mit Node.js bestanden.

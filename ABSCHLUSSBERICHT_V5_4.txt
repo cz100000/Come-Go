@@ -24,7 +24,7 @@ TESTERGEBNIS
 - Keine externen Abhängigkeiten gefunden.
 
 DATENMIGRATION
-- Automatische Migration von Schema 6 auf Schema 7.
+- Automatische Migration auf Schema 8.
 - Keine manuelle Datenmigration erforderlich.
 - LocalStorage-Schlüssel „arbeitszeit-pwa-v1“ bleibt unverändert.
 - Bestehende Buchungen, Einstellungen, Importdaten und historische Zeitkontostände bleiben erhalten.
@@ -49,3 +49,19 @@ Ergänzende Prüfungen:
 - Vier Arbeitsblöcke mit notwendigem vertikalem Scroll: bestanden.
 - Schnelleintrag, Pausendialog und Navigation: bestanden.
 - Keine JavaScript-Laufzeitfehler in den ergänzenden Browserprüfungen.
+
+
+Nachtrag – V5.4 Korrektur 3 (Countdown und Konfetti)
+1. Restarbeitszeit-Countdown auf der Startseite ergänzt.
+2. Voraussichtliche Endzeit berücksichtigt die verbleibende Nettoarbeitszeit und eine noch offene Mindestpause.
+3. Manuell eingetragene Pausen werden aus derselben Tagesdatenquelle übernommen.
+4. Ein Einstellungsschalter deaktiviert die gesamte Funktion einschließlich Konfetti ohne verbleibenden Leerraum.
+5. Konfetti erscheint nur bei aktivem Countdown, vollständig erreichtem Tagesziel und erfüllter Mindestpause.
+6. Animation läuft einmal täglich rund zwei Sekunden und respektiert reduzierte Bewegung.
+7. Schema 8 ergänzt ausschließlich die neue Einstellung und den lokalen Tagesstatus der Animation.
+
+Ergänzende Prüfungen:
+- Countdown-/Konfettifunktionen: 25/25 bestanden.
+- Daten- und Zeitkontoregression: 12/12 bestanden.
+- iPhone-16-Layout und horizontaler Überlauf: bestanden.
+- JavaScript-Syntax und statische Offline-Struktur: bestanden.

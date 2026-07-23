@@ -345,6 +345,38 @@ body.today-fixed .app{
   .capture-details{display:flex}
 }
 
+
+
+/* V5.4 Korrektur 3 – Restarbeitszeit-Countdown und Tagesziel-Konfetti */
+.work-countdown[hidden]{display:none!important}
+.work-countdown{margin-top:12px;border:1px solid rgba(23,141,75,.24);border-radius:20px;background:linear-gradient(145deg,#f8fdf9,#f0f8f3);box-shadow:0 8px 24px rgba(23,141,75,.065);padding:13px 15px 12px;color:var(--text)}
+.countdown-main{display:grid;grid-template-columns:42px minmax(0,1fr) 44px;align-items:center;gap:11px}
+.countdown-icon{width:42px;height:42px;border-radius:50%;display:grid;place-items:center;color:var(--green-dark);background:rgba(255,255,255,.78);border:1px solid rgba(23,141,75,.19)}
+.countdown-icon .icon{width:25px;height:25px;stroke-width:1.9}
+.countdown-copy{min-width:0;display:grid;gap:3px}
+.countdown-copy strong{font-size:clamp(15px,4.25vw,18px);line-height:1.15;color:var(--green-dark);letter-spacing:-.015em;font-variant-numeric:tabular-nums}
+.countdown-copy span{font-size:clamp(12px,3.35vw,14px);line-height:1.25;color:#344258;font-variant-numeric:tabular-nums}
+.countdown-ring{--progress:0;width:42px;height:42px;border-radius:50%;position:relative;background:conic-gradient(var(--green-dark) calc(var(--progress)*1turn),#d7eadf 0);box-shadow:inset 0 0 0 1px rgba(23,141,75,.09)}
+.countdown-ring:after{content:"";position:absolute;inset:6px;border-radius:50%;background:#f6fbf8;box-shadow:0 0 0 1px rgba(23,141,75,.06)}
+.countdown-pause{display:flex;align-items:center;gap:9px;margin-top:10px;padding-top:9px;border-top:1px solid rgba(23,141,75,.15);color:#344258;font-size:clamp(12px,3.35vw,14px);line-height:1.25;font-variant-numeric:tabular-nums}
+.countdown-pause .icon{width:21px;height:21px;flex:0 0 auto;color:var(--green-dark);stroke-width:1.8}
+.work-countdown.goal{background:linear-gradient(145deg,#f4fcf6,#eaf7ee);border-color:rgba(23,141,75,.34)}
+.work-countdown.goal .countdown-copy strong{font-size:clamp(16px,4.5vw,19px)}
+.work-countdown.pause-open{border-color:rgba(213,158,32,.32);background:linear-gradient(145deg,#fffdf6,#fff8e8)}
+.work-countdown.pause-open .countdown-icon,.work-countdown.pause-open .countdown-pause .icon,.work-countdown.pause-open .countdown-copy strong{color:#9a6a00}
+.work-countdown.pause-open .countdown-ring{background:conic-gradient(#d59e20 calc(var(--progress)*1turn),#efe2bd 0)}
+.work-countdown:not([hidden]) + .today-capture{margin-top:14px}
+
+.confetti-layer{position:fixed;z-index:500;inset:0;display:none;overflow:hidden;pointer-events:none;contain:strict}
+.confetti-layer.active{display:block}
+.confetti-piece{position:absolute;left:var(--x);top:-28px;width:var(--w);height:var(--h);border-radius:2px;background:var(--c);opacity:0;transform:translate3d(0,-30px,0) rotate(0deg);animation:confetti-fall var(--duration) cubic-bezier(.19,.74,.33,1) var(--delay) forwards}
+.confetti-piece.round{border-radius:50%}.confetti-piece.strip{border-radius:999px}
+.goal-celebration{position:absolute;top:calc(env(safe-area-inset-top) + 78px);left:50%;transform:translate(-50%,-16px) scale(.96);max-width:calc(100% - 32px);padding:11px 18px;border-radius:999px;background:rgba(18,112,57,.94);color:#fff;font-size:14px;font-weight:760;white-space:nowrap;box-shadow:0 10px 30px rgba(18,112,57,.24);opacity:0;animation:goal-toast 2s ease-out forwards}
+@keyframes confetti-fall{0%{opacity:0;transform:translate3d(0,-30px,0) rotate(0deg)}8%{opacity:1}100%{opacity:0;transform:translate3d(var(--drift),calc(100dvh + 70px),0) rotate(var(--rotation))}}
+@keyframes goal-toast{0%{opacity:0;transform:translate(-50%,-16px) scale(.96)}14%,68%{opacity:1;transform:translate(-50%,0) scale(1)}100%{opacity:0;transform:translate(-50%,-5px) scale(.985)}}
+@media(max-height:760px){.work-countdown{padding:10px 12px 9px;margin-top:9px;border-radius:17px}.countdown-main{grid-template-columns:36px minmax(0,1fr) 38px;gap:9px}.countdown-icon,.countdown-ring{width:36px;height:36px}.countdown-icon .icon{width:22px;height:22px}.countdown-ring:after{inset:5px}.countdown-pause{margin-top:7px;padding-top:7px}.work-countdown:not([hidden]) + .today-capture{margin-top:11px}}
+@media(prefers-reduced-motion:reduce){.confetti-piece{display:none}.goal-celebration{animation:goal-toast-reduced 1.5s ease-out forwards}@keyframes goal-toast-reduced{0%{opacity:0}15%,72%{opacity:1}100%{opacity:0}}}
+
 </style>
 </head>
 <body class="today-fixed">
@@ -377,6 +409,15 @@ body.today-fixed .app{
       <span class="punch-status" id="outStatus">zuerst Kommen</span>
     </button>
   </div>
+
+  <section id="workCountdown" class="work-countdown" aria-live="polite" hidden>
+    <div class="countdown-main">
+      <span class="countdown-icon" aria-hidden="true"><svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="M12 7v5l3 2"/></svg></span>
+      <div class="countdown-copy"><strong id="countdownHeadline">Countdown startet nach dem Kommen</strong><span id="countdownEnd">Tagesziel wird nach der ersten Buchung berechnet.</span></div>
+      <span id="countdownRing" class="countdown-ring" aria-hidden="true"></span>
+    </div>
+    <div class="countdown-pause"><svg class="icon" viewBox="0 0 24 24"><path d="M5 7h11v7a5 5 0 0 1-5 5H10a5 5 0 0 1-5-5Z"/><path d="M16 9h2a3 3 0 0 1 0 6h-2M4 21h14"/></svg><span id="countdownPause">Mindestpause wird berücksichtigt.</span></div>
+  </section>
 
   <section class="today-capture" aria-labelledby="capturedTitle">
     <div class="capture-head">
@@ -444,6 +485,7 @@ body.today-fixed .app{
     <div class="form-row"><label for="checkpointBalance"><b>Zeitkonto 22.07.2026</b><small>Verbindlicher Stichtag</small></label><input id="checkpointBalance" type="text" inputmode="text"></div>
     <div class="form-row"><label><b>Heiligabend frei</b><small>Betrieblicher freier Tag</small></label><label class="switch"><input id="freeChristmasEve" type="checkbox"><span></span></label></div>
     <div class="form-row"><label><b>Silvester frei</b><small>Betrieblicher freier Tag</small></label><label class="switch"><input id="freeNewYearsEve" type="checkbox"><span></span></label></div>
+    <div class="form-row"><label><b>Countdown auf der Startseite</b><small>inkl. Mindestpause und Ziel-Konfetti</small></label><label class="switch"><input id="countdownEnabled" type="checkbox"><span></span></label></div>
     <div class="form-row"><label><b>Unterschriftsbereich</b><small>In Monats- und Jahresberichten</small></label><label class="switch"><input id="reportSignature" type="checkbox"><span></span></label></div>
   </div>
   <div class="card"><b>Offline-Nutzung</b><p class="muted" style="font-size:13px;line-height:1.45;margin-bottom:0">In Safari öffnen, „Teilen“ und anschließend „Zum Home-Bildschirm“ wählen. Daten bleiben lokal auf diesem Gerät. Bestehende Daten werden automatisch übernommen.</p></div>
@@ -506,6 +548,7 @@ body.today-fixed .app{
   </div>
 </div>
 
+<div id="confettiLayer" class="confetti-layer" aria-hidden="true"></div>
 <div id="toast" class="toast" role="status" aria-live="polite"></div>
 <section id="printPreview" class="print-preview" aria-hidden="true">
   <header class="print-preview-bar">
@@ -529,7 +572,7 @@ const STORAGE_KEY='arbeitszeit-pwa-v1';
 const CHECKPOINT_DATE='2026-07-22';
 const CHECKPOINT_MINUTES=11631;
 const APP_VERSION='5.4';
-const CURRENT_SCHEMA=7;
+const CURRENT_SCHEMA=8;
 const IMPORT_DATA_VERSION=2;
 let state=loadState();
 let currentView='day';
@@ -538,6 +581,7 @@ let monthDrill=null;
 let editingEntries=[];
 let absenceEditorContext=null;
 let lastModalFocus=null;
+let confettiTimer=null;
 
 const $=id=>document.getElementById(id);
 const SVG={
@@ -583,6 +627,8 @@ function migrateState(raw){
   if(typeof s.freeChristmasEve!=='boolean')s.freeChristmasEve=true;
   if(typeof s.freeNewYearsEve!=='boolean')s.freeNewYearsEve=true;
   if(typeof s.reportSignature!=='boolean')s.reportSignature=true;
+  if(typeof s.countdownEnabled!=='boolean')s.countdownEnabled=true;
+  if(typeof s.countdownCelebratedDate!=='string')s.countdownCelebratedDate=null;
   s.balanceCheckpointDate=CHECKPOINT_DATE;
   if(!Number.isFinite(s.balanceCheckpointMinutes)||s.balanceCheckpointVersion!==IMPORT_DATA_VERSION)s.balanceCheckpointMinutes=CHECKPOINT_MINUTES;
   s.balanceCheckpointVersion=IMPORT_DATA_VERSION;
@@ -827,9 +873,104 @@ function updateTodayPunchState(){
     applyPunchVisual(outBtn,outStatus,outClock,{kind:availability.allowed?'active':'waiting',status:availability.allowed?'Jetzt möglich':`möglich ab ${availability.availableAt}`,clock:currentOut,disabled:!availability.allowed});
   }
 }
+function minimumBreakMinutes(workMinutes){
+  const work=Math.max(0,Number(workMinutes)||0);
+  if(work>540)return 45;
+  if(work>360)return 30;
+  return 0;
+}
+function liveGrossMinutes(d,now=new Date()){
+  const entries=d?.entries||[];
+  let gross=0;
+  for(let i=0;i+1<entries.length;i+=2){
+    const start=entries[i],end=entries[i+1];
+    if(start?.type!=='in'||end?.type!=='out')continue;
+    const from=minutes(start.logged||start.actual),to=minutes(end.logged||end.actual);
+    if(to>=from)gross+=to-from;
+  }
+  const last=entries.at(-1);
+  if(last?.type==='in'){
+    const from=minutes(last.logged||last.actual),to=now.getHours()*60+now.getMinutes();
+    if(to>=from)gross+=to-from;
+  }
+  return Math.max(0,gross);
+}
+function countdownSnapshot(d,now=new Date()){
+  const target=targetMinutesForDate(d?.date||todayKey());
+  const absenceCredit=absenceCreditMinutes(d,target);
+  const requiredWork=Math.max(0,target-absenceCredit);
+  const gross=liveGrossMinutes(d,now);
+  const manualPause=Math.max(0,Number(d?.pauseMinutes)||0);
+  const workedNet=Math.max(0,gross-manualPause);
+  const breakBasis=Math.max(requiredWork,workedNet);
+  const requiredBreak=minimumBreakMinutes(breakBasis);
+  const pauseRemaining=Math.max(0,requiredBreak-manualPause);
+  const remainingWork=Math.max(0,requiredWork-workedNet);
+  const achieved=requiredWork>0&&remainingWork===0&&pauseRemaining===0;
+  const entries=d?.entries||[],active=entries.at(-1)?.type==='in';
+  return{target,requiredWork,gross,workedNet,manualPause,requiredBreak,pauseRemaining,remainingWork,achieved,active,hasEntries:entries.length>0,progress:requiredWork?Math.min(1,workedNet/requiredWork):0,overtime:Math.max(0,workedNet-requiredWork),now};
+}
+function stopConfetti(){
+  clearTimeout(confettiTimer);confettiTimer=null;
+  const layer=$('confettiLayer');if(layer){layer.classList.remove('active');layer.replaceChildren()}
+}
+function triggerGoalConfetti(){
+  const layer=$('confettiLayer');if(!layer)return;
+  stopConfetti();layer.classList.add('active');
+  const banner=document.createElement('div');banner.className='goal-celebration';banner.textContent='Tagesziel erreicht!';layer.appendChild(banner);
+  if(!window.matchMedia('(prefers-reduced-motion: reduce)').matches){
+    const colors=['#20a553','#1475ff','#f4b400','#d64b4b','#a94bc2'];
+    for(let i=0;i<72;i++){
+      const piece=document.createElement('i'),shape=i%5===0?'round':i%4===0?'strip':'';
+      piece.className=`confetti-piece ${shape}`.trim();
+      piece.style.setProperty('--x',`${Math.random()*100}%`);
+      piece.style.setProperty('--w',`${5+Math.random()*7}px`);
+      piece.style.setProperty('--h',`${shape==='strip'?3:7+Math.random()*8}px`);
+      piece.style.setProperty('--c',colors[i%colors.length]);
+      piece.style.setProperty('--drift',`${-90+Math.random()*180}px`);
+      piece.style.setProperty('--rotation',`${360+Math.random()*900}deg`);
+      piece.style.setProperty('--delay',`${Math.random()*.28}s`);
+      piece.style.setProperty('--duration',`${1.55+Math.random()*.4}s`);
+      layer.appendChild(piece);
+    }
+  }
+  confettiTimer=setTimeout(stopConfetti,2050);
+}
+function maybeCelebrateCountdown(snapshot){
+  if(!state.settings.countdownEnabled||!snapshot?.achieved||state.settings.countdownCelebratedDate===todayKey())return;
+  state.settings.countdownCelebratedDate=todayKey();saveState();triggerGoalConfetti();
+}
+function updateCountdown({allowCelebrate=true}={}){
+  const card=$('workCountdown');if(!card)return;
+  if(!state.settings.countdownEnabled){card.hidden=true;stopConfetti();return}
+  const d=dayObject(todayKey()),target=targetMinutesForDate(todayKey());
+  if(target<=0||hasFullAbsence(d)){card.hidden=true;return}
+  const snap=countdownSnapshot(d),headline=$('countdownHeadline'),end=$('countdownEnd'),pause=$('countdownPause'),ring=$('countdownRing');
+  if(!snap.achieved&&$('confettiLayer')?.classList.contains('active'))stopConfetti();
+  card.hidden=false;card.classList.toggle('goal',snap.achieved);card.classList.toggle('pause-open',snap.remainingWork===0&&snap.pauseRemaining>0);
+  ring.style.setProperty('--progress',String(snap.progress));
+  if(snap.achieved){
+    headline.textContent='Tagesziel erreicht!';
+    end.textContent=snap.overtime>0?`Aktuelles Zeitguthaben ${formatDuration(snap.overtime)} Std.`:'Die notwendige Arbeitszeit und Pause sind erfüllt.';
+  }else if(snap.remainingWork===0&&snap.pauseRemaining>0){
+    headline.textContent='Arbeitszeit erreicht';
+    end.textContent=`Noch ${snap.pauseRemaining} Min. Mindestpause offen`;
+  }else if(!snap.hasEntries){
+    headline.textContent='Countdown startet nach dem Kommen';
+    end.textContent=`Heutiges Arbeitsziel: ${formatDuration(snap.requiredWork,{signed:false})} Std.`;
+  }else{
+    headline.textContent=`Noch ${formatDuration(snap.remainingWork,{signed:false})} Std. arbeiten`;
+    const projected=new Date(snap.now.getTime()+(snap.remainingWork+snap.pauseRemaining)*60000),time=new Intl.DateTimeFormat('de-DE',{hour:'2-digit',minute:'2-digit'}).format(projected);
+    end.textContent=snap.active?`Ende voraussichtlich ${time} Uhr`:`Bei sofortigem Weiterarbeiten: ${time} Uhr`;
+  }
+  if(snap.requiredBreak===0)pause.textContent='Keine Mindestpause erforderlich.';
+  else if(snap.manualPause>=snap.requiredBreak)pause.textContent=`Pause: ${snap.manualPause} Min. erfasst · Mindestpause erfüllt`;
+  else pause.textContent=`Pause: ${snap.manualPause} von ${snap.requiredBreak} Min. erfüllt`;
+  if(allowCelebrate)maybeCelebrateCountdown(snap);
+}
 function updateClock(){
   const dateEl=$('todayDateShort');if(dateEl)dateEl.textContent=new Intl.DateTimeFormat('de-DE',{weekday:'long',day:'2-digit',month:'long',year:'numeric'}).format(new Date());
-  if(document.body.classList.contains('today-fixed'))updateTodayPunchState();
+  if(document.body.classList.contains('today-fixed')){updateTodayPunchState();updateCountdown()}
 }
 function renderToday(){
   ensureHolidayYear(new Date().getFullYear());const d=dayObject(todayKey()),pause=Number(d.pauseMinutes)||0;
@@ -843,6 +984,7 @@ function renderToday(){
     $('todayAbsenceText').textContent=half?`${formatDuration(absenceCreditMinutes(d),{signed:false})} Stunden werden angerechnet; Arbeitszeitbuchungen bleiben möglich.`:`${formatDuration(absenceCreditMinutes(d),{signed:false})} Stunden werden als Sollzeit berücksichtigt.`;
   }
   renderTodayCapture(d);
+  updateCountdown();
 }
 function renderTodayCapture(d){
   const entries=d.entries||[],blocks=[];
@@ -1069,11 +1211,11 @@ function deleteAbsenceForDay(k,scope='day'){
 function deleteAbsenceFromModal(scope){const k=absenceEditorContext?.sourceDate||$('absenceFrom').value;deleteAbsenceForDay(k,scope)}
 
 function renderSettings(){
-  $('employeeName').value=state.settings.employeeName||'';$('targetHours').value=clockFromMinutes(state.settings.targetMinutes||480);$('checkpointBalance').value=formatDuration(state.settings.balanceCheckpointMinutes||CHECKPOINT_MINUTES);$('freeChristmasEve').checked=state.settings.freeChristmasEve!==false;$('freeNewYearsEve').checked=state.settings.freeNewYearsEve!==false;$('reportSignature').checked=state.settings.reportSignature!==false;$('appVersion').textContent=`Arbeitszeit PWA · Version ${APP_VERSION}`;
+  $('employeeName').value=state.settings.employeeName||'';$('targetHours').value=clockFromMinutes(state.settings.targetMinutes||480);$('checkpointBalance').value=formatDuration(state.settings.balanceCheckpointMinutes||CHECKPOINT_MINUTES);$('freeChristmasEve').checked=state.settings.freeChristmasEve!==false;$('freeNewYearsEve').checked=state.settings.freeNewYearsEve!==false;$('countdownEnabled').checked=state.settings.countdownEnabled!==false;$('reportSignature').checked=state.settings.reportSignature!==false;$('appVersion').textContent=`Arbeitszeit PWA · Version ${APP_VERSION}`;
 }
 function saveSettings(){
   const cp=parseSignedTime($('checkpointBalance').value);if(cp===null){showToast('Zeitkonto als +HH:MM eingeben');$('checkpointBalance').value=formatDuration(state.settings.balanceCheckpointMinutes||CHECKPOINT_MINUTES);return}
-  state.settings.employeeName=$('employeeName').value.trim();state.settings.targetMinutes=minutes($('targetHours').value)||480;state.settings.balanceCheckpointMinutes=cp;state.settings.balanceCheckpointDate=CHECKPOINT_DATE;state.settings.balanceCheckpointVersion=IMPORT_DATA_VERSION;state.settings.freeChristmasEve=$('freeChristmasEve').checked;state.settings.freeNewYearsEve=$('freeNewYearsEve').checked;state.settings.reportSignature=$('reportSignature').checked;ensureHolidayYear(new Date().getFullYear());saveState();showToast('Einstellungen gespeichert')
+  state.settings.employeeName=$('employeeName').value.trim();state.settings.targetMinutes=minutes($('targetHours').value)||480;state.settings.balanceCheckpointMinutes=cp;state.settings.balanceCheckpointDate=CHECKPOINT_DATE;state.settings.balanceCheckpointVersion=IMPORT_DATA_VERSION;state.settings.freeChristmasEve=$('freeChristmasEve').checked;state.settings.freeNewYearsEve=$('freeNewYearsEve').checked;state.settings.countdownEnabled=$('countdownEnabled').checked;state.settings.reportSignature=$('reportSignature').checked;ensureHolidayYear(new Date().getFullYear());saveState();if(!state.settings.countdownEnabled)stopConfetti();showToast('Einstellungen gespeichert')
 }
 function downloadFile(name,text,type){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([text],{type}));a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),1000)}
 function exportJSON(){downloadFile(`Arbeitszeit_Backup_${todayKey()}.json`,JSON.stringify(state,null,2),'application/json')}
@@ -1132,8 +1274,8 @@ function init(){
   $('chartMonthMode').addEventListener('click',()=>{chartMode='month';chartSelection=null;renderOvertimeChart()});$('chartYearMode').addEventListener('click',()=>{chartMode='year';chartSelection=null;renderOvertimeChart()});$('chartYear').addEventListener('change',()=>{chartSelection=null;renderOvertimeChart()});
   $('closePrintPreview').addEventListener('click',closePrintPreview);$('printReportBtn').addEventListener('click',printCurrentReport);
   $('csvExportBtn').addEventListener('click',exportCSV);$('jsonExportBtn').addEventListener('click',exportJSON);$('jsonRestoreBtn').addEventListener('click',()=>$('restoreFile').click());$('restoreFile').addEventListener('change',e=>restoreJSON(e.target.files[0]));
-  ['employeeName','targetHours','checkpointBalance','freeChristmasEve','freeNewYearsEve','reportSignature'].forEach(id=>$(id).addEventListener('change',saveSettings));
-  updateClock();setInterval(updateClock,1000);window.addEventListener('resize',()=>{if(document.body.classList.contains('today-fixed'))renderTodayCapture(dayObject(todayKey()))});renderToday();
+  ['employeeName','targetHours','checkpointBalance','freeChristmasEve','freeNewYearsEve','countdownEnabled','reportSignature'].forEach(id=>$(id).addEventListener('change',saveSettings));
+  updateClock();setInterval(updateClock,1000);window.addEventListener('resize',()=>{if(document.body.classList.contains('today-fixed')){renderTodayCapture(dayObject(todayKey()));updateCountdown({allowCelebrate:false})}});document.addEventListener('visibilitychange',()=>{if(!document.hidden&&document.body.classList.contains('today-fixed')){updateClock();updateCountdown()}});renderToday();
   if('serviceWorker'in navigator&&location.protocol!=='file:')navigator.serviceWorker.register('./sw.js').catch(()=>{});
 }
 document.addEventListener('DOMContentLoaded',init);
