@@ -77,3 +77,11 @@ OFFLINE- UND PWA-PRÜFUNG
 
 ZIP-PRÜFUNG
 - ZIP-Integrität und vollständiger Lieferumfang abschließend geprüft.
+
+Ergänzende Prüfung V5.4 Korrektur 1
+- Startseitentitel und aktuelles Datum sichtbar: bestanden.
+- iPhone-16-Breite 393 px bei 852 px Höhe: bestanden.
+- Kompakte Safari-Innenhöhe 627 px: bestanden.
+- Vollständiger Kartenabschluss „Heute erfasst“ inklusive Detailzeile und Rundung: bestanden.
+- Pause-/Plus-Zeile bei freiem Platz direkt oberhalb der Navigation: bestanden.
+- Keine Überlagerung; Startseite bleibt bei zusätzlichem Inhalt scrollbar: bestanden.

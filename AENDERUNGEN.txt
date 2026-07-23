@@ -35,3 +35,11 @@ Stand: 23.07.2026
 - Zentrale Versionskonstante APP_VERSION.
 - Datenschema 7, rückwärtskompatible automatische Migration.
 - Bestehender LocalStorage-Schlüssel und Offline-/PWA-Struktur unverändert.
+
+V5.4 Korrektur 1 – Startseite
+- Sichtbaren Startseitentitel „Arbeitszeit“ mit aktuellem ausgeschriebenem Datum ergänzt.
+- Bereich „Heute erfasst“ auf automatische Inhaltshöhe umgestellt; letzte Buchung, Detailzeile, unterer Kartenrand und Rundungen bleiben vollständig sichtbar.
+- Die Detailzeile „Alle Details unter Zeiten“ wird auch bei niedriger Browserhöhe nicht mehr ausgeblendet.
+- Gemeinsame Zeile „Manuelle Pause / +“ wird bei freiem Platz an den unteren Rand der Inhaltsfläche unmittelbar oberhalb der Navigation geschoben.
+- Bei zusätzlichem Inhalt bleibt die Startseite scrollbar; Schnellaktionen überlagern weder Buchungen noch Navigation.
+- Service-Worker-Cache zur sicheren Aktualisierung einer bereits installierten PWA erneuert.

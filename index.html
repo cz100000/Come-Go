@@ -267,11 +267,96 @@ body.today-fixed .app{height:100dvh;min-height:0;overflow-y:auto;overscroll-beha
 @media(max-width:370px){.quick-action-row{grid-template-columns:minmax(0,3fr) 58px}.report-controls{grid-template-columns:108px minmax(0,1fr)}.report-controls input,.report-controls select{width:108px;min-width:108px;max-width:108px}.absence-date-grid{grid-template-columns:1fr}.day-data-actions{grid-template-columns:1fr}}
 @media(max-height:760px){body.today-fixed .app{padding-bottom:calc(var(--nav-h) + env(safe-area-inset-bottom) + 28px)}#today.active{min-height:auto}.quick-action-row{margin-top:8px}.quick-action-row .pause-btn,.quick-add-btn{height:50px}.today-absence-banner{margin-bottom:8px;padding:10px 12px}}
 
+
+/* V5.4 Korrektur 1 – Startseitenkopf, vollständige Erfassungskarte und untere Schnellaktionen */
+body.today-fixed .app{
+  height:100dvh;
+  min-height:0;
+  overflow-y:auto;
+  padding-top:calc(env(safe-area-inset-top) + 12px);
+  padding-bottom:calc(var(--nav-h) + env(safe-area-inset-bottom) + 34px);
+  scroll-padding-bottom:calc(var(--nav-h) + env(safe-area-inset-bottom) + 34px);
+}
+#today.active{
+  display:flex;
+  flex-direction:column;
+  min-height:100%;
+  height:auto;
+  overflow:visible;
+}
+.today-head{
+  display:block;
+  flex:0 0 auto;
+  padding:2px 2px 12px;
+}
+.today-title-group{min-width:0}
+.today-head h1{
+  margin:0;
+  font-size:clamp(30px,8.4vw,38px);
+  line-height:1.02;
+  font-weight:730;
+  letter-spacing:-.04em;
+}
+.today-date-btn{
+  display:block;
+  margin-top:5px;
+  padding:0;
+  color:var(--muted);
+  font-size:clamp(13px,3.8vw,16px);
+  line-height:1.3;
+  font-weight:520;
+  text-align:left;
+  white-space:normal;
+}
+.today-absence-banner{flex:0 0 auto}
+.punch-grid{flex:0 0 auto}
+.today-capture{
+  flex:0 0 auto;
+  height:auto;
+  min-height:0;
+  overflow:hidden;
+}
+.capture-list{
+  flex:0 0 auto;
+  height:auto;
+  min-height:0;
+  max-height:none;
+  overflow:visible;
+}
+.capture-details{
+  display:flex;
+  flex:0 0 44px;
+  height:44px;
+}
+.quick-action-row{
+  flex:0 0 auto;
+  margin-top:auto;
+  padding-top:16px;
+}
+@media(max-height:760px){
+  #today.active{min-height:100%}
+  .today-head{padding-top:0;padding-bottom:9px}
+  .today-head h1{font-size:28px}
+  .today-date-btn{margin-top:3px;font-size:12px}
+  .capture-details{display:flex;height:38px;flex-basis:38px}
+  .quick-action-row{margin-top:auto;padding-top:12px}
+}
+@media(max-height:680px){
+  .capture-details{display:flex}
+}
+
 </style>
 </head>
 <body class="today-fixed">
 <main class="app">
 <section id="today" class="screen active" aria-label="Heute">
+
+  <header class="today-head">
+    <div class="today-title-group">
+      <h1>Arbeitszeit</h1>
+      <div id="todayDateShort" class="today-date-btn" aria-live="polite"></div>
+    </div>
+  </header>
 
   <section id="todayAbsenceBanner" class="today-absence-banner" hidden aria-live="polite">
     <div><b id="todayAbsenceTitle"></b><span id="todayAbsenceText"></span></div>

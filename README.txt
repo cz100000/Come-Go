@@ -22,5 +22,5 @@ DATEN UND MIGRATION
 
 OFFLINE
 - Keine externen Bibliotheken, CDNs, Webfonts, Server- oder Cloudverbindungen.
-- Service-Worker-Cache: arbeitszeit-v5-4-high-end-2026-07-23.
+- Service-Worker-Cache: arbeitszeit-v5-4-korrektur1-high-end-2026-07-23.
 - Keine Notifications, Push-Mitteilungen, App-Badges oder native iOS-Hülle.

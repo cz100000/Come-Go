@@ -35,3 +35,17 @@ VERBLEIBENDE EINSCHRÄNKUNGEN
 - Notifications, Push-Mitteilungen, App-Badges und eine native iOS-Hülle sind absichtlich nicht enthalten.
 - Eine installierte PWA und der Service Worker benötigen im Zielbrowser einen sicheren HTTPS-Kontext; das direkte Öffnen der HTML-Datei bleibt für die reine lokale Nutzung möglich, installiert jedoch keinen Service Worker.
 - Das administrative Browserprofil der Abschlussumgebung blockierte zusätzliche automatisierte file://- und localhost-Navigation. Deshalb wurden die finalen Browserprüfungen als isolierter Einzeldatei-Dokumentstart ausgeführt. Die Anwendung selbst zeigte dabei keine Laufzeitfehler.
+
+Nachtrag – V5.4 Korrektur 1 (Startseite)
+1. Startseitenkopf mit Titel „Arbeitszeit“ und aktuellem Datum ergänzt.
+2. „Heute erfasst“ vollständig sichtbar: Buchungszeilen, Detailzeile, unterer Kartenrand und Rundungen werden nicht mehr abgeschnitten.
+3. Pause-/Plus-Zeile wird bei freiem Platz an den unteren Inhaltsrand oberhalb der Navigation geschoben.
+4. Bei mehreren Buchungen wächst die Karte automatisch; die Startseite scrollt ohne Überlagerung.
+5. Service-Worker-Cache erneuert, damit installierte PWA-Versionen die Korrektur übernehmen können.
+
+Ergänzende Prüfungen:
+- 393 × 852 CSS-Pixel (iPhone-16-Hochformat): bestanden.
+- 393 × 627 CSS-Pixel (kompakte Safari-Innenhöhe): bestanden.
+- Vier Arbeitsblöcke mit notwendigem vertikalem Scroll: bestanden.
+- Schnelleintrag, Pausendialog und Navigation: bestanden.
+- Keine JavaScript-Laufzeitfehler in den ergänzenden Browserprüfungen.
