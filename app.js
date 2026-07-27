@@ -5,7 +5,7 @@ const BACKUP_FORMAT='arbeitszeit-pwa-backup';
 let storageNotice='';
 const CHECKPOINT_DATE='2026-07-22';
 const CHECKPOINT_MINUTES=11631;
-const APP_VERSION='5.20';
+const APP_VERSION='5.21';
 const CURRENT_SCHEMA=10;
 const IMPORT_DATA_VERSION=2;
 let state=loadState();
@@ -596,13 +596,14 @@ renderDayView(dateKey(cursorDate));
 function weekStart(k){const d=parseDateKey(k),day=d.getDay()||7;d.setDate(d.getDate()-day+1);return d}
 function weekHasWeekendData(start){for(let i=5;i<7;i++){const d=new Date(start);d.setDate(start.getDate()+i);if(hasMeaningfulData(dayObject(dateKey(d))))return true}return false}
 function renderWeekView(k){
-const start=weekStart(k),force=weekHasWeekendData(start),show=state.settings.showWeekends||force,count=show?7:5,days=[];
-for(let i=0;i<count;i++){const dt=new Date(start);dt.setDate(start.getDate()+i);const key=dateKey(dt),d=dayObject(key),c=calculateDay(d);days.push(`<button type="button" class="week-day-card" onclick="currentView='day';document.querySelectorAll('[data-view]').forEach(b=>b.classList.toggle('active',b.dataset.view==='day'));renderDayView('${key}')"><span><b>${formatDate(key,{weekday:'short',day:'2-digit',month:'2-digit'})}</b><small>${esc(dayStatus(d))}</small></span><strong class="${c.diff<0?'red':c.diff>0?'green':'neutral'}">${formatDuration(c.diff)}</strong></button>`)}
+const currentStart=weekStart(todayKey());let start=weekStart(k);if(start>currentStart)start=currentStart;cursorDate=new Date(start);
+const force=weekHasWeekendData(start),show=state.settings.showWeekends||force,count=show?7:5,days=[],isCurrent=dateKey(start)===dateKey(currentStart);
+for(let i=0;i<count;i++){const dt=new Date(start);dt.setDate(start.getDate()+i);const key=dateKey(dt),d=dayObject(key),c=calculateDay(d),future=key>todayKey();days.push(`<button type="button" class="week-day-card${future?' future-day':''}" ${future?'disabled':''} onclick="currentView='day';document.querySelectorAll('[data-view]').forEach(b=>b.classList.toggle('active',b.dataset.view==='day'));renderDayView('${key}')"><span><b>${formatDate(key,{weekday:'short',day:'2-digit',month:'2-digit'})}</b><small>${future?'Noch nicht verfügbar':esc(dayStatus(d))}</small></span><strong class="${future?'neutral':c.diff<0?'red':c.diff>0?'green':'neutral'}">${future?'–':formatDuration(c.diff)}</strong></button>`)}
 const end=new Date(start);end.setDate(start.getDate()+6);
-$('timesContent').innerHTML=`<div class="week-toolbar"><button type="button" onclick="changeWeek(-1)">‹</button><b>${formatDate(dateKey(start),{day:'2-digit',month:'2-digit'})} – ${formatDate(dateKey(end),{day:'2-digit',month:'2-digit',year:'numeric'})}</b><button type="button" onclick="changeWeek(1)">›</button></div><div class="week-options week-options-today-only"><button type="button" class="today-week-btn" onclick="cursorDate=parseDateKey(todayKey());renderWeekView(todayKey())">Heute</button></div>${force?'<p class="weekend-note">Wochenende wird angezeigt, weil dort Daten vorhanden sind.</p>':''}<div class="week-list">${days.join('')}</div>`;
+$('timesContent').innerHTML=`<div class="week-toolbar"><button type="button" onclick="changeWeek(-1)" aria-label="Vorherige Woche">‹</button><b>${formatDate(dateKey(start),{day:'2-digit',month:'2-digit'})} – ${formatDate(dateKey(end),{day:'2-digit',month:'2-digit',year:'numeric'})}</b><button type="button" onclick="changeWeek(1)" aria-label="Nächste Woche" ${isCurrent?'disabled':''}>›</button></div><div class="week-options week-options-today-only">${isCurrent?'':`<button type="button" class="today-week-btn" onclick="cursorDate=parseDateKey(todayKey());renderWeekView(todayKey())">Aktuelle Woche</button>`}</div>${force?'<p class="weekend-note">Wochenende wird angezeigt, weil dort Daten vorhanden sind.</p>':''}<div class="week-list">${days.join('')}</div>`;
 updateTimesWeekendControl(true,force);
 }
-function changeWeek(n){cursorDate=weekStart(dateKey(cursorDate));cursorDate.setDate(cursorDate.getDate()+n*7);renderWeekView(dateKey(cursorDate))}
+function changeWeek(n){const currentStart=weekStart(todayKey()),base=weekStart(dateKey(cursorDate));if(n>0&&base>=currentStart)return;base.setDate(base.getDate()+n*7);if(base>currentStart)base=currentStart;cursorDate=base;renderWeekView(dateKey(base))}
 function periodDays(start,end){return Object.values(state.days).filter(d=>d.date>=start&&d.date<=end&&isCountable(d,Math.min(todayKey(),end))).sort((a,b)=>a.date.localeCompare(b.date))}
 function monthSummary(y,m){
 const key=`${y}-${pad(m+1)}`,start=`${key}-01`,calendarEnd=dateKey(new Date(y,m+1,0,12)),today=todayKey();
@@ -661,7 +662,7 @@ if(singleEntryDate===null||singleEntryIndex<0)return;const d=clone(dayObject(sin
 }
 function openFullDayFromSingleEntry(){const k=singleEntryDate;closeModal('entryModal');if(k)openDayEditor(k)}
 function openDayEditor(k){
-const d=dayObject(k);editingEntries=clone(d.entries||[]);$('editDate').value=k;$('editPause').value=Number(d.pauseMinutes)||0;$('editNote').value=d.note||'';$('dayAbsenceEditorSummary').textContent=absenceSummaryText(d);$('restoreImportBtn').hidden=!IMPORTED_BY_DATE[k];$('deleteDayBtn').disabled=!(d.entries||[]).length&&!Number(d.pauseMinutes);renderEntryEditors();openModal('dayModal')
+const d=dayObject(k);editingEntries=clone(d.entries||[]);$('editDate').max=todayKey();$('editDate').value=k;$('editPause').value=Number(d.pauseMinutes)||0;$('editNote').value=d.note||'';$('dayAbsenceEditorSummary').textContent=absenceSummaryText(d);$('restoreImportBtn').hidden=!IMPORTED_BY_DATE[k];$('deleteDayBtn').disabled=!(d.entries||[]).length&&!Number(d.pauseMinutes);renderEntryEditors();openModal('dayModal')
 }
 function renderEntryEditors(){
 let inNo=0,outNo=0;
@@ -673,8 +674,8 @@ document.querySelectorAll('[data-remove-entry]').forEach(el=>el.addEventListener
 }
 function addEditingEntry(){const type=!editingEntries.length||editingEntries.at(-1).type==='out'?'in':'out',actual=hm();editingEntries.push({type,actual,logged:roundLogged(actual,type),source:'manual',edited:true});renderEntryEditors()}
 function saveEditedDay(){
-const oldKey=$('dayModal').dataset.originalDate||$('editDate').value,newKey=$('editDate').value;if(!newKey)return;
-const existing=dayObject(oldKey),d=clone(existing);d.date=newKey;d.entries=[...document.querySelectorAll('.entry-edit-row')].map((row,i)=>({...(editingEntries[i]||{}),type:row.querySelector('[data-entry-type]').value,actual:row.querySelector('[data-entry-actual]').value,logged:row.querySelector('[data-entry-logged]').value,source:'manual',edited:true}));d.pauseMinutes=Math.max(0,Number($('editPause').value)||0);d.note=$('editNote').value.trim();d.edited=true;d.modifiedAt=new Date().toISOString();d.archived=Number(newKey.slice(0,4))<new Date().getFullYear();
+const oldKey=$('dayModal').dataset.originalDate||$('editDate').value,newKey=$('editDate').value;if(!newKey)return;if(newKey>todayKey()){alert('Arbeitszeitbuchungen können nur bis einschließlich heute gespeichert werden.');$('editDate').value=todayKey();return}
+const existing=dayObject(oldKey),d=clone(existing);d.date=newKey;d.entries=editingEntries.map((entry,i)=>({...(entry||{}),type:document.querySelector(`[data-entry-type="${i}"]`)?.value||entry.type,actual:document.querySelector(`[data-entry-actual="${i}"]`)?.value||'',logged:document.querySelector(`[data-entry-logged="${i}"]`)?.value||'',source:'manual',edited:true}));d.pauseMinutes=Math.max(0,Number($('editPause').value)||0);d.note=$('editNote').value.trim();d.edited=true;d.modifiedAt=new Date().toISOString();d.archived=Number(newKey.slice(0,4))<new Date().getFullYear();
 const validation=validateEntries(d.entries);if(d.entries.length&&!validation.plausible){alert('Die Buchungen können nicht gespeichert werden. Kommen und Gehen müssen sich abwechseln; jede dokumentierte Uhrzeit muss mindestens fünf Minuten nach der vorherigen liegen.');return}
 if(oldKey!==newKey)delete state.days[oldKey];state.days[newKey]=d;touchDay(newKey);cursorDate=parseDateKey(newKey);closeModal('dayModal');refreshAllDerivedViews();showToast(`Tag gespeichert. Tagessaldo und Zeitkonto wurden aktualisiert.`);
 }
@@ -692,7 +693,7 @@ function openPauseModal(){$('quickPause').value=Number(dayObject(todayKey()).pau
 function saveQuickPause(){const k=todayKey(),d=dayObject(k,true);d.pauseMinutes=Math.max(0,Number($('quickPause').value)||0);d.edited=true;d.modifiedAt=new Date().toISOString();state.days[k]=d;touchDay(k);closeModal('pauseModal');renderToday();showToast('Pause gespeichert')}
 let chartMode=['month','year','history'].includes(state.settings.chartMode)?state.settings.chartMode:'month',chartSelection=null;
 function renderReports(){
-const t=todayKey(),bal=balanceThrough(t);$('reportBalance').textContent=formatDuration(bal);$('reportBalance').className=bal<0?'red':'green';$('reportDay').value=t;$('reportMonth').value=t.slice(0,7);
+const t=todayKey(),bal=balanceThrough(t);$('reportBalance').textContent=formatDuration(bal);$('reportBalance').className=bal<0?'red':'green';$('reportDay').max=t;$('reportDay').value=t;$('reportMonth').max=t.slice(0,7);$('reportMonth').value=t.slice(0,7);
 const years=[];for(let y=new Date().getFullYear();y>=earliestYear();y--)years.push(`<option value="${y}">${y}</option>`);$('reportYear').innerHTML=years.join('');$('chartYear').innerHTML=years.join('');if(!$('chartYear').value)$('chartYear').value=String(new Date().getFullYear());renderOvertimeChart();
 }
 function setChartMode(mode){chartMode=mode;chartSelection=null;state.settings.chartMode=mode;saveState();renderOvertimeChart()}
@@ -993,7 +994,7 @@ $('pauseToday').addEventListener('click',openPauseModal);$('savePauseBtn').addEv
 document.querySelectorAll('[data-quick-absence]').forEach(b=>b.addEventListener('click',()=>openNewAbsence(b.dataset.quickAbsence,todayKey())));$('manualTimeQuick').addEventListener('click',openManualTimeQuick);
 ['absenceType','absenceFrom','absenceTo','absenceExtent','absenceConflictPolicy'].forEach(id=>$(id).addEventListener('change',updateAbsenceSummary));$('absenceNote').addEventListener('input',updateAbsenceSummary);$('saveAbsenceBtn').addEventListener('click',saveAbsence);$('deleteAbsenceDayBtn').addEventListener('click',()=>deleteAbsenceFromModal('day'));$('deleteAbsenceGroupBtn').addEventListener('click',()=>deleteAbsenceFromModal('group'));
 $('headerWeekendToggle')?.addEventListener('change',e=>{state.settings.showWeekends=e.target.checked;saveState();if(currentView==='day')renderDayView(dateKey(cursorDate));else if(currentView==='week')renderWeekView(dateKey(cursorDate))});$('addEntryBtn').addEventListener('click',addEditingEntry);$('saveDayBtn').addEventListener('click',saveEditedDay);$('saveSingleEntry').addEventListener('click',saveSingleEntry);$('deleteSingleEntry').addEventListener('click',deleteSingleEntry);$('openFullDayFromEntry').addEventListener('click',openFullDayFromSingleEntry);$('singleEntryActual').addEventListener('input',e=>{$('singleEntryLogged').value=roundLogged(e.target.value,$('singleEntryType').value)});$('singleEntryType').addEventListener('change',()=>{if($('singleEntryActual').value)$('singleEntryLogged').value=roundLogged($('singleEntryActual').value,$('singleEntryType').value)});$('saveManualQuick').addEventListener('click',saveManualQuick);$('manualFullEditor').addEventListener('click',openFullTodayEditor);$('manualActual').addEventListener('input',e=>{$('manualLogged').value=roundLogged(e.target.value,manualQuickType)});$('deleteDayBtn').addEventListener('click',deleteEditedDay);$('restoreImportBtn').addEventListener('click',restoreImportedDay);$('manageAbsenceFromDay').addEventListener('click',()=>{const k=$('editDate').value,d=dayObject(k);closeModal('dayModal');d.absence?openAbsenceEditorForDay(k,d.absenceGroupId&&absenceGroupDays(d.absenceGroupId).length>1?'group':'day'):openNewAbsence('vacation',k)});
-$('dayReportBtn').addEventListener('click',()=>dayReport($('reportDay').value||todayKey()));
+$('dayReportBtn').addEventListener('click',()=>{const k=$('reportDay').value||todayKey();if(k>todayKey()){$('reportDay').value=todayKey();showToast('Tagesberichte sind nur bis heute möglich');return}dayReport(k)});
 $('monthReportBtn').addEventListener('click',()=>openMobileReport('month'));
 $('yearReportBtn').addEventListener('click',()=>openMobileReport('year'));
 $('chartMonthMode').addEventListener('click',()=>setChartMode('month'));$('chartYearMode').addEventListener('click',()=>setChartMode('year'));$('chartHistoryMode').addEventListener('click',()=>setChartMode('history'));$('chartYear').addEventListener('change',()=>{chartSelection=null;renderOvertimeChart()});

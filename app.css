@@ -99,3 +99,37 @@
 @media(max-width:390px){
   #times .times-page-header{gap:10px}
 }
+
+
+/* V5.21 – Zukunftsgrenzen und kompakte Tagesbuchungen */
+.week-toolbar button:disabled{opacity:.24;box-shadow:none;cursor:default}
+.week-day-card:disabled{opacity:.48;cursor:default;background:#f7f8fa}
+.week-day-card.future-day strong{color:var(--muted)}
+.week-options-today-only:empty{display:none;margin:0}
+@media(max-width:430px){
+  #timesContent .day-date-nav{margin-bottom:7px}
+  #timesContent .day-date-nav>button,#timesContent .day-date-center{height:46px}
+  #timesContent .day-date-label{font-size:13px}
+  #timesContent .compact-day-summary{padding:10px 12px;margin-bottom:8px;border-radius:17px}
+  #timesContent .compact-day-summary .day-summary-top{margin-bottom:4px}
+  #timesContent .compact-day-summary .day-meta{font-size:10px}
+  #timesContent .compact-day-summary .badge{font-size:10px;padding:4px 7px}
+  #timesContent .compact-day-summary .balance-hero{padding:3px 0 7px}
+  #timesContent .compact-day-summary .balance-hero span{font-size:11px}
+  #timesContent .compact-day-summary .balance-hero strong{font-size:25px}
+  #timesContent .compact-day-summary .metric-grid{gap:5px}
+  #timesContent .compact-day-summary .metric{padding:6px 4px;border-radius:10px}
+  #timesContent .compact-day-summary .metric span{font-size:9px}
+  #timesContent .compact-day-summary .metric b{font-size:12px}
+  #timesContent .compact-booking-card{padding:9px 10px;margin-bottom:8px;border-radius:17px}
+  #timesContent .booking-section-title{margin:0 0 5px;font-size:12px}
+  #timesContent .booking-compact-head{height:20px;font-size:9px;padding:0 4px}
+  #timesContent .booking-compact-row{min-height:48px;padding:5px 3px;gap:5px}
+  #timesContent .booking-compact-label{gap:6px;min-width:0}
+  #timesContent .booking-type-icon{width:27px;height:27px;flex:0 0 27px}
+  #timesContent .booking-type-icon .icon{width:19px;height:19px}
+  #timesContent .booking-compact-label b{font-size:12px}
+  #timesContent .booking-compact-label small{display:none}
+  #timesContent .booking-compact-time{font-size:12px}
+  #timesContent .edit-icon-btn{width:34px;height:34px;min-width:34px}
+}

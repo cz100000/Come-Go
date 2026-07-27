@@ -1,0 +1,18 @@
+Arbeitszeit PWA V5.21 – Testübersicht
+
+Geprüft:
+- JavaScript-Syntax
+- Manifest-JSON
+- Service-Worker-Cache-Version
+- ZIP-Integrität
+- Vorwärtsgrenze der Wochenansicht
+- deaktivierter rechter Wochenpfeil
+- Zukunftsschutz Tagesbericht und Tageseditor
+- Monatsauswahl maximal aktueller Monat
+- gekürzte Einstellungstexte
+- CSS-Regeln für kompakte mobile Buchungsliste ohne horizontales Scrollen
+
+Direkt auf dem iPhone zu prüfen:
+- vier Buchungen im sichtbaren Bereich bei typischer iPhone-16-Höhe
+- native iOS-Datums- und Zeitfelder
+- optische Kompaktheit bei großen Systemeinstellungen für Schriftgröße

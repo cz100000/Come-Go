@@ -1,0 +1,12 @@
+Arbeitszeit PWA V5.21 – Änderungen
+
+- Wochenansicht endet bei der aktuell laufenden Kalenderwoche.
+- Rechter Wochenpfeil ist in der aktuellen Woche deaktiviert.
+- Zukünftige Tage der laufenden Woche sind nicht als Arbeitszeittage aufrufbar.
+- Tagesberichte sind auf heute begrenzt.
+- Monatsberichtsauswahl ist auf den aktuellen Monat begrenzt.
+- Tageseditor verhindert das Verschieben von Buchungen in die Zukunft.
+- Geplante Abwesenheiten in der Zukunft bleiben möglich.
+- Erläuterungstexte für Countdown, Buchungston und Unterschriftsbereich gekürzt.
+- Tagesansicht auf dem iPhone kompakter gestaltet, damit bis zu vier Buchungen ohne unnötige Verdichtung sichtbar sein können.
+- Keine Änderungen an historischen Importdaten, Berechnungslogik oder Offline-Grundprinzip.
