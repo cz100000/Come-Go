@@ -5,7 +5,7 @@ const BACKUP_FORMAT='arbeitszeit-pwa-backup';
 let storageNotice='';
 const CHECKPOINT_DATE='2026-07-22';
 const CHECKPOINT_MINUTES=11631;
-const APP_VERSION='5.21';
+const APP_VERSION='5.22';
 const CURRENT_SCHEMA=10;
 const IMPORT_DATA_VERSION=2;
 let state=loadState();
@@ -564,25 +564,22 @@ const statusClass=status==='Vollständig'||d.absence?'success':status==='Prüfun
 const source=d.edited?'Nachträglich geändert':d.capturedAfterImport?'Lokale Erfassung':d.sourceYear?`Importierte Daten aus ${d.sourceYear}`:'Lokale Erfassung';
 const rows=entries.length?entries.map((e,i)=>`<tr><td>${i+1}</td><td>${e.type==='in'?'Kommen':'Gehen'}</td><td class="num">${esc(e.actual||'–')}</td><td class="num">${esc(e.logged||'–')}</td><td><span class="booking-source">${esc(entrySource(d,e))}</span></td></tr>`).join(''):`<tr><td colspan="5" class="empty">Keine Buchungen vorhanden</td></tr>`;
 let inNo=0,outNo=0;
-const mobileRows=entries.length?`<div class="booking-compact-head"><span></span><span>Tatsächlich</span><span>Dokumentiert</span><span></span></div>${entries.map((e,index)=>{const no=e.type==='in'?++inNo:++outNo,label=e.type==='in'?`Kommen ${no}`:`Gehen ${no}`;return `<div class="booking-compact-row ${e.type}"><div class="booking-compact-label"><span class="booking-type-icon">${e.type==='in'?SVG.in:SVG.out}</span><span><b>${label}</b><small>${esc(entrySource(d,e))}</small></span></div><b class="booking-compact-time">${esc(e.actual||'–')}</b><b class="booking-compact-time">${esc(e.logged||'–')}</b><button type="button" class="edit-icon-btn" onclick="openSingleEntryEditor('${k}',${index})" aria-label="${label} bearbeiten">${SVG.edit}</button></div>`}).join('')}`:`<div class="empty compact-empty">Keine Buchungen vorhanden</div>`;
+const mobileRows=entries.length?`<div class="booking-compact-legend"><span>Tatsächlich</span><span>Dokumentiert</span></div>${entries.map((e,index)=>{const no=e.type==='in'?++inNo:++outNo,label=e.type==='in'?`Kommen ${no}`:`Gehen ${no}`;return `<div class="booking-compact-row ${e.type}"><div class="booking-compact-label"><span class="booking-type-icon">${e.type==='in'?SVG.in:SVG.out}</span><b>${label}</b></div><b class="booking-compact-time">${esc(e.actual||'–')}</b><b class="booking-compact-time">${esc(e.logged||'–')}</b><button type="button" class="edit-icon-btn" onclick="openSingleEntryEditor('${k}',${index})" aria-label="${label} bearbeiten">${SVG.edit}</button></div>`}).join('')}`:`<div class="empty compact-empty">Keine Buchungen vorhanden</div>`;
 const groupCount=d.absenceGroupId?absenceGroupDays(d.absenceGroupId).length:1;
 const absenceCard=d.absence?`<div class="card detail-list absence-detail-card"><div class="detail-row"><span>Abwesenheit</span><b>${esc(d.absence)}</b></div><div class="detail-row"><span>Umfang</span><b>${absenceDuration(d)==='half'?'Halber Tag':'Ganzer Tag'}</b></div><div class="detail-row"><span>Angerechnete Zeit</span><b class="absence-credit">${formatDuration(absenceCreditMinutes(d),{signed:false})}</b></div><div class="detail-row"><span>Notiz</span><div class="value">${esc(d.absenceNote||'–')}</div></div><div class="absence-actions-inline"><button type="button" onclick="openAbsenceEditorForDay('${k}','day')">Diesen Tag bearbeiten</button>${groupCount>1?`<button type="button" onclick="openAbsenceEditorForDay('${k}','group')">Zeitraum bearbeiten</button>`:''}<button type="button" class="danger" onclick="deleteAbsenceForDay('${k}','day')">Diesen Tag löschen</button>${groupCount>1?`<button type="button" class="danger" onclick="deleteAbsenceForDay('${k}','group')">Zeitraum löschen</button>`:''}</div></div>`:'';
 const diffClass=c.diff<0?'red':c.diff>0?'green':'neutral';
 const balance=balanceThrough(k),balanceClass=balance<0?'red':balance>0?'green':'neutral';
 $('timesContent').innerHTML=`
 <div class="date-nav date-nav-prominent day-date-nav"><button type="button" onclick="changeDay(-1)" aria-label="Vorheriger Tag">‹</button><label class="day-date-center" for="dayPicker"><span class="day-date-label">${formatDate(k,{weekday:'short',day:'2-digit',month:'2-digit',year:'numeric'})}${k===today?'<small>Heute</small>':''}</span><input type="date" id="dayPicker" value="${k}" max="${today}" aria-label="Datum auswählen"></label><button type="button" onclick="changeDay(1)" aria-label="Nächster Tag" ${k===today?'disabled':''}>›</button></div>
-<div class="card day-summary compact-day-summary">
-<div class="day-summary-top"><div class="day-meta">${esc(source)}</div><span class="badge ${statusClass}">${esc(status)}</span></div>
-<div class="balance-hero"><span>Tagessaldo heute</span><strong class="${diffClass}">${formatDuration(c.diff)}</strong></div>
-<div class="metric-grid"><div class="metric"><span>Brutto</span><b>${formatDuration(c.gross,{signed:false})}</b></div><div class="metric"><span>Netto</span><b>${formatDuration(c.net,{signed:false})}</b></div><div class="metric"><span>Soll</span><b>${formatDuration(c.target,{signed:false})}</b></div><div class="metric metric-balance"><span>Zeitkonto</span><b class="${balanceClass}">${formatDuration(balance)}</b></div></div>
-</div>
+<button type="button" class="card day-summary compact-day-summary day-summary-button" onclick="openDayEditor('${k}')" aria-label="Tagesdetails bearbeiten">
+<div class="compact-summary-primary"><span class="badge ${statusClass}">${esc(status)}</span><span class="compact-summary-balance">Tagessaldo <strong class="${diffClass}">${formatDuration(c.diff)}</strong></span></div>
+<div class="compact-summary-secondary"><span>Netto <b>${formatDuration(c.net,{signed:false})}</b></span><span>Pause <b>${Number(d.pauseMinutes)||0} Min.</b></span><span>Zeitkonto <b class="${balanceClass}">${formatDuration(balance)}</b></span></div>
+</button>
 ${absenceCard}
-<div class="card booking-card compact-booking-card"><h3 class="booking-section-title">Buchungen</h3><div class="booking-table-wrap table-scroll"><table class="booking-table"><thead><tr><th>Nr.</th><th>Art</th><th class="num">Tatsächlich</th><th class="num">Dokumentiert</th><th>Herkunft</th></tr></thead><tbody>${rows}</tbody></table></div><div class="booking-mobile-list">${mobileRows}</div></div>
-<div class="card day-additional" role="button" tabindex="0" onclick="openDayEditor('${k}')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openDayEditor('${k}')}" aria-label="Zusätzliche Angaben bearbeiten">
-<h3>Zusätzliche Angaben</h3>
-<div class="additional-row"><span class="additional-icon pause">${SVG.pause}</span><b>Manuelle Pause</b><span class="additional-value">${Number(d.pauseMinutes)||0} Min.</span></div>
-<div class="additional-row"><span class="additional-icon note">${SVG.note||SVG.edit}</span><b>Kommentar</b><span class="additional-value comment">${esc(d.note||'Kein Kommentar')}</span></div>
-</div>`;
+<div class="card booking-card compact-booking-card"><div class="booking-card-head"><h3 class="booking-section-title">Buchungen</h3><button type="button" class="booking-add-link" onclick="openDayEditor('${k}')">Buchung hinzufügen</button></div><div class="booking-table-wrap table-scroll"><table class="booking-table"><thead><tr><th>Nr.</th><th>Art</th><th class="num">Tatsächlich</th><th class="num">Dokumentiert</th><th>Herkunft</th></tr></thead><tbody>${rows}</tbody></table></div><div class="booking-mobile-list">${mobileRows}</div></div>
+<button type="button" class="card day-additional compact-additional" onclick="openDayEditor('${k}')" aria-label="Zusätzliche Angaben bearbeiten">
+<div><b>Zusätzliche Angaben</b><span>Pause ${Number(d.pauseMinutes)||0} Min. · ${d.note?'Kommentar vorhanden':'Kein Kommentar'}</span></div><span class="compact-additional-chevron">›</span>
+</button>`;
 $('dayPicker').addEventListener('change',e=>{const selected=e.target.value>today?today:e.target.value;cursorDate=parseDateKey(selected);renderDayView(selected)});
 updateTimesWeekendControl(true);
 }

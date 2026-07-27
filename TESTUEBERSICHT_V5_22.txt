@@ -1,0 +1,12 @@
+Arbeitszeit PWA V5.22 – Testübersicht
+
+- JavaScript-Syntaxprüfung
+- Manifest-JSON-Prüfung
+- ZIP-Integritätsprüfung
+- Tagesansicht mit 0, 1, 2 und 4 Buchungen strukturell geprüft
+- Einzelbuchungsdialog: Aktionsabstand geprüft
+- Toast: Maximalbreite und Textumbruch geprüft
+- Zukunftsgrenzen aus V5.21 unverändert erhalten
+- Offline-Dateien und Cache-Version aktualisiert
+
+Hinweis: Die finale Sichtprüfung auf dem realen iPhone 16 bleibt erforderlich.

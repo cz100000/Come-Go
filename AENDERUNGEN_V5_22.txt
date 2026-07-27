@@ -1,0 +1,11 @@
+Arbeitszeit PWA V5.22 – Änderungen
+
+- Tageszusammenfassung in der Ansicht Zeiten > Tag deutlich kompakter gestaltet.
+- Nettozeit, Pause, Tagessaldo und Zeitkonto bleiben direkt sichtbar.
+- Buchungen erhalten auf dem iPhone Vorrang; vier Einträge passen wesentlich besser in die sichtbare Höhe.
+- Herkunftsdetails entfallen in der mobilen Listenzeile und bleiben in der Bearbeitung verfügbar.
+- Zusätzliche Angaben wurden zu einer kompakten, aufklappbaren Zeile zusammengeführt.
+- Direkte Aktion „Buchung hinzufügen“ in der Buchungsüberschrift ergänzt.
+- Abstand zwischen „Vollständigen Tag bearbeiten“ und „Buchung löschen“ ergänzt.
+- Bestätigungs-Toast auf sichere iPhone-Breite begrenzt und Textumbruch aktiviert.
+- Keine horizontale Scrollfläche ergänzt; vertikales Scrollen bleibt der einzige Seiten-Scrollweg.
