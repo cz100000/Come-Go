@@ -1,0 +1,10 @@
+V5.17 – Tagesnavigation verfeinert
+
+- "Heute" steht nur am tatsächlichen aktuellen Datum direkt in der Datumsanzeige.
+- Separater Heute-Button in der Tagesansicht entfernt.
+- Pfeile und Datumsfeld gleich hoch und optisch ausgewogen gestaltet.
+- Wochenendschalter als ruhige eigene Zeile unter der Datumsnavigation.
+- Schaltergestaltung entspricht der Wochenansicht.
+- Vorwärtsnavigation endet am heutigen Tag.
+- Direkte Datumsauswahl ist auf heute und die Vergangenheit begrenzt.
+- Bestehende Wochenendlogik und alle übrigen Funktionen bleiben erhalten.

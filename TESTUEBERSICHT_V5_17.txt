@@ -1,0 +1,12 @@
+V5.17 – Testübersicht
+
+- JavaScript-Syntax geprüft.
+- Manifest-JSON geprüft.
+- Service-Worker-Cache auf V5.17 erhöht.
+- Tagesnavigation: Zukunftssperre im Code geprüft.
+- Datumswahl: max=heutiger Tag und zusätzliche Laufzeitbegrenzung geprüft.
+- "Heute" wird nur bei aktuellem Datum gerendert.
+- Wochenendschalter bleibt funktional und verwendet dieselbe Gestaltung wie in der Wochenansicht.
+- ZIP-Integrität geprüft.
+
+Hinweis: Die endgültige optische und native Date-Picker-Prüfung muss auf dem iPhone erfolgen.

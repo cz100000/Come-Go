@@ -5,7 +5,7 @@ const BACKUP_FORMAT='arbeitszeit-pwa-backup';
 let storageNotice='';
 const CHECKPOINT_DATE='2026-07-22';
 const CHECKPOINT_MINUTES=11631;
-const APP_VERSION='5.16';
+const APP_VERSION='5.17';
 const CURRENT_SCHEMA=10;
 const IMPORT_DATA_VERSION=2;
 let state=loadState();
@@ -557,6 +557,7 @@ button.addEventListener('pointercancel',reset);button.addEventListener('lostpoin
 function setTimesView(v){currentView=v;monthDrill=null;document.querySelectorAll('[data-view]').forEach(b=>b.classList.toggle('active',b.dataset.view===v));renderTimes()}
 function renderTimes(){const times=$('times');times?.classList.toggle('day-compact',currentView==='day');if(currentView==='day')renderDayView(dateKey(cursorDate));else if(currentView==='week')renderWeekView(dateKey(cursorDate));else if(currentView==='month')renderMonthOverview();else renderYearOverview()}
 function renderDayView(k){
+const today=todayKey();if(k>today)k=today;
 cursorDate=parseDateKey(k);const d=dayObject(k),c=calculateDay(d),status=dayStatus(d),entries=d.entries||[];
 const statusClass=status==='Vollständig'||d.absence?'success':status==='Prüfung erforderlich'?'review':status==='Unvollständig'?'warning':'';
 const source=d.edited?'Nachträglich geändert':d.capturedAfterImport?'Lokale Erfassung':d.sourceYear?`Importierte Daten aus ${d.sourceYear}`:'Lokale Erfassung';
@@ -568,7 +569,7 @@ const absenceCard=d.absence?`<div class="card detail-list absence-detail-card"><
 const diffClass=c.diff<0?'red':c.diff>0?'green':'neutral';
 const balance=balanceThrough(k),balanceClass=balance<0?'red':balance>0?'green':'neutral';
 $('timesContent').innerHTML=`
-<div class="date-nav date-nav-prominent day-date-nav"><button type="button" onclick="changeDay(-1)" aria-label="Vorheriger Tag">‹</button><div class="day-date-center"><input type="date" id="dayPicker" value="${k}" aria-label="Datum auswählen"><div class="day-date-tools"><button type="button" class="today-inline" onclick="goToToday()">Heute</button><label class="weekend-switch compact"><span>Wochenende</span><input id="dayWeekendToggle" type="checkbox" ${state.settings.showWeekends?'checked':''}><i aria-hidden="true"></i></label></div></div><button type="button" onclick="changeDay(1)" aria-label="Nächster Tag">›</button></div>
+<div class="date-nav date-nav-prominent day-date-nav"><button type="button" onclick="changeDay(-1)" aria-label="Vorheriger Tag">‹</button><label class="day-date-center" for="dayPicker"><span class="day-date-label">${formatDate(k,{weekday:'short',day:'2-digit',month:'2-digit',year:'numeric'})}${k===today?'<small>Heute</small>':''}</span><input type="date" id="dayPicker" value="${k}" max="${today}" aria-label="Datum auswählen"></label><button type="button" onclick="changeDay(1)" aria-label="Nächster Tag" ${k===today?'disabled':''}>›</button></div><div class="day-options"><label class="weekend-switch"><span>Wochenende anzeigen</span><input id="dayWeekendToggle" type="checkbox" ${state.settings.showWeekends?'checked':''}><i aria-hidden="true"></i></label></div>
 <div class="card day-summary compact-day-summary">
 <div class="day-summary-top"><div class="day-meta">${esc(source)}</div><span class="badge ${statusClass}">${esc(status)}</span></div>
 <div class="balance-hero"><span>Tagessaldo heute</span><strong class="${diffClass}">${formatDuration(c.diff)}</strong></div>
@@ -581,12 +582,14 @@ ${absenceCard}
 <div class="additional-row"><span class="additional-icon pause">${SVG.pause}</span><b>Manuelle Pause</b><span class="additional-value">${Number(d.pauseMinutes)||0} Min.</span></div>
 <div class="additional-row"><span class="additional-icon note">${SVG.note||SVG.edit}</span><b>Kommentar</b><span class="additional-value comment">${esc(d.note||'Kein Kommentar')}</span></div>
 </div>`;
-$('dayPicker').addEventListener('change',e=>{cursorDate=parseDateKey(e.target.value);renderDayView(e.target.value)});
+$('dayPicker').addEventListener('change',e=>{const selected=e.target.value>today?today:e.target.value;cursorDate=parseDateKey(selected);renderDayView(selected)});
 $('dayWeekendToggle')?.addEventListener('change',e=>{state.settings.showWeekends=e.target.checked;saveState()});
 }
 function goToToday(){cursorDate=parseDateKey(todayKey());currentView='day';document.querySelectorAll('[data-view]').forEach(b=>b.classList.toggle('active',b.dataset.view==='day'));renderDayView(todayKey())}
 function changeDay(n){
+const today=todayKey();if(n>0&&dateKey(cursorDate)>=today)return;
 do{cursorDate.setDate(cursorDate.getDate()+n)}while(!state.settings.showWeekends&&[0,6].includes(cursorDate.getDay())&&!hasMeaningfulData(state.days[dateKey(cursorDate)]));
+if(dateKey(cursorDate)>today)cursorDate=parseDateKey(today);
 renderDayView(dateKey(cursorDate));
 }
 function weekStart(k){const d=parseDateKey(k),day=d.getDay()||7;d.setDate(d.getDate()-day+1);return d}
