@@ -66,7 +66,7 @@
 </section>
 
 <section id="times" class="screen" aria-label="Zeiten">
-  <header class="page-header"><div><h1>Zeiten</h1><div class="sub">Tag, Monat und Jahr</div></div></header>
+  <header class="page-header times-page-header"><div><h1>Zeiten</h1><div class="sub">Tag, Woche, Monat und Jahr</div></div><label class="weekend-switch times-header-weekend" id="timesHeaderWeekend"><span>Wochenende</span><input id="headerWeekendToggle" type="checkbox" aria-label="Wochenende anzeigen"><i aria-hidden="true"></i></label></header>
   <div class="segmented" role="tablist">
     <button type="button" data-view="day" class="active">Tag</button>
     <button type="button" data-view="week">Woche</button>
@@ -149,8 +149,8 @@
       <div class="field"><label for="singleEntryType">Buchungsart</label><select id="singleEntryType"><option value="in">Kommen</option><option value="out">Gehen</option></select></div>
       <div class="field"><label for="singleEntryActual">Tatsächliche Uhrzeit</label><div class="time-input-wrap"><input id="singleEntryActual" type="time"></div></div>
       <div class="field"><label for="singleEntryLogged">Dokumentierte Uhrzeit</label><div class="time-input-wrap"><input id="singleEntryLogged" type="time"></div></div>
-      <button type="button" class="single-entry-delete" id="deleteSingleEntry">Buchung löschen</button>
-      <button type="button" class="manual-full-editor" id="openFullDayFromEntry">Vollständigen Tag bearbeiten</button>
+      <button type="button" class="dialog-action dialog-action-secondary" id="openFullDayFromEntry">Vollständigen Tag bearbeiten</button>
+      <button type="button" class="dialog-action dialog-action-danger" id="deleteSingleEntry">Buchung löschen</button>
     </div>
     <div class="modal-actions"><button type="button" class="cancel" data-close="entryModal">Abbrechen</button><button type="button" class="save" id="saveSingleEntry">Speichern</button></div>
   </div>

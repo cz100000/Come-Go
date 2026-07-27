@@ -5,7 +5,7 @@ const BACKUP_FORMAT='arbeitszeit-pwa-backup';
 let storageNotice='';
 const CHECKPOINT_DATE='2026-07-22';
 const CHECKPOINT_MINUTES=11631;
-const APP_VERSION='5.18';
+const APP_VERSION='5.19';
 const CURRENT_SCHEMA=10;
 const IMPORT_DATA_VERSION=2;
 let state=loadState();
@@ -555,7 +555,8 @@ const valid=inside&&!button.disabled;reset();if(valid)performPunch(button.datase
 button.addEventListener('pointercancel',reset);button.addEventListener('lostpointercapture',()=>{if(pointer!==null)reset()});
 }
 function setTimesView(v){currentView=v;monthDrill=null;document.querySelectorAll('[data-view]').forEach(b=>b.classList.toggle('active',b.dataset.view===v));renderTimes()}
-function renderTimes(){const times=$('times');times?.classList.toggle('day-compact',currentView==='day');if(currentView==='day')renderDayView(dateKey(cursorDate));else if(currentView==='week')renderWeekView(dateKey(cursorDate));else if(currentView==='month')renderMonthOverview();else renderYearOverview()}
+function updateTimesWeekendControl(visible,disabled=false){const wrap=$('timesHeaderWeekend'),toggle=$('headerWeekendToggle');if(!wrap||!toggle)return;wrap.classList.toggle('is-hidden',!visible);toggle.checked=!!state.settings.showWeekends;toggle.disabled=!!disabled;wrap.title=disabled?'Wochenende wird angezeigt, weil dort Daten vorhanden sind.':''}
+function renderTimes(){if(currentView==='day')renderDayView(dateKey(cursorDate));else if(currentView==='week')renderWeekView(dateKey(cursorDate));else if(currentView==='month'){updateTimesWeekendControl(false);renderMonthOverview()}else{updateTimesWeekendControl(false);renderYearOverview()}}
 function renderDayView(k){
 const today=todayKey();if(k>today)k=today;
 cursorDate=parseDateKey(k);const d=dayObject(k),c=calculateDay(d),status=dayStatus(d),entries=d.entries||[];
@@ -569,7 +570,7 @@ const absenceCard=d.absence?`<div class="card detail-list absence-detail-card"><
 const diffClass=c.diff<0?'red':c.diff>0?'green':'neutral';
 const balance=balanceThrough(k),balanceClass=balance<0?'red':balance>0?'green':'neutral';
 $('timesContent').innerHTML=`
-<div class="date-nav date-nav-prominent day-date-nav"><button type="button" onclick="changeDay(-1)" aria-label="Vorheriger Tag">‹</button><label class="day-date-center" for="dayPicker"><span class="day-date-label">${formatDate(k,{weekday:'short',day:'2-digit',month:'2-digit',year:'numeric'})}${k===today?'<small>Heute</small>':''}</span><input type="date" id="dayPicker" value="${k}" max="${today}" aria-label="Datum auswählen"></label><button type="button" onclick="changeDay(1)" aria-label="Nächster Tag" ${k===today?'disabled':''}>›</button></div><div class="day-options"><label class="weekend-switch"><span>Wochenende anzeigen</span><input id="dayWeekendToggle" type="checkbox" ${state.settings.showWeekends?'checked':''}><i aria-hidden="true"></i></label></div>
+<div class="date-nav date-nav-prominent day-date-nav"><button type="button" onclick="changeDay(-1)" aria-label="Vorheriger Tag">‹</button><label class="day-date-center" for="dayPicker"><span class="day-date-label">${formatDate(k,{weekday:'short',day:'2-digit',month:'2-digit',year:'numeric'})}${k===today?'<small>Heute</small>':''}</span><input type="date" id="dayPicker" value="${k}" max="${today}" aria-label="Datum auswählen"></label><button type="button" onclick="changeDay(1)" aria-label="Nächster Tag" ${k===today?'disabled':''}>›</button></div>
 <div class="card day-summary compact-day-summary">
 <div class="day-summary-top"><div class="day-meta">${esc(source)}</div><span class="badge ${statusClass}">${esc(status)}</span></div>
 <div class="balance-hero"><span>Tagessaldo heute</span><strong class="${diffClass}">${formatDuration(c.diff)}</strong></div>
@@ -583,7 +584,7 @@ ${absenceCard}
 <div class="additional-row"><span class="additional-icon note">${SVG.note||SVG.edit}</span><b>Kommentar</b><span class="additional-value comment">${esc(d.note||'Kein Kommentar')}</span></div>
 </div>`;
 $('dayPicker').addEventListener('change',e=>{const selected=e.target.value>today?today:e.target.value;cursorDate=parseDateKey(selected);renderDayView(selected)});
-$('dayWeekendToggle')?.addEventListener('change',e=>{state.settings.showWeekends=e.target.checked;saveState()});
+updateTimesWeekendControl(true);
 }
 function goToToday(){cursorDate=parseDateKey(todayKey());currentView='day';document.querySelectorAll('[data-view]').forEach(b=>b.classList.toggle('active',b.dataset.view==='day'));renderDayView(todayKey())}
 function changeDay(n){
@@ -598,8 +599,8 @@ function renderWeekView(k){
 const start=weekStart(k),force=weekHasWeekendData(start),show=state.settings.showWeekends||force,count=show?7:5,days=[];
 for(let i=0;i<count;i++){const dt=new Date(start);dt.setDate(start.getDate()+i);const key=dateKey(dt),d=dayObject(key),c=calculateDay(d);days.push(`<button type="button" class="week-day-card" onclick="currentView='day';document.querySelectorAll('[data-view]').forEach(b=>b.classList.toggle('active',b.dataset.view==='day'));renderDayView('${key}')"><span><b>${formatDate(key,{weekday:'short',day:'2-digit',month:'2-digit'})}</b><small>${esc(dayStatus(d))}</small></span><strong class="${c.diff<0?'red':c.diff>0?'green':'neutral'}">${formatDuration(c.diff)}</strong></button>`)}
 const end=new Date(start);end.setDate(start.getDate()+6);
-$('timesContent').innerHTML=`<div class="week-toolbar"><button type="button" onclick="changeWeek(-1)">‹</button><b>${formatDate(dateKey(start),{day:'2-digit',month:'2-digit'})} – ${formatDate(dateKey(end),{day:'2-digit',month:'2-digit',year:'numeric'})}</b><button type="button" onclick="changeWeek(1)">›</button></div><div class="week-options"><button type="button" class="today-week-btn" onclick="cursorDate=parseDateKey(todayKey());renderWeekView(todayKey())">Heute</button><label class="weekend-switch"><span>Wochenende anzeigen</span><input id="weekendToggle" type="checkbox" ${show?'checked':''} ${force?'disabled':''}><i aria-hidden="true"></i></label></div>${force?'<p class="weekend-note">Wochenende wird angezeigt, weil dort Daten vorhanden sind.</p>':''}<div class="week-list">${days.join('')}</div>`;
-$('weekendToggle')?.addEventListener('change',e=>{state.settings.showWeekends=e.target.checked;saveState();renderWeekView(dateKey(start))});
+$('timesContent').innerHTML=`<div class="week-toolbar"><button type="button" onclick="changeWeek(-1)">‹</button><b>${formatDate(dateKey(start),{day:'2-digit',month:'2-digit'})} – ${formatDate(dateKey(end),{day:'2-digit',month:'2-digit',year:'numeric'})}</b><button type="button" onclick="changeWeek(1)">›</button></div><div class="week-options week-options-today-only"><button type="button" class="today-week-btn" onclick="cursorDate=parseDateKey(todayKey());renderWeekView(todayKey())">Heute</button></div>${force?'<p class="weekend-note">Wochenende wird angezeigt, weil dort Daten vorhanden sind.</p>':''}<div class="week-list">${days.join('')}</div>`;
+updateTimesWeekendControl(true,force);
 }
 function changeWeek(n){cursorDate=weekStart(dateKey(cursorDate));cursorDate.setDate(cursorDate.getDate()+n*7);renderWeekView(dateKey(cursorDate))}
 function periodDays(start,end){return Object.values(state.days).filter(d=>d.date>=start&&d.date<=end&&isCountable(d,Math.min(todayKey(),end))).sort((a,b)=>a.date.localeCompare(b.date))}
@@ -991,7 +992,7 @@ $('todayAbsenceEdit').addEventListener('click',()=>openAbsenceEditorForDay(today
 $('pauseToday').addEventListener('click',openPauseModal);$('savePauseBtn').addEventListener('click',saveQuickPause);$('quickAddBtn').addEventListener('click',openQuickAdd);
 document.querySelectorAll('[data-quick-absence]').forEach(b=>b.addEventListener('click',()=>openNewAbsence(b.dataset.quickAbsence,todayKey())));$('manualTimeQuick').addEventListener('click',openManualTimeQuick);
 ['absenceType','absenceFrom','absenceTo','absenceExtent','absenceConflictPolicy'].forEach(id=>$(id).addEventListener('change',updateAbsenceSummary));$('absenceNote').addEventListener('input',updateAbsenceSummary);$('saveAbsenceBtn').addEventListener('click',saveAbsence);$('deleteAbsenceDayBtn').addEventListener('click',()=>deleteAbsenceFromModal('day'));$('deleteAbsenceGroupBtn').addEventListener('click',()=>deleteAbsenceFromModal('group'));
-$('addEntryBtn').addEventListener('click',addEditingEntry);$('saveDayBtn').addEventListener('click',saveEditedDay);$('saveSingleEntry').addEventListener('click',saveSingleEntry);$('deleteSingleEntry').addEventListener('click',deleteSingleEntry);$('openFullDayFromEntry').addEventListener('click',openFullDayFromSingleEntry);$('singleEntryActual').addEventListener('input',e=>{$('singleEntryLogged').value=roundLogged(e.target.value,$('singleEntryType').value)});$('singleEntryType').addEventListener('change',()=>{if($('singleEntryActual').value)$('singleEntryLogged').value=roundLogged($('singleEntryActual').value,$('singleEntryType').value)});$('saveManualQuick').addEventListener('click',saveManualQuick);$('manualFullEditor').addEventListener('click',openFullTodayEditor);$('manualActual').addEventListener('input',e=>{$('manualLogged').value=roundLogged(e.target.value,manualQuickType)});$('deleteDayBtn').addEventListener('click',deleteEditedDay);$('restoreImportBtn').addEventListener('click',restoreImportedDay);$('manageAbsenceFromDay').addEventListener('click',()=>{const k=$('editDate').value,d=dayObject(k);closeModal('dayModal');d.absence?openAbsenceEditorForDay(k,d.absenceGroupId&&absenceGroupDays(d.absenceGroupId).length>1?'group':'day'):openNewAbsence('vacation',k)});
+$('headerWeekendToggle')?.addEventListener('change',e=>{state.settings.showWeekends=e.target.checked;saveState();if(currentView==='day')renderDayView(dateKey(cursorDate));else if(currentView==='week')renderWeekView(dateKey(cursorDate))});$('addEntryBtn').addEventListener('click',addEditingEntry);$('saveDayBtn').addEventListener('click',saveEditedDay);$('saveSingleEntry').addEventListener('click',saveSingleEntry);$('deleteSingleEntry').addEventListener('click',deleteSingleEntry);$('openFullDayFromEntry').addEventListener('click',openFullDayFromSingleEntry);$('singleEntryActual').addEventListener('input',e=>{$('singleEntryLogged').value=roundLogged(e.target.value,$('singleEntryType').value)});$('singleEntryType').addEventListener('change',()=>{if($('singleEntryActual').value)$('singleEntryLogged').value=roundLogged($('singleEntryActual').value,$('singleEntryType').value)});$('saveManualQuick').addEventListener('click',saveManualQuick);$('manualFullEditor').addEventListener('click',openFullTodayEditor);$('manualActual').addEventListener('input',e=>{$('manualLogged').value=roundLogged(e.target.value,manualQuickType)});$('deleteDayBtn').addEventListener('click',deleteEditedDay);$('restoreImportBtn').addEventListener('click',restoreImportedDay);$('manageAbsenceFromDay').addEventListener('click',()=>{const k=$('editDate').value,d=dayObject(k);closeModal('dayModal');d.absence?openAbsenceEditorForDay(k,d.absenceGroupId&&absenceGroupDays(d.absenceGroupId).length>1?'group':'day'):openNewAbsence('vacation',k)});
 $('dayReportBtn').addEventListener('click',()=>dayReport($('reportDay').value||todayKey()));
 $('monthReportBtn').addEventListener('click',()=>openMobileReport('month'));
 $('yearReportBtn').addEventListener('click',()=>openMobileReport('year'));

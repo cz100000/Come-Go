@@ -1,0 +1,10 @@
+Arbeitszeit PWA – Änderungen V5.19
+
+- Vier Aktionen im Einzelbuchungsdialog geometrisch vereinheitlicht.
+- Vollständigen Tag bearbeiten als neutraler Sekundärbutton.
+- Buchung löschen als klarer destruktiver Button.
+- Abbrechen und Speichern in gleicher Höhe, Form und Typografie.
+- Zeiten-Kopf für Tag, Woche, Monat und Jahr auf feste Position und Höhe vereinheitlicht.
+- Wochenend-Schalter oben rechts neben Zeiten platziert.
+- Derselbe Schalter steuert in Tag die Pfeilnavigation und in Woche die sichtbaren Wochenendtage.
+- In Monat und Jahr bleibt der reservierte Kopfbereich unsichtbar, sodass nichts springt.

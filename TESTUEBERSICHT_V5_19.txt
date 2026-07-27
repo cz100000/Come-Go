@@ -1,0 +1,16 @@
+Arbeitszeit PWA – Testübersicht V5.19
+
+Geprüft:
+- JavaScript-Syntax.
+- Manifest-JSON.
+- Service-Worker-Cache-Version.
+- ZIP-Integrität.
+- Gemeinsamer Wochenend-Schalter in Tag und Woche.
+- Keine zweite Wochenend-Schalterzeile in Tag oder Woche.
+- Fester Kopfbereich beim Wechsel Tag/Woche/Monat/Jahr.
+- Einheitliche Geometrie aller vier Aktionen im Einzelbuchungsdialog.
+
+Auf dem iPhone zu prüfen:
+- Visuelle Ausrichtung des Schalters oben rechts.
+- Kein vertikaler Sprung beim Wechsel der vier Ansichten.
+- Touch-Ziele und Dialogdarstellung im Hochformat.
