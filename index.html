@@ -135,9 +135,24 @@
       <div class="field"><label for="editPause">Manuelle Pause (Minuten)</label><input id="editPause" type="number" min="0" step="1"></div>
       <div class="field"><label>Abwesenheit</label><div id="dayAbsenceEditorSummary" class="field-summary">Keine Abwesenheit eingetragen</div><button type="button" class="secondary-btn compact" id="manageAbsenceFromDay">Abwesenheit verwalten</button></div>
       <div class="field"><label for="editNote">Kommentar / Tagesnotiz</label><textarea id="editNote" rows="3"></textarea></div>
-      <div class="day-data-actions"><button type="button" class="delete" id="deleteDayBtn">Alle Buchungen löschen</button><button type="button" class="restore" id="restoreImportBtn">Importdaten wiederherstellen</button></div>
+      <details class="advanced-actions"><summary>Erweiterte Aktionen</summary><div class="day-data-actions"><button type="button" class="delete" id="deleteDayBtn">Alle Buchungen löschen</button><button type="button" class="restore" id="restoreImportBtn">Importdaten wiederherstellen</button></div></details>
     </div>
     <div class="modal-actions day-editor-actions"><button type="button" class="cancel" data-close="dayModal">Abbrechen</button><button type="button" class="save" id="saveDayBtn">Speichern</button></div>
+  </div>
+</div>
+
+
+<div id="entryModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="entryModalTitle">
+  <div class="sheet single-entry-sheet">
+    <div class="sheet-head"><h2 id="entryModalTitle">Buchung bearbeiten</h2><button class="close-btn" type="button" data-close="entryModal">×</button></div>
+    <div class="single-entry-body">
+      <div class="field"><label for="singleEntryType">Buchungsart</label><select id="singleEntryType"><option value="in">Kommen</option><option value="out">Gehen</option></select></div>
+      <div class="field"><label for="singleEntryActual">Tatsächliche Uhrzeit</label><div class="time-input-wrap"><input id="singleEntryActual" type="time"></div></div>
+      <div class="field"><label for="singleEntryLogged">Dokumentierte Uhrzeit</label><div class="time-input-wrap"><input id="singleEntryLogged" type="time"></div></div>
+      <button type="button" class="single-entry-delete" id="deleteSingleEntry">Buchung löschen</button>
+      <button type="button" class="manual-full-editor" id="openFullDayFromEntry">Vollständigen Tag bearbeiten</button>
+    </div>
+    <div class="modal-actions"><button type="button" class="cancel" data-close="entryModal">Abbrechen</button><button type="button" class="save" id="saveSingleEntry">Speichern</button></div>
   </div>
 </div>
 

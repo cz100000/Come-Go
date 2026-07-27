@@ -1,0 +1,16 @@
+Arbeitszeit PWA – Testübersicht V5.18
+
+Geprüft:
+- JavaScript-Syntax
+- Manifest-JSON
+- Service-Worker-Cacheversion
+- ZIP-Integrität
+- Einzelbuchungsdialog: Öffnen, Speichern, Löschen, Wechsel zum vollständigen Editor
+- Tageseditor: gestapelte Buchungskarten und iPhone-Breitenbegrenzung
+- Einheitlicher Kopfbereich der Zeiten-Unteransichten
+- Keine absichtliche horizontale Scrollfläche in den neuen Editoren
+
+Auf echtem iPhone zu prüfen:
+- native iOS-Zeitfelder
+- Tastatur-/Picker-Verhalten
+- visuelle Wirkung des Druckeffekts

@@ -1,4 +1,4 @@
-Arbeitszeit PWA – Version 5.17
+Arbeitszeit PWA – Version 5.18
 
 Vollständig offlinefähige Arbeitszeiterfassung für iPhone 16.
 Start: index.html öffnen oder als PWA zum Home-Bildschirm hinzufügen.
@@ -22,3 +22,5 @@ V5.17:
 - CSS konsolidiert/minifiziert; JavaScript produktionsoptimiert
 
 V5.17: Ruhigere Tagesnavigation, Heute-Kennzeichnung im Datum und Sperre zukünftiger Tage.
+
+V5.18: Einzelbuchungseditor, mobil gestapelter Tageseditor, einheitlicher Zeiten-Kopf und dezenterer Druckeffekt.

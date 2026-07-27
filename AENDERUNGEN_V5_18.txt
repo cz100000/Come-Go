@@ -1,0 +1,9 @@
+Arbeitszeit PWA – Änderungen V5.18
+
+- Einzelner Stift öffnet nur die gewählte Buchung.
+- Kompakter Einzelbuchungsdialog mit Bearbeiten und Löschen.
+- Vollständiger Tageseditor bleibt separat erreichbar.
+- Buchungen im Tageseditor auf dem iPhone gestapelt und ohne horizontales Scrollen.
+- Erweiterte Aktionen eingeklappt.
+- Zeiten-Kopf bei Tag, Woche, Monat und Jahr vereinheitlicht.
+- Druckeffekt der Kommen-/Gehen-Schaltfläche hochwertiger und dezenter.
