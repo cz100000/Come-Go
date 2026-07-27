@@ -1,0 +1,8 @@
+Arbeitszeit PWA – Änderungen V5.20
+
+- Kopfbereich der Seite „Zeiten“ an das luftige Layout der Hauptseiten „Arbeitszeit“, „Auswertung“ und „Einstellungen“ angeglichen.
+- Identischer oberer Abstand, identische Titelgröße sowie identischer Abstand zwischen Titel und Untertitel.
+- Segmentsteuerung folgt mit ruhigem, konsistentem Abstand unter dem gemeinsamen Kopfbereich.
+- Wochenend-Schalter bleibt wie gewünscht oben rechts.
+- Schalterplatz bleibt bei Monat und Jahr reserviert, damit beim Wechsel zwischen Tag, Woche, Monat und Jahr kein Layoutsprung entsteht.
+- Keine fachlichen Änderungen an Buchungen, Berechnungen, Navigation oder Datenhaltung.

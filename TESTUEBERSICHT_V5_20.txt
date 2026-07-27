@@ -1,0 +1,18 @@
+Arbeitszeit PWA – Testübersicht V5.20
+
+Statische Prüfungen:
+- JavaScript-Syntax geprüft.
+- Manifest als gültiges JSON geprüft.
+- Service-Worker-Cache auf V5.20 erhöht.
+- Versionsanzeige auf V5.20 aktualisiert.
+- ZIP-Integrität geprüft.
+
+Layout-Sollprüfung:
+- „Zeiten“ verwendet denselben vertikalen Seitenkopf-Rhythmus wie „Arbeitszeit“, „Auswertung“ und „Einstellungen“.
+- Wochenend-Schalter verbleibt oben rechts.
+- Tag/Woche/Monat/Jahr reservieren denselben Kopfbereich.
+
+Direkt auf dem iPhone zu prüfen:
+- Optischer Höhenvergleich aller vier Hauptseiten.
+- Kein sichtbarer Sprung beim Wechsel zwischen Tag, Woche, Monat und Jahr.
+- Keine Überlappung von Untertitel und Wochenend-Schalter auf schmalen Displays.
