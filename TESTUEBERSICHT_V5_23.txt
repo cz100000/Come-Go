@@ -1,0 +1,16 @@
+Arbeitszeit-PWA V5.23 – Testübersicht
+
+Geprüft:
+- JavaScript-Syntax
+- JSON-Syntax des Manifests
+- ZIP-Integrität
+- Versionsangaben und Service-Worker-Cache
+- Tagesansicht entspricht wieder der V5.21-Struktur
+- Abstand zwischen den beiden Dialogaktionen vorhanden
+- Toast-Breite auf Viewport minus 36 Pixel begrenzt
+- Keine Änderungen am Datenmodell oder an der Berechnungslogik
+
+Auf dem iPhone zu prüfen:
+- visuelle Wirkung der wiederhergestellten Tagesansicht
+- Toast-Position und Zeilenumbruch
+- Bedienbarkeit des Einzelbuchungsdialogs

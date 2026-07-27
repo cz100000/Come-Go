@@ -1,0 +1,10 @@
+Arbeitszeit-PWA V5.23 – Änderungen
+
+- Tagesansicht „Zeiten → Tag“ auf das luftigere, freigegebene Layout aus V5.21 zurückgeführt.
+- Die stark verdichtete Tageszusammenfassung aus V5.22 wurde entfernt.
+- Die größere Buchungskarte, die ausführliche Tageszusammenfassung und „Zusätzliche Angaben“ sind wiederhergestellt.
+- Vertikales Scrollen wird zugunsten von Übersichtlichkeit und gut bedienbaren Touchflächen bewusst akzeptiert.
+- Zwischen „Vollständigen Tag bearbeiten“ und „Buchung löschen“ wurde ein klarer Abstand ergänzt.
+- Bestätigungsmeldungen sind auf die sichere iPhone-Breite begrenzt und können mehrzeilig umbrechen.
+- Alle in V5.21 vorhandenen Zukunftsbegrenzungen, Navigationsregeln und gekürzten Einstellungstexte bleiben erhalten.
+- Keine Änderung an Datenmodell, Berechnungen, Sicherungen oder historischen Importdaten.

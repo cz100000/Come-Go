@@ -134,8 +134,7 @@
   #timesContent .edit-icon-btn{width:34px;height:34px;min-width:34px}
 }
 
-
-/* V5.22 – kompakte Tagesansicht, klare Aktionsabstände und iPhone-Toast */
+/* V5.23 – Aktionsabstand und iPhone-gerechte Bestätigungsmeldung */
 #entryModal .single-entry-body > .dialog-action + .dialog-action{margin-top:10px}
 .toast{
   left:50%!important;
@@ -148,52 +147,3 @@
   text-align:center;
 }
 .toast.show{transform:translate(-50%,0)!important}
-.day-summary-button{
-  width:100%;
-  text-align:left;
-  color:inherit;
-  cursor:pointer;
-}
-.compact-summary-primary,.compact-summary-secondary{display:flex;align-items:center;justify-content:space-between;gap:10px}
-.compact-summary-balance{display:flex;align-items:baseline;gap:7px;color:var(--muted);font-size:12px;font-weight:700}
-.compact-summary-balance strong{font-size:20px;font-variant-numeric:tabular-nums}
-.compact-summary-secondary{margin-top:8px;padding-top:8px;border-top:1px solid var(--line)}
-.compact-summary-secondary span{min-width:0;color:var(--muted);font-size:11px;white-space:nowrap}
-.compact-summary-secondary b{margin-left:3px;color:var(--text);font-size:12px;font-variant-numeric:tabular-nums}
-.compact-summary-secondary b.green{color:var(--green-dark)}
-.compact-summary-secondary b.red{color:var(--out-dark)}
-.booking-card-head{display:flex;align-items:center;justify-content:space-between;gap:10px}
-.booking-add-link{border:0;background:transparent;color:var(--blue);padding:4px 0;font-size:11px;font-weight:750;white-space:nowrap}
-.booking-compact-legend{display:grid;grid-template-columns:minmax(92px,1.25fr) minmax(62px,.72fr) minmax(62px,.72fr) 34px;gap:5px;align-items:center;height:18px;padding:0 3px;color:var(--muted);font-size:8.5px;text-align:center}
-.booking-compact-legend span:first-child{grid-column:2}.booking-compact-legend span:last-child{grid-column:3}
-.compact-additional{width:100%;display:flex;align-items:center;justify-content:space-between;gap:12px;text-align:left;padding:11px 14px}
-.compact-additional>div{display:grid;gap:2px;min-width:0}.compact-additional b{font-size:13px}.compact-additional span{color:var(--muted);font-size:10.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.compact-additional .compact-additional-chevron{font-size:24px;line-height:1;flex:none}
-@media(max-width:430px){
-  #timesContent .compact-day-summary{padding:9px 12px!important;margin-bottom:7px!important}
-  #timesContent .compact-summary-primary .badge{font-size:9px!important;padding:3px 7px!important}
-  #timesContent .compact-summary-balance{font-size:10.5px}
-  #timesContent .compact-summary-balance strong{font-size:18px}
-  #timesContent .compact-summary-secondary{margin-top:6px;padding-top:6px;gap:6px}
-  #timesContent .compact-summary-secondary span{font-size:9.5px}
-  #timesContent .compact-summary-secondary b{font-size:10.5px}
-  #timesContent .compact-booking-card{padding:8px 10px!important;margin-bottom:7px!important}
-  #timesContent .booking-card-head{min-height:20px}
-  #timesContent .booking-section-title{margin:0!important;font-size:12px!important}
-  #timesContent .booking-add-link{font-size:10px}
-  #timesContent .booking-compact-row{min-height:45px!important;padding:4px 3px!important}
-  #timesContent .booking-compact-label{display:flex;align-items:center;gap:6px}
-  #timesContent .booking-compact-label b{font-size:11.5px!important;white-space:nowrap}
-  #timesContent .booking-type-icon{width:25px!important;height:25px!important;flex-basis:25px!important}
-  #timesContent .booking-type-icon .icon{width:18px!important;height:18px!important}
-  #timesContent .booking-compact-time{font-size:11.5px!important}
-  #timesContent .edit-icon-btn{width:32px!important;height:32px!important;min-width:32px!important}
-  #timesContent .compact-additional{padding:9px 12px;margin-bottom:8px;border-radius:16px}
-  #timesContent .compact-additional b{font-size:12px}
-  #timesContent .compact-additional span{font-size:9.5px}
-}
-@media(max-width:360px){
-  .compact-summary-secondary span:nth-child(2){display:none}
-  .booking-add-link{font-size:0}
-  .booking-add-link::after{content:'+';font-size:20px;line-height:1}
-}

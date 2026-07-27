@@ -1,4 +1,4 @@
-Arbeitszeit PWA – Version 5.22
+Arbeitszeit PWA – Version 5.23
 
 Vollständig offlinefähige Arbeitszeiterfassung für iPhone 16.
 Start: index.html öffnen oder als PWA zum Home-Bildschirm hinzufügen.
@@ -25,8 +25,9 @@ V5.17: Ruhigere Tagesnavigation, Heute-Kennzeichnung im Datum und Sperre zukünf
 
 V5.19: Einheitliche Dialogbuttons, fester Zeiten-Kopf und Wochenend-Schalter oben rechts für Tag und Woche.
 
-V5.21: Zeiten-Kopf vertikal an Arbeitszeit, Auswertung und Einstellungen angeglichen; Wochenend-Schalter bleibt oben rechts.
+V5.23: Zeiten-Kopf vertikal an Arbeitszeit, Auswertung und Einstellungen angeglichen; Wochenend-Schalter bleibt oben rechts.
 
-V5.21 begrenzt die Wochen- und Berichtsnavigation auf vorhandene Zeiträume und optimiert die Tagesbuchungsliste für vier kompakte Einträge auf dem iPhone.
+V5.23 begrenzt die Wochen- und Berichtsnavigation auf vorhandene Zeiträume und optimiert die Tagesbuchungsliste für vier kompakte Einträge auf dem iPhone.
 
-V5.22 priorisiert in der Tagesansicht die Buchungsliste, verdichtet die Tageskennzahlen und optimiert Toast sowie Aktionsabstände für das iPhone 16.
+
+V5.23: Rückkehr zum luftigen Tageslayout von V5.21; beibehalten wurden der zusätzliche Aktionsabstand und die iPhone-gerechte Bestätigungsmeldung.
