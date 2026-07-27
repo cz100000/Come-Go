@@ -1,4 +1,4 @@
-Arbeitszeit-PWA Offline V5.13 High-End – iPhone 16
+Arbeitszeit-PWA Offline V5.14 High-End – iPhone 16
 Stand: 23.07.2026
 
 INHALT
@@ -61,7 +61,7 @@ V5.12:
 - Monats- und Jahresauswertungen besitzen zusätzlich „PDF teilen“ mit vollständig lokaler PDF-Erzeugung, nativer iOS-Dateifreigabe und Download-Fallback.
 
 
-V5.13:
+V5.14:
 - Verlaufskarte auf dem iPhone 16 moderat verdichtet, ohne Schrift oder Diagramm zu verkleinern.
 - Freiräume zwischen Untertitel, Jahresauswahl, Diagramm und Detailbereich reduziert.
 - Detailzeilen kompakter angeordnet und sicher innerhalb der Karte gehalten.

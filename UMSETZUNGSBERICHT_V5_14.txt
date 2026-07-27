@@ -1,0 +1,5 @@
+Arbeitszeit PWA V5.14 – Umsetzungsbericht
+
+Die zehn beauftragten Änderungen wurden innerhalb der bestehenden Offline-Anwendung umgesetzt. Datenhaltung, lokaler Speicherschlüssel, Rundungs- und Berechnungslogik sowie Backup-Kompatibilität bleiben erhalten. Die Wochenendpräferenz wird als zusätzliche Einstellung im bestehenden Settings-Objekt gespeichert.
+
+Bekannte Einschränkung: iOS-Tastatur- und native Zeitauswahl können außerhalb eines echten iPhone/Safari-Laufs nur strukturell, nicht vollständig gerätephysisch geprüft werden.

@@ -1,0 +1,11 @@
+Arbeitszeit PWA V5.14
+
+- Heute-Button in der Tagesnavigation ergänzt.
+- Wochenansicht mit standardmäßig ausgeblendeten Wochenenden ergänzt; Wochenenddaten erzwingen Sichtbarkeit.
+- Kommen-/Gehen-Symbolik und physischer Druckeffekt korrigiert.
+- Tageseditor mit dauerhaft sichtbarer Speicherleiste umgesetzt.
+- Speichern liest aktuelle Formularwerte direkt aus den sichtbaren Eingabefeldern.
+- Schnellnachtrag „Zeit manuell ergänzen“ mit logischer Buchungserkennung umgesetzt.
+- Vollständiger Tageseditor bleibt über untergeordnete Aktion erreichbar.
+- Unmittelbare Neuberechnung und konkrete Erfolgsbestätigung nach dem Speichern.
+- Manifest, Service Worker und Cache-Version aktualisiert.

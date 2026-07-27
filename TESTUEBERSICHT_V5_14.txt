@@ -1,0 +1,18 @@
+Arbeitszeit PWA V5.14 – Testübersicht
+
+Statische Prüfungen:
+- HTML-Struktur und IDs geprüft
+- JavaScript-Syntax geprüft
+- Service-Worker-Cache und Manifest-Version geprüft
+- ZIP-Integrität geprüft
+
+Funktionale Prüffälle im Code nachvollzogen:
+- Heute-Sprung, Wochenwechsel und Wochenendumschalter
+- Automatische Sichtbarkeit vorhandener Wochenenddaten
+- Touch-up-Buchung und Abbruch beim Herausziehen
+- Direkte Formularauslesung beim Speichern
+- Schnellnachtrag für Kommen/Gehen und weitere Arbeitsblöcke
+- Plausibilitätsprüfung und sofortiges Re-Rendering
+- Sticky Speicherleiste im Tageseditor
+
+Hinweis: Eine reale Safari-/iPhone-16-Geräteprüfung kann in der Entwicklungsumgebung nicht vollständig simuliert werden.

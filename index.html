@@ -69,6 +69,7 @@
   <header class="page-header"><div><h1>Zeiten</h1><div class="sub">Tag, Monat und Jahr</div></div></header>
   <div class="segmented" role="tablist">
     <button type="button" data-view="day" class="active">Tag</button>
+    <button type="button" data-view="week">Woche</button>
     <button type="button" data-view="month">Monat</button>
     <button type="button" data-view="year">Jahr</button>
   </div>
@@ -125,15 +126,17 @@
 </nav>
 
 <div id="dayModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="dayModalTitle">
-  <div class="sheet">
+  <div class="sheet day-editor-sheet">
     <div class="sheet-head"><h2 id="dayModalTitle">Tag bearbeiten</h2><button class="close-btn" type="button" data-close="dayModal">×</button></div>
-    <div class="field"><label for="editDate">Datum</label><input id="editDate" type="date"></div>
-    <div class="field"><label>Buchungen – tatsächlich und dokumentiert</label><div id="entryEditors"></div><button type="button" class="secondary-btn" id="addEntryBtn">Buchung hinzufügen</button></div>
-    <div class="field"><label for="editPause">Manuelle Pause (Minuten)</label><input id="editPause" type="number" min="0" step="1"></div>
-    <div class="field"><label>Abwesenheit</label><div id="dayAbsenceEditorSummary" class="field-summary">Keine Abwesenheit eingetragen</div><button type="button" class="secondary-btn compact" id="manageAbsenceFromDay">Abwesenheit verwalten</button></div>
-    <div class="field"><label for="editNote">Kommentar / Tagesnotiz</label><textarea id="editNote" rows="3"></textarea></div>
-    <div class="modal-actions"><button type="button" class="cancel" data-close="dayModal">Abbrechen</button><button type="button" class="save" id="saveDayBtn">Speichern</button></div>
-    <div class="day-data-actions"><button type="button" class="delete" id="deleteDayBtn">Alle Buchungen löschen</button><button type="button" class="restore" id="restoreImportBtn">Importdaten wiederherstellen</button></div>
+    <div class="day-editor-scroll">
+      <div class="field"><label for="editDate">Datum</label><input id="editDate" type="date"></div>
+      <div class="field"><label>Buchungen – tatsächlich und dokumentiert</label><div id="entryEditors"></div><button type="button" class="secondary-btn" id="addEntryBtn">Buchung hinzufügen</button></div>
+      <div class="field"><label for="editPause">Manuelle Pause (Minuten)</label><input id="editPause" type="number" min="0" step="1"></div>
+      <div class="field"><label>Abwesenheit</label><div id="dayAbsenceEditorSummary" class="field-summary">Keine Abwesenheit eingetragen</div><button type="button" class="secondary-btn compact" id="manageAbsenceFromDay">Abwesenheit verwalten</button></div>
+      <div class="field"><label for="editNote">Kommentar / Tagesnotiz</label><textarea id="editNote" rows="3"></textarea></div>
+      <div class="day-data-actions"><button type="button" class="delete" id="deleteDayBtn">Alle Buchungen löschen</button><button type="button" class="restore" id="restoreImportBtn">Importdaten wiederherstellen</button></div>
+    </div>
+    <div class="modal-actions day-editor-actions"><button type="button" class="cancel" data-close="dayModal">Abbrechen</button><button type="button" class="save" id="saveDayBtn">Speichern</button></div>
   </div>
 </div>
 
@@ -155,6 +158,20 @@
       <button type="button" data-quick-absence="other"><span>Sonstige Abwesenheit</span><small>Mit optionaler Notiz</small><b>›</b></button>
       <button type="button" id="manualTimeQuick"><span>Zeit manuell ergänzen</span><small>Vorhandene Tagesbearbeitung öffnen</small><b>›</b></button>
     </div>
+  </div>
+</div>
+
+<div id="manualQuickModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="manualQuickTitle">
+  <div class="sheet manual-quick-sheet">
+    <div class="sheet-head"><h2 id="manualQuickTitle">Zeit manuell ergänzen</h2><button class="close-btn" type="button" data-close="manualQuickModal" aria-label="Schließen">×</button></div>
+    <p id="manualQuickIntro" class="manual-quick-intro"></p>
+    <div id="manualQuickHint" class="manual-quick-hint"></div>
+    <div class="manual-quick-grid">
+      <div class="field"><label for="manualActual">Tatsächliche Uhrzeit</label><input id="manualActual" type="time"></div>
+      <div class="field"><label for="manualLogged">Dokumentierte Uhrzeit</label><input id="manualLogged" type="time"></div>
+    </div>
+    <button type="button" class="manual-full-editor" id="manualFullEditor">Vollständigen Tag bearbeiten</button>
+    <div class="modal-actions"><button type="button" class="cancel" data-close="manualQuickModal">Abbrechen</button><button type="button" class="save" id="saveManualQuick">Zeit speichern</button></div>
   </div>
 </div>
 
