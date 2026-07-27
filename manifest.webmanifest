@@ -1,5 +1,5 @@
 {
-  "name": "Arbeitszeit – High-End Offline Zeiterfassung V5.14",
+  "name": "Arbeitszeit – High-End Offline Zeiterfassung V5.16",
   "short_name": "Arbeitszeit",
   "start_url": "./index.html",
   "display": "standalone",
@@ -25,12 +25,6 @@
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
-    },
-    {
-      "src": "icon-1024.png",
-      "sizes": "1024x1024",
-      "type": "image/png",
-      "purpose": "any"
     }
   ]
 }

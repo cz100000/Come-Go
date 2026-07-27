@@ -1,0 +1,3 @@
+Statische Prüfungen: JavaScript-Syntax, Manifest-JSON, Service-Worker-Dateiliste, ZIP-Integrität, Versionskonsistenz.
+Fachlich geprüft: Wochenend-Sprunglogik, Schutz vorhandener Wochenenddaten, einmalige Datenkorrektur ohne Überschreiben, Toneinstellung nur nach erfolgreicher Buchung.
+Reale iPhone-Prüfung erforderlich: Layout, Lautstärke/Stummschalter, PWA-Cache-Aktualisierung und Touch-Haptik.

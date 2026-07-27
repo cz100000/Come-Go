@@ -1,5 +1,5 @@
-const CACHE='arbeitszeit-v5-14-2026-07-27';
-const APP_FILES=['./','./index.html','./app.css','./imported-data.js','./app.js','./manifest.webmanifest','./icon-180.png','./icon-192.png','./icon-512.png','./icon-1024.png'];
+const CACHE='arbeitszeit-v5-16-2026-07-27';
+const APP_FILES=['./','./index.html','./app.css','./imported-data.js','./app.js','./manifest.webmanifest','./icon-180.png','./icon-192.png','./icon-512.png'];
 const CACHEABLE_PATHS=new Set(APP_FILES.filter(file=>file!=='./').map(file=>new URL(file,self.location.href).pathname));
 self.addEventListener('install',event=>event.waitUntil(caches.open(CACHE).then(cache=>cache.addAll(APP_FILES)).then(()=>self.skipWaiting())));
 self.addEventListener('activate',event=>event.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(key=>key!==CACHE).map(key=>caches.delete(key)))).then(()=>self.clients.claim())));

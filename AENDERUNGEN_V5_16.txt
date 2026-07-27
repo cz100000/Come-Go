@@ -1,0 +1,3 @@
+V5.16 – Korrektur- und Optimierungspaket
+
+Umgesetzt: Tagesnavigation, Tages-Wochenendschalter, Gehen-Symbol, verstärkter Druckeffekt, Tonpaar 2, einmalige Datenkorrektur 27.07.2026, Entfernung icon-1024, bereinigtes Produktpaket, CSS-/JavaScript-Optimierung. Historische Importdatei unverändert.
