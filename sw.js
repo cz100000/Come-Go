@@ -1,4 +1,4 @@
-const CACHE='arbeitszeit-v5-23-2026-07-27';
+const CACHE='arbeitszeit-v5-24-2026-08-02';
 const APP_FILES=['./','./index.html','./app.css','./imported-data.js','./app.js','./manifest.webmanifest','./icon-180.png','./icon-192.png','./icon-512.png'];
 const CACHEABLE_PATHS=new Set(APP_FILES.filter(file=>file!=='./').map(file=>new URL(file,self.location.href).pathname));
 self.addEventListener('install',event=>event.waitUntil(caches.open(CACHE).then(cache=>cache.addAll(APP_FILES)).then(()=>self.skipWaiting())));

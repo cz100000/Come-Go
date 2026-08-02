@@ -1,0 +1,14 @@
+Arbeitszeit-PWA V5.24 – Änderungen
+
+- Der Schnelleintragsbereich auf „Heute“ zeigt nur noch „Abwesenheit eintragen“ und „Zeit ergänzen / korrigieren“.
+- Der identische blaue Plus-Button steht auf „Heute“ und in „Zeiten → Tag“ relativ zur unteren Navigation an derselben Position.
+- Beide Plus-Buttons öffnen dasselbe Menü und übernehmen ein festes Bezugsdatum.
+- Neuer einfacher Abwesenheitsweg: Urlaub, Krankheit oder sonstige Abwesenheit; ganzer/halber Tag; kurze Notiz; Konfliktprüfung; Übergang zu „Weitere Optionen“.
+- Neuer kontextabhängiger Zeitweg mit Vorschlag für Kommen/Gehen, Korrektur vorhandener Buchungen und vollständigem Tageseditor.
+- Tatsächliche und dokumentierte Zeit werden direkt aus den sichtbaren Feldern gelesen; die vorhandene Rundungs- und Validierungslogik bleibt erhalten.
+- Einzelne Buchungen können gelöscht und für kurze Zeit exakt wiederhergestellt werden.
+- Vergangene Soll-Arbeitstage ohne Buchung oder mit unvollständiger Buchungsfolge werden bei jeder Anzeige neu berechnet und auf „Heute“ zusammengefasst.
+- Leere Tage zeigen verständliche direkte Aktionen; Tagesstatus wird unmittelbar neu berechnet.
+- Geänderte Dialoge und Editoren fragen vor dem Verwerfen ungespeicherter Änderungen nach.
+- Rückwirkende Nachträge nach einem importierten Monatsstichtag werden auch nach einem Monatswechsel korrekt in Monatsdetail, Monatswert, Jahreswert und Zeitkonto übernommen.
+- Keine Änderung am Speicherschlüssel, Datenschema, Importbestand oder den bestehenden Export- und Berichtsfunktionen.

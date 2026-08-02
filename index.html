@@ -29,6 +29,12 @@
     <button type="button" id="todayAbsenceEdit">Bearbeiten</button>
   </section>
 
+  <button id="pastWorkdayNotice" class="past-workday-notice" type="button" hidden aria-live="polite">
+    <span class="past-workday-icon" aria-hidden="true">!</span>
+    <span><b id="pastWorkdayNoticeTitle">Offene Arbeitstage</b><small id="pastWorkdayNoticeText"></small></span>
+    <span class="past-workday-chev" aria-hidden="true">›</span>
+  </button>
+
   <div class="punch-grid single" aria-label="Arbeitszeit buchen">
     <button id="punchAction" class="punch-btn punch-in" type="button" data-punch="in">
       <span class="punch-icon-box" aria-hidden="true"><svg class="icon" viewBox="0 0 32 32"><path class="door" d="M11 5.5h12v21H11"/><path d="M4.5 16h16M15.5 10.5 21 16l-5.5 5.5"/></svg></span>
@@ -55,14 +61,13 @@
     <div id="todayCaptureList" class="capture-list"></div>
   </section>
 
-  <div class="quick-action-row" aria-label="Manuelle Einträge">
-    <button id="pauseToday" class="pause-btn home-pressable" type="button">
-      <svg class="icon" viewBox="0 0 24 24"><path d="M5 7h11v7a5 5 0 0 1-5 5H10a5 5 0 0 1-5-5Z"/><path d="M16 9h2a3 3 0 0 1 0 6h-2M4 21h14"/></svg>
-      <span class="pause-copy"><b id="pauseButtonLabel">Manuelle Pause</b><small id="pauseButtonSub">Pause eintragen</small></span>
-      <svg class="icon pause-chev" viewBox="0 0 24 24"><path d="m9 6 6 6-6 6"/></svg>
+  <div class="quick-action-row" aria-label="Schnelleintrag">
+    <button id="quickEntryOverview" class="quick-entry-overview home-pressable" type="button" aria-label="Eintrag für heute öffnen">
+      <span><b>Abwesenheit eintragen</b><small>Urlaub, Krankheit oder Sonstiges</small></span>
+      <span><b>Zeit ergänzen / korrigieren</b><small>Fehlende oder vorhandene Buchung bearbeiten</small></span>
     </button>
-    <button id="quickAddBtn" class="quick-add-btn home-pressable" type="button" aria-label="Schnelleintrag öffnen">+</button>
   </div>
+  <button id="quickAddBtn" class="quick-add-btn floating-quick-add today-floating-quick home-pressable" type="button" aria-label="Eintrag für heute öffnen">+</button>
 </section>
 
 <section id="times" class="screen" aria-label="Zeiten">
@@ -74,6 +79,7 @@
     <button type="button" data-view="year">Jahr</button>
   </div>
   <div id="timesContent"></div>
+  <button id="timesQuickAddBtn" class="quick-add-btn floating-quick-add times-floating-quick" type="button" aria-label="Eintrag für den angezeigten Tag öffnen" hidden>+</button>
 </section>
 
 <section id="reports" class="screen" aria-label="Auswertung">
@@ -146,6 +152,7 @@
   <div class="sheet single-entry-sheet">
     <div class="sheet-head"><h2 id="entryModalTitle">Buchung bearbeiten</h2><button class="close-btn" type="button" data-close="entryModal">×</button></div>
     <div class="single-entry-body">
+      <div id="entryContextDate" class="context-date"></div>
       <div class="field"><label for="singleEntryType">Buchungsart</label><select id="singleEntryType"><option value="in">Kommen</option><option value="out">Gehen</option></select></div>
       <div class="field"><label for="singleEntryActual">Tatsächliche Uhrzeit</label><div class="time-input-wrap"><input id="singleEntryActual" type="time"></div></div>
       <div class="field"><label for="singleEntryLogged">Dokumentierte Uhrzeit</label><div class="time-input-wrap"><input id="singleEntryLogged" type="time"></div></div>
@@ -165,27 +172,73 @@
 </div>
 
 <div id="quickAddModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="quickAddTitle">
-  <div class="sheet quick-sheet">
-    <div class="sheet-head"><h2 id="quickAddTitle">Schnelleintrag</h2><button class="close-btn" type="button" data-close="quickAddModal" aria-label="Schließen">×</button></div>
-    <div class="quick-list">
-      <button type="button" data-quick-absence="vacation"><span>Urlaub</span><small>Ein- oder mehrtägig</small><b>›</b></button>
-      <button type="button" data-quick-absence="sick"><span>Krankheit</span><small>Ein- oder mehrtägig</small><b>›</b></button>
-      <button type="button" data-quick-absence="timeOff"><span>Zeitausgleich</span><small>Ein- oder mehrtägig</small><b>›</b></button>
-      <button type="button" data-quick-absence="other"><span>Sonstige Abwesenheit</span><small>Mit optionaler Notiz</small><b>›</b></button>
-      <button type="button" id="manualTimeQuick"><span>Zeit manuell ergänzen</span><small>Vorhandene Tagesbearbeitung öffnen</small><b>›</b></button>
+  <div class="sheet quick-sheet compact-action-sheet">
+    <div class="sheet-head"><h2 id="quickAddTitle">Eintrag für heute</h2><button class="close-btn" type="button" data-close="quickAddModal" aria-label="Schließen">×</button></div>
+    <div id="quickAddContext" class="context-date"></div>
+    <div class="quick-list exact-two-actions">
+      <button type="button" id="quickAbsenceStart"><span>Abwesenheit eintragen</span><small>Urlaub, Krankheit oder Sonstiges</small><b>›</b></button>
+      <button type="button" id="quickTimeStart"><span>Zeit ergänzen / korrigieren</span><small>Fehlende oder vorhandene Buchung</small><b>›</b></button>
     </div>
+    <button type="button" class="dialog-action dialog-action-secondary quick-cancel" data-close="quickAddModal">Abbrechen</button>
+  </div>
+</div>
+
+<div id="absenceTypeModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="absenceTypeQuickTitle">
+  <div class="sheet compact-action-sheet">
+    <div class="sheet-head"><h2 id="absenceTypeQuickTitle">Abwesenheit auswählen</h2><button class="close-btn" type="button" data-close="absenceTypeModal" aria-label="Schließen">×</button></div>
+    <div id="absenceTypeContext" class="context-date"></div>
+    <div class="quick-list absence-type-list">
+      <button type="button" data-simple-absence="vacation"><span>Urlaub</span><small>Ganzer oder halber Tag</small><b>›</b></button>
+      <button type="button" data-simple-absence="sick"><span>Krankheit</span><small>Ganzer oder halber Tag</small><b>›</b></button>
+      <button type="button" data-simple-absence="other"><span>Sonstige Abwesenheit</span><small>Mit optionaler Notiz</small><b>›</b></button>
+    </div>
+    <button type="button" class="dialog-action dialog-action-secondary quick-cancel" data-close="absenceTypeModal">Abbrechen</button>
+  </div>
+</div>
+
+<div id="quickAbsenceModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="quickAbsenceTitle">
+  <div class="sheet quick-absence-sheet">
+    <div class="sheet-head"><h2 id="quickAbsenceTitle">Abwesenheit eintragen</h2><button class="close-btn" type="button" data-close="quickAbsenceModal" aria-label="Schließen">×</button></div>
+    <div id="quickAbsenceContext" class="context-date"></div>
+    <div class="field"><label>Ausgewählte Abwesenheitsart</label><div id="quickAbsenceTypeLabel" class="readonly-field"></div></div>
+    <div class="field"><label for="quickAbsenceExtent">Zeitraum</label><select id="quickAbsenceExtent"><option value="full">Ganzer Tag</option><option value="half">Halber Tag</option></select></div>
+    <div class="field"><label for="quickAbsenceNote">Optionale kurze Notiz</label><textarea id="quickAbsenceNote" rows="2" maxlength="180" placeholder="Kurze Notiz"></textarea></div>
+    <div id="quickAbsenceConflict" class="quick-conflict" aria-live="polite"></div>
+    <button type="button" class="dialog-action dialog-action-secondary" id="quickAbsenceFurther">Weitere Optionen</button>
+    <div class="modal-actions"><button type="button" class="cancel" data-close="quickAbsenceModal">Abbrechen</button><button type="button" class="save" id="saveQuickAbsence">Speichern</button></div>
+  </div>
+</div>
+
+<div id="timeActionModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="timeActionTitle">
+  <div class="sheet compact-action-sheet">
+    <div class="sheet-head"><h2 id="timeActionTitle">Zeit ergänzen / korrigieren</h2><button class="close-btn" type="button" data-close="timeActionModal" aria-label="Schließen">×</button></div>
+    <div id="timeActionContext" class="context-date"></div>
+    <div id="timeActionStatus" class="action-status"></div>
+    <div id="timeActionList" class="quick-list time-action-list"></div>
+    <button type="button" class="dialog-action dialog-action-secondary quick-cancel" data-close="timeActionModal">Abbrechen</button>
+  </div>
+</div>
+
+<div id="bookingListModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="bookingListTitle">
+  <div class="sheet compact-action-sheet">
+    <div class="sheet-head"><h2 id="bookingListTitle">Vorhandene Buchung korrigieren</h2><button class="close-btn" type="button" data-close="bookingListModal" aria-label="Schließen">×</button></div>
+    <div id="bookingListContext" class="context-date"></div>
+    <div id="bookingChoiceList" class="booking-choice-list"></div>
+    <button type="button" class="dialog-action dialog-action-secondary quick-cancel" data-close="bookingListModal">Abbrechen</button>
   </div>
 </div>
 
 <div id="manualQuickModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="manualQuickTitle">
   <div class="sheet manual-quick-sheet">
-    <div class="sheet-head"><h2 id="manualQuickTitle">Zeit manuell ergänzen</h2><button class="close-btn" type="button" data-close="manualQuickModal" aria-label="Schließen">×</button></div>
-    <p id="manualQuickIntro" class="manual-quick-intro"></p>
+    <div class="sheet-head"><h2 id="manualQuickTitle">Zeit ergänzen</h2><button class="close-btn" type="button" data-close="manualQuickModal" aria-label="Schließen">×</button></div>
+    <div id="manualQuickContext" class="context-date"></div>
+    <div class="field"><label>Buchungsart</label><div id="manualQuickBookingType" class="readonly-field"></div></div>
     <div id="manualQuickHint" class="manual-quick-hint"></div>
     <div class="manual-quick-grid">
-      <div class="field"><label for="manualActual">Tatsächliche Uhrzeit</label><input id="manualActual" type="time"></div>
-      <div class="field"><label for="manualLogged">Dokumentierte Uhrzeit</label><input id="manualLogged" type="time"></div>
+      <div class="field"><label for="manualActual">Tatsächliche Uhrzeit <button type="button" class="info-dot" aria-label="Erklärung tatsächliche Uhrzeit" data-time-info="actual">i</button></label><input id="manualActual" type="time"></div>
+      <div class="field"><label for="manualLogged">Dokumentierte Uhrzeit <button type="button" class="info-dot" aria-label="Erklärung dokumentierte Uhrzeit" data-time-info="logged">i</button></label><input id="manualLogged" type="time"></div>
     </div>
+    <div id="timeInfoText" class="time-info-text" hidden></div>
     <button type="button" class="manual-full-editor" id="manualFullEditor">Vollständigen Tag bearbeiten</button>
     <div class="modal-actions"><button type="button" class="cancel" data-close="manualQuickModal">Abbrechen</button><button type="button" class="save" id="saveManualQuick">Zeit speichern</button></div>
   </div>
@@ -202,6 +255,23 @@
     <div id="absenceSummary" class="absence-summary" aria-live="polite"></div>
     <div class="modal-actions"><button type="button" class="cancel" data-close="absenceModal">Abbrechen</button><button type="button" class="save" id="saveAbsenceBtn">Abwesenheit speichern</button></div>
     <div id="absenceDeleteActions" class="day-data-actions" hidden><button type="button" class="delete" id="deleteAbsenceDayBtn">Diesen Tag löschen</button><button type="button" class="delete" id="deleteAbsenceGroupBtn">Gesamten Zeitraum löschen</button></div>
+  </div>
+</div>
+
+<div id="workdayIssuesModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="workdayIssuesTitle">
+  <div class="sheet issues-sheet">
+    <div class="sheet-head"><h2 id="workdayIssuesTitle">Offene Arbeitstage</h2><button class="close-btn" type="button" data-close="workdayIssuesModal" aria-label="Schließen">×</button></div>
+    <div id="workdayIssuesSummary" class="context-date"></div>
+    <div id="workdayIssuesList" class="workday-issues-list"></div>
+    <button type="button" class="dialog-action dialog-action-secondary quick-cancel" data-close="workdayIssuesModal">Schließen</button>
+  </div>
+</div>
+
+<div id="discardConfirmModal" class="modal confirm-modal" role="dialog" aria-modal="true" aria-labelledby="discardConfirmTitle">
+  <div class="sheet confirm-sheet">
+    <div class="sheet-head"><h2 id="discardConfirmTitle">Änderungen verwerfen?</h2></div>
+    <p>Die noch nicht gespeicherten Änderungen gehen verloren.</p>
+    <div class="modal-actions"><button type="button" class="cancel" id="continueEditingBtn">Weiter bearbeiten</button><button type="button" class="danger-button" id="discardChangesBtn">Verwerfen</button></div>
   </div>
 </div>
 

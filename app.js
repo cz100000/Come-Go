@@ -5,7 +5,7 @@ const BACKUP_FORMAT='arbeitszeit-pwa-backup';
 let storageNotice='';
 const CHECKPOINT_DATE='2026-07-22';
 const CHECKPOINT_MINUTES=11631;
-const APP_VERSION='5.23';
+const APP_VERSION='5.24';
 const CURRENT_SCHEMA=10;
 const IMPORT_DATA_VERSION=2;
 let state=loadState();
@@ -17,6 +17,10 @@ let absenceEditorContext=null;
 let lastModalFocus=null;
 let confettiTimer=null;
 let manualQuickType='in';
+let quickContextDate=todayKey(),manualQuickDate=todayKey(),quickAbsenceCode='vacation';
+let pendingDiscardModalId=null,pendingDiscardAction=null,pendingUndo=null;
+const modalBaselines=new Map();
+const guardedModalIds=new Set(['dayModal','entryModal','pauseModal','manualQuickModal','quickAbsenceModal','absenceModal']);
 const $=id=>document.getElementById(id);
 const SVG={
 in:`<svg class="icon" viewBox="0 0 32 32"><path d="M11 5.5h12v21H11"/><path d="M4.5 16h16M15.5 10.5 21 16l-5.5 5.5"/></svg>`,
@@ -319,27 +323,49 @@ const sourceAdjustment=k>=base.cutoff?(Number(base.sourceAdjustment)||0):0;
 return (Number(base.opening)||0)+prior+originalDiff+within+sourceAdjustment;
 }
 function dayStatus(d){
-if(d.absence)return `${d.absence}${absenceDuration(d)==='half'?' · ½ Tag':''}`;
-if(d.sourceYear&&!d.edited&&!d.capturedAfterImport&&d.date<=CHECKPOINT_DATE)return 'Importiert';
-if(!(d.entries||[]).length)return 'Noch nicht erfasst';
+if(d?.absence)return 'Abwesenheit erfasst';
+const entries=d?.entries||[];
+if(!entries.length)return 'Keine Buchung';
+if(entries[0]?.type==='out')return 'Kommen fehlt';
+for(let i=0;i<entries.length;i++){
+const expected=i%2===0?'in':'out';
+if(entries[i]?.type!==expected)return expected==='in'?'Kommen fehlt':'Gehen fehlt';
+}
 const c=calculateDay(d);
-if(!c.plausible)return 'Prüfung erforderlich';
+if(!c.plausible)return 'Unvollständig';
+if(entries.at(-1)?.type==='in')return 'Gehen fehlt';
 return c.complete?'Vollständig':'Unvollständig';
 }
 function entrySource(d,e){if(e?.source==='capture')return 'Erfassung';if(e?.source==='manual')return 'Manuell';if(d.edited||e?.edited)return 'Nachträglich geändert';if(d.sourceYear&&!d.capturedAfterImport)return `Import ${d.sourceYear}`;return 'Erfassung'}
-function showToast(msg){const t=$('toast');t.textContent=msg;t.classList.add('show');clearTimeout(showToast.timer);showToast.timer=setTimeout(()=>t.classList.remove('show'),1900)}
+function clearPendingUndo(){
+if(!pendingUndo)return;
+clearTimeout(pendingUndo.timer);pendingUndo=null;
+}
+function hideToast(){const t=$('toast');if(!t)return;t.classList.remove('show');t.replaceChildren()}
+function showToast(msg){
+clearPendingUndo();const t=$('toast');t.replaceChildren();const span=document.createElement('span');span.textContent=msg;t.appendChild(span);t.classList.add('show');clearTimeout(showToast.timer);showToast.timer=setTimeout(hideToast,2300)
+}
+function showUndoToast(message,undo){
+clearPendingUndo();const t=$('toast');t.replaceChildren();const span=document.createElement('span');span.textContent=message;const button=document.createElement('button');button.type='button';button.textContent='Rückgängig';button.addEventListener('click',()=>{const action=pendingUndo?.undo;clearPendingUndo();hideToast();if(action)action()});t.append(span,button);t.classList.add('show');clearTimeout(showToast.timer);const timer=setTimeout(()=>{pendingUndo=null;hideToast()},5200);pendingUndo={undo,timer};
+}
+function updateDayQuickButton(){
+const button=$('timesQuickAddBtn');if(!button)return;
+const visible=$('times').classList.contains('active')&&currentView==='day'&&!document.body.classList.contains('modal-open');
+button.hidden=!visible;
+}
 function showScreen(id){
 document.body.classList.toggle('today-fixed',id==='today');
-document.querySelectorAll('.screen').forEach(s=>s.classList.toggle('active',s.id===id));
-document.querySelectorAll('.tabbar button').forEach(b=>b.classList.toggle('active',b.dataset.screen===id));
+document.querySelectorAll('.screen').forEach(screen=>screen.classList.toggle('active',screen.id===id));
+document.querySelectorAll('.tabbar button').forEach(button=>button.classList.toggle('active',button.dataset.screen===id));
 if(id==='today')renderToday();
 if(id==='times'){
 currentView='day';monthDrill=null;cursorDate=parseDateKey(state.settings.lastEditedDay||todayKey());
-document.querySelectorAll('[data-view]').forEach(b=>b.classList.toggle('active',b.dataset.view==='day'));
+document.querySelectorAll('[data-view]').forEach(button=>button.classList.toggle('active',button.dataset.view==='day'));
 renderTimes();
 }
 if(id==='reports')renderReports();
 if(id==='settings')renderSettings();
+updateDayQuickButton();
 document.querySelector('.app').scrollTo(0,0);window.scrollTo(0,0);
 }
 function nextActionForDay(d){const last=(d.entries||[]).at(-1);return !last||last.type==='out'?'in':'out'}
@@ -470,16 +496,16 @@ const dateEl=$('todayDateShort');if(dateEl)dateEl.textContent=new Intl.DateTimeF
 if(document.body.classList.contains('today-fixed')){updateTodayPunchState();updateCountdown()}
 }
 function renderToday(){
-ensureHolidayYear(new Date().getFullYear());const d=dayObject(todayKey()),pause=Number(d.pauseMinutes)||0;
+ensureHolidayYear(new Date().getFullYear());const d=dayObject(todayKey());
 document.title=`Arbeitszeit PWA · Version ${APP_VERSION}`;
 updateClock();
-$('pauseButtonLabel').textContent='Manuelle Pause';$('pauseButtonSub').textContent=pause?`${pause} Minuten eingetragen · ändern`:'Pause eintragen';
 const banner=$('todayAbsenceBanner'),full=hasFullAbsence(d),half=d.absence&&absenceDuration(d)==='half';
 banner.hidden=!d.absence;document.querySelector('.punch-grid').classList.toggle('absence-full',full);
 if(d.absence){
 $('todayAbsenceTitle').textContent=half?`Heute: ${d.absence} (halber Tag)`:`Heute ist ${d.absence} eingetragen`;
 $('todayAbsenceText').textContent=half?`${formatDuration(absenceCreditMinutes(d),{signed:false})} Stunden werden angerechnet; Arbeitszeitbuchungen bleiben möglich.`:`${formatDuration(absenceCreditMinutes(d),{signed:false})} Stunden werden als Sollzeit berücksichtigt.`;
 }
+renderPastWorkdayNotice();
 renderTodayCapture(d);
 updateCountdown();
 }
@@ -554,17 +580,17 @@ const valid=inside&&!button.disabled;reset();if(valid)performPunch(button.datase
 });
 button.addEventListener('pointercancel',reset);button.addEventListener('lostpointercapture',()=>{if(pointer!==null)reset()});
 }
-function setTimesView(v){currentView=v;monthDrill=null;document.querySelectorAll('[data-view]').forEach(b=>b.classList.toggle('active',b.dataset.view===v));renderTimes()}
+function setTimesView(v){currentView=v;monthDrill=null;document.querySelectorAll('[data-view]').forEach(b=>b.classList.toggle('active',b.dataset.view===v));renderTimes();updateDayQuickButton()}
 function updateTimesWeekendControl(visible,disabled=false){const wrap=$('timesHeaderWeekend'),toggle=$('headerWeekendToggle');if(!wrap||!toggle)return;wrap.classList.toggle('is-hidden',!visible);toggle.checked=!!state.settings.showWeekends;toggle.disabled=!!disabled;wrap.title=disabled?'Wochenende wird angezeigt, weil dort Daten vorhanden sind.':''}
-function renderTimes(){if(currentView==='day')renderDayView(dateKey(cursorDate));else if(currentView==='week')renderWeekView(dateKey(cursorDate));else if(currentView==='month'){updateTimesWeekendControl(false);renderMonthOverview()}else{updateTimesWeekendControl(false);renderYearOverview()}}
+function renderTimes(){if(currentView==='day')renderDayView(dateKey(cursorDate));else if(currentView==='week')renderWeekView(dateKey(cursorDate));else if(currentView==='month'){updateTimesWeekendControl(false);renderMonthOverview()}else{updateTimesWeekendControl(false);renderYearOverview()}updateDayQuickButton()}
 function renderDayView(k){
 const today=todayKey();if(k>today)k=today;
 cursorDate=parseDateKey(k);const d=dayObject(k),c=calculateDay(d),status=dayStatus(d),entries=d.entries||[];
-const statusClass=status==='Vollständig'||d.absence?'success':status==='Prüfung erforderlich'?'review':status==='Unvollständig'?'warning':'';
+const statusClass=status==='Vollständig'||status==='Abwesenheit erfasst'?'success':['Gehen fehlt','Kommen fehlt','Unvollständig'].includes(status)?'warning':'';
 const source=d.edited?'Nachträglich geändert':d.capturedAfterImport?'Lokale Erfassung':d.sourceYear?`Importierte Daten aus ${d.sourceYear}`:'Lokale Erfassung';
-const rows=entries.length?entries.map((e,i)=>`<tr><td>${i+1}</td><td>${e.type==='in'?'Kommen':'Gehen'}</td><td class="num">${esc(e.actual||'–')}</td><td class="num">${esc(e.logged||'–')}</td><td><span class="booking-source">${esc(entrySource(d,e))}</span></td></tr>`).join(''):`<tr><td colspan="5" class="empty">Keine Buchungen vorhanden</td></tr>`;
+const rows=entries.length?entries.map((entry,index)=>`<tr><td>${index+1}</td><td>${entry.type==='in'?'Kommen':'Gehen'}</td><td class="num">${esc(entry.actual||'–')}</td><td class="num">${esc(entry.logged||'–')}</td><td><span class="booking-source">${esc(entrySource(d,entry))}</span></td></tr>`).join(''):`<tr><td colspan="5" class="empty">Für diesen Tag sind noch keine Zeiten erfasst.</td></tr>`;
 let inNo=0,outNo=0;
-const mobileRows=entries.length?`<div class="booking-compact-head"><span></span><span>Tatsächlich</span><span>Dokumentiert</span><span></span></div>${entries.map((e,index)=>{const no=e.type==='in'?++inNo:++outNo,label=e.type==='in'?`Kommen ${no}`:`Gehen ${no}`;return `<div class="booking-compact-row ${e.type}"><div class="booking-compact-label"><span class="booking-type-icon">${e.type==='in'?SVG.in:SVG.out}</span><span><b>${label}</b><small>${esc(entrySource(d,e))}</small></span></div><b class="booking-compact-time">${esc(e.actual||'–')}</b><b class="booking-compact-time">${esc(e.logged||'–')}</b><button type="button" class="edit-icon-btn" onclick="openSingleEntryEditor('${k}',${index})" aria-label="${label} bearbeiten">${SVG.edit}</button></div>`}).join('')}`:`<div class="empty compact-empty">Keine Buchungen vorhanden</div>`;
+const mobileRows=entries.length?`<div class="booking-compact-head"><span></span><span>Tatsächlich</span><span>Dokumentiert</span><span></span></div>${entries.map((entry,index)=>{const no=entry.type==='in'?++inNo:++outNo,label=entry.type==='in'?`Kommen ${no}`:`Gehen ${no}`;return `<div class="booking-compact-row ${entry.type}"><div class="booking-compact-label"><span class="booking-type-icon">${entry.type==='in'?SVG.in:SVG.out}</span><span><b>${label}</b><small>${esc(entrySource(d,entry))}</small></span></div><b class="booking-compact-time">${esc(entry.actual||'–')}</b><b class="booking-compact-time">${esc(entry.logged||'–')}</b><button type="button" class="edit-icon-btn" onclick="openSingleEntryEditor('${k}',${index})" aria-label="${label} bearbeiten">${SVG.edit}</button></div>`}).join('')}`:`<div class="empty-day-state"><b>Für diesen Tag sind noch keine Zeiten erfasst.</b><span>Nutze den Plus-Button oder eine der direkten Aktionen.</span><div><button type="button" onclick="openTimeAction('${k}')">Zeit ergänzen</button><button type="button" onclick="openAbsenceTypePicker('${k}')">Abwesenheit eintragen</button></div></div>`;
 const groupCount=d.absenceGroupId?absenceGroupDays(d.absenceGroupId).length:1;
 const absenceCard=d.absence?`<div class="card detail-list absence-detail-card"><div class="detail-row"><span>Abwesenheit</span><b>${esc(d.absence)}</b></div><div class="detail-row"><span>Umfang</span><b>${absenceDuration(d)==='half'?'Halber Tag':'Ganzer Tag'}</b></div><div class="detail-row"><span>Angerechnete Zeit</span><b class="absence-credit">${formatDuration(absenceCreditMinutes(d),{signed:false})}</b></div><div class="detail-row"><span>Notiz</span><div class="value">${esc(d.absenceNote||'–')}</div></div><div class="absence-actions-inline"><button type="button" onclick="openAbsenceEditorForDay('${k}','day')">Diesen Tag bearbeiten</button>${groupCount>1?`<button type="button" onclick="openAbsenceEditorForDay('${k}','group')">Zeitraum bearbeiten</button>`:''}<button type="button" class="danger" onclick="deleteAbsenceForDay('${k}','day')">Diesen Tag löschen</button>${groupCount>1?`<button type="button" class="danger" onclick="deleteAbsenceForDay('${k}','group')">Zeitraum löschen</button>`:''}</div></div>`:'';
 const diffClass=c.diff<0?'red':c.diff>0?'green':'neutral';
@@ -573,7 +599,7 @@ $('timesContent').innerHTML=`
 <div class="date-nav date-nav-prominent day-date-nav"><button type="button" onclick="changeDay(-1)" aria-label="Vorheriger Tag">‹</button><label class="day-date-center" for="dayPicker"><span class="day-date-label">${formatDate(k,{weekday:'short',day:'2-digit',month:'2-digit',year:'numeric'})}${k===today?'<small>Heute</small>':''}</span><input type="date" id="dayPicker" value="${k}" max="${today}" aria-label="Datum auswählen"></label><button type="button" onclick="changeDay(1)" aria-label="Nächster Tag" ${k===today?'disabled':''}>›</button></div>
 <div class="card day-summary compact-day-summary">
 <div class="day-summary-top"><div class="day-meta">${esc(source)}</div><span class="badge ${statusClass}">${esc(status)}</span></div>
-<div class="balance-hero"><span>Tagessaldo heute</span><strong class="${diffClass}">${formatDuration(c.diff)}</strong></div>
+<div class="balance-hero"><span>Tagessaldo</span><strong class="${diffClass}">${formatDuration(c.diff)}</strong></div>
 <div class="metric-grid"><div class="metric"><span>Brutto</span><b>${formatDuration(c.gross,{signed:false})}</b></div><div class="metric"><span>Netto</span><b>${formatDuration(c.net,{signed:false})}</b></div><div class="metric"><span>Soll</span><b>${formatDuration(c.target,{signed:false})}</b></div><div class="metric metric-balance"><span>Zeitkonto</span><b class="${balanceClass}">${formatDuration(balance)}</b></div></div>
 </div>
 ${absenceCard}
@@ -583,8 +609,8 @@ ${absenceCard}
 <div class="additional-row"><span class="additional-icon pause">${SVG.pause}</span><b>Manuelle Pause</b><span class="additional-value">${Number(d.pauseMinutes)||0} Min.</span></div>
 <div class="additional-row"><span class="additional-icon note">${SVG.note||SVG.edit}</span><b>Kommentar</b><span class="additional-value comment">${esc(d.note||'Kein Kommentar')}</span></div>
 </div>`;
-$('dayPicker').addEventListener('change',e=>{const selected=e.target.value>today?today:e.target.value;cursorDate=parseDateKey(selected);renderDayView(selected)});
-updateTimesWeekendControl(true);
+$('dayPicker').addEventListener('change',event=>{const selected=event.target.value>today?today:event.target.value;cursorDate=parseDateKey(selected);renderDayView(selected)});
+updateTimesWeekendControl(true);updateDayQuickButton();
 }
 function goToToday(){cursorDate=parseDateKey(todayKey());currentView='day';document.querySelectorAll('[data-view]').forEach(b=>b.classList.toggle('active',b.dataset.view==='day'));renderDayView(todayKey())}
 function changeDay(n){
@@ -609,10 +635,10 @@ function monthSummary(y,m){
 const key=`${y}-${pad(m+1)}`,start=`${key}-01`,calendarEnd=dateKey(new Date(y,m+1,0,12)),today=todayKey();
 const base=MONTHLY_BASELINES[key];
 let cutoff=endMin(calendarEnd,today);
-if(base)cutoff=base.cutoff;
+if(base)cutoff=today>base.cutoff?endMin(calendarEnd,today):base.cutoff;
 const sum={net:0,target:0,pause:0,diff:0,vacation:0,sick:0,other:0,incomplete:0};
 if(base){for(const k of Object.keys(sum))sum[k]=Number(base[k])||0;addMetric(sum,historicalAdjustment(start,base.cutoff));}
-if(base&&today>base.cutoff&&today.slice(0,7)===key)addMetric(sum,postCheckpointMetric(addDays(parseDateKey(base.cutoff),1),endMin(calendarEnd,today)));
+if(base&&today>base.cutoff){const extraStart=addDays(parseDateKey(base.cutoff),1),extraEnd=endMin(calendarEnd,today);if(extraStart<=extraEnd)addMetric(sum,postCheckpointMetric(extraStart,extraEnd));}
 if(!base){cutoff=endMin(calendarEnd,today);addMetric(sum,postCheckpointMetric(start,cutoff));}
 sum.days=Object.values(state.days).filter(d=>d.date>=start&&d.date<=cutoff&&(hasMeaningfulData(d)||isCountable(d,cutoff))).sort((a,b)=>a.date.localeCompare(b.date));
 sum.opening=base?(Number(base.opening)||0)+cumulativeProtectedDiff(`${key}-00`):balanceBefore(start);
@@ -652,17 +678,32 @@ $('timesContent').innerHTML=`<div class="back-row"><button type="button" onclick
 }
 let singleEntryDate=null,singleEntryIndex=-1;
 function openSingleEntryEditor(k,index){
-const d=dayObject(k),entry=(d.entries||[])[index];if(!entry)return;singleEntryDate=k;singleEntryIndex=index;$('singleEntryType').value=entry.type;$('singleEntryActual').value=entry.actual||'';$('singleEntryLogged').value=entry.logged||'';$('entryModalTitle').textContent=`${entry.type==='in'?'Kommen':'Gehen'} bearbeiten`;openModal('entryModal');
+const d=dayObject(k),entry=(d.entries||[])[index];if(!entry)return;
+singleEntryDate=k;singleEntryIndex=index;$('singleEntryType').value=entry.type;$('singleEntryActual').value=entry.actual||'';$('singleEntryLogged').value=entry.logged||'';$('entryModalTitle').textContent=`${entry.type==='in'?'Kommen':'Gehen'} bearbeiten`;$('entryContextDate').textContent=`${entry.type==='in'?'Kommen':'Gehen'} für ${formatContextDate(k)}`;openModal('entryModal');
 }
 function saveSingleEntry(){
-if(singleEntryDate===null||singleEntryIndex<0)return;const d=clone(dayObject(singleEntryDate,true)),entries=clone(d.entries||[]),old=entries[singleEntryIndex];if(!old)return;entries[singleEntryIndex]={...old,type:$('singleEntryType').value,actual:$('singleEntryActual').value,logged:$('singleEntryLogged').value,source:'manual',edited:true};const validation=validateEntries(entries);if(!validation.plausible){alert('Die Buchung kann nicht gespeichert werden. Kommen und Gehen müssen sich abwechseln; jede dokumentierte Uhrzeit muss mindestens fünf Minuten nach der vorherigen liegen.');return}d.entries=entries;d.edited=true;d.modifiedAt=new Date().toISOString();state.days[singleEntryDate]=d;touchDay(singleEntryDate);closeModal('entryModal');refreshAllDerivedViews();showToast(`${entries[singleEntryIndex].type==='in'?'Kommen':'Gehen'} gespeichert. Tagessaldo und Zeitkonto wurden aktualisiert.`);
+if(singleEntryDate===null||singleEntryIndex<0)return;
+const actual=$('singleEntryActual').value,logged=$('singleEntryLogged').value,type=$('singleEntryType').value;
+if(!isClock(actual)||!isClock(logged)){alert('Bitte beide Uhrzeiten vollständig eingeben.');return}
+if(singleEntryDate===todayKey()&&minutes(actual)>minutes(hm())){alert('Zukünftige Arbeitszeitbuchungen sind nicht zulässig.');return}
+const d=clone(dayObject(singleEntryDate,true)),entries=clone(d.entries||[]),old=entries[singleEntryIndex];if(!old)return;
+entries[singleEntryIndex]={...old,type,actual,logged,source:'manual',edited:true};
+const validation=validateEntries(entries);if(!validation.plausible){alert('Die Buchung kann nicht gespeichert werden. Kommen und Gehen müssen sich abwechseln; jede dokumentierte Uhrzeit muss mindestens fünf Minuten nach der vorherigen liegen.');return}
+d.entries=entries;d.edited=true;d.modifiedAt=new Date().toISOString();state.days[singleEntryDate]=d;touchDay(singleEntryDate);closeModal('entryModal');refreshAllDerivedViews();showToast(`${type==='in'?'Kommen':'Gehen'} gespeichert. Tagessaldo und Zeitkonto wurden aktualisiert.`);
+}
+function restoreDeletedEntry(date,index,entry){
+const d=clone(dayObject(date,true)),entries=clone(d.entries||[]);entries.splice(Math.min(index,entries.length),0,clone(entry));const validation=validateEntries(entries);
+if(!validation.plausible){alert('Die Buchung konnte nicht wiederhergestellt werden, weil sich der Tag inzwischen geändert hat.');return}
+d.entries=entries;d.edited=true;d.modifiedAt=new Date().toISOString();state.days[date]=d;touchDay(date);refreshAllDerivedViews();showToast(`${entry.type==='in'?'Kommen':'Gehen'} ${entry.logged||entry.actual} wiederhergestellt.`);
 }
 function deleteSingleEntry(){
-if(singleEntryDate===null||singleEntryIndex<0)return;const d=clone(dayObject(singleEntryDate,true)),entry=(d.entries||[])[singleEntryIndex];if(!entry)return;if(!confirm(`${entry.type==='in'?'Kommen':'Gehen'} um ${entry.logged||entry.actual||''} dauerhaft löschen?`))return;d.entries.splice(singleEntryIndex,1);d.edited=true;d.importCleared=!!IMPORTED_BY_DATE[singleEntryDate];d.modifiedAt=new Date().toISOString();state.days[singleEntryDate]=d;touchDay(singleEntryDate);closeModal('entryModal');refreshAllDerivedViews();showToast('Buchung gelöscht. Tagessaldo und Zeitkonto wurden aktualisiert.');
+if(singleEntryDate===null||singleEntryIndex<0)return;
+const date=singleEntryDate,index=singleEntryIndex,d=clone(dayObject(date,true)),entry=(d.entries||[])[index];if(!entry)return;
+d.entries.splice(index,1);d.edited=true;d.importCleared=!!IMPORTED_BY_DATE[date];d.modifiedAt=new Date().toISOString();state.days[date]=d;touchDay(date);closeModal('entryModal');refreshAllDerivedViews();const label=entry.type==='in'?'Kommen':'Gehen',time=entry.logged||entry.actual||'';showUndoToast(`${label} ${time} gelöscht.`,()=>restoreDeletedEntry(date,index,entry));
 }
-function openFullDayFromSingleEntry(){const k=singleEntryDate;closeModal('entryModal');if(k)openDayEditor(k)}
+function openFullDayFromSingleEntry(){const k=singleEntryDate;if(k)runAfterDirtyCheck('entryModal',()=>openFullDayForDate(k))}
 function openDayEditor(k){
-const d=dayObject(k);editingEntries=clone(d.entries||[]);$('editDate').max=todayKey();$('editDate').value=k;$('editPause').value=Number(d.pauseMinutes)||0;$('editNote').value=d.note||'';$('dayAbsenceEditorSummary').textContent=absenceSummaryText(d);$('restoreImportBtn').hidden=!IMPORTED_BY_DATE[k];$('deleteDayBtn').disabled=!(d.entries||[]).length&&!Number(d.pauseMinutes);renderEntryEditors();openModal('dayModal')
+const d=dayObject(k);$('dayModalTitle').textContent=`Tag bearbeiten · ${formatContextDate(k)}`;editingEntries=clone(d.entries||[]);$('editDate').max=todayKey();$('editDate').value=k;$('editPause').value=Number(d.pauseMinutes)||0;$('editNote').value=d.note||'';$('dayAbsenceEditorSummary').textContent=absenceSummaryText(d);$('restoreImportBtn').hidden=!IMPORTED_BY_DATE[k];$('deleteDayBtn').disabled=!(d.entries||[]).length&&!Number(d.pauseMinutes);renderEntryEditors();openModal('dayModal')
 }
 function renderEntryEditors(){
 let inNo=0,outNo=0;
@@ -683,12 +724,30 @@ function deleteEditedDay(){
 const k=$('editDate').value,d=clone(dayObject(k,true));if(!confirm('Alle Kommen-, Gehen- und Pausenbuchungen dieses Tages dauerhaft löschen? Eine vorhandene Abwesenheit und Tagesnotiz bleiben erhalten.'))return;
 d.entries=[];d.pauseMinutes=0;d.edited=true;d.importCleared=!!IMPORTED_BY_DATE[k];d.modifiedAt=new Date().toISOString();state.days[k]=d;touchDay(k);closeModal('dayModal');refreshAllDerivedViews();showToast('Alle Buchungen gelöscht');
 }
+function modalSnapshot(id){
+const modal=$(id);if(!modal)return'';
+if(id==='dayModal')return JSON.stringify({date:$('editDate').value,pause:$('editPause').value,note:$('editNote').value,entries:editingEntries.map((entry,index)=>({...entry,type:document.querySelector(`[data-entry-type=\"${index}\"]`)?.value||entry.type,actual:document.querySelector(`[data-entry-actual=\"${index}\"]`)?.value||'',logged:document.querySelector(`[data-entry-logged=\"${index}\"]`)?.value||''}))});
+const values=[...modal.querySelectorAll('input,select,textarea')].map(element=>({id:element.id||element.name||element.type,type:element.type,value:element.type==='checkbox'?element.checked:element.value}));
+return JSON.stringify(values);
+}
+function isModalDirty(id){return guardedModalIds.has(id)&&modalBaselines.has(id)&&modalBaselines.get(id)!==modalSnapshot(id)}
 function openModal(id){
-const modal=$(id);lastModalFocus=document.activeElement;modal.classList.add('open');document.body.classList.add('modal-open');if(id==='dayModal')$('dayModal').dataset.originalDate=$('editDate').value;setTimeout(()=>modal.querySelector('input,select,textarea,button')?.focus(),60)
+const modal=$(id);if(!modal)return;lastModalFocus=document.activeElement;modal.classList.add('open');document.body.classList.add('modal-open');if(id==='dayModal')$('dayModal').dataset.originalDate=$('editDate').value;modalBaselines.set(id,modalSnapshot(id));updateDayQuickButton();setTimeout(()=>modal.querySelector('input,select,textarea,button')?.focus(),60)
 }
 function closeModal(id){
-const modal=$(id);modal.classList.remove('open');if(!document.querySelector('.modal.open'))document.body.classList.remove('modal-open');if(lastModalFocus&&document.contains(lastModalFocus))lastModalFocus.focus({preventScroll:true})
+const modal=$(id);if(!modal)return;modal.classList.remove('open');modalBaselines.delete(id);if(!document.querySelector('.modal.open'))document.body.classList.remove('modal-open');updateDayQuickButton();if(lastModalFocus&&document.contains(lastModalFocus))lastModalFocus.focus({preventScroll:true})
 }
+function runAfterDirtyCheck(id,action){
+if(isModalDirty(id)){pendingDiscardModalId=id;pendingDiscardAction=action;openModal('discardConfirmModal');return}
+closeModal(id);if(typeof action==='function')action();
+}
+function requestCloseModal(id){
+if(id==='discardConfirmModal'){closeModal(id);return}
+if(isModalDirty(id)){pendingDiscardModalId=id;pendingDiscardAction=null;openModal('discardConfirmModal');return}
+closeModal(id);
+}
+function continueEditing(){pendingDiscardModalId=null;pendingDiscardAction=null;closeModal('discardConfirmModal')}
+function discardChanges(){const id=pendingDiscardModalId,action=pendingDiscardAction;pendingDiscardModalId=null;pendingDiscardAction=null;closeModal('discardConfirmModal');if(id)closeModal(id);if(typeof action==='function')action()}
 function openPauseModal(){$('quickPause').value=Number(dayObject(todayKey()).pauseMinutes)||0;openModal('pauseModal');setTimeout(()=>$('quickPause').focus(),80)}
 function saveQuickPause(){const k=todayKey(),d=dayObject(k,true);d.pauseMinutes=Math.max(0,Number($('quickPause').value)||0);d.edited=true;d.modifiedAt=new Date().toISOString();state.days[k]=d;touchDay(k);closeModal('pauseModal');renderToday();showToast('Pause gespeichert')}
 let chartMode=['month','year','history'].includes(state.settings.chartMode)?state.settings.chartMode:'month',chartSelection=null;
@@ -751,32 +810,102 @@ const k=$('editDate').value,original=IMPORTED_BY_DATE[k];if(!original)return;
 if(!confirm('Lokale Änderungen dieses Tages verwerfen und die ursprünglichen Importdaten vollständig wiederherstellen?'))return;
 state.days[k]=clone(original);touchDay(k);closeModal('dayModal');refreshAllDerivedViews();showToast('Importdaten wiederhergestellt');
 }
-function openQuickAdd(){openModal('quickAddModal')}
-function openManualTimeQuick(){
-closeModal('quickAddModal');const d=dayObject(todayKey()),entries=d.entries||[];manualQuickType=nextActionForDay(d);
-const actual=hm(),logged=roundLogged(actual,manualQuickType),label=manualQuickType==='in'?'Kommen':'Gehen';
-$('manualQuickTitle').textContent=`${label} manuell ergänzen`;$('manualQuickIntro').textContent='Die fehlende Buchung für heute wird ergänzt. Beide Zeiten können vor dem Speichern geprüft werden.';
-const previous=entries.at(-1);$('manualQuickHint').innerHTML=`<b>Fehlendes ${label} erkannt</b><span>${previous?`${previous.type==='in'?'Kommen':'Gehen'} um ${esc(previous.logged||previous.actual)} ist bereits erfasst`:'Für heute ist noch keine Buchung vorhanden'}</span>`;
-$('manualActual').value=actual;$('manualLogged').value=logged;$('saveManualQuick').textContent=`${label} speichern`;openModal('manualQuickModal');
+function formatContextDate(k){return formatDate(k,{weekday:'long',day:'2-digit',month:'2-digit',year:'numeric'})}
+function quickMenuTitle(k){return k===todayKey()?'Eintrag für heute':`Eintrag für ${formatContextDate(k)}`}
+function openQuickAdd(date=todayKey()){
+quickContextDate=date;$('quickAddTitle').textContent=quickMenuTitle(date);$('quickAddContext').textContent=`Bezugsdatum: ${formatContextDate(date)}`;openModal('quickAddModal')
+}
+function openAbsenceTypePicker(date=quickContextDate){
+quickContextDate=date;closeModal('quickAddModal');$('absenceTypeQuickTitle').textContent=`Abwesenheit für ${formatContextDate(date)}`;$('absenceTypeContext').textContent=`Bezugsdatum: ${formatContextDate(date)}`;openModal('absenceTypeModal')
+}
+function openQuickAbsence(code,date=quickContextDate){
+quickContextDate=date;quickAbsenceCode=code;closeModal('absenceTypeModal');$('quickAbsenceTitle').textContent=`${absenceLabel(code)} eintragen`;$('quickAbsenceContext').textContent=`${absenceLabel(code)} für ${formatContextDate(date)}`;$('quickAbsenceTypeLabel').textContent=absenceLabel(code);$('quickAbsenceExtent').value='full';$('quickAbsenceNote').value='';updateQuickAbsenceConflict();openModal('quickAbsenceModal')
+}
+function quickAbsenceConflictText(){
+const k=quickContextDate,d=dayObject(k),extent=$('quickAbsenceExtent').value;
+if(!isAbsenceWorkday(k))return 'Für dieses Datum liegt kein regulärer Soll-Arbeitstag vor. Nutze für Sonderfälle „Weitere Optionen“.';
+if(d.absence)return `Für diesen Tag ist bereits ${d.absence} eingetragen. Vorhandene Daten werden nicht überschrieben.`;
+if(extent==='full'&&((d.entries||[]).length||Number(d.pauseMinutes)))return 'Für diesen Tag bestehen Arbeitszeit- oder Pausenbuchungen. Eine ganztägige Abwesenheit kann hier nicht ohne Prüfung gespeichert werden.';
+return'';
+}
+function updateQuickAbsenceConflict(){
+const box=$('quickAbsenceConflict');if(!box)return;const text=quickAbsenceConflictText();box.hidden=!text;box.textContent=text;$('saveQuickAbsence').disabled=!!text;
+}
+function saveQuickAbsence(){
+const k=quickContextDate,extent=$('quickAbsenceExtent').value,note=$('quickAbsenceNote').value.trim(),conflict=quickAbsenceConflictText();if(conflict){alert(conflict);return}
+const d=clone(dayObject(k,true)),nowIso=new Date().toISOString(),label=absenceLabel(quickAbsenceCode);d.absence=label;d.absenceCode=quickAbsenceCode;d.absenceDuration=extent;d.absenceMinutes=Math.round(targetMinutesForDate(k)*(extent==='half'?.5:1));d.absenceNote=note;d.absenceGroupId=newAbsenceGroupId();d.absenceCreatedAt=nowIso;d.absenceUpdatedAt=nowIso;d.edited=true;d.modifiedAt=nowIso;d.archived=Number(k.slice(0,4))<new Date().getFullYear();state.days[k]=d;touchDay(k);cursorDate=parseDateKey(k);closeModal('quickAbsenceModal');refreshAllDerivedViews();showToast(`${label} für ${formatContextDate(k)} gespeichert.`)
+}
+function openQuickAbsenceFurther(){const k=quickContextDate;runAfterDirtyCheck('quickAbsenceModal',()=>openFullDayForDate(k))}
+function timeActionDescription(d){
+const status=dayStatus(d);if(hasFullAbsence(d))return `${status}. Für Arbeitszeitänderungen ist der vollständige Tageseditor erforderlich.`;
+if(!(d.entries||[]).length)return 'Für diesen Tag ist noch keine Buchung vorhanden.';
+if(status==='Gehen fehlt')return 'Nach dem vorhandenen Kommen fehlt die Gehen-Buchung.';
+if(status==='Kommen fehlt')return 'In der Buchungsfolge fehlt eine Kommen-Buchung.';
+if(status==='Vollständig')return 'Die vorhandenen Buchungen sind vollständig. Du kannst eine Buchung korrigieren oder einen weiteren Arbeitsblock beginnen.';
+return 'Die Buchungsfolge ist unvollständig und sollte geprüft werden.';
+}
+function openTimeAction(date=quickContextDate){
+quickContextDate=date;closeModal('quickAddModal');closeModal('workdayIssuesModal');const d=dayObject(date),entries=d.entries||[],next=nextActionForDay(d),status=dayStatus(d);$('timeActionTitle').textContent=`Zeit für ${formatContextDate(date)}`;$('timeActionContext').textContent=`Bezugsdatum: ${formatContextDate(date)}`;$('timeActionStatus').innerHTML=`<b>${esc(status)}</b><span>${esc(timeActionDescription(d))}</span>`;
+const actions=[];
+if(!hasFullAbsence(d)){
+const nextLabel=next==='in'?'Kommen ergänzen':'Gehen ergänzen',sub=next==='in'&&entries.length?'Weiteren Arbeitsblock beginnen':next==='in'?'Erste Buchung des Tages':'Logisch nächste fehlende Buchung';actions.push(`<button type="button" class="recommended" onclick="openManualTimeQuick('${date}','${next}')"><span>${nextLabel}</span><small>${sub}</small><b>›</b></button>`);
+if(entries.length)actions.push(`<button type="button" onclick="openBookingList('${date}')"><span>Vorhandene Buchung korrigieren</span><small>${entries.length} ${entries.length===1?'Buchung':'Buchungen'} auswählen</small><b>›</b></button>`);
+}
+actions.push(`<button type="button" onclick="openFullDayForDate('${date}','timeActionModal')"><span>Vollständigen Tag bearbeiten</span><small>Pausen, Kommentare und komplexe Fälle</small><b>›</b></button>`);$('timeActionList').innerHTML=actions.join('');openModal('timeActionModal')
+}
+function suggestedActualForDate(k,type){
+if(k===todayKey())return hm();const entries=dayObject(k).entries||[],previous=entries.at(-1);if(!previous)return'';const base=minutes(previous.actual||previous.logged||'00:00');return clockFromMinutes(Math.min(1435,base+5));
+}
+function openManualTimeQuick(date=quickContextDate,type=null){
+quickContextDate=date;manualQuickDate=date;closeModal('timeActionModal');const d=dayObject(date),entries=d.entries||[];manualQuickType=type||nextActionForDay(d);const label=manualQuickType==='in'?'Kommen':'Gehen',actual=suggestedActualForDate(date,manualQuickType),logged=actual?roundLogged(actual,manualQuickType):'';$('manualQuickTitle').textContent=`${label} ergänzen`;$('manualQuickContext').textContent=`${label} für ${formatContextDate(date)}`;$('manualQuickBookingType').textContent=label;const previous=entries.at(-1);$('manualQuickHint').innerHTML=`<b>${label} wird ergänzt</b><span>${previous?`${previous.type==='in'?'Kommen':'Gehen'} um ${esc(previous.logged||previous.actual)} ist zuletzt erfasst.`:'Für diesen Tag ist noch keine Buchung vorhanden.'}</span>`;$('manualActual').value=actual;$('manualLogged').value=logged;$('saveManualQuick').textContent=`${label} speichern`;$('timeInfoText').hidden=true;openModal('manualQuickModal')
 }
 function saveManualQuick(){
-const k=todayKey(),d=clone(dayObject(k,true)),actual=$('manualActual').value,logged=$('manualLogged').value,label=manualQuickType==='in'?'Kommen':'Gehen';
+const k=manualQuickDate,d=clone(dayObject(k,true)),actual=$('manualActual').value,logged=$('manualLogged').value,label=manualQuickType==='in'?'Kommen':'Gehen';
+if(k>todayKey()){alert('Zukünftige Arbeitszeitbuchungen sind nicht zulässig.');return}
+if(hasFullAbsence(d)){alert('Für diesen Tag ist eine ganztägige Abwesenheit eingetragen. Nutze den vollständigen Tageseditor, um den Konflikt zu prüfen.');return}
 if(!isClock(actual)||!isClock(logged)){alert('Bitte beide Uhrzeiten vollständig eingeben.');return}
+if(k===todayKey()&&minutes(actual)>minutes(hm())){alert('Zukünftige Arbeitszeitbuchungen sind nicht zulässig.');return}
 const entries=[...(d.entries||[]),{type:manualQuickType,actual,logged,source:'manual',edited:true,createdAt:new Date().toISOString()}],validation=validateEntries(entries);
 if(!validation.plausible){alert('Die Buchung kann nicht gespeichert werden. Kommen und Gehen müssen sich abwechseln; jede dokumentierte Uhrzeit muss mindestens fünf Minuten nach der vorherigen liegen.');return}
-d.entries=entries;d.edited=true;d.modifiedAt=new Date().toISOString();d.archived=false;state.days[k]=d;touchDay(k);closeModal('manualQuickModal');refreshAllDerivedViews();showToast(`${label} um ${logged} gespeichert. Tagessaldo und Zeitkonto wurden aktualisiert.`);
+d.entries=entries;d.edited=true;d.modifiedAt=new Date().toISOString();d.archived=false;state.days[k]=d;touchDay(k);cursorDate=parseDateKey(k);closeModal('manualQuickModal');refreshAllDerivedViews();showToast(`${label} um ${logged} gespeichert. Tagessaldo und Zeitkonto wurden aktualisiert.`)
 }
-function openFullTodayEditor(){closeModal('manualQuickModal');showScreen('times');cursorDate=parseDateKey(todayKey());renderDayView(todayKey());openDayEditor(todayKey())}
+function openBookingList(date=quickContextDate){
+quickContextDate=date;closeModal('timeActionModal');const entries=dayObject(date).entries||[];$('bookingListTitle').textContent='Vorhandene Buchung korrigieren';$('bookingListContext').textContent=`Buchungen für ${formatContextDate(date)}`;$('bookingChoiceList').innerHTML=entries.map((entry,index)=>`<button type="button" onclick="openEntryFromList('${date}',${index})"><span>${entry.type==='in'?'Kommen':'Gehen'}</span><b>${esc(entry.logged||entry.actual||'–')}</b><small>Tatsächlich ${esc(entry.actual||'–')} · Dokumentiert ${esc(entry.logged||'–')}</small><i>›</i></button>`).join('')||'<div class="empty">Keine Buchungen vorhanden</div>';openModal('bookingListModal')
+}
+function openEntryFromList(date,index){closeModal('bookingListModal');openSingleEntryEditor(date,index)}
+function openFullDayForDate(date=quickContextDate,sourceModalId=null){
+if(sourceModalId)closeModal(sourceModalId);['quickAddModal','timeActionModal','manualQuickModal','bookingListModal','quickAbsenceModal','absenceTypeModal','workdayIssuesModal'].forEach(id=>{if($(id)?.classList.contains('open'))closeModal(id)});showScreen('times');currentView='day';document.querySelectorAll('[data-view]').forEach(button=>button.classList.toggle('active',button.dataset.view==='day'));cursorDate=parseDateKey(date);renderDayView(date);openDayEditor(date)
+}
+function openFullTodayEditor(){const k=manualQuickDate;runAfterDirtyCheck('manualQuickModal',()=>openFullDayForDate(k))}
+function toggleTimeInfo(kind){const box=$('timeInfoText');box.hidden=false;box.textContent=kind==='actual'?'Tatsächliche Uhrzeit = die reale Uhrzeit der Buchung.':'Dokumentierte Uhrzeit = die gerundete beziehungsweise angerechnete Uhrzeit.'}
+function workdayIssues(){
+const result=[],end=parseDateKey(todayKey());end.setDate(end.getDate()-1);let current=parseDateKey(addDays(parseDateKey(CHECKPOINT_DATE),1));
+for(;current<=end;current.setDate(current.getDate()+1)){
+const k=dateKey(current);if(targetMinutesForDate(k)<=0||holidayNameForDate(k))continue;const d=dayObject(k);if(hasFullAbsence(d))continue;const entries=d.entries||[];
+if(!entries.length){result.push({date:k,kind:'missing',status:'Ohne Buchung'});continue}
+const status=dayStatus(d);if(status!=='Vollständig')result.push({date:k,kind:'incomplete',status});
+}
+return result;
+}
+function renderPastWorkdayNotice(){
+const issues=workdayIssues(),missing=issues.filter(issue=>issue.kind==='missing').length,incomplete=issues.filter(issue=>issue.kind==='incomplete').length,button=$('pastWorkdayNotice');button.hidden=!issues.length;if(!issues.length)return;
+const parts=[];if(missing)parts.push(`${missing} ${missing===1?'Arbeitstag':'Arbeitstage'} ohne Buchung`);if(incomplete)parts.push(`${incomplete} ${incomplete===1?'Tag':'Tage'} unvollständig`);$('pastWorkdayNoticeTitle').textContent=parts[0];$('pastWorkdayNoticeText').textContent=parts.slice(1).join(' · ')||'Antippen und direkt nachtragen';
+}
+function openWorkdayIssues(){
+const issues=workdayIssues(),missing=issues.filter(issue=>issue.kind==='missing').length,incomplete=issues.length-missing;$('workdayIssuesSummary').textContent=`${missing} ohne Buchung · ${incomplete} unvollständig`;$('workdayIssuesList').innerHTML=issues.map(issue=>`<article><div><b>${formatContextDate(issue.date)}</b><span>${esc(issue.status)}</span></div><div><button type="button" onclick="openIssueTime('${issue.date}')">Zeit nachtragen</button><button type="button" onclick="openIssueAbsence('${issue.date}')">Abwesenheit eintragen</button></div></article>`).join('')||'<div class="empty">Keine offenen Arbeitstage.</div>';openModal('workdayIssuesModal')
+}
+function openIssueTime(date){closeModal('workdayIssuesModal');openTimeAction(date)}
+function openIssueAbsence(date){closeModal('workdayIssuesModal');openAbsenceTypePicker(date)}
 function setAbsenceType(code){$('absenceType').value=code||'vacation'}
 function openNewAbsence(code='vacation',date=todayKey()){
-closeModal('quickAddModal');absenceEditorContext={mode:'new',scope:'range',originalGroupId:null,sourceDate:date};
-$('absenceModalTitle').textContent='Abwesenheit eintragen';setAbsenceType(code);$('absenceFrom').value=date;$('absenceTo').value=date;$('absenceExtent').value='full';$('absenceNote').value='';$('absenceConflictPolicy').value='abort';$('absenceDeleteActions').hidden=true;updateAbsenceSummary();openModal('absenceModal');
+['quickAddModal','absenceTypeModal','quickAbsenceModal'].forEach(id=>{if($(id)?.classList.contains('open'))closeModal(id)});absenceEditorContext={mode:'new',scope:'range',originalGroupId:null,sourceDate:date};
+$('absenceModalTitle').textContent=`Abwesenheit eintragen für ${formatContextDate(date)}`;setAbsenceType(code);$('absenceFrom').value=date;$('absenceTo').value=date;$('absenceExtent').value='full';$('absenceNote').value='';$('absenceConflictPolicy').value='abort';$('absenceDeleteActions').hidden=true;updateAbsenceSummary();openModal('absenceModal');
 }
 function openAbsenceEditorForDay(k,scope='day'){
 const d=dayObject(k);if(!d.absence){openNewAbsence('vacation',k);return}
 const group=scope==='group'&&d.absenceGroupId?absenceGroupDays(d.absenceGroupId):[d],from=group[0]?.date||k,to=group.at(-1)?.date||k;
 absenceEditorContext={mode:'edit',scope,originalGroupId:d.absenceGroupId||null,sourceDate:k,originalDates:group.map(x=>x.date)};
-$('absenceModalTitle').textContent=scope==='group'?'Abwesenheitszeitraum bearbeiten':'Abwesenheitstag bearbeiten';setAbsenceType(d.absenceCode||absenceCodeFromLabel(d.absence));$('absenceFrom').value=from;$('absenceTo').value=to;$('absenceExtent').value=absenceDuration(d);$('absenceNote').value=d.absenceNote||'';$('absenceConflictPolicy').value='abort';$('absenceDeleteActions').hidden=false;$('deleteAbsenceGroupBtn').hidden=!(d.absenceGroupId&&absenceGroupDays(d.absenceGroupId).length>1);updateAbsenceSummary();openModal('absenceModal');
+$('absenceModalTitle').textContent=scope==='group'?`Abwesenheitszeitraum bearbeiten · ${formatContextDate(k)}`:`Abwesenheit bearbeiten für ${formatContextDate(k)}`;setAbsenceType(d.absenceCode||absenceCodeFromLabel(d.absence));$('absenceFrom').value=from;$('absenceTo').value=to;$('absenceExtent').value=absenceDuration(d);$('absenceNote').value=d.absenceNote||'';$('absenceConflictPolicy').value='abort';$('absenceDeleteActions').hidden=false;$('deleteAbsenceGroupBtn').hidden=!(d.absenceGroupId&&absenceGroupDays(d.absenceGroupId).length>1);updateAbsenceSummary();openModal('absenceModal');
 }
 function absenceConflict(k,excludeGroupId){
 const d=state.days[k];if(!d)return false;
@@ -985,15 +1114,15 @@ document.title=`Arbeitszeit PWA · Version ${APP_VERSION}`;
 ensureHolidayYear(new Date().getFullYear());saveState();
 document.querySelectorAll('.tabbar button').forEach(b=>b.addEventListener('click',()=>showScreen(b.dataset.screen)));
 document.querySelectorAll('[data-view]').forEach(b=>b.addEventListener('click',()=>setTimesView(b.dataset.view)));
-document.querySelectorAll('[data-close]').forEach(b=>b.addEventListener('click',()=>closeModal(b.dataset.close)));
-document.querySelectorAll('.modal').forEach(m=>m.addEventListener('click',e=>{if(e.target===m)closeModal(m.id)}));
-document.addEventListener('keydown',e=>{if(e.key==='Escape'){const open=[...document.querySelectorAll('.modal.open')].at(-1);if(open)closeModal(open.id)}});
+document.querySelectorAll('[data-close]').forEach(button=>button.addEventListener('click',()=>requestCloseModal(button.dataset.close)));
+document.querySelectorAll('.modal').forEach(modal=>modal.addEventListener('click',event=>{if(event.target===modal)requestCloseModal(modal.id)}));
+document.addEventListener('keydown',event=>{if(event.key==='Escape'){const open=[...document.querySelectorAll('.modal.open')].at(-1);if(open)requestCloseModal(open.id)}});
 bindPunchButton($('punchAction'));
 $('todayAbsenceEdit').addEventListener('click',()=>openAbsenceEditorForDay(todayKey(),'day'));
-$('pauseToday').addEventListener('click',openPauseModal);$('savePauseBtn').addEventListener('click',saveQuickPause);$('quickAddBtn').addEventListener('click',openQuickAdd);
-document.querySelectorAll('[data-quick-absence]').forEach(b=>b.addEventListener('click',()=>openNewAbsence(b.dataset.quickAbsence,todayKey())));$('manualTimeQuick').addEventListener('click',openManualTimeQuick);
+$('savePauseBtn').addEventListener('click',saveQuickPause);$('quickAddBtn').addEventListener('click',()=>openQuickAdd(todayKey()));$('quickEntryOverview').addEventListener('click',()=>openQuickAdd(todayKey()));$('timesQuickAddBtn').addEventListener('click',()=>openQuickAdd(dateKey(cursorDate)));$('pastWorkdayNotice').addEventListener('click',openWorkdayIssues);
+$('quickAbsenceStart').addEventListener('click',()=>openAbsenceTypePicker(quickContextDate));$('quickTimeStart').addEventListener('click',()=>openTimeAction(quickContextDate));document.querySelectorAll('[data-simple-absence]').forEach(button=>button.addEventListener('click',()=>openQuickAbsence(button.dataset.simpleAbsence,quickContextDate)));$('quickAbsenceExtent').addEventListener('change',updateQuickAbsenceConflict);$('saveQuickAbsence').addEventListener('click',saveQuickAbsence);$('quickAbsenceFurther').addEventListener('click',openQuickAbsenceFurther);
 ['absenceType','absenceFrom','absenceTo','absenceExtent','absenceConflictPolicy'].forEach(id=>$(id).addEventListener('change',updateAbsenceSummary));$('absenceNote').addEventListener('input',updateAbsenceSummary);$('saveAbsenceBtn').addEventListener('click',saveAbsence);$('deleteAbsenceDayBtn').addEventListener('click',()=>deleteAbsenceFromModal('day'));$('deleteAbsenceGroupBtn').addEventListener('click',()=>deleteAbsenceFromModal('group'));
-$('headerWeekendToggle')?.addEventListener('change',e=>{state.settings.showWeekends=e.target.checked;saveState();if(currentView==='day')renderDayView(dateKey(cursorDate));else if(currentView==='week')renderWeekView(dateKey(cursorDate))});$('addEntryBtn').addEventListener('click',addEditingEntry);$('saveDayBtn').addEventListener('click',saveEditedDay);$('saveSingleEntry').addEventListener('click',saveSingleEntry);$('deleteSingleEntry').addEventListener('click',deleteSingleEntry);$('openFullDayFromEntry').addEventListener('click',openFullDayFromSingleEntry);$('singleEntryActual').addEventListener('input',e=>{$('singleEntryLogged').value=roundLogged(e.target.value,$('singleEntryType').value)});$('singleEntryType').addEventListener('change',()=>{if($('singleEntryActual').value)$('singleEntryLogged').value=roundLogged($('singleEntryActual').value,$('singleEntryType').value)});$('saveManualQuick').addEventListener('click',saveManualQuick);$('manualFullEditor').addEventListener('click',openFullTodayEditor);$('manualActual').addEventListener('input',e=>{$('manualLogged').value=roundLogged(e.target.value,manualQuickType)});$('deleteDayBtn').addEventListener('click',deleteEditedDay);$('restoreImportBtn').addEventListener('click',restoreImportedDay);$('manageAbsenceFromDay').addEventListener('click',()=>{const k=$('editDate').value,d=dayObject(k);closeModal('dayModal');d.absence?openAbsenceEditorForDay(k,d.absenceGroupId&&absenceGroupDays(d.absenceGroupId).length>1?'group':'day'):openNewAbsence('vacation',k)});
+$('headerWeekendToggle')?.addEventListener('change',event=>{state.settings.showWeekends=event.target.checked;saveState();if(currentView==='day')renderDayView(dateKey(cursorDate));else if(currentView==='week')renderWeekView(dateKey(cursorDate))});$('addEntryBtn').addEventListener('click',addEditingEntry);$('saveDayBtn').addEventListener('click',saveEditedDay);$('saveSingleEntry').addEventListener('click',saveSingleEntry);$('deleteSingleEntry').addEventListener('click',deleteSingleEntry);$('openFullDayFromEntry').addEventListener('click',openFullDayFromSingleEntry);$('singleEntryActual').addEventListener('input',event=>{$('singleEntryLogged').value=roundLogged(event.target.value,$('singleEntryType').value)});$('singleEntryType').addEventListener('change',()=>{if($('singleEntryActual').value)$('singleEntryLogged').value=roundLogged($('singleEntryActual').value,$('singleEntryType').value)});$('saveManualQuick').addEventListener('click',saveManualQuick);$('manualFullEditor').addEventListener('click',openFullTodayEditor);$('manualActual').addEventListener('input',event=>{$('manualLogged').value=roundLogged(event.target.value,manualQuickType)});document.querySelectorAll('[data-time-info]').forEach(button=>button.addEventListener('click',()=>toggleTimeInfo(button.dataset.timeInfo)));$('continueEditingBtn').addEventListener('click',continueEditing);$('discardChangesBtn').addEventListener('click',discardChanges);$('deleteDayBtn').addEventListener('click',deleteEditedDay);$('restoreImportBtn').addEventListener('click',restoreImportedDay);$('manageAbsenceFromDay').addEventListener('click',()=>{const k=$('editDate').value,d=dayObject(k);runAfterDirtyCheck('dayModal',()=>{d.absence?openAbsenceEditorForDay(k,d.absenceGroupId&&absenceGroupDays(d.absenceGroupId).length>1?'group':'day'):openNewAbsence('vacation',k)})});
 $('dayReportBtn').addEventListener('click',()=>{const k=$('reportDay').value||todayKey();if(k>todayKey()){$('reportDay').value=todayKey();showToast('Tagesberichte sind nur bis heute möglich');return}dayReport(k)});
 $('monthReportBtn').addEventListener('click',()=>openMobileReport('month'));
 $('yearReportBtn').addEventListener('click',()=>openMobileReport('year'));

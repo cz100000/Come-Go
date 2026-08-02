@@ -1,0 +1,45 @@
+Arbeitszeit-PWA V5.24 – Testübersicht
+Prüfdatum: 02.08.2026
+
+Ergebnis:
+- 50 von 50 verbindlichen Mindesttests bestanden
+- 3 von 3 ergänzenden UX-Tests bestanden
+- keine JavaScript-Laufzeitfehler im Browser-Tiefentest
+- tatsächlicher Service-Worker-Installations- und Offline-Neuladetest bestanden
+
+Automatisch geprüft:
+- gemeinsames Plus-Menü auf Heute und Zeiten → Tag
+- korrektes und unverändertes Bezugsdatum bei heutigen und rückwirkenden Einträgen
+- Urlaub ganzer Tag und halber Tag, Krankheit sowie sonstige Abwesenheit mit Notiz
+- Konfliktsperre zwischen ganztägiger Abwesenheit und Arbeits-/Pausenbuchungen
+- zustandsabhängige Vorschläge für Kommen, Gehen, weiteren Arbeitsblock und Korrektur
+- vollständige Liste und Bearbeitung einzelner Buchungen
+- direkte Übernahme sichtbarer tatsächlicher und dokumentierter Uhrzeiten
+- unveränderte Rundung, Reihenfolgeprüfung, Überschneidungsschutz und Mindestabstand
+- Sperre zukünftiger Arbeitszeitbuchungen und Zulässigkeit zukünftiger Abwesenheiten
+- Erkennung fehlender und unvollständiger vergangener Soll-Arbeitstage
+- Ausschluss von Feiertag, Urlaub und Krankheit aus offenen Arbeitstagen
+- leere Tagesansicht, Tagesstatus und direkte Aktionen
+- Rückfrage bei ungespeicherten Änderungen nur bei tatsächlicher Änderung
+- Löschen einzelner Buchungen mit zeitlich begrenztem, exaktem Rückgängig
+- sofortige Aktualisierung von Tagessaldo, Zeitkonto, Monats- und Jahreswerten
+- korrekte Übernahme rückwirkender Nachträge nach importiertem Monatsstichtag
+- vollständiger Tageseditor weiterhin funktionsfähig
+- Einlesen einer Sicherung aus V5.23 und vollständiger neuer V5.24-Backupinhalt
+- Erzeugung von PDF, Excel, JSON-Sicherung und Sicherungs-ZIP
+- unveränderter Speicherschlüssel arbeitszeit-pwa-v1
+- unverändertes Datenschema 10
+- keine horizontalen Überbreiten bei 393 Pixel Viewportbreite
+- Plus-Button ohne Überdeckung der unteren Navigation
+- alle neuen Dialoge innerhalb der iPhone-16-Breite
+- JavaScript-Syntax, Manifest-Syntax, Service-Worker-Dateiliste und Cache-Version
+- reale Service-Worker-Steuerung, vollständiger App-Cache und Offline-Neuladen
+- ZIP-Vollständigkeit und ZIP-Integrität
+
+Ergänzend geprüft:
+- „Weitere Optionen“ öffnet den bestehenden vollständigen Tageseditor
+- Plus-Button unter Zeiten ist ausschließlich in der Unteransicht Tag sichtbar
+- Schnellweg liest Formularwerte auch ohne vorheriges change-Ereignis direkt aus
+
+Bekannte Einschränkung der Prüfstandsabdeckung:
+- Native iOS-Darstellung der Zeitfelder, das systemeigene Teilen-Menü sowie Ton/Haptik können nur auf einem realen iPhone 16 abschließend praktisch geprüft werden. Die zugehörigen Programmwege und Dateiformate wurden automatisiert geprüft.

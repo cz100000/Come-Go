@@ -1,0 +1,33 @@
+Arbeitszeit-PWA V5.24 – Umsetzungsbericht
+
+Ausgangsbasis:
+Arbeitszeit_PWA_Offline_V5_23_HighEnd_iPhone16.zip
+
+Umgesetzt:
+- gemeinsamer, datumsfester Schnelleinstieg auf Heute und Zeiten → Tag
+- vereinfachte Abwesenheitserfassung mit Konfliktprüfung
+- kontextabhängiges Ergänzen und Korrigieren von Arbeitszeitbuchungen
+- Wiederverwendung des bestehenden Einzelbuchungs- und Tageseditors
+- Hinweise auf fehlende und unvollständige vergangene Arbeitstage
+- verständliche leere Tagesansicht und sofort aktualisierter Tagesstatus
+- Absicherung ungespeicherter Änderungen
+- Löschen mit temporärem Rückgängig
+- iPhone-16-gerechte Dialog- und Safe-Area-Anpassungen
+- korrekte Fortschreibung rückwirkender Nachträge über importierte Monatsstichtage hinaus
+
+Unverändert geblieben:
+- Speicherschlüssel arbeitszeit-pwa-v1
+- Datenschema 10
+- importierter Datenbestand
+- Rundungs-, Plausibilitäts- und Berechnungsgrundlagen
+- bestehende Exporte, Backups, Wiederherstellung und Offlinearchitektur
+
+Testergebnis:
+- 50/50 verbindliche Mindesttests bestanden
+- 3/3 zusätzliche UX-Tests bestanden
+- Browser-Tiefentest ohne Laufzeitfehler
+- Service Worker installiert, Cache vollständig, Offline-Neuladen erfolgreich
+- ZIP vollständig und integer
+
+Bekannte Einschränkung:
+Die native iOS-Oberfläche und das systemeigene Teilen-Menü konnten in der automatisierten Linux-/Chromium-Prüfumgebung nicht auf echter Apple-Hardware ausgeführt werden. Es bestehen keine bekannten fachlichen oder technischen Restfehler.
