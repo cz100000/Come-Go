@@ -135,14 +135,45 @@
 
 <div id="dayModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="dayModalTitle">
   <div class="sheet day-editor-sheet">
-    <div class="sheet-head"><h2 id="dayModalTitle">Tag bearbeiten</h2><button class="close-btn" type="button" data-close="dayModal">×</button></div>
+    <div class="sheet-head day-editor-head">
+      <div class="day-editor-title-wrap">
+        <h2 id="dayModalTitle">Tag bearbeiten</h2>
+        <div id="dayModalContext" class="day-editor-date" aria-live="polite"></div>
+      </div>
+      <button class="close-btn" type="button" data-close="dayModal" aria-label="Tageseditor schließen">×</button>
+    </div>
+    <input id="editDate" type="hidden">
     <div class="day-editor-scroll">
-      <div class="field"><label for="editDate">Datum</label><input id="editDate" type="date"></div>
-      <div class="field"><label>Buchungen – tatsächlich und dokumentiert</label><div id="entryEditors"></div><button type="button" class="secondary-btn" id="addEntryBtn">Buchung hinzufügen</button></div>
-      <div class="field"><label for="editPause">Manuelle Pause (Minuten)</label><input id="editPause" type="number" min="0" step="1"></div>
-      <div class="field"><label>Abwesenheit</label><div id="dayAbsenceEditorSummary" class="field-summary">Keine Abwesenheit eingetragen</div><button type="button" class="secondary-btn compact" id="manageAbsenceFromDay">Abwesenheit verwalten</button></div>
-      <div class="field"><label for="editNote">Kommentar / Tagesnotiz</label><textarea id="editNote" rows="3"></textarea></div>
-      <details class="advanced-actions"><summary>Erweiterte Aktionen</summary><div class="day-data-actions"><button type="button" class="delete" id="deleteDayBtn">Alle Buchungen löschen</button><button type="button" class="restore" id="restoreImportBtn">Importdaten wiederherstellen</button></div></details>
+      <section class="day-editor-section booking-editor-section" aria-labelledby="dayBookingsTitle">
+        <div class="day-editor-section-head">
+          <div><h3 id="dayBookingsTitle">Buchungen</h3><p>Tatsächliche und dokumentierte Uhrzeiten</p></div>
+          <button type="button" class="day-editor-add" id="addEntryBtn">Buchung hinzufügen</button>
+        </div>
+        <div id="dayEditorValidation" class="day-editor-validation" role="alert" hidden></div>
+        <div id="entryEditors"></div>
+      </section>
+
+      <section class="day-editor-compact-card" aria-label="Manuelle Pause">
+        <label class="compact-editor-row" for="editPause">
+          <span class="compact-editor-copy"><b>Manuelle Pause</b><small>Zusätzliche Pausenzeit des Tages</small></span>
+          <span class="compact-number-input"><input id="editPause" type="number" min="0" step="1" inputmode="numeric"><em>Min.</em></span>
+        </label>
+      </section>
+
+      <section class="day-editor-compact-card absence-editor-row" aria-label="Abwesenheit">
+        <div class="compact-editor-copy"><b>Abwesenheit</b><small id="dayAbsenceEditorSummary">Keine Abwesenheit eingetragen</small></div>
+        <button type="button" class="compact-row-button" id="manageAbsenceFromDay">Bearbeiten</button>
+      </section>
+
+      <details id="dayNoteDetails" class="editor-disclosure">
+        <summary><span><b>Kommentar</b><small id="dayNoteSummary">Kein Kommentar</small></span><i aria-hidden="true">›</i></summary>
+        <div class="editor-disclosure-body"><label class="sr-only" for="editNote">Kommentar oder Tagesnotiz</label><textarea id="editNote" rows="3" placeholder="Kommentar hinzufügen"></textarea></div>
+      </details>
+
+      <details class="advanced-actions editor-disclosure">
+        <summary><span><b>Erweiterte Aktionen</b><small>Löschen oder Importdaten wiederherstellen</small></span><i aria-hidden="true">›</i></summary>
+        <div class="editor-disclosure-body day-data-actions"><button type="button" class="delete" id="deleteDayBtn">Alle Buchungen löschen</button><button type="button" class="restore" id="restoreImportBtn">Importdaten wiederherstellen</button></div>
+      </details>
     </div>
     <div class="modal-actions day-editor-actions"><button type="button" class="cancel" data-close="dayModal">Abbrechen</button><button type="button" class="save" id="saveDayBtn">Speichern</button></div>
   </div>

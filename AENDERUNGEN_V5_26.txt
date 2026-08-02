@@ -1,0 +1,14 @@
+Arbeitszeit-PWA V5.26 – Änderungen
+
+1. Hinweis auf offene Arbeitstage mit zusätzlichem Abstand unterhalb des Hauptbuttons.
+2. Manuelle Pause links und Plus-Button rechts auf exakt gleicher, fester Höhe.
+3. Vollständiger Tageseditor auf sichere iPhone-Breite begrenzt.
+4. Bezugsdatum fest und deutlich sichtbar im Dialogkopf.
+5. Buchungen kompakt und einzeln aufklappbar.
+6. Löschaktion als sauber positionierter Papierkorb mit Rückgängig.
+7. Pause, Abwesenheit, Kommentar und erweiterte Aktionen verdichtet.
+8. Leerfeld-, Reihenfolge-, Mindestabstands- und Zukunftsprüfung ergänzt.
+9. Fehler direkt an der betreffenden Buchung angezeigt.
+10. Zeitfelder aktualisieren ohne vollständigen Neuaufbau der Buchungsliste.
+11. Abwesenheitsverwaltung übernimmt zuvor gespeicherte Tagesänderungen.
+12. Speicherschlüssel und Datenschema unverändert.

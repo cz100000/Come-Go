@@ -1,0 +1,49 @@
+Arbeitszeit-PWA V5.26 – Testübersicht
+Stand: 02.08.2026
+
+Ergebnis
+- 50 von 50 bestehende Funktions- und Regressionstests bestanden
+- 15 von 15 gezielte V5.26-UX- und Editorprüfungen bestanden
+- 4 von 4 responsive Layout- und Speichertests bestanden
+- JavaScript-Syntaxprüfung bestanden
+- Service-Worker-Syntaxprüfung bestanden
+- Service-Worker-Installations-, Aktivierungs-, Cache-Bereinigungs- und Navigationsfallback-Simulation bestanden
+- ZIP-Integritätsprüfung bestanden
+
+Gezielt geprüft
+- Hinweisabstand zum Hauptbutton: 16 px
+- Position des Hauptbuttons bleibt durch den Hinweis unverändert
+- Pause und Plus exakt auf gleicher Höhe
+- Plus und Pause oberhalb der Navigation
+- Dialogbreite 365 px bei 393 px Viewport
+- keine Überbreite des Dialogs oder seiner Zeitfelder
+- vier Buchungen kompakt und zunächst eingeklappt
+- Papierkorb vollständig innerhalb jeder Buchungskarte
+- keine Überschneidung von Papierkorb, Text oder Kartenrand
+- Papierkorb-Touchfläche 40 × 40 px
+- Rückgängig nach Löschung innerhalb des geöffneten Editors antippbar
+- Bezugsdatum sichtbar und nicht veränderbar
+- tatsächliche und dokumentierte Zeit korrekt gespeichert
+- Rundung nach Zeitänderung korrekt aktualisiert
+- keine Neudarstellung der Buchungsliste bei Änderung eines Zeitfeldes
+- Fokus bleibt im bearbeiteten Zeitfeld
+- leere Uhrzeiten werden direkt an der Buchung beanstandet
+- zukünftige tatsächliche Uhrzeit wird verhindert
+- geänderte Pause wird vor Wechsel zur Abwesenheitsverwaltung gespeichert
+- Tageseditor schließt nach gültigem Speichern
+- Speicherschlüssel arbeitszeit-pwa-v1 unverändert
+- Datenschema 10 unverändert
+- Backup-Version 5.26 und Rückwärtskompatibilität zu V5.23 geprüft
+- PDF-, Excel- und Sicherungsdateien erfolgreich erzeugt
+
+Geprüfte Viewports
+- 393 × 852 px
+- 393 × 760 px
+- 360 × 780 px
+- 320 × 680 px
+
+Offlineprüfung
+Die Testumgebung blockiert einen echten Browseraufruf lokaler beziehungsweise gerouteter Testdomains administrativ. Deshalb konnte der reale Service-Worker-Offlineneustart nicht erneut im Browser ausgeführt werden. Service-Worker-Syntax, Dateiliste, Installation, Aktivierung, Löschung alter Caches und Offline-Navigationsfallback wurden mit einer isolierten Laufzeitsimulation erfolgreich geprüft. Die produktive Offline-Architektur wurde gegenüber V5.25 nicht verändert.
+
+Praktische Restprüfung
+Native iOS-Zeitfelder, Teilen-Menü, Ton und Haptik sollten abschließend auf dem realen iPhone 16 geprüft werden. Es sind keine bekannten fachlichen oder technischen Restfehler vorhanden.

@@ -1,0 +1,43 @@
+Arbeitszeit-PWA V5.26 – Umsetzungsbericht
+Stand: 02.08.2026
+
+Ausgangsbasis
+- ausschließlich Arbeitszeit_PWA_Offline_V5_25_HighEnd_iPhone16.zip
+- bestehende Architektur, Speicherung und Berechnungslogik weiterverwendet
+- Speicherschlüssel arbeitszeit-pwa-v1 unverändert
+- Datenschema 10 unverändert
+- imported-data.js und App-Symbole inhaltlich unverändert
+
+Umgesetzte Änderungen auf „Heute“
+1. Die Hinweisfläche für offene Arbeitstage besitzt nun einen klaren Abstand von 16 px zum Hauptbutton. Der Schatten des Kommen-/Gehen-Buttons und die Hinweisfläche berühren sich nicht mehr.
+2. „Manuelle Pause“ ist fest unten links angeordnet.
+3. Der runde Plus-Button bleibt fest unten rechts angeordnet.
+4. Pause und Plus besitzen dieselbe vertikale Position und denselben Mittelpunkt.
+5. Beide Elemente bleiben oberhalb der unteren Navigation und berücksichtigen die iOS-Safe-Area.
+
+Vollständiger Tageseditor
+1. Dialogbreite auf dem iPhone 16 auf Bildschirmbreite minus 28 px begrenzt (365 px bei 393 px Viewport).
+2. Bezugsdatum im Kopf deutlich sichtbar und während der Bearbeitung unveränderbar.
+3. Buchungen als kompakte, einzeln aufklappbare Zeilen dargestellt.
+4. Zusammenfassung je Buchung zeigt tatsächliche und dokumentierte Uhrzeit.
+5. Löschfunktion als rotes Papierkorb-Symbol rechts innerhalb der Zeile; Touchfläche 40 × 40 px.
+6. Entfernte Buchungen können über eine antippbare Rückgängig-Meldung wiederhergestellt werden.
+7. Manuelle Pause, Abwesenheit, Kommentar und erweiterte Aktionen platzsparend angeordnet.
+8. Kommentar und erweiterte Aktionen werden erst bei Bedarf aufgeklappt.
+9. Button zum Hinzufügen nennt die fachlich nächste Buchungsart.
+10. Zeitänderungen aktualisieren nur das betroffene Feld und die zugehörige Zusammenfassung. Die Buchungsliste wird dabei nicht neu aufgebaut; Fokus und Scrollposition bleiben erhalten.
+11. Fehler werden direkt an der betroffenen Buchung angezeigt.
+12. Fehlende tatsächliche oder dokumentierte Uhrzeiten werden abgewiesen.
+13. Reihenfolge und Mindestabstand werden geprüft.
+14. Zukünftige tatsächliche Uhrzeiten am heutigen Tag werden abgewiesen.
+15. Vor dem Wechsel zur Abwesenheitsverwaltung werden geänderte Tagesdaten validiert und gespeichert; Änderungen gehen nicht verloren.
+16. Fehlerhafter CSS-Block aus dem Altstand wurde syntaktisch repariert. Dadurch greifen die bereits vorgesehenen iPhone-Breitenregeln wieder korrekt.
+
+Unverändert
+- Arbeitszeit-, Pausen- und Abwesenheitsdatenmodell
+- Rundungslogik
+- Kommen-/Gehen-Fachlogik
+- Zeitkonto sowie Monats- und Jahresauswertungen
+- Feiertage Hessen
+- PDF-, Druck-, Excel-, Backup- und Wiederherstellungsfunktionen
+- Manifeststruktur und Offline-Architektur
