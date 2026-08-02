@@ -1,0 +1,41 @@
+Arbeitszeit PWA V5.27 – verbindliche Bereinigungs- und Rechenregeln
+
+1. Rechenbeginn und Sollzeit
+- Rechenbeginn: 01.11.2022
+- Startwert Zeitkonto: 00:00
+- Montag bis Freitag: grundsätzlich 08:00 Sollzeit
+- Samstag und Sonntag: 00:00 Sollzeit
+- gesetzliche Feiertage in Hessen: 00:00 Sollzeit
+- betriebliche Feiertage Heiligabend und Silvester: 00:00 Sollzeit
+
+2. Arbeitszeit
+- Maßgeblich ist die dokumentierte, gerundete Uhrzeit.
+- Tatsächliche Uhrzeiten bleiben zur Nachvollziehbarkeit erhalten.
+- Bruttozeit = Summe vollständiger Kommen-/Gehen-Paare.
+- Nettozeit = Bruttozeit minus tatsächlich eingetragene Pause.
+- Tagessaldo = Nettozeit minus Sollzeit.
+- Es werden keine automatischen Mindestpausen ergänzt.
+
+3. Fehlende und unvollständige Tage
+- Vergangener Soll-Arbeitstag ohne Buchung und ohne Abwesenheit: Ist 00:00, Soll 08:00, Saldo -08:00.
+- Unvollständige Buchungsfolge: Ist 00:00 gegen die volle Sollzeit; Status „Unvollständig“.
+- Heutige und zukünftige leere Tage werden nicht vorzeitig negativ belastet.
+
+4. Abwesenheiten
+- Ganzer Urlaubstag: Soll 00:00.
+- Halber Urlaubstag: Soll 04:00; vorhandene Nettoarbeitszeit wird dagegen gerechnet.
+- Ganzer Krankheitstag: Soll 00:00.
+- Gleittag/Zeitausgleich: Soll 08:00, Ist 00:00, Saldo -08:00.
+- Sonstige vollständige Abwesenheit: Soll 00:00.
+
+5. Sonderlagen mit allgemeiner Fachregel
+- Arbeit am Wochenende oder Feiertag: Soll 00:00; gesamte Nettozeit ist Pluszeit.
+- Übernachtarbeit: Zeit nach Mitternacht wird vollständig dem begonnenen Arbeitstag zugerechnet.
+- Ein Tageswechsel wird nur bei einem deutlichen Sprung über Mitternacht akzeptiert; kleine Rücksprünge gelten als Überschneidung.
+
+6. Aggregation
+- Jeder Kalendertag wird durch denselben Rechenkern bewertet.
+- Wochen-, Monats-, Jahres-, Zeitkonto-, Diagramm-, PDF- und Excel-Werte werden ausschließlich aus diesen Tageswerten gebildet.
+- Monatsende = Übertrag des Folgemonats.
+- Jahresende = Übertrag des Folgejahres.
+- Historische Importwerte dienen nur als Vergleich und Migrationsnachweis.

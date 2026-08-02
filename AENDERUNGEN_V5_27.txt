@@ -1,0 +1,25 @@
+Änderungen V5.27 gegenüber V5.26
+
+Berechnung
+- Stichtagsbasierte Mischrechnung entfernt.
+- Einheitlichen kalenderbasierten Rechenkern eingeführt.
+- Leere vergangene Arbeitstage und unvollständige Tage werden in allen Summen berücksichtigt.
+- Tages-, Wochen-, Monats-, Jahres- und Zeitkontowerte verwenden dieselbe Berechnung.
+- Feiertage, betriebliche Feiertage, Urlaub, Krankheit, halber Urlaub, Zeitausgleich, Wochenendarbeit und Übernachtarbeit vereinheitlicht.
+- Kleine rückwärts laufende Uhrzeiten werden nicht mehr fälschlich als Übernachtarbeit interpretiert.
+
+Migration und Daten
+- Datenschema auf 11 erhöht; Speicherschlüssel unverändert.
+- V5.26-Backup automatisch migriert.
+- Berechnungsbeginn auf 01.11.2022 und Startwert auf 00:00 festgelegt.
+- technische Leerdatensätze vor 01.11.2022 entfernt.
+- fest programmierte Wiederherstellungen vom 23.07. und 27.07.2026 entfernt.
+- bestätigte historische Korrekturen einmalig und nachvollziehbar migriert.
+- historische Importwerte und alte Tages-Zeitkontostände für den Vergleich erhalten.
+
+Ausgaben
+- Excel-Export um das Blatt „Historienvergleich“ ergänzt.
+- PDF, Excel, JSON-Backup und Sicherungs-ZIP auf die einheitliche Berechnung umgestellt.
+
+Oberfläche
+- keine allgemeine Neugestaltung; freigegebene V5.26-Oberfläche bleibt bestehen.

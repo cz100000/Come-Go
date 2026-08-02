@@ -1,0 +1,48 @@
+Arbeitszeit PWA V5.27 – Umsetzungsbericht
+
+Ausgangsbasis
+- Arbeitszeit_PWA_Offline_V5_26_HighEnd_iPhone16.zip
+- aktuelles Backup Arbeitszeit_Backup_2026-08-02.json
+- verbindliche Entscheidungen aus den beantworteten Klärungs- und Deltatabellen
+
+Umsetzung
+- Der bisherige Importstichtag wurde als aktive Rechengrenze entfernt.
+- Alle Werte werden ab 01.11.2022 aus dem Kalender, dokumentierten Buchungen, tatsächlich eingetragenen Pausen, Sollzeit und Abwesenheiten berechnet.
+- Die Berechnung läuft auch für Tage ohne gespeicherten Tagesdatensatz.
+- Alle Auswertungen und Exporte greifen auf denselben Tagesrechenkern zu.
+- Historische Importzahlen wurden nicht gelöscht, sondern im Excel-Historienvergleich zugänglich gemacht.
+- Der lokale Speicherschlüssel bleibt unverändert; die Migration erfolgt beim ersten Start automatisch.
+
+Bereinigte Ergebniswerte am 02.08.2026
+- Gesamt-Nettozeit: 6.792:42
+- Gesamt-Sollzeit: 6.656:00
+- Gesamtpause: 651:05
+- Zeitkonto: +136:42
+
+Jahresveränderungen
+- 2022 ab 01.11.: +16:30; Jahresende +16:30
+- 2023: +65:22; Jahresende +81:52
+- 2024: -05:43; Jahresende +76:09
+- 2025: +69:18; Jahresende +145:27
+- 2026 bis 02.08.: -08:45; aktueller Stand +136:42
+
+Veränderung gegenüber der Anzeige der V5.26 mit demselben Backup
+- V5.26: +191:21
+- V5.27: +136:42
+- Delta: -54:39
+
+Ursachen des Deltas
+- Sollzeit November/Dezember 2022 von importierten 07:48 auf vereinbarte 08:00 vereinheitlicht: -07:24
+- 01.09.2025 wieder einbezogen: -02:00
+- 02.06.2026 korrekt neu berechnet: +02:45
+- sechs leere Julitage einschließlich 27.07.2026 vollständig in der Rechenkette berücksichtigt: -48:00
+
+Offene manuelle Nachträge
+- 24.07.2026
+- 27.07.2026
+- 28.07.2026
+- 29.07.2026
+- 30.07.2026
+- 31.07.2026
+
+Diese Tage bleiben in der Hinweisbox sichtbar. Nach dem manuellen Nachtrag werden Tag, Monat, Jahr und Zeitkonto unmittelbar neu berechnet.

@@ -1,0 +1,32 @@
+Arbeitszeit PWA V5.27 – Testübersicht
+
+1. Unabhängige Zeitrechenprüfung
+- Zeitraum: 01.11.2022 bis 02.08.2026
+- geprüfte Kalendertage: 1.371
+- verglichene Werte je Tag: Brutto, Netto, Soll, Saldo, Pausenabzug, Zählbarkeit und fortlaufendes Zeitkonto
+- Ergebnis: 0 Abweichungen
+- 46 Monatsketten und 5 Jahresketten geschlossen
+- alle Monats- und Jahresüberträge konsistent
+
+2. Funktions- und Regressionstest
+- 50 von 50 Mindesttests bestanden
+- Plus-Menü, Abwesenheiten, Buchungen, Rundung, Validierung, Hinweise, Editor, Rückgängig, Backups, PDF, Excel und Sicherungs-ZIP geprüft
+
+3. Editor- und iPhone-16-Prüfung
+- 15 von 15 gezielten UI-/Editorprüfungen bestanden
+- 4 von 4 responsiven Größenprüfungen bestanden: 393x852, 393x760, 360x780 und 320x680
+- kein horizontales Scrollen
+
+4. Migration und Ausgaben
+- reales V5.26-Backup mit 1.779 Buchungen und 1.348 Tagesdatensätzen eingelesen
+- Ergebnis nach Bereinigung: 1.778 Buchungen, 1.128 gespeicherte Tagesdatensätze
+- historische Importfelder erhalten
+- Excel-Datei integer; Blatt „Historienvergleich“ vorhanden
+- PDF-Datei gültig
+- Sicherungs-ZIP integer und enthält JSON, Excel und Hinweise
+
+5. Offlineprüfung
+- JavaScript- und Service-Worker-Syntax fehlerfrei
+- Cacheliste vollständig
+- Installation, Alt-Cache-Bereinigung und Offline-Navigationsfallback isoliert erfolgreich simuliert
+- ein echter Browser-Offlineneustart über localhost war wegen der administrativen URL-Sperre der Testumgebung nicht möglich

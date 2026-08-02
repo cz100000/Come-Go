@@ -2,12 +2,14 @@ const STORAGE_KEY='arbeitszeit-pwa-v1';
 const STORAGE_BACKUP_KEY=STORAGE_KEY+'-backup';
 const STORAGE_CORRUPT_KEY=STORAGE_KEY+'-corrupt';
 const BACKUP_FORMAT='arbeitszeit-pwa-backup';
+const TRACKING_START_DATE='2022-11-01';
+const APP_VERSION='5.27';
+const CURRENT_SCHEMA=11;
+const IMPORT_DATA_VERSION=3;
+const CALCULATION_VERSION=1;
 let storageNotice='';
-const CHECKPOINT_DATE='2026-07-22';
-const CHECKPOINT_MINUTES=11631;
-const APP_VERSION='5.26';
-const CURRENT_SCHEMA=10;
-const IMPORT_DATA_VERSION=2;
+let calculationCache=null;
+let calculationRevision=0;
 let state=loadState();
 let currentView='day';
 let cursorDate=parseDateKey(state.settings.lastEditedDay||todayKey());
@@ -47,7 +49,6 @@ function hasMeaningfulData(d){return !!(d&&((d.entries&&d.entries.length)||(Numb
 function clone(v){return JSON.parse(JSON.stringify(v))}
 function isProtectedLocalDay(d){
 if(!d)return false;
-if(d.date>CHECKPOINT_DATE)return true;
 if(d.edited||d.capturedAfterImport||d.modifiedAt||d.importCleared)return true;
 if(!d.sourceYear&&hasMeaningfulData(d))return true;
 return (d.entries||[]).some(e=>e&&(['capture','manual'].includes(e.source)||e.edited));
@@ -60,13 +61,7 @@ for(const original of IMPORTED){
 const existing=migrated.days[original.date];
 if(!existing||!isProtectedLocalDay(existing))migrated.days[original.date]=clone(original);
 }
-const preservedDay=migrated.days['2026-07-23'];
-if(!hasMeaningfulData(preservedDay)){
-migrated.days['2026-07-23']={date:'2026-07-23',entries:[
-{type:'in',actual:'11:35',logged:'11:35',source:'manual',createdAt:'2026-07-23T11:35:00'},
-{type:'out',actual:'18:25',logged:'18:25',source:'manual',createdAt:'2026-07-23T18:25:00'}
-],pauseMinutes:80,absence:null,note:'',archived:false,sourceYear:null,capturedAfterImport:true,modifiedAt:'2026-07-23T18:25:00'};
-}
+Object.keys(migrated.days).filter(k=>k<TRACKING_START_DATE).forEach(k=>delete migrated.days[k]);
 const s=migrated.settings;
 if(!Number.isFinite(s.targetMinutes))s.targetMinutes=480;
 if(typeof s.employeeName!=='string')s.employeeName='';
@@ -77,31 +72,35 @@ if(typeof s.countdownEnabled!=='boolean')s.countdownEnabled=true;
 if(typeof s.bookingSoundEnabled!=='boolean')s.bookingSoundEnabled=false;
 if(typeof s.countdownCelebratedDate!=='string')s.countdownCelebratedDate=null;
 if(typeof s.showWeekends!=='boolean')s.showWeekends=false;
-if(s.correction20260727Applied!==true){
-const recoveryDay=migrated.days['2026-07-27'];
-if(!hasMeaningfulData(recoveryDay))migrated.days['2026-07-27']={date:'2026-07-27',entries:[
-{type:'in',actual:'11:00',logged:'11:00',source:'manual',createdAt:'2026-07-27T11:00:00'},
-{type:'out',actual:'18:50',logged:'18:50',source:'manual',createdAt:'2026-07-27T18:50:00'}
-],pauseMinutes:20,absence:null,note:'',archived:false,sourceYear:null,capturedAfterImport:true,modifiedAt:'2026-07-27T18:50:00'};
-s.correction20260727Applied=true;
-}
-s.balanceCheckpointDate=CHECKPOINT_DATE;
-if(!Number.isFinite(s.balanceCheckpointMinutes)||s.balanceCheckpointVersion!==IMPORT_DATA_VERSION)s.balanceCheckpointMinutes=CHECKPOINT_MINUTES;
-s.balanceCheckpointVersion=IMPORT_DATA_VERSION;
-s.importDataVersion=IMPORT_DATA_VERSION;
-s.schemaVersion=CURRENT_SCHEMA;
+if(!s.legacyBalanceCheckpoint&&Number.isFinite(Number(s.balanceCheckpointMinutes)))s.legacyBalanceCheckpoint={date:s.balanceCheckpointDate||'2026-07-22',minutes:Number(s.balanceCheckpointMinutes),version:s.balanceCheckpointVersion||2};
+s.startBalanceMinutes=0;s.trackingStartDate=TRACKING_START_DATE;s.calculationVersion=CALCULATION_VERSION;s.importDataVersion=IMPORT_DATA_VERSION;s.schemaVersion=CURRENT_SCHEMA;
+delete s.balanceCheckpointDate;delete s.balanceCheckpointMinutes;delete s.balanceCheckpointVersion;delete s.correction20260727Applied;
+const mixed=new Set(['2025-03-18','2025-03-19','2025-03-20','2025-03-21','2025-04-22','2025-04-23','2025-04-24','2025-04-25']);
 Object.values(migrated.days).forEach(d=>{
 if(!Array.isArray(d.entries))d.entries=[];
-d.entries=d.entries.map(e=>({type:e.type==='out'?'out':'in',actual:e.actual||'',logged:e.logged||roundLogged(e.actual||'00:00',e.type==='out'?'out':'in'),source:e.source||((d.sourceYear&&!d.edited)?'import':'manual'),createdAt:e.createdAt||null,edited:!!e.edited}));
+d.entries=d.entries.map(e=>({type:e.type==='out'?'out':'in',actual:e.actual||'',logged:e.logged||roundLogged(e.actual||'00:00',e.type==='out'?'out':'in'),source:e.source||((d.sourceYear&&!d.edited)?'import':'manual'),createdAt:e.createdAt||null,edited:!!e.edited,...(e.editedAt?{editedAt:e.editedAt}:{})}));
 if(!Number.isFinite(Number(d.pauseMinutes)))d.pauseMinutes=0;
 if(d.absence==='Halber Urlaub'){d.absence='Urlaub';d.absenceCode='vacation';d.absenceDuration='half'}
 if(d.absence==='Gleittag'){d.absence='Zeitausgleich';d.absenceCode='timeOff'}
-if(d.absence&&!d.absenceCode)d.absenceCode=absenceCodeFromLabel(d.absence);
+const rawCode=String(d.absenceCode||'').toLowerCase(),label=String(d.absence||'').toLowerCase();
+if(rawCode==='u'||rawCode==='vacation'||label.includes('urlaub'))d.absenceCode='vacation';
+else if(rawCode==='k'||rawCode==='sick'||label.includes('krank'))d.absenceCode='sick';
+else if(rawCode==='timeoff'||rawCode==='time_off'||label.includes('gleit')||label.includes('zeitausgleich'))d.absenceCode='timeOff';
+else if(rawCode==='holiday'||d.holiday||label.includes('feiertag'))d.absenceCode='holiday';
+else if(rawCode==='free'||label.includes('frei'))d.absenceCode='free';
+else if(d.absence)d.absenceCode='other';
+else d.absenceCode=null;
 if(d.absence&&!d.absenceDuration)d.absenceDuration='full';
 if(d.absenceNote==null)d.absenceNote='';
-if(d.absenceMinutes!=null&&!Number.isFinite(Number(d.absenceMinutes)))delete d.absenceMinutes;
+if(!d.entries.length&&!d.absence&&Number(d.pauseMinutes)>0){d.legacyOrphanPauseMinutes=Number(d.pauseMinutes);d.pauseMinutes=0;d.dataCorrection=d.dataCorrection||'Pause ohne Arbeitszeitbuchung entfernt; Tag bleibt offen.'}
+if(mixed.has(d.date)&&d.absence==='Urlaub'&&!d.edited){d.legacyImportAbsence={label:d.absence,code:d.absenceCode,duration:d.absenceDuration};clearAbsenceFields(d);d.dataCorrection='Urlaubkennzeichen entfernt; Buchungen gelten als regulärer Arbeitstag.'}
+if(d.date==='2025-12-15'&&d.absence==='Urlaub'&&d.entries.length===1&&(d.entries[0].logged||d.entries[0].actual)==='00:00'){d.legacyImportEntries=clone(d.entries);d.entries=[];d.dataCorrection='Fehlerhafte Einzelbuchung 00:00 entfernt; Urlaub bleibt bestehen.'}
+if(['2023-09-18','2024-01-25','2024-01-26','2024-09-30'].includes(d.date)&&!d.entries.length&&!d.edited){d.absence='Zeitausgleich';d.absenceCode='timeOff';d.absenceDuration='full';d.absenceNote='';d.dataCorrection='Als bestätigter Gleittag gekennzeichnet.'}
+delete d.absenceMinutes;
+d.importDataVersion=IMPORT_DATA_VERSION;
 });
-if(!s.lastEditedDay||!/^[0-9]{4}-[0-9]{2}-[0-9]{2}$/.test(s.lastEditedDay))s.lastEditedDay=findLatestRelevantDay(migrated.days);
+if(!s.lastEditedDay||!/^[0-9]{4}-[0-9]{2}-[0-9]{2}$/.test(s.lastEditedDay)||s.lastEditedDay<TRACKING_START_DATE)s.lastEditedDay=findLatestRelevantDay(migrated.days);
+calculationCache=null;calculationRevision++;
 return migrated;
 }
 function findLatestRelevantDay(days){
@@ -160,6 +159,7 @@ storageNotice='Gespeicherte Daten konnten nicht gelesen werden. Der beschädigte
 return migrateState(null);
 }
 function saveState(){
+calculationCache=null;calculationRevision++;
 try{
 const payload=JSON.stringify(compactState(state));
 const previous=localStorage.getItem(STORAGE_KEY);
@@ -199,16 +199,6 @@ else if(d.generatedHoliday&&!d.edited){d.absence='Feiertag';d.holiday=name}
 Object.values(state.days).filter(d=>d.generatedHoliday&&!d.edited&&d.date.startsWith(`${y}-`)&&!holidays[d.date]).forEach(d=>delete state.days[d.date]);
 saveState();
 }
-function validateEntries(entries){
-let plausible=true,previousActual=null,previousLogged=null;
-entries.forEach((e,i)=>{
-if(e.type!==(i%2===0?'in':'out'))plausible=false;
-if(e.actual){const t=minutes(e.actual);if(previousActual!==null&&t<previousActual)plausible=false;previousActual=t}
-if(e.logged){const t=minutes(e.logged);if(previousLogged!==null&&t-previousLogged<5)plausible=false;previousLogged=t}
-});
-const complete=entries.length>0&&entries.length%2===0&&entries.every((e,i)=>e.type===(i%2===0?'in':'out'));
-return{complete,plausible};
-}
 function absenceCodeFromLabel(label){
 const v=String(label||'').toLowerCase();
 if(v.includes('urlaub'))return'vacation';
@@ -218,124 +208,99 @@ if(v.includes('feiertag'))return'holiday';
 if(v.includes('frei'))return'free';
 return label?'other':null;
 }
+function dayAbsenceCode(d){
+if(!d)return null;const raw=String(d.absenceCode||'').toLowerCase(),label=String(d.absence||'').toLowerCase();
+if(raw==='u'||raw==='vacation'||label.includes('urlaub'))return'vacation';
+if(raw==='k'||raw==='sick'||label.includes('krank'))return'sick';
+if(raw==='timeoff'||raw==='time_off'||label.includes('gleit')||label.includes('zeitausgleich'))return'timeOff';
+if(raw==='holiday'||d.holiday||label.includes('feiertag'))return'holiday';
+if(raw==='free'||label.includes('frei'))return'free';
+return d.absence?'other':null;
+}
 function absenceLabel(code){return({vacation:'Urlaub',sick:'Krankheit',timeOff:'Zeitausgleich',other:'Sonstige Abwesenheit',holiday:'Feiertag',free:'Frei'})[code]||'Sonstige Abwesenheit'}
 function absenceDuration(d){return d?.absenceDuration==='half'||d?.absence==='Halber Urlaub'?'half':'full'}
 function absenceFraction(d){return absenceDuration(d)==='half'?0.5:1}
-function targetMinutesForDate(k){const wd=parseDateKey(k).getDay();return wd>=1&&wd<=5?Number(state.settings.targetMinutes)||480:0}
-function absenceCreditMinutes(d,target=targetMinutesForDate(d?.date||todayKey())){
-if(!d?.absence)return 0;
-if(Number.isFinite(Number(d.absenceMinutes)))return Math.max(0,Number(d.absenceMinutes));
-return absenceDuration(d)==='half'?Math.round(target/2):target;
-}
-function absenceSummaryText(d){
-if(!d?.absence)return'Keine Abwesenheit eingetragen';
-const extent=absenceDuration(d)==='half'?'Halber Tag':'Ganzer Tag';
-return `${d.absence} · ${extent} · ${formatDuration(absenceCreditMinutes(d),{signed:false})} angerechnet`;
-}
 function absenceGroupDays(groupId){return groupId?Object.values(state.days).filter(d=>d.absenceGroupId===groupId).sort((a,b)=>a.date.localeCompare(b.date)):[]}
 function hasFullAbsence(d){return !!(d?.absence&&absenceDuration(d)==='full')}
 function clearAbsenceFields(d){
 d.absence=null;d.absenceCode=null;d.absenceDuration=null;d.absenceMinutes=0;d.absenceNote='';d.absenceGroupId=null;d.absenceCreatedAt=null;d.absenceUpdatedAt=null;
 }
 function dateRange(from,to){const a=parseDateKey(from),b=parseDateKey(to),r=[];for(let d=new Date(a);d<=b;d.setDate(d.getDate()+1))r.push(dateKey(d));return r}
-function holidayNameForDate(k){const d=state.days[k];if(d?.holiday||d?.generatedHoliday||d?.absenceCode==='holiday')return d.holiday||'Feiertag';return hessenHolidays(Number(k.slice(0,4)))[k]||null}
-function isAbsenceWorkday(k){const wd=parseDateKey(k).getDay();return wd>=1&&wd<=5&&!holidayNameForDate(k)}
+function holidayNameForDate(k){const d=state.days[k];if(d?.holiday||d?.generatedHoliday||dayAbsenceCode(d)==='holiday')return d.holiday||'Feiertag';return hessenHolidays(Number(k.slice(0,4)))[k]||null}
+function scheduledTargetMinutes(k){if(k<TRACKING_START_DATE)return 0;const wd=parseDateKey(k).getDay();return wd>=1&&wd<=5&&!holidayNameForDate(k)?Number(state.settings.targetMinutes)||480:0}
+function targetMinutesForDate(k,d=state.days[k]||null){
+const base=scheduledTargetMinutes(k),code=dayAbsenceCode(d);if(!code)return base;
+if(code==='timeOff')return base;
+if(['vacation','sick','holiday','free','other'].includes(code))return absenceDuration(d)==='half'?Math.round(base/2):0;
+return base;
+}
+function absenceCreditMinutes(d){if(!d?.absence)return 0;return Math.max(0,scheduledTargetMinutes(d.date)-targetMinutesForDate(d.date,d))}
+function absenceSummaryText(d){if(!d?.absence)return'Keine Abwesenheit eingetragen';const extent=absenceDuration(d)==='half'?'Halber Tag':'Ganzer Tag';return `${d.absence} · ${extent} · Sollzeit ${formatDuration(targetMinutesForDate(d.date,d),{signed:false})}`}
+function isAbsenceWorkday(k){return scheduledTargetMinutes(k)>0}
 function newAbsenceGroupId(){return `absence-${Date.now()}-${Math.random().toString(36).slice(2,8)}`}
 function formatDayCount(v){return Number.isInteger(v)?String(v):String(v).replace('.',',')}
-function calculateDay(d){
-if(!d)return{gross:0,net:0,target:0,diff:0,complete:true,plausible:true};
-if(d.sourceYear&&!isProtectedLocalDay(d)&&d.date<=CHECKPOINT_DATE&&Number.isFinite(d.excelDiffMinutes)){
-const net=Number(d.excelNetMinutes)||0,target=Number(d.excelTargetMinutes)||0;
-return{gross:Math.max(0,net+(Number(d.pauseMinutes)||0)),net,target,diff:Number(d.excelDiffMinutes)||0,complete:true,plausible:true};
+function normalizedEntryTimeline(entries,field='logged'){
+let previous=null;const values=[];
+for(const entry of entries||[]){
+const value=entry?.[field]||entry?.actual||entry?.logged;if(!isClock(value))return null;
+const clock=minutes(value);let current=clock;
+if(previous!==null){
+const dayOffset=Math.floor(previous/1440),previousClock=previous%1440;current=clock+dayOffset*1440;
+if(current<previous){
+// Ein Tageswechsel ist nur bei einem deutlichen Sprung über Mitternacht plausibel.
+// Kleine Rücksprünge sind Überschneidungen und dürfen nicht als Folgetag interpretiert werden.
+if(previousClock-clock<360)return null;
+current+=1440;
 }
-const target=targetMinutesForDate(d.date);
-if(d.date>CHECKPOINT_DATE&&!hasMeaningfulData(d))return{gross:0,net:0,target,diff:0,complete:true,plausible:true};
-const entries=d.entries||[],validation=validateEntries(entries);
+}
+values.push(current);previous=current;
+}
+return values;
+}
+function validateEntries(entries){
+entries=entries||[];let plausible=true;
+entries.forEach((e,i)=>{if(e.type!==(i%2===0?'in':'out')||!isClock(e.actual)||!isClock(e.logged))plausible=false});
+const actual=normalizedEntryTimeline(entries,'actual'),logged=normalizedEntryTimeline(entries,'logged');
+if(entries.length&&(!actual||!logged))plausible=false;
+if(actual)for(let i=1;i<actual.length;i++)if(actual[i]<actual[i-1])plausible=false;
+if(logged)for(let i=1;i<logged.length;i++)if(logged[i]-logged[i-1]<5)plausible=false;
+const complete=entries.length>0&&entries.length%2===0&&entries.every((e,i)=>e.type===(i%2===0?'in':'out'))&&!!actual&&!!logged;
+return{complete,plausible,actual,logged};
+}
+function calculateDay(d,cutoff=todayKey()){
+const k=d?.date||cutoff,target=targetMinutesForDate(k,d),entries=d?.entries||[],validation=validateEntries(entries),enteredPause=Math.max(0,Number(d?.pauseMinutes)||0),beforeStart=k<TRACKING_START_DATE,future=k>cutoff,today=k===cutoff;
+if(beforeStart||future)return{gross:0,net:0,target:beforeStart?0:target,diff:0,complete:true,plausible:true,workedNet:0,appliedPause:0,enteredPause,counted:false,missing:false,incomplete:false};
 let gross=0;
-for(let i=0;i+1<entries.length;i+=2){
-const start=entries[i],end=entries[i+1];
-if(start.type!=='in'||end.type!=='out')continue;
-const from=minutes(start.logged||start.actual),to=minutes(end.logged||end.actual);
-if(to>=from)gross+=to-from;
+if(validation.complete&&validation.plausible)for(let i=0;i<entries.length;i+=2)gross+=validation.logged[i+1]-validation.logged[i];
+const pausePlausible=enteredPause<=gross,valid=validation.complete&&validation.plausible&&pausePlausible,net=valid?Math.max(0,gross-enteredPause):0,code=dayAbsenceCode(d),hasAbsence=!!code;
+let counted=false;if(!today)counted=target>0||entries.length>0||hasAbsence||!!holidayNameForDate(k);else counted=valid||hasAbsence;
+const missing=!today&&target>0&&!entries.length&&!hasAbsence,incomplete=entries.length>0&&!valid;
+return{gross,net,target,diff:counted?net-target:0,complete:validation.complete&&pausePlausible,plausible:validation.plausible&&pausePlausible,workedNet:net,appliedPause:valid?enteredPause:0,enteredPause,counted,missing,incomplete};
 }
-const workedNet=Math.max(0,gross-(Number(d.pauseMinutes)||0));
-const credited=absenceCreditMinutes(d,target);
-const net=workedNet+credited;
-return{gross,net,target,diff:net-target,complete:validation.complete,plausible:validation.plausible,workedNet,absenceMinutes:credited};
-}
-function isCountable(d,cutoff=todayKey()){
-if(!d||d.date>cutoff)return false;
-if(d.date<=CHECKPOINT_DATE&&d.sourceYear&&!isProtectedLocalDay(d))return d.excelIncludedInSummary!==false;
-if(d.absence)return true;
-if(!(d.entries||[]).length)return false;
-const c=calculateDay(d);
-return c.complete&&c.plausible;
-}
+const METRIC_KEYS=['net','target','pause','diff','vacation','sick','timeOff','other','incomplete','missing'];
+function emptyMetric(){return{net:0,target:0,pause:0,diff:0,vacation:0,sick:0,timeOff:0,other:0,incomplete:0,missing:0}}
 function metricForDay(d,cutoff=todayKey()){
-if(!isCountable(d,cutoff))return{net:0,target:0,pause:0,diff:0,vacation:0,sick:0,timeOff:0,other:0,incomplete:0};
-const c=calculateDay(d),fraction=absenceFraction(d);
-return{net:c.net,target:c.target,pause:Number(d.pauseMinutes)||0,diff:c.diff,
-vacation:d.absenceCode==='vacation'||d.absence==='Urlaub'?fraction:0,
-sick:d.absenceCode==='sick'||d.absence==='Krankheit'?fraction:0,
-timeOff:d.absenceCode==='timeOff'||d.absence==='Zeitausgleich'||d.absence==='Gleittag'?fraction:0,
-other:d.absence&& !['vacation','sick','timeOff','holiday'].includes(d.absenceCode||absenceCodeFromLabel(d.absence))?fraction:0,
-incomplete:(d.entries||[]).length&&(!c.complete||!c.plausible)?1:0};
+const c=calculateDay(d,cutoff);if(!c.counted)return emptyMetric();const code=dayAbsenceCode(d),fraction=absenceFraction(d);
+return{net:c.net,target:c.target,pause:c.appliedPause,diff:c.diff,vacation:code==='vacation'?fraction:0,sick:code==='sick'?fraction:0,timeOff:code==='timeOff'?fraction:0,other:d?.absence&&!['vacation','sick','timeOff','holiday','free'].includes(code)?fraction:0,incomplete:c.incomplete?1:0,missing:c.missing?1:0};
 }
-function originalMetric(k){
-const d=IMPORTED_BY_DATE[k];
-if(!d||d.excelIncludedInSummary===false)return{net:0,target:0,pause:0,diff:0,vacation:0,sick:0,timeOff:0,other:0,incomplete:0};
-const code=d.absenceCode||absenceCodeFromLabel(d.absence),fraction=d.absence==='Halber Urlaub'?0.5:1;
-return{net:Number(d.excelNetMinutes)||0,target:Number(d.excelTargetMinutes)||0,pause:Number(d.pauseMinutes)||0,diff:Number(d.excelDiffMinutes)||0,
-vacation:code==='vacation'?fraction:0,sick:code==='sick'?fraction:0,timeOff:code==='timeOff'?fraction:0,
-other:d.absence&&!['vacation','sick','timeOff','holiday'].includes(code)?fraction:0,incomplete:0};
+function metricDelta(current,original){const r={};for(const k of METRIC_KEYS)r[k]=(current[k]||0)-(original[k]||0);return r}
+function addMetric(a,b){for(const k of METRIC_KEYS)a[k]=(a[k]||0)+(b[k]||0);return a}
+function isCountable(d,cutoff=todayKey()){return calculateDay(d,cutoff).counted}
+function calendarRecords(start,end){const rows=[];if(end<start)return rows;for(const k of dateRange(start,end)){const d=dayObject(k),c=calculateDay(d,todayKey());if(c.counted||hasMeaningfulData(d)||holidayNameForDate(k)||k===todayKey())rows.push(d)}return rows}
+function ledger(){
+const cutoff=todayKey(),signature=`${calculationRevision}|${cutoff}|${state.settings.targetMinutes}|${state.settings.startBalanceMinutes}|${state.settings.freeChristmasEve}|${state.settings.freeNewYearsEve}`;
+if(calculationCache?.signature===signature)return calculationCache;
+let balance=Number(state.settings.startBalanceMinutes)||0;const balances={},metrics={};
+for(const k of dateRange(TRACKING_START_DATE,cutoff)){const d=dayObject(k),m=metricForDay(d,cutoff);balance+=m.diff;balances[k]=balance;metrics[k]=m}
+calculationCache={signature,cutoff,balances,metrics,closing:balance};return calculationCache;
 }
-function metricDelta(current,original){const r={};for(const k of ['net','target','pause','diff','vacation','sick','timeOff','other','incomplete'])r[k]=(current[k]||0)-(original[k]||0);return r}
-function addMetric(a,b){for(const k of ['net','target','pause','diff','vacation','sick','timeOff','other','incomplete'])a[k]=(a[k]||0)+(b[k]||0);return a}
-function historicalAdjustment(start,end){
-const sum={net:0,target:0,pause:0,diff:0,vacation:0,sick:0,other:0,incomplete:0};
-Object.values(state.days).filter(d=>d.date>=start&&d.date<=end&&d.date<=CHECKPOINT_DATE&&isProtectedLocalDay(d)).forEach(d=>addMetric(sum,metricDelta(metricForDay(d,end),originalMetric(d.date))));
-return sum;
-}
-function postCheckpointMetric(start,end){
-const sum={net:0,target:0,pause:0,diff:0,vacation:0,sick:0,other:0,incomplete:0};
-Object.values(state.days).filter(d=>d.date>=start&&d.date<=end&&d.date>CHECKPOINT_DATE).forEach(d=>addMetric(sum,metricForDay(d,end)));
-return sum;
-}
-function cumulativeProtectedDiff(end){if(end<'2022-01-01')return 0;return historicalAdjustment('2022-01-01',end).diff}
-function balanceBefore(k){
-if(k>CHECKPOINT_DATE){const prev=new Date(parseDateKey(k));prev.setDate(prev.getDate()-1);return balanceThrough(dateKey(prev))}
-const mk=k.slice(0,7),base=MONTHLY_BASELINES[mk];
-if(base)return Number(base.opening)||0+cumulativeProtectedDiff(`${mk}-00`);
-return 0;
-}
-function balanceThrough(k){
-const cp=Number(state.settings.balanceCheckpointMinutes)||CHECKPOINT_MINUTES;
-if(k>=CHECKPOINT_DATE){
-const cpAdj=historicalAdjustment('2022-01-01',CHECKPOINT_DATE).diff;
-if(k===CHECKPOINT_DATE)return cp+cpAdj;
-return cp+cpAdj+postCheckpointMetric('2026-07-23',k).diff;
-}
-const mk=k.slice(0,7),base=MONTHLY_BASELINES[mk];
-if(!base)return 0;
-const monthStart=`${mk}-01`;
-const originalDiff=Object.values(IMPORTED_BY_DATE).filter(d=>d.date>=monthStart&&d.date<=k&&d.excelIncludedInSummary!==false).reduce((a,d)=>a+(Number(d.excelDiffMinutes)||0),0);
-const prior=cumulativeProtectedDiff(`${mk}-00`),within=historicalAdjustment(monthStart,k).diff;
-const sourceAdjustment=k>=base.cutoff?(Number(base.sourceAdjustment)||0):0;
-return (Number(base.opening)||0)+prior+originalDiff+within+sourceAdjustment;
-}
+function balanceThrough(k){const start=Number(state.settings.startBalanceMinutes)||0;if(k<TRACKING_START_DATE)return start;const l=ledger();if(k>=l.cutoff)return l.closing;return Object.prototype.hasOwnProperty.call(l.balances,k)?l.balances[k]:start}
+function balanceBefore(k){const d=parseDateKey(k);d.setDate(d.getDate()-1);return balanceThrough(dateKey(d))}
 function dayStatus(d){
-if(d?.absence)return 'Abwesenheit erfasst';
-const entries=d?.entries||[];
-if(!entries.length)return 'Keine Buchung';
-if(entries[0]?.type==='out')return 'Kommen fehlt';
-for(let i=0;i<entries.length;i++){
-const expected=i%2===0?'in':'out';
-if(entries[i]?.type!==expected)return expected==='in'?'Kommen fehlt':'Gehen fehlt';
-}
-const c=calculateDay(d);
-if(!c.plausible)return 'Unvollständig';
-if(entries.at(-1)?.type==='in')return 'Gehen fehlt';
-return c.complete?'Vollständig':'Unvollständig';
+const entries=d?.entries||[],code=dayAbsenceCode(d);if(code&&entries.length)return absenceDuration(d)==='half'?'Halbe Abwesenheit + Arbeitszeit':'Abwesenheit + Arbeitszeit';if(code)return'Abwesenheit erfasst';
+if(!entries.length)return'Keine Buchung';if(entries[0]?.type==='out')return'Kommen fehlt';
+for(let i=0;i<entries.length;i++){const expected=i%2===0?'in':'out';if(entries[i]?.type!==expected)return expected==='in'?'Kommen fehlt':'Gehen fehlt'}
+const c=calculateDay(d);if(!c.plausible)return'Unvollständig';if(entries.at(-1)?.type==='in')return'Gehen fehlt';return c.complete?'Vollständig':'Unvollständig';
 }
 function entrySource(d,e){if(e?.source==='capture')return 'Erfassung';if(e?.source==='manual')return 'Manuell';if(d.edited||e?.edited)return 'Nachträglich geändert';if(d.sourceYear&&!d.capturedAfterImport)return `Import ${d.sourceYear}`;return 'Erfassung'}
 function clearPendingUndo(){
@@ -404,34 +369,13 @@ if(work>360)return 30;
 return 0;
 }
 function liveGrossMinutes(d,now=new Date()){
-const entries=d?.entries||[];
-let gross=0;
-for(let i=0;i+1<entries.length;i+=2){
-const start=entries[i],end=entries[i+1];
-if(start?.type!=='in'||end?.type!=='out')continue;
-const from=minutes(start.logged||start.actual),to=minutes(end.logged||end.actual);
-if(to>=from)gross+=to-from;
-}
-const last=entries.at(-1);
-if(last?.type==='in'){
-const from=minutes(last.logged||last.actual),to=now.getHours()*60+now.getMinutes();
-if(to>=from)gross+=to-from;
-}
+const entries=d?.entries||[],validation=validateEntries(entries);let gross=0;
+const paired=entries.length-(entries.length%2);if(validation.logged)for(let i=0;i+1<paired;i+=2)gross+=validation.logged[i+1]-validation.logged[i];
+const last=entries.at(-1);if(last?.type==='in'&&isClock(last.logged||last.actual)){const from=minutes(last.logged||last.actual),to=now.getHours()*60+now.getMinutes();if(to>=from)gross+=to-from}
 return Math.max(0,gross);
 }
 function countdownSnapshot(d,now=new Date()){
-const target=targetMinutesForDate(d?.date||todayKey());
-const absenceCredit=absenceCreditMinutes(d,target);
-const requiredWork=Math.max(0,target-absenceCredit);
-const gross=liveGrossMinutes(d,now);
-const manualPause=Math.max(0,Number(d?.pauseMinutes)||0);
-const workedNet=Math.max(0,gross-manualPause);
-const breakBasis=Math.max(requiredWork,workedNet);
-const requiredBreak=minimumBreakMinutes(breakBasis);
-const pauseRemaining=Math.max(0,requiredBreak-manualPause);
-const remainingWork=Math.max(0,requiredWork-workedNet);
-const achieved=requiredWork>0&&remainingWork===0&&pauseRemaining===0;
-const entries=d?.entries||[],active=entries.at(-1)?.type==='in';
+const target=targetMinutesForDate(d?.date||todayKey(),d),requiredWork=target,gross=liveGrossMinutes(d,now),manualPause=Math.max(0,Number(d?.pauseMinutes)||0),workedNet=Math.max(0,gross-manualPause),breakBasis=Math.max(requiredWork,workedNet),requiredBreak=minimumBreakMinutes(breakBasis),pauseRemaining=Math.max(0,requiredBreak-manualPause),remainingWork=Math.max(0,requiredWork-workedNet),achieved=requiredWork>0&&remainingWork===0&&pauseRemaining===0,entries=d?.entries||[],active=entries.at(-1)?.type==='in';
 return{target,requiredWork,gross,workedNet,manualPause,requiredBreak,pauseRemaining,remainingWork,achieved,active,hasEntries:entries.length>0,progress:requiredWork?Math.min(1,workedNet/requiredWork):0,overtime:Math.max(0,workedNet-requiredWork),now};
 }
 function stopConfetti(){
@@ -467,7 +411,7 @@ state.settings.countdownCelebratedDate=todayKey();saveState();triggerGoalConfett
 function updateCountdown({allowCelebrate=true}={}){
 const card=$('workCountdown');if(!card)return;
 if(!state.settings.countdownEnabled){card.hidden=true;stopConfetti();return}
-const d=dayObject(todayKey()),target=targetMinutesForDate(todayKey());
+const d=dayObject(todayKey()),target=targetMinutesForDate(todayKey(),d);
 if(target<=0||hasFullAbsence(d)){card.hidden=true;return}
 const snap=countdownSnapshot(d),headline=$('countdownHeadline'),end=$('countdownEnd'),pause=$('countdownPause'),ring=$('countdownRing');
 if(!snap.achieved&&$('confettiLayer')?.classList.contains('active'))stopConfetti();
@@ -505,18 +449,13 @@ const banner=$('todayAbsenceBanner'),full=hasFullAbsence(d),half=d.absence&&abse
 banner.hidden=!d.absence;document.querySelector('.punch-grid').classList.toggle('absence-full',full);
 if(d.absence){
 $('todayAbsenceTitle').textContent=half?`Heute: ${d.absence} (halber Tag)`:`Heute ist ${d.absence} eingetragen`;
-$('todayAbsenceText').textContent=half?`${formatDuration(absenceCreditMinutes(d),{signed:false})} Stunden werden angerechnet; Arbeitszeitbuchungen bleiben möglich.`:`${formatDuration(absenceCreditMinutes(d),{signed:false})} Stunden werden als Sollzeit berücksichtigt.`;
+$('todayAbsenceText').textContent=half?`Die Sollzeit ist auf ${formatDuration(targetMinutesForDate(d.date,d),{signed:false})} Stunden reduziert; Arbeitszeitbuchungen bleiben möglich.`:`Die Sollzeit beträgt heute ${formatDuration(targetMinutesForDate(d.date,d),{signed:false})} Stunden.`;
 }
 renderPastWorkdayNotice();
 renderTodayCapture(d);
 updateCountdown();
 }
-function liveTodayBalanceMinutes(d,now=new Date()){
-const target=targetMinutesForDate(d?.date||todayKey());
-const credit=absenceCreditMinutes(d,target);
-const worked=Math.max(0,liveGrossMinutes(d,now)-(Number(d?.pauseMinutes)||0));
-return worked+credit-target;
-}
+function liveTodayBalanceMinutes(d,now=new Date()){const target=targetMinutesForDate(d?.date||todayKey(),d),worked=Math.max(0,liveGrossMinutes(d,now)-(Number(d?.pauseMinutes)||0));return worked-target}
 function renderTodayCapture(d){
 const entries=d.entries||[],blocks=[];
 for(let i=0;i<entries.length;i+=2){const come=entries[i]?.type==='in'?entries[i]:null,go=entries[i+1]?.type==='out'?entries[i+1]:null;if(come)blocks.push({come,go})}
@@ -594,7 +533,7 @@ const rows=entries.length?entries.map((entry,index)=>`<tr><td>${index+1}</td><td
 let inNo=0,outNo=0;
 const mobileRows=entries.length?`<div class="booking-compact-head"><span></span><span>Tatsächlich</span><span>Dokumentiert</span><span></span></div>${entries.map((entry,index)=>{const no=entry.type==='in'?++inNo:++outNo,label=entry.type==='in'?`Kommen ${no}`:`Gehen ${no}`;return `<div class="booking-compact-row ${entry.type}"><div class="booking-compact-label"><span class="booking-type-icon">${entry.type==='in'?SVG.in:SVG.out}</span><span><b>${label}</b><small>${esc(entrySource(d,entry))}</small></span></div><b class="booking-compact-time">${esc(entry.actual||'–')}</b><b class="booking-compact-time">${esc(entry.logged||'–')}</b><button type="button" class="edit-icon-btn" onclick="openSingleEntryEditor('${k}',${index})" aria-label="${label} bearbeiten">${SVG.edit}</button></div>`}).join('')}`:`<div class="empty-day-state"><b>Für diesen Tag sind noch keine Zeiten erfasst.</b><span>Nutze den Plus-Button oder eine der direkten Aktionen.</span><div><button type="button" onclick="openTimeAction('${k}')">Zeit ergänzen</button><button type="button" onclick="openAbsenceTypePicker('${k}')">Abwesenheit eintragen</button></div></div>`;
 const groupCount=d.absenceGroupId?absenceGroupDays(d.absenceGroupId).length:1;
-const absenceCard=d.absence?`<div class="card detail-list absence-detail-card"><div class="detail-row"><span>Abwesenheit</span><b>${esc(d.absence)}</b></div><div class="detail-row"><span>Umfang</span><b>${absenceDuration(d)==='half'?'Halber Tag':'Ganzer Tag'}</b></div><div class="detail-row"><span>Angerechnete Zeit</span><b class="absence-credit">${formatDuration(absenceCreditMinutes(d),{signed:false})}</b></div><div class="detail-row"><span>Notiz</span><div class="value">${esc(d.absenceNote||'–')}</div></div><div class="absence-actions-inline"><button type="button" onclick="openAbsenceEditorForDay('${k}','day')">Diesen Tag bearbeiten</button>${groupCount>1?`<button type="button" onclick="openAbsenceEditorForDay('${k}','group')">Zeitraum bearbeiten</button>`:''}<button type="button" class="danger" onclick="deleteAbsenceForDay('${k}','day')">Diesen Tag löschen</button>${groupCount>1?`<button type="button" class="danger" onclick="deleteAbsenceForDay('${k}','group')">Zeitraum löschen</button>`:''}</div></div>`:'';
+const absenceCard=d.absence?`<div class="card detail-list absence-detail-card"><div class="detail-row"><span>Abwesenheit</span><b>${esc(d.absence)}</b></div><div class="detail-row"><span>Umfang</span><b>${absenceDuration(d)==='half'?'Halber Tag':'Ganzer Tag'}</b></div><div class="detail-row"><span>Sollzeit an diesem Tag</span><b class="absence-credit">${formatDuration(targetMinutesForDate(d.date,d),{signed:false})}</b></div><div class="detail-row"><span>Notiz</span><div class="value">${esc(d.absenceNote||'–')}</div></div><div class="absence-actions-inline"><button type="button" onclick="openAbsenceEditorForDay('${k}','day')">Diesen Tag bearbeiten</button>${groupCount>1?`<button type="button" onclick="openAbsenceEditorForDay('${k}','group')">Zeitraum bearbeiten</button>`:''}<button type="button" class="danger" onclick="deleteAbsenceForDay('${k}','day')">Diesen Tag löschen</button>${groupCount>1?`<button type="button" class="danger" onclick="deleteAbsenceForDay('${k}','group')">Zeitraum löschen</button>`:''}</div></div>`:'';
 const diffClass=c.diff<0?'red':c.diff>0?'green':'neutral';
 const balance=balanceThrough(k),balanceClass=balance<0?'red':balance>0?'green':'neutral';
 $('timesContent').innerHTML=`
@@ -632,38 +571,27 @@ $('timesContent').innerHTML=`<div class="week-toolbar"><button type="button" onc
 updateTimesWeekendControl(true,force);
 }
 function changeWeek(n){const currentStart=weekStart(todayKey()),base=weekStart(dateKey(cursorDate));if(n>0&&base>=currentStart)return;base.setDate(base.getDate()+n*7);if(base>currentStart)base=currentStart;cursorDate=base;renderWeekView(dateKey(base))}
-function periodDays(start,end){return Object.values(state.days).filter(d=>d.date>=start&&d.date<=end&&isCountable(d,Math.min(todayKey(),end))).sort((a,b)=>a.date.localeCompare(b.date))}
+function periodDays(start,end){return calendarRecords(start,end)}
 function monthSummary(y,m){
-const key=`${y}-${pad(m+1)}`,start=`${key}-01`,calendarEnd=dateKey(new Date(y,m+1,0,12)),today=todayKey();
-const base=MONTHLY_BASELINES[key];
-let cutoff=endMin(calendarEnd,today);
-if(base)cutoff=today>base.cutoff?endMin(calendarEnd,today):base.cutoff;
-const sum={net:0,target:0,pause:0,diff:0,vacation:0,sick:0,other:0,incomplete:0};
-if(base){for(const k of Object.keys(sum))sum[k]=Number(base[k])||0;addMetric(sum,historicalAdjustment(start,base.cutoff));}
-if(base&&today>base.cutoff){const extraStart=addDays(parseDateKey(base.cutoff),1),extraEnd=endMin(calendarEnd,today);if(extraStart<=extraEnd)addMetric(sum,postCheckpointMetric(extraStart,extraEnd));}
-if(!base){cutoff=endMin(calendarEnd,today);addMetric(sum,postCheckpointMetric(start,cutoff));}
-sum.days=Object.values(state.days).filter(d=>d.date>=start&&d.date<=cutoff&&(hasMeaningfulData(d)||isCountable(d,cutoff))).sort((a,b)=>a.date.localeCompare(b.date));
-sum.opening=base?(Number(base.opening)||0)+cumulativeProtectedDiff(`${key}-00`):balanceBefore(start);
-sum.closing=sum.opening+sum.diff;sum.cutoff=cutoff;sum.calendarEnd=calendarEnd;return sum;
+const key=`${y}-${pad(m+1)}`,calendarStart=`${key}-01`,calendarEnd=dateKey(new Date(y,m+1,0,12)),today=todayKey(),cutoff=endMin(calendarEnd,today),start=calendarStart<TRACKING_START_DATE?TRACKING_START_DATE:calendarStart,sum=emptyMetric();
+if(cutoff>=start)for(const k of dateRange(start,cutoff))addMetric(sum,metricForDay(dayObject(k),todayKey()));
+sum.days=cutoff>=start?calendarRecords(start,cutoff):[];sum.opening=balanceBefore(calendarStart);sum.closing=sum.opening+sum.diff;sum.cutoff=cutoff;sum.calendarEnd=calendarEnd;return sum;
 }
 function endMin(a,b){return a<b?a:b}
 function yearSummary(y){
-const sum={net:0,target:0,pause:0,diff:0,vacation:0,sick:0,other:0,incomplete:0,days:[]};
-const maxMonth=y===Number(todayKey().slice(0,4))?Number(todayKey().slice(5,7))-1:11;
-const monthly=[];for(let m=0;m<=maxMonth;m++){const ms=monthSummary(y,m);monthly.push(ms);addMetric(sum,ms);sum.days.push(...ms.days)}
-const base=YEAR_BASELINES[String(y)];sum.opening=base?(Number(base.opening)||0)+cumulativeProtectedDiff(`${y}-00-00`):balanceBefore(`${y}-01-01`);
-sum.closing=sum.opening+sum.diff;sum.cutoff=monthly.at(-1)?.cutoff||`${y}-01-01`;sum.months=monthly;return sum;
+const sum={...emptyMetric(),days:[]},monthly=[],firstMonth=y===Number(TRACKING_START_DATE.slice(0,4))?Number(TRACKING_START_DATE.slice(5,7))-1:0,maxMonth=y===Number(todayKey().slice(0,4))?Number(todayKey().slice(5,7))-1:11;
+for(let m=firstMonth;m<=maxMonth;m++){const ms=monthSummary(y,m);monthly.push(ms);addMetric(sum,ms);sum.days.push(...ms.days)}
+sum.opening=balanceBefore(`${y}-01-01`);sum.closing=sum.opening+sum.diff;sum.cutoff=monthly.at(-1)?.cutoff||`${y}-01-01`;sum.months=monthly;return sum;
 }
 function periodSummary(start,end){
 if(/^\d{4}-\d{2}-01$/.test(start)&&end===dateKey(new Date(Number(start.slice(0,4)),Number(start.slice(5,7)),0,12)))return monthSummary(Number(start.slice(0,4)),Number(start.slice(5,7))-1);
 if(start.endsWith('-01-01')&&end.endsWith('-12-31')&&start.slice(0,4)===end.slice(0,4))return yearSummary(Number(start.slice(0,4)));
-const cutoff=endMin(end,todayKey()),days=periodDays(start,cutoff),sum={net:0,target:0,pause:0,diff:0,vacation:0,sick:0,other:0,incomplete:0};
-days.forEach(d=>addMetric(sum,metricForDay(d,cutoff)));sum.days=days;sum.opening=balanceBefore(start);sum.closing=balanceThrough(cutoff);sum.cutoff=cutoff;return sum;
+const cutoff=endMin(end,todayKey()),actualStart=start<TRACKING_START_DATE?TRACKING_START_DATE:start,sum=emptyMetric(),days=cutoff>=actualStart?calendarRecords(actualStart,cutoff):[];if(cutoff>=actualStart)for(const k of dateRange(actualStart,cutoff))addMetric(sum,metricForDay(dayObject(k),todayKey()));sum.days=days;sum.opening=balanceBefore(start);sum.closing=sum.opening+sum.diff;sum.cutoff=cutoff;return sum;
 }
-function earliestYear(){return Math.min(...Object.keys(state.days).map(k=>Number(k.slice(0,4))),new Date().getFullYear())}
+function earliestYear(){return Number(TRACKING_START_DATE.slice(0,4))}
 function renderMonthOverview(){
 const now=new Date(),items=[];
-for(let y=now.getFullYear();y>=earliestYear();y--){const maxM=y===now.getFullYear()?now.getMonth():11;for(let m=maxM;m>=0;m--)items.push({y,m})}
+for(let y=now.getFullYear();y>=earliestYear();y--){const maxM=y===now.getFullYear()?now.getMonth():11,minM=y===Number(TRACKING_START_DATE.slice(0,4))?Number(TRACKING_START_DATE.slice(5,7))-1:0;for(let m=maxM;m>=minM;m--)items.push({y,m})}
 $('timesContent').innerHTML=`<div class="period-list">${items.map(({y,m})=>{const s=monthSummary(y,m),name=new Intl.DateTimeFormat('de-DE',{month:'long',year:'numeric'}).format(new Date(y,m,1)),running=s.cutoff<s.calendarEnd;return `<article class="period-card"><button type="button" onclick="openMonthDetail(${y},${m})"><div class="period-top"><div><h3>${esc(name)}</h3><div class="muted" style="font-size:12px;margin-top:3px">${running?'Stichtag '+formatDate(s.cutoff,{day:'2-digit',month:'2-digit',year:'numeric'}):'Abgeschlossener Monat'}</div></div><div class="period-balance"><span>Monatsdifferenz</span><strong class="${s.diff<0?'red':'green'}">${formatDuration(s.diff)}</strong></div></div><div class="metric-lines"><div class="metric-line"><span>Übertrag aus Vormonat</span><b>${formatDuration(s.opening)}</b></div><div class="metric-line"><span>${running?'Zeitkonto zum Stichtag':'Zeitkonto Monatsende'}</span><b class="${s.closing<0?'red':'green'}">${formatDuration(s.closing)}</b></div><div class="metric-line"><span>Soll / Netto / Pause</span><b>${formatDuration(s.target,{signed:false})} / ${formatDuration(s.net,{signed:false})} / ${formatDuration(s.pause,{signed:false})}</b></div><div class="metric-line"><span>Urlaub / Krankheit / Zeitausgleich / Sonstige</span><b>${formatDayCount(s.vacation)} / ${formatDayCount(s.sick)} / ${formatDayCount(s.timeOff||0)} / ${formatDayCount(s.other)}</b></div><div class="metric-line"><span>Unvollständige Tage</span><b>${s.incomplete}</b></div></div></button></article>`}).join('')}</div>`;
 }
 function openMonthDetail(y,m){currentView='month';document.querySelectorAll('[data-view]').forEach(b=>b.classList.toggle('active',b.dataset.view==='month'));monthDrill={y,m};const start=`${y}-${pad(m+1)}-01`,end=dateKey(new Date(y,m+1,0,12)),s=monthSummary(y,m),name=new Intl.DateTimeFormat('de-DE',{month:'long',year:'numeric'}).format(new Date(y,m,1)),running=s.cutoff<s.calendarEnd;
@@ -794,7 +722,7 @@ function chartHistoryItems(){
 const first=earliestYear(),now=new Date(),items=[];
 for(let y=first;y<=now.getFullYear();y++)for(let m=0;m<12;m++){
 if(y===now.getFullYear()&&m>now.getMonth())break;
-const key=`${y}-${pad(m+1)}`,summary=monthSummary(y,m),available=!!MONTHLY_BASELINES[key]||summary.days.length>0;
+const key=`${y}-${pad(m+1)}`,summary=monthSummary(y,m),available=summary.days.length>0;
 if(available)items.push({key,label:key,name:new Intl.DateTimeFormat('de-DE',{month:'long',year:'numeric'}).format(new Date(y,m,1)),value:summary.closing,summary,available:true});
 }
 if(!items.length){const key=todayKey().slice(0,7),summary=monthSummary(Number(key.slice(0,4)),Number(key.slice(5,7))-1);items.push({key,label:key,name:key,value:balanceThrough(todayKey()),summary,available:true})}
@@ -823,7 +751,7 @@ if(chartMode==='history'){
 const items=chartHistoryItems(),first=items[0].key.slice(0,4),last=items.at(-1).key.slice(0,4);$('chartYear').innerHTML=`<option>${first} – ${last}</option>`;renderHistoryChart(host,detail,items);return;
 }
 const years=[];for(let y=new Date().getFullYear();y>=earliestYear();y--)years.push(`<option value="${y}">${y}</option>`);const selectedYear=$('chartYear').value;if(chartMode==='month'){$('chartYear').innerHTML=years.join('');$('chartYear').value=years.some(o=>o.includes(`value="${selectedYear}"`))?selectedYear:String(new Date().getFullYear())}
-const items=chartMode==='month'?Array.from({length:12},(_,m)=>{const y=Number($('chartYear').value)||new Date().getFullYear(),s=monthSummary(y,m);return{key:`${y}-${pad(m+1)}`,label:['Jan','Feb','Mär','Apr','Mai','Jun','Jul','Aug','Sep','Okt','Nov','Dez'][m],name:new Intl.DateTimeFormat('de-DE',{month:'long',year:'numeric'}).format(new Date(y,m,1)),value:s.diff,summary:s,available:!!MONTHLY_BASELINES[`${y}-${pad(m+1)}`]||s.days.length>0}}):Object.keys(YEAR_BASELINES).map(Number).sort((a,b)=>a-b).map(y=>{const s=yearSummary(y);return{key:String(y),label:String(y),name:`Jahr ${y}`,value:s.diff,summary:s,available:true}});
+const items=chartMode==='month'?Array.from({length:12},(_,m)=>{const y=Number($('chartYear').value)||new Date().getFullYear(),s=monthSummary(y,m);return{key:`${y}-${pad(m+1)}`,label:['Jan','Feb','Mär','Apr','Mai','Jun','Jul','Aug','Sep','Okt','Nov','Dez'][m],name:new Intl.DateTimeFormat('de-DE',{month:'long',year:'numeric'}).format(new Date(y,m,1)),value:s.diff,summary:s,available:s.days.length>0}}):Array.from({length:new Date().getFullYear()-earliestYear()+1},(_,i)=>earliestYear()+i).map(y=>{const s=yearSummary(y);return{key:String(y),label:String(y),name:`Jahr ${y}`,value:s.diff,summary:s,available:s.days.length>0}});
 const available=items.filter(i=>i.available),max=Math.max(60,...available.map(i=>Math.abs(i.value))),w=360,h=235,padX=48,right=10,zero=107.5,plotH=78,step=(w-padX-right)/Math.max(items.length,1),bar=Math.max(10,Math.min(22,step*.58));
 const ticks=[max,Math.round(max/2),0,-Math.round(max/2),-max];
 let svg=`<svg viewBox="0 0 ${w} ${h}" aria-hidden="true" focusable="false"><g class="chart-grid">${ticks.map((v,i)=>{const yy=zero-(v/max)*plotH;return `<line x1="${padX}" x2="${w-right}" y1="${yy}" y2="${yy}"/><text x="${padX-5}" y="${yy+3}" text-anchor="end">${i===2?'0':Math.round(Math.abs(v)/60)+'h'}</text>`}).join('')}</g><line class="zero-line" x1="${padX}" x2="${w-right}" y1="${zero}" y2="${zero}"/>`;
@@ -866,7 +794,7 @@ const box=$('quickAbsenceConflict');if(!box)return;const text=quickAbsenceConfli
 }
 function saveQuickAbsence(){
 const k=quickContextDate,extent=$('quickAbsenceExtent').value,note=$('quickAbsenceNote').value.trim(),conflict=quickAbsenceConflictText();if(conflict){alert(conflict);return}
-const d=clone(dayObject(k,true)),nowIso=new Date().toISOString(),label=absenceLabel(quickAbsenceCode);d.absence=label;d.absenceCode=quickAbsenceCode;d.absenceDuration=extent;d.absenceMinutes=Math.round(targetMinutesForDate(k)*(extent==='half'?.5:1));d.absenceNote=note;d.absenceGroupId=newAbsenceGroupId();d.absenceCreatedAt=nowIso;d.absenceUpdatedAt=nowIso;d.edited=true;d.modifiedAt=nowIso;d.archived=Number(k.slice(0,4))<new Date().getFullYear();state.days[k]=d;touchDay(k);cursorDate=parseDateKey(k);closeModal('quickAbsenceModal');refreshAllDerivedViews();showToast(`${label} für ${formatContextDate(k)} gespeichert.`)
+const d=clone(dayObject(k,true)),nowIso=new Date().toISOString(),label=absenceLabel(quickAbsenceCode);d.absence=label;d.absenceCode=quickAbsenceCode;d.absenceDuration=extent;delete d.absenceMinutes;d.absenceNote=note;d.absenceGroupId=newAbsenceGroupId();d.absenceCreatedAt=nowIso;d.absenceUpdatedAt=nowIso;d.edited=true;d.modifiedAt=nowIso;d.archived=Number(k.slice(0,4))<new Date().getFullYear();state.days[k]=d;touchDay(k);cursorDate=parseDateKey(k);closeModal('quickAbsenceModal');refreshAllDerivedViews();showToast(`${label} für ${formatContextDate(k)} gespeichert.`)
 }
 function openQuickAbsenceFurther(){const k=quickContextDate;runAfterDirtyCheck('quickAbsenceModal',()=>openFullDayForDate(k))}
 function timeActionDescription(d){
@@ -912,11 +840,11 @@ if(sourceModalId)closeModal(sourceModalId);['quickAddModal','timeActionModal','m
 function openFullTodayEditor(){const k=manualQuickDate;runAfterDirtyCheck('manualQuickModal',()=>openFullDayForDate(k))}
 function toggleTimeInfo(kind){const box=$('timeInfoText');box.hidden=false;box.textContent=kind==='actual'?'Tatsächliche Uhrzeit = die reale Uhrzeit der Buchung.':'Dokumentierte Uhrzeit = die gerundete beziehungsweise angerechnete Uhrzeit.'}
 function workdayIssues(){
-const result=[],end=parseDateKey(todayKey());end.setDate(end.getDate()-1);let current=parseDateKey(addDays(parseDateKey(CHECKPOINT_DATE),1));
+const result=[],end=parseDateKey(todayKey());end.setDate(end.getDate()-1);let current=parseDateKey(TRACKING_START_DATE);
 for(;current<=end;current.setDate(current.getDate()+1)){
-const k=dateKey(current);if(targetMinutesForDate(k)<=0||holidayNameForDate(k))continue;const d=dayObject(k);if(hasFullAbsence(d))continue;const entries=d.entries||[];
-if(!entries.length){result.push({date:k,kind:'missing',status:'Ohne Buchung'});continue}
-const status=dayStatus(d);if(status!=='Vollständig')result.push({date:k,kind:'incomplete',status});
+const k=dateKey(current),d=dayObject(k);if(scheduledTargetMinutes(k)<=0)continue;if(d.absence)continue;const entries=d.entries||[];
+if(!entries.length){result.push({date:k,kind:'missing',status:absenceDuration(d)==='half'&&d.absence?'Arbeitszeit zum halben Abwesenheitstag fehlt':'Ohne Buchung'});continue}
+const status=dayStatus(d);if(status!=='Vollständig'&&status!=='Halbe Abwesenheit + Arbeitszeit')result.push({date:k,kind:'incomplete',status});
 }
 return result;
 }
@@ -946,14 +874,14 @@ const otherAbsence=d.absence&&(!excludeGroupId||d.absenceGroupId!==excludeGroupI
 return !!((d.entries||[]).length||Number(d.pauseMinutes)||otherAbsence);
 }
 function absencePlan(){
-const from=$('absenceFrom').value,to=$('absenceTo').value,extent=$('absenceExtent').value;if(!from||!to||from>to)return{error:'Das Von-Datum darf nicht nach dem Bis-Datum liegen.'};
-const range=dateRange(from,to),workdays=range.filter(isAbsenceWorkday),exclude=absenceEditorContext?.originalGroupId||null,conflicts=workdays.filter(k=>absenceConflict(k,exclude)),factor=extent==='half'?.5:1,total=workdays.reduce((n,k)=>n+Math.round(targetMinutesForDate(k)*factor),0);
-return{from,to,range,workdays,conflicts,factor,total};
+const from=$('absenceFrom').value,to=$('absenceTo').value,extent=$('absenceExtent').value,code=$('absenceType').value;if(!from||!to||from>to)return{error:'Das Von-Datum darf nicht nach dem Bis-Datum liegen.'};
+const range=dateRange(from,to),workdays=range.filter(isAbsenceWorkday),exclude=absenceEditorContext?.originalGroupId||null,conflicts=workdays.filter(k=>absenceConflict(k,exclude)),total=workdays.reduce((n,k)=>{const base=scheduledTargetMinutes(k);return n+(code==='timeOff'?base:(extent==='half'?Math.round(base/2):0))},0);
+return{from,to,range,workdays,conflicts,total,code,extent};
 }
 function updateAbsenceSummary(){
 const box=$('absenceSummary'),plan=absencePlan();if(plan.error){box.innerHTML=`<b>Eingaben prüfen</b>${esc(plan.error)}`;return}
 const type=absenceLabel($('absenceType').value),extent=$('absenceExtent').value==='half'?'Halber Tag':'Ganzer Tag',weekendCount=plan.range.length-plan.workdays.length;
-box.innerHTML=`<b>${esc(type)} · ${extent}</b><div class="summary-line"><span>Kalenderzeitraum</span><strong>${formatDate(plan.from,{day:'2-digit',month:'2-digit',year:'numeric'})} – ${formatDate(plan.to,{day:'2-digit',month:'2-digit',year:'numeric'})}</strong></div><div class="summary-line"><span>Berücksichtigte Arbeitstage</span><strong>${plan.workdays.length}</strong></div><div class="summary-line"><span>Angerechnete Gesamtzeit</span><strong>${formatDuration(plan.total,{signed:false})}</strong></div>${weekendCount?`<div class="summary-line"><span>Ausgelassene Wochenend-/Feiertage</span><strong>${weekendCount}</strong></div>`:''}${plan.conflicts.length?`<div class="conflict">Konflikte an ${plan.conflicts.length} Tag(en): ${plan.conflicts.slice(0,4).map(k=>formatDate(k,{day:'2-digit',month:'2-digit'})).join(', ')}${plan.conflicts.length>4?' …':''}</div>`:'<div class="summary-line"><span>Konflikte</span><strong>Keine</strong></div>'}`;
+box.innerHTML=`<b>${esc(type)} · ${extent}</b><div class="summary-line"><span>Kalenderzeitraum</span><strong>${formatDate(plan.from,{day:'2-digit',month:'2-digit',year:'numeric'})} – ${formatDate(plan.to,{day:'2-digit',month:'2-digit',year:'numeric'})}</strong></div><div class="summary-line"><span>Berücksichtigte Arbeitstage</span><strong>${plan.workdays.length}</strong></div><div class="summary-line"><span>Sollzeit nach Abwesenheit</span><strong>${formatDuration(plan.total,{signed:false})}</strong></div>${weekendCount?`<div class="summary-line"><span>Ausgelassene Wochenend-/Feiertage</span><strong>${weekendCount}</strong></div>`:''}${plan.conflicts.length?`<div class="conflict">Konflikte an ${plan.conflicts.length} Tag(en): ${plan.conflicts.slice(0,4).map(k=>formatDate(k,{day:'2-digit',month:'2-digit'})).join(', ')}${plan.conflicts.length>4?' …':''}</div>`:'<div class="summary-line"><span>Konflikte</span><strong>Keine</strong></div>'}`;
 }
 function saveAbsence(){
 const plan=absencePlan();if(plan.error){alert(plan.error);return}if(!plan.workdays.length){alert('Im ausgewählten Zeitraum liegt kein berücksichtigter Arbeitstag. Wochenenden und Feiertage werden ausgelassen.');return}
@@ -969,7 +897,7 @@ oldDates.forEach(k=>{const d=state.days[k];if(d){clearAbsenceFields(d);d.edited=
 selected.forEach(k=>{
 const d=clone(dayObject(k,true));
 if(policy==='replace'&&plan.conflicts.includes(k)){d.entries=[];d.pauseMinutes=0;if(IMPORTED_BY_DATE[k])d.importCleared=true;clearAbsenceFields(d)}
-d.absence=label;d.absenceCode=code;d.absenceDuration=extent;d.absenceMinutes=Math.round(targetMinutesForDate(k)*(extent==='half'?.5:1));d.absenceNote=note;d.absenceGroupId=groupId;d.absenceCreatedAt=d.absenceCreatedAt||nowIso;d.absenceUpdatedAt=nowIso;d.edited=true;d.modifiedAt=nowIso;d.archived=Number(k.slice(0,4))<new Date().getFullYear();state.days[k]=d;
+d.absence=label;d.absenceCode=code;d.absenceDuration=extent;delete d.absenceMinutes;d.absenceNote=note;d.absenceGroupId=groupId;d.absenceCreatedAt=d.absenceCreatedAt||nowIso;d.absenceUpdatedAt=nowIso;d.edited=true;d.modifiedAt=nowIso;d.archived=Number(k.slice(0,4))<new Date().getFullYear();state.days[k]=d;
 });
 state.settings.lastEditedDay=selected[0];state.settings.lastActivityAt=nowIso;saveState();cursorDate=parseDateKey(selected[0]);closeModal('absenceModal');refreshAllDerivedViews();showToast(`${label} für ${selected.length} Arbeitstag(e) gespeichert`);
 }
@@ -979,12 +907,10 @@ if(!confirm(`${what} löschen? Vorhandene Arbeitszeitbuchungen bleiben erhalten.
 const nowIso=new Date().toISOString();dates.forEach(date=>{const day=state.days[date];if(!day)return;clearAbsenceFields(day);day.edited=true;day.modifiedAt=nowIso;if(IMPORTED_BY_DATE[date])day.importCleared=true;state.days[date]=day});state.settings.lastEditedDay=k;saveState();closeModal('absenceModal');refreshAllDerivedViews();showToast(dates.length>1?'Abwesenheitszeitraum gelöscht':'Abwesenheit gelöscht');
 }
 function deleteAbsenceFromModal(scope){const k=absenceEditorContext?.sourceDate||$('absenceFrom').value;deleteAbsenceForDay(k,scope)}
-function renderSettings(){
-$('employeeName').value=state.settings.employeeName||'';$('targetHours').value=clockFromMinutes(state.settings.targetMinutes||480);$('checkpointBalance').value=formatDuration(state.settings.balanceCheckpointMinutes||CHECKPOINT_MINUTES);$('freeChristmasEve').checked=state.settings.freeChristmasEve!==false;$('freeNewYearsEve').checked=state.settings.freeNewYearsEve!==false;$('countdownEnabled').checked=state.settings.countdownEnabled!==false;$('bookingSoundEnabled').checked=state.settings.bookingSoundEnabled===true;$('reportSignature').checked=state.settings.reportSignature!==false;$('appVersion').textContent=`Arbeitszeit PWA · Version ${APP_VERSION}`;
-}
+function renderSettings(){$('employeeName').value=state.settings.employeeName||'';$('targetHours').value=clockFromMinutes(state.settings.targetMinutes||480);$('checkpointBalance').value=formatDuration(state.settings.startBalanceMinutes||0);$('freeChristmasEve').checked=state.settings.freeChristmasEve!==false;$('freeNewYearsEve').checked=state.settings.freeNewYearsEve!==false;$('countdownEnabled').checked=state.settings.countdownEnabled!==false;$('bookingSoundEnabled').checked=state.settings.bookingSoundEnabled===true;$('reportSignature').checked=state.settings.reportSignature!==false;$('appVersion').textContent=`Arbeitszeit PWA · Version ${APP_VERSION}`;}
 function saveSettings(){
-const cp=parseSignedTime($('checkpointBalance').value);if(cp===null){showToast('Zeitkonto als +HH:MM eingeben');$('checkpointBalance').value=formatDuration(state.settings.balanceCheckpointMinutes||CHECKPOINT_MINUTES);return}
-state.settings.employeeName=$('employeeName').value.trim();state.settings.targetMinutes=minutes($('targetHours').value)||480;state.settings.balanceCheckpointMinutes=cp;state.settings.balanceCheckpointDate=CHECKPOINT_DATE;state.settings.balanceCheckpointVersion=IMPORT_DATA_VERSION;state.settings.freeChristmasEve=$('freeChristmasEve').checked;state.settings.freeNewYearsEve=$('freeNewYearsEve').checked;state.settings.countdownEnabled=$('countdownEnabled').checked;state.settings.bookingSoundEnabled=$('bookingSoundEnabled').checked;state.settings.reportSignature=$('reportSignature').checked;ensureHolidayYear(new Date().getFullYear());saveState();if(!state.settings.countdownEnabled)stopConfetti();showToast('Einstellungen gespeichert')
+const startBalance=parseSignedTime($('checkpointBalance').value);if(startBalance===null){showToast('Startwert als +HH:MM eingeben');$('checkpointBalance').value=formatDuration(state.settings.startBalanceMinutes||0);return}
+state.settings.employeeName=$('employeeName').value.trim();state.settings.targetMinutes=minutes($('targetHours').value)||480;state.settings.startBalanceMinutes=startBalance;state.settings.trackingStartDate=TRACKING_START_DATE;state.settings.calculationVersion=CALCULATION_VERSION;state.settings.freeChristmasEve=$('freeChristmasEve').checked;state.settings.freeNewYearsEve=$('freeNewYearsEve').checked;state.settings.countdownEnabled=$('countdownEnabled').checked;state.settings.bookingSoundEnabled=$('bookingSoundEnabled').checked;state.settings.reportSignature=$('reportSignature').checked;ensureHolidayYear(new Date().getFullYear());saveState();refreshAllDerivedViews();if(!state.settings.countdownEnabled)stopConfetti();showToast('Einstellungen gespeichert');
 }
 function downloadBlob(name,blob){const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),2500)}
 function downloadFile(name,text,type){downloadBlob(name,new Blob([text],{type}))}
@@ -1019,20 +945,22 @@ function colName(n){let s='';while(n){n--;s=String.fromCharCode(65+n%26)+s;n=Mat
 function cellXml(v,r,c,style=0,type=null){const ref=`${colName(c)}${r}`;if(v==null||v==='')return`<c r="${ref}" s="${style}"/>`;if(type==='n'||typeof v==='number')return`<c r="${ref}" s="${style}"><v>${Number(v)}</v></c>`;return`<c r="${ref}" s="${style}" t="inlineStr"><is><t xml:space="preserve">${xml(v)}</t></is></c>`}
 function sheetXml(rows,widths,{filter=true,freeze=true}={}){const maxCols=Math.max(1,...rows.map(r=>r.length)),data=rows.map((row,ri)=>`<row r="${ri+1}">${row.map((x,ci)=>cellXml(x.v,ri+1,ci+1,x.s||0,x.t)).join('')}</row>`).join('');const cols=widths.map((w,i)=>`<col min="${i+1}" max="${i+1}" width="${w}" customWidth="1"/>`).join('');const pane=freeze?'<sheetViews><sheetView workbookViewId="0"><pane ySplit="1" topLeftCell="A2" activePane="bottomLeft" state="frozen"/></sheetView></sheetViews>':'<sheetViews><sheetView workbookViewId="0"/></sheetViews>';const af=filter&&rows.length?`<autoFilter ref="A1:${colName(maxCols)}${rows.length}"/>`:'';return`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">${pane}<cols>${cols}</cols><sheetData>${data}</sheetData>${af}</worksheet>`}
 function H(v){return{v,s:1}}function T(v){return{v,s:0}}function D(k){return{v:excelSerial(k),s:2,t:'n'}}function TM(v){return v?{v:minutes(v)/1440,s:3,t:'n'}:T('')}function DUR(v,diff=false){return{v:Number(v||0)/1440,s:diff?(v<0?6:v>0?5:4):4,t:'n'}}
-function exportDays(){return Object.values(state.days||{}).filter(d=>hasMeaningfulData(d)||isCountable(d,todayKey())).sort((a,b)=>a.date.localeCompare(b.date))}
+function exportDays(){return calendarRecords(TRACKING_START_DATE,todayKey())}
 function makeWorkbook(){
 const days=exportDays(),countable=days.filter(d=>isCountable(d,todayKey())),first=countable[0]?.date||days[0]?.date||'',last=countable.at(-1)?.date||days.at(-1)?.date||'';
-const totals=countable.reduce((a,d)=>{const c=calculateDay(d);a.net+=c.net;a.target+=c.target;a.pause+=Number(d.pauseMinutes)||0;a.diff+=c.diff;a.entries+=(d.entries||[]).length;return a},{net:0,target:0,pause:0,diff:0,entries:0});
+const totals=countable.reduce((a,d)=>{const c=calculateDay(d);a.net+=c.net;a.target+=c.target;a.pause+=c.appliedPause;a.diff+=c.diff;a.entries+=(d.entries||[]).length;return a},{net:0,target:0,pause:0,diff:0,entries:0});
 const overview=[[H('Kennzahl'),H('Wert')],[T('Sicherungsdatum'),T(new Date().toLocaleString('de-DE'))],[T('Datenzeitraum'),T(first&&last?`${first} bis ${last}`:'Keine Daten')],[T('App-Version'),T(APP_VERSION)],[T('Aktueller Zeitkontostand'),DUR(balanceThrough(todayKey()),true)],[T('Gesamte Nettoarbeitszeit'),DUR(totals.net)],[T('Gesamte Sollzeit'),DUR(totals.target)],[T('Gesamte Pausenzeit'),DUR(totals.pause)],[T('Gesamte Differenz'),DUR(totals.diff,true)],[T('Anzahl erfasster Arbeitstage'),{v:countable.length,t:'n'}],[T('Anzahl einzelner Buchungen'),{v:totals.entries,t:'n'}]];
 const daily=[[H('Datum'),H('Wochentag'),H('Erster Arbeitsbeginn'),H('Letztes Arbeitsende'),H('Bruttozeit'),H('Automatische Pause'),H('Manuelle Pause'),H('Gesamte Pause'),H('Nettozeit'),H('Sollzeit'),H('Tagesdifferenz'),H('Zeitkontostand nach diesem Tag'),H('Status'),H('Kommentar')]];
-for(const d of days){const c=calculateDay(d),ins=(d.entries||[]).filter(e=>e.type==='in'),outs=(d.entries||[]).filter(e=>e.type==='out');daily.push([D(d.date),T(formatDate(d.date,{weekday:'long'})),TM(ins[0]?.logged||ins[0]?.actual),TM(outs.at(-1)?.logged||outs.at(-1)?.actual),DUR(c.gross),DUR(0),DUR(Number(d.pauseMinutes)||0),DUR(Number(d.pauseMinutes)||0),DUR(c.net),DUR(c.target),DUR(c.diff,true),DUR(balanceThrough(d.date),true),T(dayStatus(d)),T(d.note||d.absenceNote||'')])}
+for(const d of days){const c=calculateDay(d),ins=(d.entries||[]).filter(e=>e.type==='in'),outs=(d.entries||[]).filter(e=>e.type==='out');daily.push([D(d.date),T(formatDate(d.date,{weekday:'long'})),TM(ins[0]?.logged||ins[0]?.actual),TM(outs.at(-1)?.logged||outs.at(-1)?.actual),DUR(c.gross),DUR(0),DUR(0),DUR(c.enteredPause),DUR(c.appliedPause),DUR(c.net),DUR(c.target),DUR(c.diff,true),DUR(balanceThrough(d.date),true),T(dayStatus(d)),T(d.note||d.absenceNote||'')])}
 const bookings=[[H('Datum'),H('Typ'),H('Tatsächliche Uhrzeit'),H('Dokumentierte Uhrzeit'),H('Herkunft'),H('Manuell geändert'),H('Änderungszeitpunkt')]];
 for(const d of days)for(const e of d.entries||[])bookings.push([D(d.date),T(e.type==='in'?'Kommen':'Gehen'),TM(e.actual),TM(e.logged),T(entrySource(d,e)),T(e.edited||d.edited?'Ja':'Nein'),T((e.editedAt||d.modifiedAt||'').replace('T',' ').slice(0,19))]);
 const months=[[H('Monat'),H('Nettozeit'),H('Sollzeit'),H('Pausenzeit'),H('Monatsdifferenz'),H('Zeitkontostand am Monatsende'),H('Anzahl Arbeitstage')]],years=[[H('Jahr'),H('Nettozeit'),H('Sollzeit'),H('Pausenzeit'),H('Jahresdifferenz'),H('Zeitkontostand am Jahresende'),H('Anzahl Arbeitstage')]];
 const monthKeys=[...new Set(countable.map(d=>d.date.slice(0,7)))].sort();for(const mk of monthKeys){const [y,m]=mk.split('-').map(Number),ss=monthSummary(y,m-1);months.push([T(new Intl.DateTimeFormat('de-DE',{month:'long',year:'numeric'}).format(new Date(y,m-1,1))),DUR(ss.net),DUR(ss.target),DUR(ss.pause),DUR(ss.diff,true),DUR(ss.closing,true),{v:ss.days.filter(d=>isCountable(d,ss.cutoff)).length,t:'n'}])}
 const yearKeys=[...new Set(countable.map(d=>Number(d.date.slice(0,4))))].sort();for(const y of yearKeys){const ss=yearSummary(y);years.push([{v:y,t:'n'},DUR(ss.net),DUR(ss.target),DUR(ss.pause),DUR(ss.diff,true),DUR(ss.closing,true),{v:ss.months.reduce((n,m)=>n+m.days.filter(d=>isCountable(d,m.cutoff)).length,0),t:'n'}])}
-const settings=[[H('Einstellung'),H('Wert')],[T('Name im Bericht'),T(state.settings.employeeName||'')],[T('Tägliche Sollzeit'),DUR(state.settings.targetMinutes||480)],[T(`Zeitkonto am ${CHECKPOINT_DATE}`),DUR(state.settings.balanceCheckpointMinutes||CHECKPOINT_MINUTES,true)],[T('Heiligabend frei'),T(state.settings.freeChristmasEve!==false?'Ja':'Nein')],[T('Silvester frei'),T(state.settings.freeNewYearsEve!==false?'Ja':'Nein')],[T('Countdown aktiviert'),T(state.settings.countdownEnabled!==false?'Ja':'Nein')],[T('Retro-Buchungston'),T(state.settings.bookingSoundEnabled===true?'Ja':'Nein')],[T('Unterschriftsbereich'),T(state.settings.reportSignature!==false?'Ja':'Nein')],[T('Datenschema'),{v:CURRENT_SCHEMA,t:'n'}],[T('App-Version'),T(APP_VERSION)]];
-const sheets=[['Übersicht',overview,[32,28],false],['Tagesübersicht',daily,[12,14,18,18,14,18,16,15,14,14,16,24,22,34],true],['Buchungen',bookings,[12,12,18,20,24,18,24],true],['Monatsübersicht',months,[22,16,16,16,18,28,18],true],['Jahresübersicht',years,[12,16,16,16,18,28,18],true],['Einstellungen',settings,[30,28],false]];
+const history=[[H('Datum'),H('Import Netto'),H('Neu Netto'),H('Delta Netto'),H('Import Soll'),H('Neu Soll'),H('Delta Soll'),H('Import Saldo'),H('Neu Saldo'),H('Delta Saldo'),H('Import Tagesstand'),H('Neu Tagesstand'),H('Delta Tagesstand'),H('Historisch einbezogen'),H('Bereinigung / Hinweis')]];
+for(const d of days.filter(x=>x.sourceYear||Number.isFinite(Number(x.excelDiffMinutes)))){const c=calculateDay(d),legacyNet=Number(d.excelNetMinutes)||0,legacyTarget=Number(d.excelTargetMinutes)||0,legacyDiff=Number(d.excelDiffMinutes)||0,legacyBalance=Number(d.excelBalanceMinutes)||0,currentBalance=balanceThrough(d.date);history.push([D(d.date),DUR(legacyNet),DUR(c.net),DUR(c.net-legacyNet,true),DUR(legacyTarget),DUR(c.target),DUR(c.target-legacyTarget,true),DUR(legacyDiff,true),DUR(c.diff,true),DUR(c.diff-legacyDiff,true),DUR(legacyBalance,true),DUR(currentBalance,true),DUR(currentBalance-legacyBalance,true),T(d.excelIncludedInSummary===false?'Nein':'Ja'),T(d.dataCorrection||'')])}
+const settings=[[H('Einstellung'),H('Wert')],[T('Name im Bericht'),T(state.settings.employeeName||'')],[T('Tägliche Sollzeit'),DUR(state.settings.targetMinutes||480)],[T(`Startwert Zeitkonto am ${TRACKING_START_DATE}`),DUR(state.settings.startBalanceMinutes||0,true)],[T('Heiligabend frei'),T(state.settings.freeChristmasEve!==false?'Ja':'Nein')],[T('Silvester frei'),T(state.settings.freeNewYearsEve!==false?'Ja':'Nein')],[T('Countdown aktiviert'),T(state.settings.countdownEnabled!==false?'Ja':'Nein')],[T('Retro-Buchungston'),T(state.settings.bookingSoundEnabled===true?'Ja':'Nein')],[T('Unterschriftsbereich'),T(state.settings.reportSignature!==false?'Ja':'Nein')],[T('Datenschema'),{v:CURRENT_SCHEMA,t:'n'}],[T('App-Version'),T(APP_VERSION)]];
+const sheets=[['Übersicht',overview,[32,28],false],['Tagesübersicht',daily,[12,14,18,18,14,18,16,15,14,14,16,24,22,34],true],['Buchungen',bookings,[12,12,18,20,24,18,24],true],['Monatsübersicht',months,[22,16,16,16,18,28,18],true],['Jahresübersicht',years,[12,16,16,16,18,28,18],true],['Historienvergleich',history,[12,16,16,16,16,16,16,16,16,16,20,20,20,20,54],true],['Einstellungen',settings,[34,28],false]];
 const files=[];files.push({name:'[Content_Types].xml',data:`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/><Override PartName="/xl/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/>${sheets.map((_,i)=>`<Override PartName="/xl/worksheets/sheet${i+1}.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/>`).join('')}</Types>`});
 files.push({name:'_rels/.rels',data:`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/></Relationships>`});
 files.push({name:'xl/workbook.xml',data:`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><sheets>${sheets.map((sh,i)=>`<sheet name="${xml(sh[0])}" sheetId="${i+1}" r:id="rId${i+1}"/>`).join('')}</sheets></workbook>`});
@@ -1126,14 +1054,14 @@ function closePrintPreview(){$('printPreview').classList.remove('open');$('print
 function printCurrentReport(){window.print()}
 function dayReport(k){
 const d=dayObject(k),c=calculateDay(d),entries=d.entries||[],source=d.edited?'Nachträglich geändert':d.sourceYear?`Import ${d.sourceYear}`:'Lokale Erfassung';
-const summary=`<div class="hero"><span>Zeitkontostand nach diesem Tag</span><strong>${formatDuration(balanceThrough(k))}</strong></div><div class="summary"><div><span>Tagesstatus</span><b>${esc(dayStatus(d))}</b></div><div><span>Bruttoarbeitszeit</span><b>${formatDuration(c.gross,{signed:false})}</b></div><div><span>Nettoarbeitszeit</span><b>${formatDuration(c.net,{signed:false})}</b></div><div><span>Sollzeit</span><b>${formatDuration(c.target,{signed:false})}</b></div><div><span>Tagesdifferenz</span><b>${formatDuration(c.diff)}</b></div><div><span>Pause</span><b>${Number(d.pauseMinutes)||0} Min.</b></div><div><span>Abwesenheit</span><b>${esc(d.absence?`${d.absence} · ${absenceDuration(d)==='half'?'Halber Tag':'Ganzer Tag'}`:'–')}</b></div><div><span>Angerechnete Abwesenheitszeit</span><b>${d.absence?formatDuration(absenceCreditMinutes(d),{signed:false}):'–'}</b></div><div><span>Abwesenheitsnotiz</span><b class="wrap">${esc(d.absenceNote||'–')}</b></div><div><span>Herkunft / Änderung</span><b>${esc(source)}</b></div><div><span>Kommentar</span><b class="wrap">${esc(d.note||'–')}</b></div></div>`;
+const summary=`<div class="hero"><span>Zeitkontostand nach diesem Tag</span><strong>${formatDuration(balanceThrough(k))}</strong></div><div class="summary"><div><span>Tagesstatus</span><b>${esc(dayStatus(d))}</b></div><div><span>Bruttoarbeitszeit</span><b>${formatDuration(c.gross,{signed:false})}</b></div><div><span>Nettoarbeitszeit</span><b>${formatDuration(c.net,{signed:false})}</b></div><div><span>Sollzeit</span><b>${formatDuration(c.target,{signed:false})}</b></div><div><span>Tagesdifferenz</span><b>${formatDuration(c.diff)}</b></div><div><span>Pause</span><b>${Number(d.pauseMinutes)||0} Min.</b></div><div><span>Abwesenheit</span><b>${esc(d.absence?`${d.absence} · ${absenceDuration(d)==='half'?'Halber Tag':'Ganzer Tag'}`:'–')}</b></div><div><span>Sollzeit nach Abwesenheit</span><b>${d.absence?formatDuration(targetMinutesForDate(d.date,d),{signed:false}):'–'}</b></div><div><span>Abwesenheitsnotiz</span><b class="wrap">${esc(d.absenceNote||'–')}</b></div><div><span>Herkunft / Änderung</span><b>${esc(source)}</b></div><div><span>Kommentar</span><b class="wrap">${esc(d.note||'–')}</b></div></div>`;
 const body=entries.length?entries.map((e,i)=>`<tr><td>${i+1}</td><td>${e.type==='in'?'Kommen':'Gehen'}</td><td class="num">${esc(e.actual||'–')}</td><td class="num">${esc(e.logged||'–')}</td><td>${esc(entrySource(d,e))}</td></tr>`).join(''):'<tr><td colspan="5">Keine Buchungen</td></tr>';
 reportShell(`Tagesbericht ${formatDate(k,{day:'2-digit',month:'2-digit',year:'numeric'})}`,formatDate(k),summary,`<table><thead><tr><th>Nr.</th><th>Art</th><th class="num">Tatsächlich</th><th class="num">Dokumentiert</th><th>Herkunft</th></tr></thead><tbody>${body}</tbody></table>`,'day')
 }
 function monthReport(y,m){
 const start=`${y}-${pad(m+1)}-01`,end=dateKey(new Date(y,m+1,0,12)),s=periodSummary(start,end),title=new Intl.DateTimeFormat('de-DE',{month:'long',year:'numeric'}).format(new Date(y,m,1));
 const summary=`<div class="hero"><span>Zeitkonto Monatsende / Stichtag</span><strong>${formatDuration(s.closing)}</strong></div><div class="summary"><div><span>Übertrag Vormonat</span><b>${formatDuration(s.opening)}</b></div><div><span>Monatsdifferenz</span><b>${formatDuration(s.diff)}</b></div><div><span>Sollzeit</span><b>${formatDuration(s.target,{signed:false})}</b></div><div><span>Nettozeit</span><b>${formatDuration(s.net,{signed:false})}</b></div><div><span>Pausenzeit</span><b>${formatDuration(s.pause,{signed:false})}</b></div><div><span>Urlaubstage</span><b>${formatDayCount(s.vacation)}</b></div><div><span>Krankheitstage</span><b>${formatDayCount(s.sick)}</b></div><div><span>Zeitausgleichstage</span><b>${formatDayCount(s.timeOff||0)}</b></div><div><span>Sonstige Abwesenheiten</span><b>${formatDayCount(s.other)}</b></div><div><span>Unvollständige Tage</span><b>${s.incomplete}</b></div></div>`;
-const body=s.days.map(d=>{const c=calculateDay(d),ins=(d.entries||[]).filter(e=>e.type==='in').map(e=>e.logged).join(', ')||'–',outs=(d.entries||[]).filter(e=>e.type==='out').map(e=>e.logged).join(', ')||'–',absence=d.absence?`${d.absence} (${absenceDuration(d)==='half'?'½ Tag':'ganzer Tag'}, ${formatDuration(absenceCreditMinutes(d),{signed:false})})`:'–';return `<tr><td>${formatDate(d.date,{day:'2-digit',month:'2-digit',year:'numeric'})}</td><td>${esc(dayStatus(d))}</td><td>${esc(absence)}</td><td class="num">${esc(ins)}</td><td class="num">${esc(outs)}</td><td class="num">${Number(d.pauseMinutes)||0}</td><td class="num">${formatDuration(c.net,{signed:false})}</td><td class="num">${formatDuration(c.target,{signed:false})}</td><td class="num">${formatDuration(c.diff)}</td><td class="num">${formatDuration(balanceThrough(d.date))}</td><td class="wrap">${esc(d.absenceNote||d.note||'')}</td></tr>`}).join('');
+const body=s.days.map(d=>{const c=calculateDay(d),ins=(d.entries||[]).filter(e=>e.type==='in').map(e=>e.logged).join(', ')||'–',outs=(d.entries||[]).filter(e=>e.type==='out').map(e=>e.logged).join(', ')||'–',absence=d.absence?`${d.absence} (${absenceDuration(d)==='half'?'½ Tag':'ganzer Tag'}, Soll ${formatDuration(targetMinutesForDate(d.date,d),{signed:false})})`:'–';return `<tr><td>${formatDate(d.date,{day:'2-digit',month:'2-digit',year:'numeric'})}</td><td>${esc(dayStatus(d))}</td><td>${esc(absence)}</td><td class="num">${esc(ins)}</td><td class="num">${esc(outs)}</td><td class="num">${Number(d.pauseMinutes)||0}</td><td class="num">${formatDuration(c.net,{signed:false})}</td><td class="num">${formatDuration(c.target,{signed:false})}</td><td class="num">${formatDuration(c.diff)}</td><td class="num">${formatDuration(balanceThrough(d.date))}</td><td class="wrap">${esc(d.absenceNote||d.note||'')}</td></tr>`}).join('');
 reportShell(`Monatsbericht ${title}`,`Zeitraum: ${formatDate(start,{day:'2-digit',month:'2-digit',year:'numeric'})} bis ${formatDate(s.cutoff,{day:'2-digit',month:'2-digit',year:'numeric'})}`,summary,`<table><colgroup><col style="width:9%"><col style="width:8%"><col style="width:15%"><col style="width:7%"><col style="width:7%"><col style="width:6%"><col style="width:7%"><col style="width:7%"><col style="width:7%"><col style="width:9%"><col style="width:18%"></colgroup><thead><tr><th>Datum</th><th>Status</th><th>Abwesenheit</th><th class="num">Kommen</th><th class="num">Gehen</th><th class="num">Pause</th><th class="num">Netto</th><th class="num">Soll</th><th class="num">Diff.</th><th class="num">Zeitkonto</th><th>Notiz</th></tr></thead><tbody>${body}</tbody></table>`,'month')
 }
 function yearReport(y){

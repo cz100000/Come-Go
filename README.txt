@@ -1,29 +1,44 @@
-Arbeitszeit PWA – Version 5.26
+Arbeitszeit PWA – Version 5.27
 
 Vollständig offlinefähige Arbeitszeiterfassung für iPhone 16.
 Start: index.html öffnen oder als PWA zum Home-Bildschirm hinzufügen.
 
-Datenhaltung:
+Datenhaltung und Kompatibilität:
 - lokaler Speicherschlüssel arbeitszeit-pwa-v1 unverändert
-- Datenschema 10 unverändert
-- bestehende Daten, Sicherungen und Migrationen bleiben kompatibel
+- Datenschema 11 mit automatischer, verlustfreier Migration aus V5.26 und älteren Sicherungen
+- Berechnungsbeginn 01.11.2022, Startwert Zeitkonto 00:00
+- Ausgangsdaten aus Arbeitszeit_Backup_2026-08-02.json übernommen
+- technische Leerdatensätze vor dem 01.11.2022 werden nicht mehr geführt
+- historische Importwerte bleiben als Vergleichsdaten erhalten
 
-Neu in V5.26:
-- größerer optischer Abstand zwischen Kommen-/Gehen-Schaltfläche und Hinweis auf offene Arbeitstage
-- „Manuelle Pause“ und runder Plus-Button auf derselben festen Höhe oberhalb der Navigation
-- vollständiger Tageseditor auf iPhone-Breite begrenzt
-- festes Bezugsdatum im Kopf statt veränderbarem Datumsfeld
-- Buchungen als kompakte, einzeln aufklappbare Zeilen
-- eindeutig positioniertes rotes Papierkorb-Symbol mit ausreichend großer Touchfläche
-- Rückgängig nach dem Entfernen einer Buchung im Tageseditor
-- Pause, Abwesenheit, Kommentar und erweiterte Aktionen platzsparender dargestellt
-- direkte Feldhinweise bei fehlenden oder unplausiblen Uhrzeiten
-- zukünftige Arbeitszeitbuchungen im vollständigen Tageseditor verhindert
-- Zeitänderungen aktualisieren nur die betroffene Zeile; Fokus und Scrollposition bleiben stabil
-- Änderungen können vor dem Wechsel zur Abwesenheitsverwaltung gespeichert werden
+Neu in V5.27:
+- einheitlicher kalenderbasierter Rechenkern für Tag, Woche, Monat, Jahr, Zeitkonto, Diagramme, PDF und Excel
+- keine Stichtags- oder datumsspezifische Sonderrechnung im laufenden Rechenkern
+- Montag bis Freitag grundsätzlich 08:00 Sollzeit
+- gesetzliche und betriebliche Feiertage mit 00:00 Sollzeit
+- Urlaub und Krankheit ganzer Tag mit 00:00 Sollzeit, halber Urlaub mit 04:00 Sollzeit
+- Gleittag/Zeitausgleich mit 08:00 Sollzeit und damit -08:00 Tagessaldo
+- Wochenend- und Feiertagsarbeit vollständig als Pluszeit
+- Übernachtarbeit wird vollständig dem begonnenen Tag zugerechnet
+- vergangene Arbeitstage ohne Buchung werden mit -08:00 bewertet und als offen angezeigt
+- unvollständige Tage werden mit 00:00 Ist gegen die Sollzeit bewertet und als unvollständig angezeigt
+- Rundung und tatsächlich eingetragene Pausen bleiben maßgeblich
+- Historienvergleich als zusätzliches Tabellenblatt im Excel-Export
+
+Umgesetzte Datenkorrekturen:
+- 02.06.2026: Brutto 12:00, Pause 01:15, Netto 10:45, Saldo +02:45
+- 15.12.2025: fehlerhafte Einzelbuchung 00:00 entfernt, Urlaub beibehalten
+- 18.09.2023, 25.01.2024, 26.01.2024 und 30.09.2024 als Gleittage mit jeweils -08:00
+- acht fälschlich als Urlaub markierte Arbeitstage im März/April 2025 bereinigt
+- 01.09.2025 wieder vollständig in Monat, Jahr und Zeitkonto einbezogen
+- verwaiste Pause am 27.07.2026 entfernt; der Tag bleibt ohne Buchung offen
+
+Aktueller bereinigter Stand am 02.08.2026 vor manueller Rekonstruktion offener Julitage:
+- Zeitkonto +136:42
+- offene Tage: 24.07. sowie 27.07. bis 31.07.2026
 
 Weiterhin enthalten:
-- gemeinsame Schnellwege über den Plus-Button
-- Hinweise auf fehlende und unvollständige Arbeitstage
-- Einzelbuchungseditor, Auswertungen, PDF, Excel, Sicherung und Wiederherstellung
+- Schnellwege über den Plus-Button
+- vollständiger Tageseditor und Einzelbuchungseditor
+- Auswertungen, Diagramme, PDF, Excel, Sicherungs-ZIP und JSON-Wiederherstellung
 - vollständige Offlinefähigkeit

@@ -1,6 +1,6 @@
 {
-  "name": "Arbeitszeit – High-End Offline Zeiterfassung V5.26",
-  "short_name": "Arbeitszeit",
+  "name": "Arbeitszeit – High-End Offline Zeiterfassung V5.27",
+  "short_name": "Arbeitszeit 5.27",
   "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#f7f8fb",
@@ -26,5 +26,6 @@
       "type": "image/png",
       "purpose": "any maskable"
     }
-  ]
+  ],
+  "description": "Offline-Arbeitszeiterfassung mit kalenderbasierter Soll-Ist-Rechnung ab 01.11.2022."
 }
