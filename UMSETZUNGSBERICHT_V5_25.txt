@@ -1,0 +1,30 @@
+Arbeitszeit-PWA V5.25 – Umsetzungsbericht
+
+Ausgangsbasis:
+Arbeitszeit_PWA_Offline_V5_24_HighEnd_iPhone16.zip
+
+Umgesetzt:
+- Wiederherstellung der bestehenden manuellen Pausenfunktion auf der Seite „Heute“
+- Entfernung der doppelten Text-Schnellzugänge auf „Heute“
+- grafisch robustes, mathematisch zentriertes Plus-Symbol auf beiden Plus-Buttons
+- neue Position des Hinweises auf offene Arbeitstage ohne Verschiebung des Hauptbuchungsbuttons
+- kompaktere Tageskennzahlen- und Buchungsdarstellung
+- größere Datumsanzeige bei unveränderter Navigationsboxhöhe
+- Aktualisierung von Version, Manifest, Service Worker und Cache
+
+Unverändert geblieben:
+- Speicherschlüssel arbeitszeit-pwa-v1
+- Datenschema 10
+- importierter Datenbestand
+- Rundungs-, Plausibilitäts- und Berechnungsgrundlagen
+- bestehende Exporte, Backups, Wiederherstellung und Offlinearchitektur
+
+Testergebnis:
+- 50/50 Funktions- und Regressionstests bestanden
+- 16/16 ergänzende UI- und Layouttests bestanden
+- Kennzahlenbox und Buchungsbox jeweils rund 7 Prozent niedriger
+- Datum rund 38 Prozent größer bei unveränderter Boxhöhe
+- keine Laufzeitfehler und kein horizontaler Überlauf bei 393 × 852 Pixel
+
+Bekannte Einschränkung der Prüfstandsabdeckung:
+Der reale Service-Worker-Offlineneustart konnte wegen einer administrativen Browser-Sperre für lokale Testadressen nicht erneut ausgeführt werden. Syntax, Cache-Dateiliste, Cache-Bereinigung und die gegenüber V5.24 unveränderte Offline-Logik wurden geprüft.

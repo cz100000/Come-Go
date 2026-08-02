@@ -29,12 +29,6 @@
     <button type="button" id="todayAbsenceEdit">Bearbeiten</button>
   </section>
 
-  <button id="pastWorkdayNotice" class="past-workday-notice" type="button" hidden aria-live="polite">
-    <span class="past-workday-icon" aria-hidden="true">!</span>
-    <span><b id="pastWorkdayNoticeTitle">Offene Arbeitstage</b><small id="pastWorkdayNoticeText"></small></span>
-    <span class="past-workday-chev" aria-hidden="true">›</span>
-  </button>
-
   <div class="punch-grid single" aria-label="Arbeitszeit buchen">
     <button id="punchAction" class="punch-btn punch-in" type="button" data-punch="in">
       <span class="punch-icon-box" aria-hidden="true"><svg class="icon" viewBox="0 0 32 32"><path class="door" d="M11 5.5h12v21H11"/><path d="M4.5 16h16M15.5 10.5 21 16l-5.5 5.5"/></svg></span>
@@ -53,6 +47,12 @@
     <div class="countdown-pause"><svg class="icon" viewBox="0 0 24 24"><path d="M5 7h11v7a5 5 0 0 1-5 5H10a5 5 0 0 1-5-5Z"/><path d="M16 9h2a3 3 0 0 1 0 6h-2M4 21h14"/></svg><span id="countdownPause">Mindestpause wird berücksichtigt.</span></div>
   </section>
 
+  <button id="pastWorkdayNotice" class="past-workday-notice" type="button" hidden aria-live="polite">
+    <span class="past-workday-icon" aria-hidden="true">!</span>
+    <span><b id="pastWorkdayNoticeTitle">Offene Arbeitstage</b><small id="pastWorkdayNoticeText"></small></span>
+    <span class="past-workday-chev" aria-hidden="true">›</span>
+  </button>
+
   <section class="today-capture" aria-labelledby="capturedTitle">
     <div class="capture-head">
       <h2 id="capturedTitle">Heute erfasst</h2>
@@ -61,13 +61,14 @@
     <div id="todayCaptureList" class="capture-list"></div>
   </section>
 
-  <div class="quick-action-row" aria-label="Schnelleintrag">
-    <button id="quickEntryOverview" class="quick-entry-overview home-pressable" type="button" aria-label="Eintrag für heute öffnen">
-      <span><b>Abwesenheit eintragen</b><small>Urlaub, Krankheit oder Sonstiges</small></span>
-      <span><b>Zeit ergänzen / korrigieren</b><small>Fehlende oder vorhandene Buchung bearbeiten</small></span>
+  <div class="quick-action-row" aria-label="Manuelle Einträge">
+    <button id="pauseToday" class="pause-btn home-pressable" type="button">
+      <svg class="icon" viewBox="0 0 24 24"><path d="M5 7h11v7a5 5 0 0 1-5 5H10a5 5 0 0 1-5-5Z"/><path d="M16 9h2a3 3 0 0 1 0 6h-2M4 21h14"/></svg>
+      <span class="pause-copy"><b id="pauseButtonLabel">Manuelle Pause</b><small id="pauseButtonSub">Pause eintragen</small></span>
+      <svg class="icon pause-chev" viewBox="0 0 24 24"><path d="m9 6 6 6-6 6"/></svg>
     </button>
   </div>
-  <button id="quickAddBtn" class="quick-add-btn floating-quick-add today-floating-quick home-pressable" type="button" aria-label="Eintrag für heute öffnen">+</button>
+  <button id="quickAddBtn" class="quick-add-btn floating-quick-add today-floating-quick home-pressable" type="button" aria-label="Eintrag für heute öffnen"><span class="plus-glyph" aria-hidden="true"></span></button>
 </section>
 
 <section id="times" class="screen" aria-label="Zeiten">
@@ -79,7 +80,7 @@
     <button type="button" data-view="year">Jahr</button>
   </div>
   <div id="timesContent"></div>
-  <button id="timesQuickAddBtn" class="quick-add-btn floating-quick-add times-floating-quick" type="button" aria-label="Eintrag für den angezeigten Tag öffnen" hidden>+</button>
+  <button id="timesQuickAddBtn" class="quick-add-btn floating-quick-add times-floating-quick" type="button" aria-label="Eintrag für den angezeigten Tag öffnen" hidden><span class="plus-glyph" aria-hidden="true"></span></button>
 </section>
 
 <section id="reports" class="screen" aria-label="Auswertung">

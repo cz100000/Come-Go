@@ -1,0 +1,13 @@
+Arbeitszeit-PWA V5.25 – Änderungen
+
+- Pausenfunktion auf „Heute“ an ihrer ursprünglichen Stelle wiederhergestellt.
+- Zusätzliche Links „Abwesenheit eintragen“ und „Zeit ergänzen / korrigieren“ von „Heute“ entfernt.
+- Runder blauer Plus-Button bleibt alleiniger Schnellzugang zu Abwesenheiten und Zeitkorrekturen.
+- Plus-Symbol wird aus zwei symmetrischen, abgerundeten Linien aufgebaut und exakt zentriert.
+- Hinweis auf offene Arbeitstage unterhalb des Kommen-/Gehen-Bereichs und oberhalb „Heute erfasst“ verschoben.
+- Kommen-/Gehen-Button verändert seine Position durch den Hinweis nicht mehr.
+- Hinweis auf offene Arbeitstage kompakter und möglichst einzeilig dargestellt.
+- Kennzahlenbox unter „Zeiten → Tag“ um ungefähr acht Prozent in der Höhe reduziert, ohne die Schrift zu verkleinern.
+- Box „Buchungen“ unter „Zeiten → Tag“ um ungefähr acht Prozent kompakter gestaltet; Bearbeitungstouchflächen bleiben erhalten.
+- Datumsanzeige zwischen den Tagespfeilen um etwa 35 Prozent vergrößert; Boxhöhe und Pfeiltouchflächen bleiben unverändert.
+- Keine Änderungen an Datenmodell, Speicherschlüssel, Berechnungslogik oder Exportfunktionen.

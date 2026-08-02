@@ -1,0 +1,35 @@
+Arbeitszeit-PWA V5.25 – Testübersicht
+Prüfdatum: 02.08.2026
+
+Ergebnis:
+- 50 von 50 bestehenden Funktions- und Regressionstests bestanden
+- 16 von 16 ergänzenden UI- und Layouttests bestanden
+- keine JavaScript-Laufzeitfehler in den Browserprüfungen
+- JavaScript-, Service-Worker- und Manifest-Syntax fehlerfrei
+
+Gezielt geprüft:
+- Pausenfunktion auf „Heute“ vorhanden und funktionsfähig
+- keine zusätzlichen Textlinks für Abwesenheit oder Zeitkorrektur auf „Heute“
+- gemeinsames Plus-Menü auf „Heute“ und „Zeiten → Tag“ mit genau zwei Aktionen
+- Plus-Symbol auf beiden Seiten exakt horizontal und vertikal zentriert
+- Hinweis auf offene Arbeitstage unterhalb des Hauptbuchungsbuttons und oberhalb „Heute erfasst“
+- Hauptbuchungsbutton behält mit und ohne Hinweis exakt dieselbe Position
+- Hinweisfläche ohne horizontale Überbreite bei 393 Pixel Viewportbreite
+- Datumsbox unverändert 46 Pixel hoch
+- Datum von 13 auf 18 Pixel vergrößert, entsprechend rund 38 Prozent
+- Kennzahlenbox rund 7 Prozent niedriger
+- Buchungsbox rund 7 Prozent niedriger
+- Touchflächen für die Buchungsbearbeitung unverändert erreichbar
+- kein horizontales Scrollen bei 393 × 852 Pixel
+- Plus-Button bleibt oberhalb der unteren Navigation
+- Rundung, Validierung, Abwesenheiten, Rückgängig, Auswertungen, Backups und Exporte weiterhin funktionsfähig
+- Speicherschlüssel arbeitszeit-pwa-v1 und Datenschema 10 unverändert
+
+Service Worker:
+- Cache-Version auf V5.25 erhöht
+- Kerndateiliste vollständig
+- Bereinigung alter Cache-Versionen unverändert enthalten
+- Service-Worker-Programmcode gegenüber V5.24 ausschließlich bei der Cache-Kennung geändert
+
+Einschränkung der Prüfstandsabdeckung:
+Ein erneuter realer Service-Worker-Offlineneustart konnte in dieser Ausführungsumgebung nicht durchgeführt werden, weil der installierte Browser lokale und geroutete Webadressen durch eine Administrationsrichtlinie blockiert. Die Service-Worker-Syntax, Dateiliste, Cache-Kennung und unveränderte Offline-Logik wurden statisch geprüft. Der reale Offline-Lauf war in der unmittelbar vorausgehenden V5.24 mit derselben Offline-Logik erfolgreich.

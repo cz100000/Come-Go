@@ -168,3 +168,121 @@ html,body,.app,.screen,#timesContent{max-width:100%;overflow-x:hidden}
 .dialog-action{width:100%;min-height:48px;border:1px solid var(--line);border-radius:13px;padding:12px 14px;font-weight:750;text-align:center}
 .dialog-action-secondary{background:#e7eaf0;color:var(--text)}
 .dialog-action:focus-visible{outline:3px solid rgba(20,117,255,.24);outline-offset:2px}
+
+
+/* V5.25 – UI-Korrekturen Heute und Zeiten → Tag */
+#today.active{
+  grid-template-areas:"head" "absence" "punch" "countdown" "issues" "capture" "quick";
+  grid-template-rows:auto auto auto auto auto minmax(0,1fr) auto;
+}
+#today .today-head{grid-area:head}
+#today .today-absence-banner{grid-area:absence}
+#today .punch-grid{grid-area:punch}
+#today .work-countdown{grid-area:countdown}
+#today .past-workday-notice{grid-area:issues}
+#today .today-capture{grid-area:capture}
+#today .quick-action-row{grid-area:quick}
+
+#today .quick-action-row{
+  display:block;
+  width:100%;
+  margin-top:0;
+  padding-right:68px;
+}
+#today .quick-action-row .pause-btn{
+  width:100%;
+  height:56px;
+  min-width:0;
+  margin:0;
+  padding:0 13px;
+  justify-content:flex-start;
+  text-align:left;
+}
+#today .pause-copy{display:grid;min-width:0;flex:1;line-height:1.12}
+#today .pause-copy b{font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#today .pause-copy small{font-size:11px;font-weight:600;color:#5779a7;margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#today .pause-chev{margin-left:auto;width:19px;height:19px;flex:0 0 auto}
+
+.floating-quick-add{
+  font-size:0;
+  line-height:0;
+  padding:0;
+  display:grid;
+  place-items:center;
+}
+.floating-quick-add .plus-glyph{
+  position:relative;
+  display:block;
+  width:22px;
+  height:22px;
+  pointer-events:none;
+}
+.floating-quick-add .plus-glyph::before,
+.floating-quick-add .plus-glyph::after{
+  content:"";
+  position:absolute;
+  left:50%;
+  top:50%;
+  border-radius:999px;
+  background:#fff;
+  transform:translate(-50%,-50%);
+}
+.floating-quick-add .plus-glyph::before{width:22px;height:3px}
+.floating-quick-add .plus-glyph::after{width:3px;height:22px}
+.floating-quick-add:active .plus-glyph,
+.floating-quick-add:focus-visible .plus-glyph{transform:none}
+
+.past-workday-notice{
+  min-height:42px;
+  padding:6px 10px;
+  grid-template-columns:24px minmax(0,1fr) 16px;
+  gap:8px;
+}
+.past-workday-icon{width:23px;height:23px;font-size:13px}
+.past-workday-notice b{
+  font-size:12px;
+  line-height:1.2;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.past-workday-notice small{display:none}
+.past-workday-chev{font-size:22px}
+
+#timesContent .day-date-label{
+  font-size:20px;
+  line-height:1;
+  letter-spacing:-.02em;
+}
+#timesContent .compact-day-summary{
+  padding-top:13px;
+  padding-bottom:13px;
+}
+#timesContent .compact-day-summary .day-summary-top{margin-bottom:6px}
+#timesContent .compact-day-summary .balance-hero{padding-top:11px;padding-bottom:11px}
+#timesContent .compact-day-summary .metric-grid{gap:6px;margin-bottom:5px}
+#timesContent .compact-day-summary .metric{padding-top:8px;padding-bottom:8px}
+#timesContent .compact-booking-card{padding-top:14px;padding-bottom:14px}
+#timesContent .booking-section-title{margin-bottom:8px}
+#timesContent .booking-compact-row{min-height:52px;padding-top:7px;padding-bottom:7px}
+
+@media(max-width:430px){
+  #today .quick-action-row{padding-right:66px}
+  #timesContent .day-date-label{font-size:18px;gap:5px;padding-left:6px;padding-right:6px}
+  #timesContent .compact-day-summary{padding:6px 11px;margin-bottom:7px}
+  #timesContent .compact-day-summary .day-summary-top{margin-bottom:3px}
+  #timesContent .compact-day-summary .balance-hero{padding:2px 0 5px}
+  #timesContent .compact-day-summary .metric-grid{gap:4px;margin-bottom:4px}
+  #timesContent .compact-day-summary .metric{padding:5px 4px}
+  #timesContent .compact-booking-card{padding:8px 10px;margin-bottom:7px}
+  #timesContent .booking-section-title{margin-bottom:4px}
+  #timesContent .booking-compact-head{height:18px}
+  #timesContent .booking-compact-row{min-height:44px;padding:4px 3px;gap:5px}
+}
+@media(max-width:360px){
+  #timesContent .day-date-label{font-size:16px}
+}
+@media(max-height:760px){
+  #today .quick-action-row .pause-btn{height:52px}
+  #today .past-workday-notice{min-height:40px;padding-top:5px;padding-bottom:5px}
+}
