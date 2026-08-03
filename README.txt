@@ -1,29 +1,57 @@
-Arbeitszeit PWA – Version 5.28
+Arbeitszeit PWA – Version 5.29
+Stand: 03.08.2026
 
-Vollständig offlinefähige Arbeitszeiterfassung für iPhone 16.
-Start: index.html öffnen oder als PWA zum Home-Bildschirm hinzufügen.
+Zweck
+Vollständig offlinefähige Arbeitszeiterfassung für das iPhone 16 im Hochformat. Die Anwendung speichert ausschließlich lokal im Browser und benötigt nach der Erstinstallation keine Internetverbindung.
 
-Datenhaltung und Kompatibilität:
-- lokaler Speicherschlüssel arbeitszeit-pwa-v1 unverändert
-- Datenschema 11 unverändert; V5.27 und ältere kompatible Sicherungen werden weiterhin verlustfrei übernommen
-- bestehendes Tagesfeld note bleibt die einzige Kommentarstruktur
-- Kommentare bleiben in lokaler Speicherung, JSON-Sicherung, Wiederherstellung, Sicherungs-ZIP und Migration enthalten
-- Berechnungsbeginn 01.11.2022 und sämtliche Rechenregeln aus V5.27 bleiben unverändert
+Installation über GitHub Pages
+1. Sämtliche Dateien dieses Ordners unverändert in dasselbe GitHub-Pages-Verzeichnis hochladen.
+2. Die veröffentlichte HTTPS-Adresse in Safari öffnen.
+3. In Safari „Teilen“ und anschließend „Zum Home-Bildschirm“ wählen.
+4. Nach einem Versionswechsel die PWA vollständig schließen und erneut öffnen.
 
-Neu in V5.28:
-- Kommentarzeile im Tageseditor öffnet einen einheitlichen Dialog „Kommentar bearbeiten“
-- Änderungen aus dem Tageseditor werden zunächst nur vorgemerkt und erst mit „Tag speichern“ dauerhaft gespeichert
-- Plus-Menü auf „Heute“ und „Zeiten → Tag“ enthält „Kommentar eintragen“ beziehungsweise „Kommentar bearbeiten“
-- Datumsbezug im Kommentar-Dialog ist eindeutig; rückwirkende Kommentare werden dem ausgewählten Tag zugeordnet
-- vorhandene Kommentare werden auf „Heute“ und „Zeiten → Tag“ kompakt angezeigt und sind antippbar
-- lange Kommentarvorschauen werden sicher gekürzt; vollständiger Text bleibt im Dialog bearbeitbar
-- erweiterte Aktionen im Tageseditor bleiben vollständig sichtbar und werden beim Aufklappen in den sichtbaren Bereich gescrollt
-- nicht verfügbare Aktionen werden ausgeblendet oder eindeutig deaktiviert erklärt
-- Buchungszeilen zeigen tatsächliche und dokumentierte Uhrzeit ohne abgeschnittene Texte
-- Dialogbreiten, Touch-Ziele und horizontale Überlauffreiheit für iPhone 16 geprüft
+Daten und Kompatibilität
+- Lokaler Speicherschlüssel unverändert: arbeitszeit-pwa-v1
+- Datenschema: 12
+- Datenbeginn: 01.11.2022
+- Eingebetteter Ausgangsdatenstand: JSON-Sicherung vom 03.08.2026
+- Bestehende lokale Daten, JSON-Sicherungen und Datenmigrationen bleiben kompatibel.
+- Sicherungen mit einem neueren als dem unterstützten Datenschema werden zum Schutz vor Datenverlust abgelehnt.
 
-Unverändert enthalten:
-- einheitlicher kalenderbasierter Rechenkern aus V5.27
-- Kommen/Gehen, Rundung, Pausen, Abwesenheiten und Zeitkonto
-- Auswertungen, Diagramme, PDF, Excel, Sicherungs-ZIP und JSON-Wiederherstellung
-- vollständige Offlinefähigkeit ohne externe Bibliotheken oder Dienste
+Verbindliche Sollzeit
+- Seit 01.11.2022 gilt für jeden regulären Arbeitstag eine Grundsollzeit von 08:00 Stunden.
+- Abweichende importierte Excel-Sollzeiten, insbesondere 07:48 Stunden, werden nicht als Berechnungsgrundlage verwendet.
+- Abwesenheiten sowie gesetzliche und betriebliche Feiertage reduzieren die Sollzeit nach den bestehenden Regeln.
+- Künftige Sollzeitänderungen werden mit einem Gültigkeitsdatum erfasst und verändern frühere Zeiträume nicht.
+
+Feiertage
+- Das Bundesland ist in den Einstellungen auswählbar.
+- Landesweit geltende gesetzliche Feiertage werden vollständig offline berechnet.
+- Hessen ist für den bisherigen Zeitraum ab 01.11.2022 vorbelegt.
+- Ein späterer Bundeslandwechsel wird mit Gültigkeitsdatum gespeichert.
+- Heiligabend und Silvester bleiben als betriebliche freie Tage separat schaltbar.
+- Kommunale oder nur in Teilgebieten geltende Sonderfeiertage können nicht allein aus dem Bundesland bestimmt werden und werden deshalb nicht automatisch landesweit angesetzt.
+
+Sicherung
+„Sicherung und Excel teilen“ erzeugt zwei einzelne Dateien mit identischem Zeitstempel:
+- Arbeitszeit_Backup_YYYY-MM-DD_HH-MM-SS.json
+- Arbeitszeit_Auswertung_YYYY-MM-DD_HH-MM-SS.xlsx
+
+Beide Dateien werden gemeinsam an das native Teilen-Menü übergeben. Unterstützt ein Gerät oder Ziel die gemeinsame Übergabe nicht, bietet die App beide Dateien einzeln zum Speichern an. Eine ZIP- und eine Hinweise-TXT-Datei werden nicht mehr erzeugt.
+
+Wichtige Änderungen in V5.29
+- drei echte interne Rückfallsicherungen
+- korrekte Prüfung halbtägiger Abwesenheiten
+- einheitliche Unterstützung plausibler Buchungen über Mitternacht
+- unverändertes Speichern verändert keine Importherkunft
+- dynamische Jahreskennzeichnung
+- direkte Auswahl „Zeitausgleich“
+- verbesserte Dialog- und Fokusführung
+- app-eigene Cache-Bereinigung ohne Löschen fremder Caches
+- aktueller Datenbestand einschließlich der Buchungen bis 03.08.2026 eingebettet
+
+Bekannter Datenhinweis
+Der 24.03.2023 enthält einen halben Urlaubstag, aber keine Arbeitszeitbuchungen für die verbleibende Sollzeit. Dieser Tag wird nun korrekt als offener Arbeitstag angezeigt und nicht automatisch verändert.
+
+Technischer Hinweis
+Ein physischer Installationstest auf einem iPhone mit Mobile Safari war in der Entwicklungsumgebung nicht möglich. Die Darstellung wurde automatisiert mit 393 × 852 Pixeln sowie kleineren Kontrollgrößen geprüft.

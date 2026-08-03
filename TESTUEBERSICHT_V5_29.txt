@@ -1,0 +1,56 @@
+Arbeitszeit PWA V5.29 – Testübersicht
+Prüfdatum: 03.08.2026
+
+Gesamtergebnis
+- Neue Funktions-, Datenintegritäts- und Responsive-Prüfung: 50/50 bestanden.
+- Vollständige V5.28-Kommentar-/Tageseditor-Regression: 66/66 bestanden.
+- Zusammen: 116/116 automatisierte Browserprüfungen bestanden.
+- Feiertagsmatrix für alle 16 Bundesländer: bestanden.
+- JavaScript-Syntax app.js und sw.js: bestanden.
+- Manifest: gültiges JSON und V5.29-Angaben geprüft.
+- Migration des Schema-11-Backups auf Schema 12: bestanden.
+- JSON-Sicherung: gültig, vollständig und mit aktuellem Datenstand geprüft.
+- Excel-Datei: gültiges XLSX, sieben Arbeitsblätter, keine erkennbaren Formelfehler und aktuelle Buchungen geprüft.
+- PDF-Erzeugung: bestanden.
+- Service Worker: Installationsliste, app-begrenzte Cachebereinigung und Offline-Navigationsfallback in isolierter Simulation bestanden.
+- Finale ZIP-Vollständigkeit und Integrität: bestanden.
+
+Geprüfte Kernbereiche
+1. App-Version 5.29, Datenschema 12 und unveränderter Speicherschlüssel.
+2. Eingebettete Buchungen der letzten zwei Wochen bis 03.08.2026.
+3. 08:00 Stunden Sollzeit ab 01.11.2022; 07:48-Importwerte ohne Berechnungswirkung.
+4. Künftige Sollzeitregel mit Gültigkeitsdatum ohne Rückwirkung auf frühere Zeiträume.
+5. Zeitkonto-Startwert akzeptiert Minuten ausschließlich von 00 bis 59.
+6. Drei interne Sicherungsgenerationen und kein Überschreiben durch redundante Render-/Speichervorgänge.
+7. Halber Urlaubstag ohne Restarbeitszeit wird als offen erkannt.
+8. Nachtschicht über Mitternacht in Rechenkern und Tageseditor gültig.
+9. Unverändertes Tag-Speichern lässt den gesamten Tagesdatensatz identisch.
+10. Neueres Sicherungsschema wird blockiert.
+11. Hessen als historische Feiertagsregion und Gültigkeitsregeln für spätere Bundeslandwechsel.
+12. Alle 16 Bundesländer auswählbar und landesweit geltende Feiertage für 2026 geprüft.
+13. Betriebliche Feiertagsschalter für Heiligabend und Silvester vorhanden.
+14. „Zeitausgleich“ direkt erreichbar.
+15. Schließen-Schaltflächen zugänglich beschriftet.
+16. Verdeckte Diagrammpunkte nicht unnötig tastaturfokussierbar.
+17. Fokus bleibt in Dialogen und kehrt nach dem Schließen zurück.
+18. Sicherung erzeugt exakt JSON und XLSX, ohne ZIP und TXT.
+19. Dateinamen enthalten identischen Datums-/Uhrzeitstempel.
+20. JSON enthält Sollzeit- und Bundeslandhistorien sowie die Buchungen vom 03.08.2026.
+21. Dynamische Jahreskennzeichnung.
+22. Browser-Zoom bleibt deaktiviert.
+23. Keine horizontale Überbreite bei 393×852, 393×760, 360×780 und 320×680 Pixeln.
+24. Kommentare, Tageseditor, erweiterte Aktionen, Buchungszeilen, Verwerfen-Warnung und Berichtsfunktionen aus V5.28 unverändert funktionsfähig.
+
+Dateiprüfung Excel
+- Übersicht
+- Tagesübersicht
+- Buchungen
+- Monatsübersicht
+- Jahresübersicht
+- Historienvergleich
+- Einstellungen
+
+Bekannte Einschränkungen der Testumgebung
+- Kein physischer iPhone-/Mobile-Safari-Installationstest möglich.
+- Ein echter localhost-Service-Worker-Lauf wurde durch die Browser-Richtlinie der Testumgebung blockiert; Service-Worker-Logik und Offline-Fallback wurden deshalb isoliert simuliert und zusätzlich statisch geprüft.
+- Das Verhalten einzelner Ziele im iOS-Teilen-Menü hängt von iOS und der jeweiligen Ziel-App ab; der Einzeldatei-Fallback ist deshalb Bestandteil der App.

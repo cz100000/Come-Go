@@ -108,7 +108,7 @@
     <input id="reportMonth" type="month" hidden><select id="reportYear" hidden></select>
   </div>
   <div class="action-list">
-    <button type="button" class="action-row" id="shareBackupBtn"><span class="icon-wrap"><svg class="icon" viewBox="0 0 24 24"><path d="M12 16V4M8 8l4-4 4 4M5 12v8h14v-8"/></svg></span><span><b>Sicherung und Excel teilen</b><small>ZIP-Paket über das Teilen-Menü</small></span><span class="chev">›</span></button>
+    <button type="button" class="action-row" id="shareBackupBtn"><span class="icon-wrap"><svg class="icon" viewBox="0 0 24 24"><path d="M12 16V4M8 8l4-4 4 4M5 12v8h14v-8"/></svg></span><span><b>Sicherung und Excel teilen</b><small>JSON und Excel als zwei einzelne Dateien</small></span><span class="chev">›</span></button>
     <button type="button" class="action-row" id="jsonRestoreBtn"><span class="icon-wrap"><svg class="icon" viewBox="0 0 24 24"><path d="M4 12a8 8 0 1 0 2.3-5.7L4 8.5M4 4v4.5h4.5"/></svg></span><span><b>Sicherung wiederherstellen</b><small>JSON-Datei prüfen und vollständig einlesen</small></span><span class="chev">›</span></button>
     <input type="file" id="restoreFile" accept="application/json" hidden>
   </div>
@@ -118,8 +118,17 @@
   <header class="page-header"><div><h1>Einstellungen</h1><div class="sub">Arbeitszeit und betriebliche freie Tage</div></div></header>
   <div class="card">
     <div class="form-row"><label for="employeeName"><b>Name im Bericht</b><small>Optional</small></label><input id="employeeName" type="text" placeholder="Name"></div>
+    <div class="settings-subhead"><b>Arbeitszeitmodell</b><small>Änderungen gelten erst ab dem gewählten Datum.</small></div>
     <div class="form-row"><label for="targetHours"><b>Tägliche Sollzeit</b><small>Montag bis Freitag</small></label><input id="targetHours" type="time"></div>
+    <div class="form-row"><label for="targetValidFrom"><b>Gültig ab</b><small>Frühere Sollzeiten bleiben unverändert</small></label><input id="targetValidFrom" type="date" min="2022-11-01"></div>
+    <button type="button" class="settings-apply" id="applyTargetRuleBtn">Sollzeitregel übernehmen</button>
+    <p class="settings-rule-status" id="targetRuleStatus"></p>
     <div class="form-row"><label for="checkpointBalance"><b>Startwert Zeitkonto</b><small>Am 01.11.2022 · Beginn der Zeiterfassung</small></label><input id="checkpointBalance" type="text" inputmode="text"></div>
+    <div class="settings-subhead"><b>Feiertage</b><small>Landesweit geltende Feiertage werden vollständig offline aus dem Bundesland abgeleitet. Kommunale Sonderregelungen sind nicht automatisch enthalten.</small></div>
+    <div class="form-row"><label for="holidayRegion"><b>Bundesland</b><small>Feiertagsregion</small></label><select id="holidayRegion"><option value="BW">Baden-Württemberg</option><option value="BY">Bayern</option><option value="BE">Berlin</option><option value="BB">Brandenburg</option><option value="HB">Bremen</option><option value="HH">Hamburg</option><option value="HE">Hessen</option><option value="MV">Mecklenburg-Vorpommern</option><option value="NI">Niedersachsen</option><option value="NW">Nordrhein-Westfalen</option><option value="RP">Rheinland-Pfalz</option><option value="SL">Saarland</option><option value="SN">Sachsen</option><option value="ST">Sachsen-Anhalt</option><option value="SH">Schleswig-Holstein</option><option value="TH">Thüringen</option></select></div>
+    <div class="form-row"><label for="holidayRegionValidFrom"><b>Gültig ab</b><small>Frühere Bundeslandzeiträume bleiben unverändert</small></label><input id="holidayRegionValidFrom" type="date" min="2022-11-01"></div>
+    <button type="button" class="settings-apply" id="applyHolidayRegionBtn">Bundeslandregel übernehmen</button>
+    <p class="settings-rule-status" id="holidayRegionRuleStatus"></p>
     <div class="form-row"><label><b>Heiligabend frei</b><small>Betrieblicher freier Tag</small></label><label class="switch"><input id="freeChristmasEve" type="checkbox"><span></span></label></div>
     <div class="form-row"><label><b>Silvester frei</b><small>Betrieblicher freier Tag</small></label><label class="switch"><input id="freeNewYearsEve" type="checkbox"><span></span></label></div>
     <div class="form-row"><label><b>Countdown auf der Startseite</b><small>Mindestpause und Ziel-Konfetti</small></label><label class="switch"><input id="countdownEnabled" type="checkbox"><span></span></label></div>
@@ -191,7 +200,7 @@
 
 <div id="entryModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="entryModalTitle">
   <div class="sheet single-entry-sheet">
-    <div class="sheet-head"><h2 id="entryModalTitle">Buchung bearbeiten</h2><button class="close-btn" type="button" data-close="entryModal">×</button></div>
+    <div class="sheet-head"><h2 id="entryModalTitle">Buchung bearbeiten</h2><button class="close-btn" type="button" data-close="entryModal" aria-label="Buchungsdialog schließen">×</button></div>
     <div class="single-entry-body">
       <div id="entryContextDate" class="context-date"></div>
       <div class="field"><label for="singleEntryType">Buchungsart</label><select id="singleEntryType"><option value="in">Kommen</option><option value="out">Gehen</option></select></div>
@@ -206,7 +215,7 @@
 
 <div id="pauseModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="pauseModalTitle">
   <div class="sheet">
-    <div class="sheet-head"><h2 id="pauseModalTitle">Pause eintragen</h2><button class="close-btn" type="button" data-close="pauseModal">×</button></div>
+    <div class="sheet-head"><h2 id="pauseModalTitle">Pause eintragen</h2><button class="close-btn" type="button" data-close="pauseModal" aria-label="Pausendialog schließen">×</button></div>
     <div class="field"><label for="quickPause">Pause für heute (Minuten)</label><input id="quickPause" type="number" min="0" step="1" inputmode="numeric"></div>
     <div class="modal-actions"><button type="button" class="cancel" data-close="pauseModal">Abbrechen</button><button type="button" class="save" id="savePauseBtn">Speichern</button></div>
   </div>
@@ -241,6 +250,7 @@
     <div class="quick-list absence-type-list">
       <button type="button" data-simple-absence="vacation"><span>Urlaub</span><small>Ganzer oder halber Tag</small><b>›</b></button>
       <button type="button" data-simple-absence="sick"><span>Krankheit</span><small>Ganzer oder halber Tag</small><b>›</b></button>
+      <button type="button" data-simple-absence="timeOff"><span>Zeitausgleich</span><small>Zeitkonto für den Arbeitstag belasten</small><b>›</b></button>
       <button type="button" data-simple-absence="other"><span>Sonstige Abwesenheit</span><small>Mit optionaler Notiz</small><b>›</b></button>
     </div>
     <button type="button" class="dialog-action dialog-action-secondary quick-cancel" data-close="absenceTypeModal">Abbrechen</button>
@@ -306,6 +316,16 @@
     <div id="absenceSummary" class="absence-summary" aria-live="polite"></div>
     <div class="modal-actions"><button type="button" class="cancel" data-close="absenceModal">Abbrechen</button><button type="button" class="save" id="saveAbsenceBtn">Abwesenheit speichern</button></div>
     <div id="absenceDeleteActions" class="day-data-actions" hidden><button type="button" class="delete" id="deleteAbsenceDayBtn">Diesen Tag löschen</button><button type="button" class="delete" id="deleteAbsenceGroupBtn">Gesamten Zeitraum löschen</button></div>
+  </div>
+</div>
+
+<div id="shareFallbackModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="shareFallbackTitle">
+  <div class="sheet compact-action-sheet">
+    <div class="sheet-head"><h2 id="shareFallbackTitle">Dateien einzeln sichern</h2><button class="close-btn" type="button" data-close="shareFallbackModal" aria-label="Sicherungsdialog schließen">×</button></div>
+    <p class="share-fallback-intro">Das gemeinsame Teilen mehrerer Dateien wird von diesem Gerät oder Browser nicht unterstützt. Beide Dateien können einzeln gespeichert oder geteilt werden.</p>
+    <button type="button" class="dialog-action dialog-action-secondary share-file-button" id="fallbackJsonBtn"><b>JSON-Sicherung speichern</b><small id="fallbackJsonName"></small></button>
+    <button type="button" class="dialog-action dialog-action-secondary share-file-button" id="fallbackExcelBtn"><b>Excel-Auswertung speichern</b><small id="fallbackExcelName"></small></button>
+    <button type="button" class="dialog-action dialog-action-secondary quick-cancel" data-close="shareFallbackModal">Schließen</button>
   </div>
 </div>
 

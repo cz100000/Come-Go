@@ -1,0 +1,57 @@
+Arbeitszeit PWA V5.29 – Umsetzungsbericht
+Stand: 03.08.2026
+
+Ausgangsbasis
+- Ausschließlich Arbeitszeit_PWA_Offline_V5_28_HighEnd_iPhone16.zip als technische Basis.
+- Vollständiger Nutzerdatenstand aus Arbeitszeit_Backup_2026-08-03.json.
+- Bestehender Speicherschlüssel arbeitszeit-pwa-v1 unverändert.
+- Keine Modularisierung von app.js in diesem Arbeitspaket.
+
+Datenübernahme
+- 1.128 Tage und 1.792 Einzelbuchungen aus dem Backup als Ausgangsdaten eingebettet.
+- Die vollständigen Kommen-/Gehen-Buchungen vom 20.07.2026 bis 03.08.2026 sind enthalten.
+- Vorhandene Kommentare, Pausen, Abwesenheiten, Herkunftsangaben und sonstige Tagesinformationen wurden übernommen.
+- Der Exportcode der alten V5.27 wurde nicht übernommen; nur die Nutzerdaten wurden verwendet.
+
+Sollzeit und Neuberechnung
+- Die Grundsollzeit beträgt seit Datenbeginn am 01.11.2022 durchgehend 08:00 Stunden je regulärem Arbeitstag.
+- Importierte Excel-Werte von 07:48 Stunden bleiben als historische Quelleninformation erhalten, werden jedoch nicht zur Berechnung verwendet.
+- Zeitkonto, Tages-, Monats- und Jahreswerte werden aus den Buchungen und der verbindlichen 08:00-Stunden-Regel neu berechnet.
+- Der neu berechnete Zeitkontostand des eingebetteten Datenbestands beträgt am 03.08.2026 +174:12 Stunden.
+- Für spätere echte Änderungen wurde eine Sollzeithistorie mit Gültigkeitsdatum eingeführt.
+
+Sicherung und Wiederherstellung
+- Drei interne Vorgängerstände werden rollierend geführt.
+- Nur tatsächliche Datenänderungen lösen eine neue interne Sicherung aus.
+- Schema-11-Sicherungen werden auf Schema 12 migriert.
+- Neuere, unbekannte Schemata werden nicht geöffnet.
+- Externe Sicherung besteht ausschließlich aus JSON und Excel mit gemeinsamem Zeitstempel.
+
+Bundesländer und Feiertage
+- Alle 16 Bundesländer stehen in den Einstellungen zur Auswahl.
+- Hessen gilt ab 01.11.2022 als bestehende Region.
+- Änderungen werden mit „Gültig ab“ erfasst und lösen nur ab diesem Datum eine Neuberechnung aus; bei rückwirkenden Daten ist eine ausdrückliche Bestätigung erforderlich.
+- Landesweit geltende gesetzliche Feiertage werden offline berechnet.
+- Heiligabend und Silvester bleiben zusätzliche betriebliche Toggles.
+- Kommunale beziehungsweise nur in Teilgebieten geltende Sonderfeiertage werden mangels Ortsangabe nicht fälschlich auf das gesamte Bundesland angewandt.
+
+Weitere Korrekturen
+- Halbtägige Abwesenheit mit fehlender Restarbeitszeit wird erkannt.
+- Einheitliche Mitternachtslogik für Rechenkern und Tageseditor.
+- No-op-Speichern verändert keine Importdaten.
+- Minutenvalidierung, dynamische Jahresanzeige, direkter Zeitausgleich und Fokusführung verbessert.
+- Service Worker löscht ausschließlich Arbeitszeit-PWA-Caches einschließlich alter Namenskonventionen.
+
+Datenhinweis
+- Der 24.03.2023 bleibt fachlich offen: halber Urlaubstag, 04:00 Stunden Sollzeit, keine Arbeitszeitbuchung. Die App zeigt diesen Tag jetzt korrekt an; es wurde keine Arbeitszeit erfunden oder ergänzt.
+
+Testergebnis
+- 116/116 automatisierte Browser-Funktions- und Regressionstests bestanden.
+- Feiertagsprüfung für alle 16 Bundesländer bestanden.
+- JSON, XLSX, PDF, Manifest, JavaScript-Syntax, Migration und Service-Worker-Logik bestanden.
+- ZIP-Vollständigkeit und ZIP-Integrität: bestanden.
+
+Bekannte Einschränkungen
+- Kein physischer iPhone-/Mobile-Safari-Test in der Entwicklungsumgebung.
+- Kommunale und teilregionale Feiertage benötigen für eine automatische Zuordnung zusätzliche Ortsinformationen und sind daher nicht Bestandteil der reinen Bundeslandauswahl.
+- app.js und die bestehenden CSS-Korrekturschichten werden erst in einem späteren technischen Arbeitspaket modularisiert und bereinigt.

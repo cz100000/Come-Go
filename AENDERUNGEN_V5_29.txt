@@ -1,0 +1,58 @@
+Arbeitszeit PWA V5.29 – Änderungsliste
+Stand: 03.08.2026
+
+1. Datenbasis und Sollzeit
+- Vollständigen Datenstand aus Arbeitszeit_Backup_2026-08-03.json eingebettet.
+- Buchungen bis einschließlich 03.08.2026 übernommen.
+- Grundsollzeit seit 01.11.2022 verbindlich auf 08:00 Stunden festgelegt.
+- Abweichende Excel-Sollzeiten werden bei der Berechnung ignoriert.
+- Sollzeitregeln mit Gültigkeitsdatum eingeführt; frühere Zeiträume bleiben bei späteren Änderungen unverändert.
+
+2. Datenintegrität
+- Drei interne Sicherungsgenerationen eingeführt.
+- Redundante Speicheraufrufe überschreiben interne Sicherungen nicht mehr.
+- Unverändertes Speichern eines Tages verändert weder Herkunft noch Bearbeitungskennzeichen.
+- Sicherungen mit zukünftigem, nicht unterstütztem Datenschema werden abgelehnt.
+- Schema von 11 auf 12 angehoben; automatische Migration ergänzt.
+
+3. Prüf- und Buchungslogik
+- Halbtägige Abwesenheiten ohne erforderliche Restarbeitszeit werden als offene Arbeitstage erkannt.
+- Plausible Nachtschichten über Mitternacht werden in Rechenkern und Tageseditor einheitlich akzeptiert.
+- Zeitkonto und historische Tage werden vollständig anhand der geltenden Sollzeitregeln neu berechnet.
+
+4. Feiertage
+- Alle 16 deutschen Bundesländer in den Einstellungen auswählbar.
+- Landesweit geltende gesetzliche Feiertage werden vollständig offline aus Bundesland und Datum abgeleitet.
+- Bundeslandregeln besitzen ein Gültigkeitsdatum.
+- Historischer Standard bleibt Hessen ab 01.11.2022.
+- Heiligabend und Silvester bleiben als betriebliche Feiertage separat schaltbar.
+- Nur kommunale oder regionale Sonderregelungen werden nicht ohne zusätzliche Ortsinformation landesweit angesetzt.
+
+5. Einstellungen und Bedienung
+- Minuten des Zeitkonto-Startwerts auf 00 bis 59 begrenzt.
+- „Zeitausgleich“ direkt in die Abwesenheitsauswahl aufgenommen.
+- Jahreskennzeichnung dynamisch: Vorjahre archiviert, laufendes Jahr aktueller Stand.
+- Schließen-Schaltflächen mit verständlichen barrierefreien Bezeichnungen ergänzt.
+- Tastaturfokus aus für Screenreader ausgeblendeten Diagrammpunkten entfernt.
+- Zentrale Fokussperre für modale Dialoge und Rückgabe des Fokus an das auslösende Element ergänzt.
+- Browser-Zoom bleibt wie festgelegt deaktiviert.
+- Dialoge besitzen auf dem iPhone einheitliche Außenabstände und keinen horizontalen Überlauf.
+
+6. Sicherung und Teilen
+- Hinweise.txt entfernt.
+- Sicherungs-ZIP entfernt.
+- Sicherung erzeugt nur JSON und Excel als zwei einzelne Dateien.
+- Beide Dateien tragen Datum und Uhrzeit und verwenden denselben Zeitstempel.
+- Gemeinsame Übergabe an das native Teilen-Menü.
+- Klarer Zwei-Dateien-Fallback bei fehlender Mehrdatei-Unterstützung.
+
+7. Offline-Betrieb
+- Manifest auf V5.29 aktualisiert.
+- Service-Worker-Cache auf V5.29 erhöht.
+- Beim Aktivieren werden nur eindeutig zur Arbeitszeit-PWA gehörende aktuelle und ältere Arbeitszeit-Caches gelöscht.
+- Fremde Caches derselben Domain bleiben unberührt.
+
+Nicht Bestandteil dieser Version
+- Strukturelle Modularisierung und Entschlackung von app.js.
+- Grundlegende CSS-Neustrukturierung.
+Diese Punkte bleiben auf der späteren technischen To-do-Liste.

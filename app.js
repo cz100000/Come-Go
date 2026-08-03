@@ -1,13 +1,16 @@
 const STORAGE_KEY='arbeitszeit-pwa-v1';
 const STORAGE_BACKUP_KEY=STORAGE_KEY+'-backup';
+const STORAGE_BACKUP_KEYS=[1,2,3].map(n=>`${STORAGE_KEY}-backup-${n}`);
 const STORAGE_CORRUPT_KEY=STORAGE_KEY+'-corrupt';
 const BACKUP_FORMAT='arbeitszeit-pwa-backup';
 const TRACKING_START_DATE='2022-11-01';
-const APP_VERSION='5.28';
-const CURRENT_SCHEMA=11;
-const IMPORT_DATA_VERSION=3;
-const CALCULATION_VERSION=1;
+const APP_VERSION='5.29';
+const CURRENT_SCHEMA=12;
+const IMPORT_DATA_VERSION=4;
+const CALCULATION_VERSION=2;
+const HOLIDAY_REGIONS=Object.freeze({BW:'Baden-Württemberg',BY:'Bayern',BE:'Berlin',BB:'Brandenburg',HB:'Bremen',HH:'Hamburg',HE:'Hessen',MV:'Mecklenburg-Vorpommern',NI:'Niedersachsen',NW:'Nordrhein-Westfalen',RP:'Rheinland-Pfalz',SL:'Saarland',SN:'Sachsen',ST:'Sachsen-Anhalt',SH:'Schleswig-Holstein',TH:'Thüringen'});
 let storageNotice='';
+let lastSavedFingerprint=null;
 let calculationCache=null;
 let calculationRevision=0;
 let state=loadState();
@@ -17,11 +20,12 @@ let monthDrill=null;
 let editingEntries=[];
 let expandedDayEntryIndex=-1;
 let absenceEditorContext=null;
-let lastModalFocus=null;
+const modalFocusOrigins=new Map();
 let confettiTimer=null;
 let manualQuickType='in';
 let quickContextDate=todayKey(),manualQuickDate=todayKey(),quickAbsenceCode='vacation';
 let commentEditorContext=null;
+let pendingShareFiles=null;
 let pendingDiscardModalId=null,pendingDiscardAction=null,pendingUndo=null;
 const modalBaselines=new Map();
 const guardedModalIds=new Set(['dayModal','entryModal','pauseModal','manualQuickModal','quickAbsenceModal','absenceModal']);
@@ -44,7 +48,7 @@ function minutes(t){if(!t)return 0;const [h,m]=String(t).split(':').map(Number);
 function clockFromMinutes(v){v=((Math.round(v)%1440)+1440)%1440;return `${pad(Math.floor(v/60))}:${pad(v%60)}`}
 function roundLogged(t,type){const m=minutes(t);return clockFromMinutes(type==='in'?Math.ceil(m/5)*5:Math.floor(m/5)*5)}
 function formatDuration(v,{signed=true}={}){v=Math.round(Number(v)||0);const sign=signed?(v<0?'-':v>0?'+':''):'';v=Math.abs(v);return `${sign}${pad(Math.floor(v/60))}:${pad(v%60)}`}
-function parseSignedTime(v){const m=String(v||'').trim().replace(',',':').match(/^([+-])?(\d{1,4})(?::(\d{1,2}))?$/);if(!m)return null;const n=Number(m[2])*60+Number(m[3]||0);return m[1]==='-'?-n:n}
+function parseSignedTime(v){const m=String(v||'').trim().replace(',',':').match(/^([+-])?(\d{1,4})(?::([0-5]\d))?$/);if(!m)return null;const n=Number(m[2])*60+Number(m[3]||0);return m[1]==='-'?-n:n}
 function formatDate(k,opts={weekday:'long',day:'2-digit',month:'long',year:'numeric'}){return new Intl.DateTimeFormat('de-DE',opts).format(parseDateKey(k))}
 function normalizeNoteText(value){return String(value??'').replace(/\s+/g,' ').trim()}
 function notePreview(value,max=96){const text=normalizeNoteText(value);return text.length>max?`${text.slice(0,Math.max(1,max-1)).trimEnd()}…`:text}
@@ -57,55 +61,37 @@ if(d.edited||d.capturedAfterImport||d.modifiedAt||d.importCleared)return true;
 if(!d.sourceYear&&hasMeaningfulData(d))return true;
 return (d.entries||[]).some(e=>e&&(['capture','manual'].includes(e.source)||e.edited));
 }
-function migrateState(raw){
-const migrated=raw&&typeof raw==='object'?raw:{};
-migrated.days=migrated.days&&typeof migrated.days==='object'?migrated.days:{};
-migrated.settings=migrated.settings&&typeof migrated.settings==='object'?migrated.settings:{};
-for(const original of IMPORTED){
-const existing=migrated.days[original.date];
-if(!existing||!isProtectedLocalDay(existing))migrated.days[original.date]=clone(original);
+
+function normalizeTargetRules(raw){
+const map=new Map();for(const rule of Array.isArray(raw)?raw:[]){const from=String(rule?.from||''),value=Number(rule?.minutes);if(isDateKey(from)&&from>=TRACKING_START_DATE&&Number.isFinite(value)&&value>0&&value<=1440)map.set(from,{from,minutes:Math.round(value)})}
+map.set(TRACKING_START_DATE,{from:TRACKING_START_DATE,minutes:480});return[...map.values()].sort((a,b)=>a.from.localeCompare(b.from))
 }
+function normalizeHolidayRegionRules(raw){
+const map=new Map();for(const rule of Array.isArray(raw)?raw:[]){const from=String(rule?.from||''),region=String(rule?.region||'').toUpperCase();if(isDateKey(from)&&from>=TRACKING_START_DATE&&HOLIDAY_REGIONS[region])map.set(from,{from,region})}
+if(!map.has(TRACKING_START_DATE))map.set(TRACKING_START_DATE,{from:TRACKING_START_DATE,region:'HE'});return[...map.values()].sort((a,b)=>a.from.localeCompare(b.from))
+}
+function effectiveRule(rules,date){let picked=null;for(const rule of rules||[]){if(rule.from<=date)picked=rule;else break}return picked}
+function targetMinutesFromSettings(date,settings){return Number(effectiveRule(normalizeTargetRules(settings?.targetRules),date)?.minutes)||480}
+function holidayRegionFromSettings(date,settings){return effectiveRule(normalizeHolidayRegionRules(settings?.holidayRegionRules),date)?.region||'HE'}
+function upsertEffectiveRule(rules,rule,key){const map=new Map((rules||[]).map(item=>[item.from,item]));map.set(rule.from,rule);return[...map.values()].sort((a,b)=>a.from.localeCompare(b.from))}
+function localStateFingerprint(raw){try{const parsed=typeof raw==='string'?JSON.parse(raw):clone(raw);delete parsed.savedAt;return JSON.stringify(parsed)}catch(_e){return null}}
+function rotateLocalBackups(previous){if(!previous)return;const chain=[previous,...STORAGE_BACKUP_KEYS.slice(0,-1).map(key=>localStorage.getItem(key)).filter(Boolean)];for(let i=0;i<STORAGE_BACKUP_KEYS.length;i++){const value=chain[i];if(value)localStorage.setItem(STORAGE_BACKUP_KEYS[i],value);else localStorage.removeItem(STORAGE_BACKUP_KEYS[i])}localStorage.setItem(STORAGE_BACKUP_KEY,previous)}
+function migrateState(raw){
+const migrated=raw&&typeof raw==='object'?raw:{days:{},settings:clone(typeof IMPORTED_SETTINGS==='object'?IMPORTED_SETTINGS:{})};
+migrated.days=migrated.days&&typeof migrated.days==='object'?migrated.days:{};
+migrated.settings={...(typeof IMPORTED_SETTINGS==='object'?clone(IMPORTED_SETTINGS):{}),...(migrated.settings&&typeof migrated.settings==='object'?migrated.settings:{})};
+for(const original of IMPORTED){const existing=migrated.days[original.date];if(!existing||!isProtectedLocalDay(existing))migrated.days[original.date]=clone(original)}
 Object.keys(migrated.days).filter(k=>k<TRACKING_START_DATE).forEach(k=>delete migrated.days[k]);
 const s=migrated.settings;
-if(!Number.isFinite(s.targetMinutes))s.targetMinutes=480;
-if(typeof s.employeeName!=='string')s.employeeName='';
-if(typeof s.freeChristmasEve!=='boolean')s.freeChristmasEve=true;
-if(typeof s.freeNewYearsEve!=='boolean')s.freeNewYearsEve=true;
-if(typeof s.reportSignature!=='boolean')s.reportSignature=true;
-if(typeof s.countdownEnabled!=='boolean')s.countdownEnabled=true;
-if(typeof s.bookingSoundEnabled!=='boolean')s.bookingSoundEnabled=false;
-if(typeof s.countdownCelebratedDate!=='string')s.countdownCelebratedDate=null;
-if(typeof s.showWeekends!=='boolean')s.showWeekends=false;
+s.targetRules=normalizeTargetRules(s.targetRules);s.holidayRegionRules=normalizeHolidayRegionRules(s.holidayRegionRules);s.targetMinutes=targetMinutesFromSettings(todayKey(),s);s.holidayRegion=holidayRegionFromSettings(todayKey(),s);
+for(const d of Object.values(migrated.days)){const generatedName=computedHolidayNameForSettings(d.date,s);if(generatedName&&d.sourceYear&&dayAbsenceCode(d)==='holiday'&&!d.edited){d.generatedHoliday=true;d.absence='Feiertag';d.absenceCode='holiday';d.absenceDuration='full';d.holiday=generatedName}}
+if(typeof s.employeeName!=='string')s.employeeName='';if(typeof s.freeChristmasEve!=='boolean')s.freeChristmasEve=true;if(typeof s.freeNewYearsEve!=='boolean')s.freeNewYearsEve=true;if(typeof s.reportSignature!=='boolean')s.reportSignature=true;if(typeof s.countdownEnabled!=='boolean')s.countdownEnabled=true;if(typeof s.bookingSoundEnabled!=='boolean')s.bookingSoundEnabled=false;if(typeof s.countdownCelebratedDate!=='string')s.countdownCelebratedDate=null;if(typeof s.showWeekends!=='boolean')s.showWeekends=false;
 if(!s.legacyBalanceCheckpoint&&Number.isFinite(Number(s.balanceCheckpointMinutes)))s.legacyBalanceCheckpoint={date:s.balanceCheckpointDate||'2026-07-22',minutes:Number(s.balanceCheckpointMinutes),version:s.balanceCheckpointVersion||2};
 s.startBalanceMinutes=0;s.trackingStartDate=TRACKING_START_DATE;s.calculationVersion=CALCULATION_VERSION;s.importDataVersion=IMPORT_DATA_VERSION;s.schemaVersion=CURRENT_SCHEMA;
 delete s.balanceCheckpointDate;delete s.balanceCheckpointMinutes;delete s.balanceCheckpointVersion;delete s.correction20260727Applied;
 const mixed=new Set(['2025-03-18','2025-03-19','2025-03-20','2025-03-21','2025-04-22','2025-04-23','2025-04-24','2025-04-25']);
-Object.values(migrated.days).forEach(d=>{
-if(!Array.isArray(d.entries))d.entries=[];
-d.entries=d.entries.map(e=>({type:e.type==='out'?'out':'in',actual:e.actual||'',logged:e.logged||roundLogged(e.actual||'00:00',e.type==='out'?'out':'in'),source:e.source||((d.sourceYear&&!d.edited)?'import':'manual'),createdAt:e.createdAt||null,edited:!!e.edited,...(e.editedAt?{editedAt:e.editedAt}:{})}));
-if(!Number.isFinite(Number(d.pauseMinutes)))d.pauseMinutes=0;
-if(d.absence==='Halber Urlaub'){d.absence='Urlaub';d.absenceCode='vacation';d.absenceDuration='half'}
-if(d.absence==='Gleittag'){d.absence='Zeitausgleich';d.absenceCode='timeOff'}
-const rawCode=String(d.absenceCode||'').toLowerCase(),label=String(d.absence||'').toLowerCase();
-if(rawCode==='u'||rawCode==='vacation'||label.includes('urlaub'))d.absenceCode='vacation';
-else if(rawCode==='k'||rawCode==='sick'||label.includes('krank'))d.absenceCode='sick';
-else if(rawCode==='timeoff'||rawCode==='time_off'||label.includes('gleit')||label.includes('zeitausgleich'))d.absenceCode='timeOff';
-else if(rawCode==='holiday'||d.holiday||label.includes('feiertag'))d.absenceCode='holiday';
-else if(rawCode==='free'||label.includes('frei'))d.absenceCode='free';
-else if(d.absence)d.absenceCode='other';
-else d.absenceCode=null;
-if(d.absence&&!d.absenceDuration)d.absenceDuration='full';
-if(d.absenceNote==null)d.absenceNote='';
-if(!d.entries.length&&!d.absence&&Number(d.pauseMinutes)>0){d.legacyOrphanPauseMinutes=Number(d.pauseMinutes);d.pauseMinutes=0;d.dataCorrection=d.dataCorrection||'Pause ohne Arbeitszeitbuchung entfernt; Tag bleibt offen.'}
-if(mixed.has(d.date)&&d.absence==='Urlaub'&&!d.edited){d.legacyImportAbsence={label:d.absence,code:d.absenceCode,duration:d.absenceDuration};clearAbsenceFields(d);d.dataCorrection='Urlaubkennzeichen entfernt; Buchungen gelten als regulärer Arbeitstag.'}
-if(d.date==='2025-12-15'&&d.absence==='Urlaub'&&d.entries.length===1&&(d.entries[0].logged||d.entries[0].actual)==='00:00'){d.legacyImportEntries=clone(d.entries);d.entries=[];d.dataCorrection='Fehlerhafte Einzelbuchung 00:00 entfernt; Urlaub bleibt bestehen.'}
-if(['2023-09-18','2024-01-25','2024-01-26','2024-09-30'].includes(d.date)&&!d.entries.length&&!d.edited){d.absence='Zeitausgleich';d.absenceCode='timeOff';d.absenceDuration='full';d.absenceNote='';d.dataCorrection='Als bestätigter Gleittag gekennzeichnet.'}
-delete d.absenceMinutes;
-d.importDataVersion=IMPORT_DATA_VERSION;
-});
-if(!s.lastEditedDay||!/^[0-9]{4}-[0-9]{2}-[0-9]{2}$/.test(s.lastEditedDay)||s.lastEditedDay<TRACKING_START_DATE)s.lastEditedDay=findLatestRelevantDay(migrated.days);
-calculationCache=null;calculationRevision++;
-return migrated;
+Object.values(migrated.days).forEach(d=>{if(!Array.isArray(d.entries))d.entries=[];d.entries=d.entries.map(e=>({type:e.type==='out'?'out':'in',actual:e.actual||'',logged:e.logged||roundLogged(e.actual||'00:00',e.type==='out'?'out':'in'),source:e.source||((d.sourceYear&&!d.edited)?'excel':'manual'),createdAt:e.createdAt||null,edited:!!e.edited,...(e.editedAt?{editedAt:e.editedAt}:{})}));if(!Number.isFinite(Number(d.pauseMinutes)))d.pauseMinutes=0;if(d.absence==='Halber Urlaub'){d.absence='Urlaub';d.absenceCode='vacation';d.absenceDuration='half'}if(d.absence==='Gleittag'){d.absence='Zeitausgleich';d.absenceCode='timeOff'}const rawCode=String(d.absenceCode||'').toLowerCase(),label=String(d.absence||'').toLowerCase();if(rawCode==='u'||rawCode==='vacation'||label.includes('urlaub'))d.absenceCode='vacation';else if(rawCode==='k'||rawCode==='sick'||label.includes('krank'))d.absenceCode='sick';else if(rawCode==='timeoff'||rawCode==='time_off'||label.includes('gleit')||label.includes('zeitausgleich'))d.absenceCode='timeOff';else if(rawCode==='holiday'||d.holiday||label.includes('feiertag'))d.absenceCode='holiday';else if(rawCode==='free'||label.includes('frei'))d.absenceCode='free';else if(d.absence)d.absenceCode='other';else d.absenceCode=null;if(d.absence&&!d.absenceDuration)d.absenceDuration='full';if(d.absenceNote==null)d.absenceNote='';if(!d.entries.length&&!d.absence&&Number(d.pauseMinutes)>0){d.legacyOrphanPauseMinutes=Number(d.pauseMinutes);d.pauseMinutes=0;d.dataCorrection=d.dataCorrection||'Pause ohne Arbeitszeitbuchung entfernt; Tag bleibt offen.'}if(mixed.has(d.date)&&d.absence==='Urlaub'&&!d.edited){d.legacyImportAbsence={label:d.absence,code:d.absenceCode,duration:d.absenceDuration};clearAbsenceFields(d);d.dataCorrection='Urlaubkennzeichen entfernt; Buchungen gelten als regulärer Arbeitstag.'}if(d.date==='2025-12-15'&&d.absence==='Urlaub'&&d.entries.length===1&&(d.entries[0].logged||d.entries[0].actual)==='00:00'){d.legacyImportEntries=clone(d.entries);d.entries=[];d.dataCorrection='Fehlerhafte Einzelbuchung 00:00 entfernt; Urlaub bleibt bestehen.'}if(['2023-09-18','2024-01-25','2024-01-26','2024-09-30'].includes(d.date)&&!d.entries.length&&!d.edited){d.absence='Zeitausgleich';d.absenceCode='timeOff';d.absenceDuration='full';d.absenceNote='';d.dataCorrection='Als bestätigter Gleittag gekennzeichnet.'}delete d.absenceMinutes;d.importDataVersion=IMPORT_DATA_VERSION});
+if(!s.lastEditedDay||!/^[0-9]{4}-[0-9]{2}-[0-9]{2}$/.test(s.lastEditedDay)||s.lastEditedDay<TRACKING_START_DATE)s.lastEditedDay=findLatestRelevantDay(migrated.days);calculationCache=null;calculationRevision++;return migrated
 }
 function findLatestRelevantDay(days){
 const t=todayKey();
@@ -133,14 +119,7 @@ if(!raw.days||typeof raw.days!=='object'||!raw.settings||typeof raw.settings!=='
 Object.entries(raw.days).forEach(([k,d])=>{if(!validateDayRecord(d,k))throw new Error(`Ungültiger Tag: ${k}`)});
 return raw;
 }
-function compactState(full){
-const overrides={};
-Object.entries(full.days||{}).forEach(([k,d])=>{
-const original=IMPORTED_BY_DATE[k];
-if(!original||isProtectedLocalDay(d)||JSON.stringify(d)!==JSON.stringify(original))overrides[k]=d;
-});
-return{compact:true,schemaVersion:CURRENT_SCHEMA,appVersion:APP_VERSION,savedAt:new Date().toISOString(),settings:full.settings,overrides};
-}
+function compactState(full){const overrides={};Object.entries(full.days||{}).forEach(([k,d])=>{const original=IMPORTED_BY_DATE[k];if(!original||isProtectedLocalDay(d)||JSON.stringify(d)!==JSON.stringify(original))overrides[k]=d});return{compact:true,schemaVersion:CURRENT_SCHEMA,appVersion:APP_VERSION,settings:full.settings,overrides}}
 function expandCompact(raw){
 const days=Object.fromEntries(IMPORTED.map(d=>[d.date,clone(d)]));
 Object.entries(raw.overrides||{}).forEach(([k,d])=>{days[k]=clone(d)});
@@ -151,31 +130,11 @@ const parsed=validateStateShape(JSON.parse(raw));
 return parsed.compact===true?expandCompact(parsed):parsed;
 }
 function loadState(){
-const primary=localStorage.getItem(STORAGE_KEY);
-if(primary){
-try{return migrateState(parseStored(primary))}catch(e){
-try{localStorage.setItem(STORAGE_CORRUPT_KEY,primary)}catch(_e){}
-const backup=localStorage.getItem(STORAGE_BACKUP_KEY);
-if(backup){try{storageNotice='Der Hauptspeicher war beschädigt. Die letzte Sicherung wurde geladen.';return migrateState(parseStored(backup))}catch(_e){}}
-storageNotice='Gespeicherte Daten konnten nicht gelesen werden. Der beschädigte Stand wurde separat erhalten.';
+const primary=localStorage.getItem(STORAGE_KEY);if(primary){try{const loaded=migrateState(parseStored(primary));lastSavedFingerprint=localStateFingerprint(primary);return loaded}catch(e){try{localStorage.setItem(STORAGE_CORRUPT_KEY,primary)}catch(_e){}for(const key of [...STORAGE_BACKUP_KEYS,STORAGE_BACKUP_KEY]){const backup=localStorage.getItem(key);if(!backup)continue;try{storageNotice='Der Hauptspeicher war beschädigt. Eine interne Sicherung wurde geladen.';lastSavedFingerprint=localStateFingerprint(backup);localStorage.removeItem(STORAGE_KEY);return migrateState(parseStored(backup))}catch(_e){}}storageNotice='Gespeicherte Daten konnten nicht gelesen werden. Der beschädigte Stand wurde separat erhalten.'}}
+return migrateState(null)
 }
-}
-return migrateState(null);
-}
-function saveState(){
-calculationCache=null;calculationRevision++;
-try{
-const payload=JSON.stringify(compactState(state));
-const previous=localStorage.getItem(STORAGE_KEY);
-if(previous)localStorage.setItem(STORAGE_BACKUP_KEY,previous);
-localStorage.setItem(STORAGE_KEY,payload);
-return true;
-}catch(e){
-storageNotice='Speichern fehlgeschlagen. Bitte ein JSON-Backup exportieren und freien Gerätespeicher prüfen.';
-if(typeof showToast==='function')showToast(storageNotice);
-console.error('Arbeitszeit: Speichern fehlgeschlagen',e);
-return false;
-}
+function saveState({force=false}={}){
+calculationCache=null;calculationRevision++;try{const compact=compactState(state),fingerprint=JSON.stringify(compact);if(!force&&fingerprint===lastSavedFingerprint)return true;const payload=JSON.stringify({...compact,savedAt:new Date().toISOString()}),previous=localStorage.getItem(STORAGE_KEY);if(previous&&localStateFingerprint(previous)!==fingerprint)rotateLocalBackups(previous);localStorage.setItem(STORAGE_KEY,payload);lastSavedFingerprint=fingerprint;return true}catch(e){storageNotice='Speichern fehlgeschlagen. Bitte ein JSON-Backup exportieren und freien Gerätespeicher prüfen.';if(typeof showToast==='function')showToast(storageNotice);console.error('Arbeitszeit: Speichern fehlgeschlagen',e);return false}
 }
 function touchDay(k){state.settings.lastEditedDay=k;state.settings.lastActivityAt=new Date().toISOString();saveState()}
 function dayObject(k,create=false){
@@ -186,23 +145,21 @@ return d;
 }
 function easterSunday(y){const a=y%19,b=Math.floor(y/100),c=y%100,d=Math.floor(b/4),e=b%4,f=Math.floor((b+8)/25),g=Math.floor((b-f+1)/3),h=(19*a+b-d-g+15)%30,i=Math.floor(c/4),k=c%4,l=(32+2*e+2*i-h-k)%7,m=Math.floor((a+11*h+22*l)/451),month=Math.floor((h+l-7*m+114)/31),day=((h+l-7*m+114)%31)+1;return new Date(y,month-1,day,12)}
 function addDays(d,n){const x=new Date(d);x.setDate(x.getDate()+n);return dateKey(x)}
-function hessenHolidays(y){
-const e=easterSunday(y),h={};
-h[`${y}-01-01`]='Neujahr';h[addDays(e,-2)]='Karfreitag';h[addDays(e,1)]='Ostermontag';h[`${y}-05-01`]='Tag der Arbeit';h[addDays(e,39)]='Christi Himmelfahrt';h[addDays(e,50)]='Pfingstmontag';h[addDays(e,60)]='Fronleichnam';h[`${y}-10-03`]='Tag der Deutschen Einheit';h[`${y}-12-25`]='1. Weihnachtsfeiertag';h[`${y}-12-26`]='2. Weihnachtsfeiertag';
-if(state.settings.freeChristmasEve)h[`${y}-12-24`]='Heiligabend (betrieblich frei)';
-if(state.settings.freeNewYearsEve)h[`${y}-12-31`]='Silvester (betrieblich frei)';
-return h;
+
+function repentanceDay(y){const d=new Date(y,10,22,12);while(d.getDay()!==3)d.setDate(d.getDate()-1);return dateKey(d)}
+function publicHolidaysForRegion(y,region){
+const e=easterSunday(y),h={};h[`${y}-01-01`]='Neujahr';h[addDays(e,-2)]='Karfreitag';h[addDays(e,1)]='Ostermontag';h[`${y}-05-01`]='Tag der Arbeit';h[addDays(e,39)]='Christi Himmelfahrt';h[addDays(e,50)]='Pfingstmontag';h[`${y}-10-03`]='Tag der Deutschen Einheit';h[`${y}-12-25`]='1. Weihnachtsfeiertag';h[`${y}-12-26`]='2. Weihnachtsfeiertag';
+if(['BW','BY','ST'].includes(region))h[`${y}-01-06`]='Heilige Drei Könige';if(region==='BE'||(region==='MV'&&y>=2023))h[`${y}-03-08`]='Internationaler Frauentag';if(region==='BB'){h[addDays(e,0)]='Ostersonntag';h[addDays(e,49)]='Pfingstsonntag'}if(['BW','BY','HE','NW','RP','SL'].includes(region))h[addDays(e,60)]='Fronleichnam';if(region==='SL')h[`${y}-08-15`]='Mariä Himmelfahrt';if(region==='TH')h[`${y}-09-20`]='Weltkindertag';if(['BB','HB','HH','MV','NI','SN','ST','SH','TH'].includes(region))h[`${y}-10-31`]='Reformationstag';if(['BW','BY','NW','RP','SL'].includes(region))h[`${y}-11-01`]='Allerheiligen';if(region==='SN')h[repentanceDay(y)]='Buß- und Bettag';return h
 }
+function computedHolidayNameForSettings(k,settings){const y=Number(k.slice(0,4)),region=holidayRegionFromSettings(k,settings),name=publicHolidaysForRegion(y,region)[k];if(name)return name;if(k.endsWith('-12-24')&&settings?.freeChristmasEve!==false)return'Heiligabend (betrieblich frei)';if(k.endsWith('-12-31')&&settings?.freeNewYearsEve!==false)return'Silvester (betrieblich frei)';return null}
+function computedHolidayName(k){return computedHolidayNameForSettings(k,state.settings)}
+function hessenHolidays(y){return publicHolidaysForRegion(y,'HE')}
 function ensureHolidayYear(y){
-const holidays=hessenHolidays(y);
-Object.entries(holidays).forEach(([k,name])=>{
-const d=state.days[k];
-if(!d)state.days[k]={date:k,entries:[],pauseMinutes:0,absence:'Feiertag',note:'',holiday:name,generatedHoliday:true,archived:y<new Date().getFullYear()};
-else if(d.generatedHoliday&&!d.edited){d.absence='Feiertag';d.holiday=name}
-});
-Object.values(state.days).filter(d=>d.generatedHoliday&&!d.edited&&d.date.startsWith(`${y}-`)&&!holidays[d.date]).forEach(d=>delete state.days[d.date]);
-saveState();
+let changed=false;const holidays={};for(const k of dateRange(`${y}-01-01`,`${y}-12-31`)){const name=computedHolidayName(k);if(name)holidays[k]=name}
+for(const [k,name] of Object.entries(holidays)){const current=state.days[k],canGenerate=!current||current.generatedHoliday&&!current.edited||(!hasMeaningfulData(current)&&!current.sourceYear);if(!canGenerate)continue;const d=current||{date:k,entries:[],pauseMinutes:0,note:'',sourceYear:null};if(d.absence!=='Feiertag'||d.absenceCode!=='holiday'||d.holiday!==name||!d.generatedHoliday){d.absence='Feiertag';d.absenceCode='holiday';d.absenceDuration='full';d.absenceNote='';d.holiday=name;d.generatedHoliday=true;d.archived=y<new Date().getFullYear();state.days[k]=d;changed=true}}
+Object.values(state.days).filter(d=>d.generatedHoliday&&!d.edited&&d.date.startsWith(`${y}-`)&&!holidays[d.date]).forEach(d=>{if((d.entries||[]).length||Number(d.pauseMinutes)||normalizeNoteText(d.note)){clearAbsenceFields(d);delete d.holiday;delete d.generatedHoliday}else delete state.days[d.date];changed=true});return changed
 }
+function ensureHolidayYears(fromYear=Number(TRACKING_START_DATE.slice(0,4)),toYear=new Date().getFullYear()+1){let changed=false;for(let y=fromYear;y<=toYear;y++)changed=ensureHolidayYear(y)||changed;return changed}
 function absenceCodeFromLabel(label){
 const v=String(label||'').toLowerCase();
 if(v.includes('urlaub'))return'vacation';
@@ -230,8 +187,8 @@ function clearAbsenceFields(d){
 d.absence=null;d.absenceCode=null;d.absenceDuration=null;d.absenceMinutes=0;d.absenceNote='';d.absenceGroupId=null;d.absenceCreatedAt=null;d.absenceUpdatedAt=null;
 }
 function dateRange(from,to){const a=parseDateKey(from),b=parseDateKey(to),r=[];for(let d=new Date(a);d<=b;d.setDate(d.getDate()+1))r.push(dateKey(d));return r}
-function holidayNameForDate(k){const d=state.days[k];if(d?.holiday||d?.generatedHoliday||dayAbsenceCode(d)==='holiday')return d.holiday||'Feiertag';return hessenHolidays(Number(k.slice(0,4)))[k]||null}
-function scheduledTargetMinutes(k){if(k<TRACKING_START_DATE)return 0;const wd=parseDateKey(k).getDay();return wd>=1&&wd<=5&&!holidayNameForDate(k)?Number(state.settings.targetMinutes)||480:0}
+function holidayNameForDate(k){const d=state.days[k];if(d?.holiday&&!d.generatedHoliday)return d.holiday;return computedHolidayName(k)||d?.holiday||null}
+function scheduledTargetMinutes(k){if(k<TRACKING_START_DATE)return 0;const wd=parseDateKey(k).getDay();return wd>=1&&wd<=5&&!holidayNameForDate(k)?targetMinutesFromSettings(k,state.settings):0}
 function targetMinutesForDate(k,d=state.days[k]||null){
 const base=scheduledTargetMinutes(k),code=dayAbsenceCode(d);if(!code)return base;
 if(code==='timeOff')return base;
@@ -292,7 +249,7 @@ function addMetric(a,b){for(const k of METRIC_KEYS)a[k]=(a[k]||0)+(b[k]||0);retu
 function isCountable(d,cutoff=todayKey()){return calculateDay(d,cutoff).counted}
 function calendarRecords(start,end){const rows=[];if(end<start)return rows;for(const k of dateRange(start,end)){const d=dayObject(k),c=calculateDay(d,todayKey());if(c.counted||hasMeaningfulData(d)||holidayNameForDate(k)||k===todayKey())rows.push(d)}return rows}
 function ledger(){
-const cutoff=todayKey(),signature=`${calculationRevision}|${cutoff}|${state.settings.targetMinutes}|${state.settings.startBalanceMinutes}|${state.settings.freeChristmasEve}|${state.settings.freeNewYearsEve}`;
+const cutoff=todayKey(),signature=`${calculationRevision}|${cutoff}|${JSON.stringify(state.settings.targetRules)}|${JSON.stringify(state.settings.holidayRegionRules)}|${state.settings.startBalanceMinutes}|${state.settings.freeChristmasEve}|${state.settings.freeNewYearsEve}`;
 if(calculationCache?.signature===signature)return calculationCache;
 let balance=Number(state.settings.startBalanceMinutes)||0;const balances={},metrics={};
 for(const k of dateRange(TRACKING_START_DATE,cutoff)){const d=dayObject(k),m=metricForDay(d,cutoff);balance+=m.diff;balances[k]=balance;metrics[k]=m}
@@ -605,7 +562,7 @@ $('timesContent').innerHTML=`<div class="back-row"><button type="button" onclick
 }
 function renderYearOverview(){
 const now=new Date(),years=[];for(let y=now.getFullYear();y>=earliestYear();y--)years.push(y);
-$('timesContent').innerHTML=`<div class="period-list">${years.map(y=>{const s=yearSummary(y),imported=y<=2025?'Geprüftes / archiviertes Jahr':'Aktueller Stand';return `<article class="period-card"><button type="button" onclick="openYearDetail(${y})"><div class="period-top"><div><h3>${y}</h3><div class="muted" style="font-size:12px;margin-top:3px">${imported}</div></div><div class="period-balance"><span>Jahresveränderung</span><strong class="${s.diff<0?'red':'green'}">${formatDuration(s.diff)}</strong></div></div><div class="metric-lines"><div class="metric-line"><span>Übertrag aus dem Vorjahr</span><b>${formatDuration(s.opening)}</b></div><div class="metric-line"><span>Zeitkonto ${y===now.getFullYear()?'zum Stichtag':'Jahresende'}</span><b class="${s.closing<0?'red':'green'}">${formatDuration(s.closing)}</b></div><div class="metric-line"><span>Soll / Netto / Pause</span><b>${formatDuration(s.target,{signed:false})} / ${formatDuration(s.net,{signed:false})} / ${formatDuration(s.pause,{signed:false})}</b></div><div class="metric-line"><span>Urlaub / Krankheit / Zeitausgleich / Sonstige</span><b>${formatDayCount(s.vacation)} / ${formatDayCount(s.sick)} / ${formatDayCount(s.timeOff||0)} / ${formatDayCount(s.other)}</b></div></div></button></article>`}).join('')}</div>`;
+$('timesContent').innerHTML=`<div class="period-list">${years.map(y=>{const s=yearSummary(y),imported=y<now.getFullYear()?'Geprüftes / archiviertes Jahr':'Aktueller Stand';return `<article class="period-card"><button type="button" onclick="openYearDetail(${y})"><div class="period-top"><div><h3>${y}</h3><div class="muted" style="font-size:12px;margin-top:3px">${imported}</div></div><div class="period-balance"><span>Jahresveränderung</span><strong class="${s.diff<0?'red':'green'}">${formatDuration(s.diff)}</strong></div></div><div class="metric-lines"><div class="metric-line"><span>Übertrag aus dem Vorjahr</span><b>${formatDuration(s.opening)}</b></div><div class="metric-line"><span>Zeitkonto ${y===now.getFullYear()?'zum Stichtag':'Jahresende'}</span><b class="${s.closing<0?'red':'green'}">${formatDuration(s.closing)}</b></div><div class="metric-line"><span>Soll / Netto / Pause</span><b>${formatDuration(s.target,{signed:false})} / ${formatDuration(s.net,{signed:false})} / ${formatDuration(s.pause,{signed:false})}</b></div><div class="metric-line"><span>Urlaub / Krankheit / Zeitausgleich / Sonstige</span><b>${formatDayCount(s.vacation)} / ${formatDayCount(s.sick)} / ${formatDayCount(s.timeOff||0)} / ${formatDayCount(s.other)}</b></div></div></button></article>`}).join('')}</div>`;
 }
 function openYearDetail(y){
 const cards=[];for(let m=11;m>=0;m--){if(y===new Date().getFullYear()&&m>new Date().getMonth())continue;const s=monthSummary(y,m),running=s.cutoff<s.calendarEnd;cards.push(`<article class="period-card"><button type="button" onclick="openMonthDetail(${y},${m})"><div class="period-top"><h3>${new Intl.DateTimeFormat('de-DE',{month:'long'}).format(new Date(y,m,1))}</h3><div class="period-balance"><span>Monatsdifferenz</span><strong class="${s.diff<0?'red':'green'}">${formatDuration(s.diff)}</strong></div></div><div class="metric-lines"><div class="metric-line"><span>${running?'Zeitkonto zum Stichtag':'Zeitkonto Monatsende'}</span><b>${formatDuration(s.closing)}</b></div><div class="metric-line"><span>Netto / Soll</span><b>${formatDuration(s.net,{signed:false})} / ${formatDuration(s.target,{signed:false})}</b></div></div></button></article>`)}
@@ -677,13 +634,12 @@ document.querySelectorAll('[data-remove-entry]').forEach(el=>el.addEventListener
 updateDayEditorAddButton();if(scroll)requestAnimationFrame(()=>{scroll.scrollTop=scrollTop})
 }
 function addEditingEntry(){const type=!editingEntries.length||editingEntries.at(-1)?.type==='out'?'in':'out',actual=hm();editingEntries.push({type,actual,logged:roundLogged(actual,type),source:'manual',edited:true});expandedDayEntryIndex=editingEntries.length-1;renderEntryEditors();requestAnimationFrame(()=>document.querySelector(`[data-entry-card="${expandedDayEntryIndex}"]`)?.scrollIntoView({block:'nearest',behavior:'smooth'}))}
-function collectDayEditorEntries(){
-return editingEntries.map((entry,i)=>({...(entry||{}),type:document.querySelector(`[data-entry-type="${i}"]`)?.value||entry.type,actual:document.querySelector(`[data-entry-actual="${i}"]`)?.value||'',logged:document.querySelector(`[data-entry-logged="${i}"]`)?.value||'',source:'manual',edited:true}))
-}
+function collectDayEditorEntries(){const changedAt=new Date().toISOString();return editingEntries.map((entry,i)=>{const type=document.querySelector(`[data-entry-type="${i}"]`)?.value||entry.type,actual=document.querySelector(`[data-entry-actual="${i}"]`)?.value||'',logged=document.querySelector(`[data-entry-logged="${i}"]`)?.value||'',unchanged=entry.type===type&&String(entry.actual||'')===actual&&String(entry.logged||'')===logged;if(unchanged)return clone(entry);return{...(entry||{}),type,actual,logged,source:'manual',edited:true,editedAt:changedAt}})}
 function validateDayEditorEntries(entries,date){
-const errors=entries.map(()=>[]);let previousActual=null,previousLogged=null;
-entries.forEach((entry,i)=>{const expected=i%2===0?'in':'out';if(entry.type!==expected)errors[i].push(`Hier wird ${expected==='in'?'Kommen':'Gehen'} erwartet.`);if(!entry.actual)errors[i].push('Tatsächliche Uhrzeit fehlt.');if(!entry.logged)errors[i].push('Dokumentierte Uhrzeit fehlt.');if(entry.actual){const current=minutes(entry.actual);if(previousActual!==null&&current<previousActual)errors[i].push('Die tatsächliche Uhrzeit liegt vor der vorherigen Buchung.');if(date===todayKey()&&current>minutes(hm()))errors[i].push('Zukünftige Arbeitszeitbuchungen sind nicht zulässig.');previousActual=current}if(entry.logged){const current=minutes(entry.logged);if(previousLogged!==null&&current-previousLogged<5)errors[i].push('Zur vorherigen dokumentierten Uhrzeit müssen mindestens fünf Minuten Abstand bestehen.');previousLogged=current}});
-return{valid:errors.every(list=>!list.length),errors}
+const errors=entries.map(()=>[]);entries.forEach((entry,i)=>{const expected=i%2===0?'in':'out';if(entry.type!==expected)errors[i].push(`Hier wird ${expected==='in'?'Kommen':'Gehen'} erwartet.`);if(!entry.actual||!isClock(entry.actual))errors[i].push('Tatsächliche Uhrzeit fehlt oder ist ungültig.');if(!entry.logged||!isClock(entry.logged))errors[i].push('Dokumentierte Uhrzeit fehlt oder ist ungültig.')});
+const actual=normalizedEntryTimeline(entries,'actual'),logged=normalizedEntryTimeline(entries,'logged');if(entries.length&&!actual){const i=Math.max(1,entries.findIndex((_,idx)=>idx>0&&minutes(entries[idx].actual)-minutes(entries[idx-1].actual)<0&&minutes(entries[idx-1].actual)-minutes(entries[idx].actual)<360));errors[i<1?1:i].push('Die tatsächlichen Uhrzeiten überschneiden sich oder liegen in unzulässiger Reihenfolge.')}if(entries.length&&!logged){const i=Math.max(1,entries.findIndex((_,idx)=>idx>0&&minutes(entries[idx].logged)-minutes(entries[idx-1].logged)<5&&minutes(entries[idx-1].logged)-minutes(entries[idx].logged)<360));errors[i<1?1:i].push('Die dokumentierten Uhrzeiten benötigen mindestens fünf Minuten Abstand und eine eindeutige Reihenfolge.')}
+if(date===todayKey()&&actual){const now=minutes(hm());actual.forEach((value,i)=>{if(value>now)errors[i].push('Zukünftige Arbeitszeitbuchungen sind nicht zulässig.')})}
+const central=validateEntries(entries);if(entries.length&&!central.plausible&&!errors.some(list=>list.length))errors[0].push('Die Buchungsfolge ist nicht plausibel.');return{valid:errors.every(list=>!list.length),errors}
 }
 function clearDayEditorEntryError(index){const card=document.querySelector(`[data-entry-card="${index}"]`),box=document.querySelector(`[data-entry-error="${index}"]`);card?.classList.remove('has-error');if(box){box.hidden=true;box.textContent=''}const global=$('dayEditorValidation');if(global)global.hidden=true}
 function showDayEditorValidation(result){
@@ -691,7 +647,7 @@ const first=result.errors.findIndex(list=>list.length);if(first>=0&&expandedDayE
 result.errors.forEach((messages,index)=>{const card=document.querySelector(`[data-entry-card="${index}"]`),box=document.querySelector(`[data-entry-error="${index}"]`);card?.classList.toggle('has-error',!!messages.length);if(box){box.hidden=!messages.length;box.textContent=messages.join(' ')}});const global=$('dayEditorValidation');global.hidden=false;global.textContent='Bitte prüfe die markierte Buchung.';requestAnimationFrame(()=>document.querySelector(`[data-entry-card="${first}"]`)?.scrollIntoView({block:'center',behavior:'smooth'}))
 }
 function commitEditedDay({close=true,notify=true}={}){
-const key=$('editDate').value;if(!key)return false;const existing=dayObject(key),d=clone(existing);d.date=key;d.entries=collectDayEditorEntries();editingEntries=clone(d.entries);d.pauseMinutes=Math.max(0,Number($('editPause').value)||0);d.note=$('editNote').value.trim();d.edited=true;d.modifiedAt=new Date().toISOString();d.archived=Number(key.slice(0,4))<new Date().getFullYear();const validation=validateDayEditorEntries(d.entries,key);if(!validation.valid){showDayEditorValidation(validation);return false}const global=$('dayEditorValidation');if(global)global.hidden=true;state.days[key]=d;touchDay(key);cursorDate=parseDateKey(key);if(close)closeModal('dayModal');else modalBaselines.set('dayModal',modalSnapshot('dayModal'));refreshAllDerivedViews();if(notify)showToast('Tag gespeichert. Tagessaldo und Zeitkonto wurden aktualisiert.');return true
+const key=$('editDate').value;if(!key)return false;const existing=dayObject(key),d=clone(existing);d.date=key;d.entries=collectDayEditorEntries();d.pauseMinutes=Math.max(0,Number($('editPause').value)||0);d.note=$('editNote').value.trim();const validation=validateDayEditorEntries(d.entries,key);if(!validation.valid){showDayEditorValidation(validation);return false}const global=$('dayEditorValidation');if(global)global.hidden=true;const before=JSON.stringify({entries:existing.entries||[],pauseMinutes:Number(existing.pauseMinutes)||0,note:String(existing.note||'')}),after=JSON.stringify({entries:d.entries,pauseMinutes:d.pauseMinutes,note:d.note});cursorDate=parseDateKey(key);if(before===after){editingEntries=clone(existing.entries||[]);if(close)closeModal('dayModal');else modalBaselines.set('dayModal',modalSnapshot('dayModal'));refreshAllDerivedViews();if(notify)showToast('Keine Änderungen vorhanden.');return true}editingEntries=clone(d.entries);d.edited=true;d.modifiedAt=new Date().toISOString();d.archived=Number(key.slice(0,4))<new Date().getFullYear();state.days[key]=d;touchDay(key);if(close)closeModal('dayModal');else modalBaselines.set('dayModal',modalSnapshot('dayModal'));refreshAllDerivedViews();if(notify)showToast('Tag gespeichert. Tagessaldo und Zeitkonto wurden aktualisiert.');return true
 }
 function saveEditedDay(){commitEditedDay()}
 function manageAbsenceFromDayEditor(){
@@ -708,12 +664,12 @@ const values=[...modal.querySelectorAll('input,select,textarea')].map(element=>(
 return JSON.stringify(values);
 }
 function isModalDirty(id){return guardedModalIds.has(id)&&modalBaselines.has(id)&&modalBaselines.get(id)!==modalSnapshot(id)}
-function openModal(id){
-const modal=$(id);if(!modal)return;lastModalFocus=document.activeElement;modal.classList.add('open');document.body.classList.add('modal-open');if(id==='dayModal')$('dayModal').dataset.originalDate=$('editDate').value;modalBaselines.set(id,modalSnapshot(id));updateDayQuickButton();setTimeout(()=>{const target=id==='dayModal'?modal.querySelector('.close-btn'):modal.querySelector('input:not([type=hidden]),select,textarea,button');target?.focus()},60)
-}
-function closeModal(id){
-const modal=$(id);if(!modal)return;modal.classList.remove('open');modalBaselines.delete(id);if(!document.querySelector('.modal.open'))document.body.classList.remove('modal-open');updateDayQuickButton();if(lastModalFocus&&document.contains(lastModalFocus))lastModalFocus.focus({preventScroll:true})
-}
+
+function topOpenModal(){return[...document.querySelectorAll('.modal.open')].at(-1)||null}
+function modalFocusable(modal){return[...modal.querySelectorAll('button:not([disabled]),input:not([disabled]):not([type="hidden"]),select:not([disabled]),textarea:not([disabled]),[href],[tabindex]:not([tabindex="-1"])')].filter(el=>!el.hidden&&el.getClientRects().length&&getComputedStyle(el).visibility!=='hidden')}
+function trapModalFocus(event){if(event.key!=='Tab')return;const modal=topOpenModal();if(!modal)return;const items=modalFocusable(modal);if(!items.length){event.preventDefault();modal.focus();return}const first=items[0],last=items.at(-1);if(event.shiftKey&&document.activeElement===first){event.preventDefault();last.focus()}else if(!event.shiftKey&&document.activeElement===last){event.preventDefault();first.focus()}else if(!modal.contains(document.activeElement)){event.preventDefault();first.focus()}}
+function openModal(id){const modal=$(id);if(!modal)return;if(!modal.classList.contains('open'))modalFocusOrigins.set(id,document.activeElement);modal.classList.add('open');document.body.classList.add('modal-open');if(id==='dayModal')$('dayModal').dataset.originalDate=$('editDate').value;modalBaselines.set(id,modalSnapshot(id));updateDayQuickButton();setTimeout(()=>{const target=id==='dayModal'?modal.querySelector('.close-btn'):modalFocusable(modal)[0];target?.focus()},60)}
+function closeModal(id){const modal=$(id);if(!modal)return;modal.classList.remove('open');modalBaselines.delete(id);const origin=modalFocusOrigins.get(id);modalFocusOrigins.delete(id);if(!document.querySelector('.modal.open'))document.body.classList.remove('modal-open');updateDayQuickButton();const remaining=topOpenModal();if(remaining){const target=origin&&remaining.contains(origin)?origin:modalFocusable(remaining)[0];target?.focus({preventScroll:true})}else if(origin&&document.contains(origin))origin.focus({preventScroll:true})}
 function runAfterDirtyCheck(id,action){
 if(isModalDirty(id)){pendingDiscardModalId=id;pendingDiscardAction=action;openModal('discardConfirmModal');return}
 closeModal(id);if(typeof action==='function')action();
@@ -752,9 +708,9 @@ const tickVals=Array.from({length:5},(_,i)=>max-range*i/4),zeroY=y(0),points=ite
 let area='';if(items.length>1)area=`<path class="history-area" d="M ${x(0)} ${zeroY} L ${points.replaceAll(' ',' L ')} L ${x(items.length-1)} ${zeroY} Z"/>`;
 const years=[...new Set(items.map(i=>i.key.slice(0,4)))];
 let svg=`<svg viewBox="0 0 ${w} ${h}" aria-hidden="true"><g class="chart-grid">${tickVals.map(v=>`<line x1="${left}" x2="${w-right}" y1="${y(v)}" y2="${y(v)}"/><text x="${left-6}" y="${y(v)+3}" text-anchor="end">${v===0?'0h':`${v>0?'+':''}${Math.round(v/60)}h`}</text>`).join('')}</g><line class="zero-line" x1="${left}" x2="${w-right}" y1="${zeroY}" y2="${zeroY}"/>${area}<polyline class="history-line" points="${points}"/>`;
-items.forEach((it,i)=>{const showLabel=i===0||i===items.length-1||items[i-1].key.slice(0,4)!==it.key.slice(0,4),selected=chartSelection?.key===it.key;svg+=`<g class="history-point ${selected?'selected':''}" data-chart-key="${it.key}" role="button" tabindex="0" aria-label="${esc(it.name)} ${formatDuration(it.value)}"><rect class="chart-hit" x="${Math.max(left,x(i)-10)}" y="${top}" width="20" height="${plotH}"/><circle cx="${x(i)}" cy="${y(it.value)}" r="${selected?4.5:2.2}"/>${showLabel?`<text class="chart-label" x="${x(i)}" y="${h-14}" text-anchor="middle">${it.key.slice(0,4)}</text>`:''}</g>`});
+items.forEach((it,i)=>{const showLabel=i===0||i===items.length-1||items[i-1].key.slice(0,4)!==it.key.slice(0,4),selected=chartSelection?.key===it.key;svg+=`<g class="history-point ${selected?'selected':''}" data-chart-key="${it.key}"><rect class="chart-hit" x="${Math.max(left,x(i)-10)}" y="${top}" width="20" height="${plotH}"/><circle cx="${x(i)}" cy="${y(it.value)}" r="${selected?4.5:2.2}"/>${showLabel?`<text class="chart-label" x="${x(i)}" y="${h-14}" text-anchor="middle">${it.key.slice(0,4)}</text>`:''}</g>`});
 host.innerHTML=svg+'</svg>';
-host.querySelectorAll('[data-chart-key]').forEach(el=>{const act=()=>chartSelect('history',el.dataset.chartKey);el.addEventListener('click',act);el.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();act()}})});
+host.querySelectorAll('[data-chart-key]').forEach(el=>{const act=()=>chartSelect('history',el.dataset.chartKey);el.addEventListener('click',act)});
 const picked=items.find(i=>i.key===chartSelection?.key)||items.at(-1);chartSelection={kind:'history',key:picked.key};
 detail.innerHTML=`<b>${esc(picked.name)}</b><div><span>Kumulierter Zeitkontostand</span><strong class="${picked.value<0?'red':'green'}">${formatDuration(picked.value)}</strong></div><div><span>Ausgewählter Zeitraum</span><strong>${items[0].key.slice(0,4)} – ${items.at(-1).key.slice(0,4)}</strong></div>`;
 }
@@ -771,8 +727,8 @@ const items=chartMode==='month'?Array.from({length:12},(_,m)=>{const y=Number($(
 const available=items.filter(i=>i.available),max=Math.max(60,...available.map(i=>Math.abs(i.value))),w=360,h=235,padX=48,right=10,zero=107.5,plotH=78,step=(w-padX-right)/Math.max(items.length,1),bar=Math.max(10,Math.min(22,step*.58));
 const ticks=[max,Math.round(max/2),0,-Math.round(max/2),-max];
 let svg=`<svg viewBox="0 0 ${w} ${h}" aria-hidden="true" focusable="false"><g class="chart-grid">${ticks.map((v,i)=>{const yy=zero-(v/max)*plotH;return `<line x1="${padX}" x2="${w-right}" y1="${yy}" y2="${yy}"/><text x="${padX-5}" y="${yy+3}" text-anchor="end">${i===2?'0':Math.round(Math.abs(v)/60)+'h'}</text>`}).join('')}</g><line class="zero-line" x1="${padX}" x2="${w-right}" y1="${zero}" y2="${zero}"/>`;
-items.forEach((it,i)=>{const xx=padX+i*step+(step-bar)/2,val=it.available?it.value:0,bh=Math.abs(val)/max*plotH,yy=val>=0?zero-bh:zero,selected=chartSelection?.key===it.key,current=it.key===todayKey().slice(0,chartMode==='month'?7:4);svg+=`<g class="chart-item ${selected?'selected':''} ${current?'current':''} ${it.available?'':'unavailable'}" role="button" tabindex="0" data-chart-key="${it.key}" aria-label="${esc(it.name)} ${formatDuration(val)}"><rect class="chart-hit" x="${padX+i*step}" y="12" width="${step}" height="${h-35}"/><rect class="chart-bar ${val<0?'negative':'positive'}" x="${xx}" y="${yy}" width="${bar}" height="${Math.max(it.available?2:0,bh)}" rx="4"/><text class="chart-label" x="${xx+bar/2}" y="${h-14}" text-anchor="middle">${it.label}</text></g>`});
-host.innerHTML=svg+'</svg>';host.querySelectorAll('[data-chart-key]').forEach(el=>{const act=()=>chartSelect(chartMode,el.dataset.chartKey);el.addEventListener('click',act);el.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();act()}})});
+items.forEach((it,i)=>{const xx=padX+i*step+(step-bar)/2,val=it.available?it.value:0,bh=Math.abs(val)/max*plotH,yy=val>=0?zero-bh:zero,selected=chartSelection?.key===it.key,current=it.key===todayKey().slice(0,chartMode==='month'?7:4);svg+=`<g class="chart-item ${selected?'selected':''} ${current?'current':''} ${it.available?'':'unavailable'}" data-chart-key="${it.key}"><rect class="chart-hit" x="${padX+i*step}" y="12" width="${step}" height="${h-35}"/><rect class="chart-bar ${val<0?'negative':'positive'}" x="${xx}" y="${yy}" width="${bar}" height="${Math.max(it.available?2:0,bh)}" rx="4"/><text class="chart-label" x="${xx+bar/2}" y="${h-14}" text-anchor="middle">${it.label}</text></g>`});
+host.innerHTML=svg+'</svg>';host.querySelectorAll('[data-chart-key]').forEach(el=>{const act=()=>chartSelect(chartMode,el.dataset.chartKey);el.addEventListener('click',act)});
 let picked=items.find(i=>i.key===chartSelection?.key&&chartSelection.kind===chartMode)||available.at(-1);if(!picked){detail.innerHTML='<span>Für diese Auswahl liegen noch keine Werte vor.</span>';return}chartSelection={kind:chartMode,key:picked.key};
 const sm=picked.summary;detail.innerHTML=`<b>${esc(picked.name)}</b><div><span>${chartMode==='month'?'Monatsdifferenz':'Jahresveränderung'}</span><strong class="${sm.diff<0?'red':'green'}">${formatDuration(sm.diff)}</strong></div><div><span>Zeitkonto zum Stichtag</span><strong>${formatDuration(sm.closing)}</strong></div><div><span>Netto / Soll</span><strong>${formatDuration(sm.net,{signed:false})} / ${formatDuration(sm.target,{signed:false})}</strong></div>`;
 }
@@ -855,15 +811,7 @@ if(sourceModalId)closeModal(sourceModalId);['quickAddModal','timeActionModal','m
 }
 function openFullTodayEditor(){const k=manualQuickDate;runAfterDirtyCheck('manualQuickModal',()=>openFullDayForDate(k))}
 function toggleTimeInfo(kind){const box=$('timeInfoText');box.hidden=false;box.textContent=kind==='actual'?'Tatsächliche Uhrzeit = die reale Uhrzeit der Buchung.':'Dokumentierte Uhrzeit = die gerundete beziehungsweise angerechnete Uhrzeit.'}
-function workdayIssues(){
-const result=[],end=parseDateKey(todayKey());end.setDate(end.getDate()-1);let current=parseDateKey(TRACKING_START_DATE);
-for(;current<=end;current.setDate(current.getDate()+1)){
-const k=dateKey(current),d=dayObject(k);if(scheduledTargetMinutes(k)<=0)continue;if(d.absence)continue;const entries=d.entries||[];
-if(!entries.length){result.push({date:k,kind:'missing',status:absenceDuration(d)==='half'&&d.absence?'Arbeitszeit zum halben Abwesenheitstag fehlt':'Ohne Buchung'});continue}
-const status=dayStatus(d);if(status!=='Vollständig'&&status!=='Halbe Abwesenheit + Arbeitszeit')result.push({date:k,kind:'incomplete',status});
-}
-return result;
-}
+function workdayIssues(){const result=[],end=parseDateKey(todayKey());end.setDate(end.getDate()-1);let current=parseDateKey(TRACKING_START_DATE);for(;current<=end;current.setDate(current.getDate()+1)){const k=dateKey(current),d=dayObject(k);if(scheduledTargetMinutes(k)<=0)continue;const entries=d.entries||[],halfAbsence=!!d.absence&&absenceDuration(d)==='half';if(d.absence&&!halfAbsence)continue;if(!entries.length){result.push({date:k,kind:'missing',status:halfAbsence?'Arbeitszeit zum halben Abwesenheitstag fehlt':'Ohne Buchung'});continue}const status=dayStatus(d);if(status!=='Vollständig'&&status!=='Halbe Abwesenheit + Arbeitszeit')result.push({date:k,kind:'incomplete',status})}return result}
 function renderPastWorkdayNotice(){
 const issues=workdayIssues(),missing=issues.filter(issue=>issue.kind==='missing').length,incomplete=issues.filter(issue=>issue.kind==='incomplete').length,button=$('pastWorkdayNotice');button.hidden=!issues.length;if(!issues.length)return;
 let label='';if(missing&&incomplete)label=`${missing} ohne Buchung · ${incomplete} unvollständig`;else if(missing)label=`${missing} ${missing===1?'Arbeitstag':'Arbeitstage'} ohne Buchung`;else label=`${incomplete} ${incomplete===1?'Tag':'Tage'} unvollständig`;$('pastWorkdayNoticeTitle').textContent=label;$('pastWorkdayNoticeText').textContent='';
@@ -923,30 +871,28 @@ if(!confirm(`${what} löschen? Vorhandene Arbeitszeitbuchungen bleiben erhalten.
 const nowIso=new Date().toISOString();dates.forEach(date=>{const day=state.days[date];if(!day)return;clearAbsenceFields(day);day.edited=true;day.modifiedAt=nowIso;if(IMPORTED_BY_DATE[date])day.importCleared=true;state.days[date]=day});state.settings.lastEditedDay=k;saveState();closeModal('absenceModal');refreshAllDerivedViews();showToast(dates.length>1?'Abwesenheitszeitraum gelöscht':'Abwesenheit gelöscht');
 }
 function deleteAbsenceFromModal(scope){const k=absenceEditorContext?.sourceDate||$('absenceFrom').value;deleteAbsenceForDay(k,scope)}
-function renderSettings(){$('employeeName').value=state.settings.employeeName||'';$('targetHours').value=clockFromMinutes(state.settings.targetMinutes||480);$('checkpointBalance').value=formatDuration(state.settings.startBalanceMinutes||0);$('freeChristmasEve').checked=state.settings.freeChristmasEve!==false;$('freeNewYearsEve').checked=state.settings.freeNewYearsEve!==false;$('countdownEnabled').checked=state.settings.countdownEnabled!==false;$('bookingSoundEnabled').checked=state.settings.bookingSoundEnabled===true;$('reportSignature').checked=state.settings.reportSignature!==false;$('appVersion').textContent=`Arbeitszeit PWA · Version ${APP_VERSION}`;}
-function saveSettings(){
-const startBalance=parseSignedTime($('checkpointBalance').value);if(startBalance===null){showToast('Startwert als +HH:MM eingeben');$('checkpointBalance').value=formatDuration(state.settings.startBalanceMinutes||0);return}
-state.settings.employeeName=$('employeeName').value.trim();state.settings.targetMinutes=minutes($('targetHours').value)||480;state.settings.startBalanceMinutes=startBalance;state.settings.trackingStartDate=TRACKING_START_DATE;state.settings.calculationVersion=CALCULATION_VERSION;state.settings.freeChristmasEve=$('freeChristmasEve').checked;state.settings.freeNewYearsEve=$('freeNewYearsEve').checked;state.settings.countdownEnabled=$('countdownEnabled').checked;state.settings.bookingSoundEnabled=$('bookingSoundEnabled').checked;state.settings.reportSignature=$('reportSignature').checked;ensureHolidayYear(new Date().getFullYear());saveState();refreshAllDerivedViews();if(!state.settings.countdownEnabled)stopConfetti();showToast('Einstellungen gespeichert');
+function renderSettings(){
+const targetDate=$('targetValidFrom')?.value||todayKey(),regionDate=$('holidayRegionValidFrom')?.value||todayKey();$('employeeName').value=state.settings.employeeName||'';$('targetValidFrom').min=TRACKING_START_DATE;$('targetValidFrom').value=targetDate;$('targetHours').value=clockFromMinutes(targetMinutesFromSettings(targetDate,state.settings));$('checkpointBalance').value=formatDuration(state.settings.startBalanceMinutes||0);$('holidayRegionValidFrom').min=TRACKING_START_DATE;$('holidayRegionValidFrom').value=regionDate;$('holidayRegion').value=holidayRegionFromSettings(regionDate,state.settings);$('freeChristmasEve').checked=state.settings.freeChristmasEve!==false;$('freeNewYearsEve').checked=state.settings.freeNewYearsEve!==false;$('countdownEnabled').checked=state.settings.countdownEnabled!==false;$('bookingSoundEnabled').checked=state.settings.bookingSoundEnabled===true;$('reportSignature').checked=state.settings.reportSignature!==false;$('targetRuleStatus').textContent=normalizeTargetRules(state.settings.targetRules).map(r=>`${formatDate(r.from,{day:'2-digit',month:'2-digit',year:'numeric'})}: ${formatDuration(r.minutes,{signed:false})}`).join(' · ');$('holidayRegionRuleStatus').textContent=normalizeHolidayRegionRules(state.settings.holidayRegionRules).map(r=>`${formatDate(r.from,{day:'2-digit',month:'2-digit',year:'numeric'})}: ${HOLIDAY_REGIONS[r.region]}`).join(' · ');$('appVersion').textContent=`Arbeitszeit PWA · Version ${APP_VERSION}`
 }
+function saveSettings(){const startBalance=parseSignedTime($('checkpointBalance').value);if(startBalance===null){showToast('Startwert im Format +HH:MM mit Minuten von 00 bis 59 eingeben');$('checkpointBalance').value=formatDuration(state.settings.startBalanceMinutes||0);return}state.settings.employeeName=$('employeeName').value.trim();state.settings.startBalanceMinutes=startBalance;state.settings.trackingStartDate=TRACKING_START_DATE;state.settings.calculationVersion=CALCULATION_VERSION;state.settings.freeChristmasEve=$('freeChristmasEve').checked;state.settings.freeNewYearsEve=$('freeNewYearsEve').checked;state.settings.countdownEnabled=$('countdownEnabled').checked;state.settings.bookingSoundEnabled=$('bookingSoundEnabled').checked;state.settings.reportSignature=$('reportSignature').checked;state.settings.targetMinutes=targetMinutesFromSettings(todayKey(),state.settings);state.settings.holidayRegion=holidayRegionFromSettings(todayKey(),state.settings);ensureHolidayYears();saveState();refreshAllDerivedViews();if(!state.settings.countdownEnabled)stopConfetti();showToast('Einstellungen gespeichert')}
+
+function applyTargetRule(){const from=$('targetValidFrom').value,value=$('targetHours').value,newMinutes=minutes(value);if(!isDateKey(from)||from<TRACKING_START_DATE){showToast('Gültigkeitsdatum ab 01.11.2022 wählen');return}if(!isClock(value)||newMinutes<=0){showToast('Gültige tägliche Sollzeit eingeben');return}const previous=targetMinutesFromSettings(from,state.settings);if(previous===newMinutes&&normalizeTargetRules(state.settings.targetRules).some(r=>r.from===from&&r.minutes===newMinutes)){showToast('Diese Sollzeitregel besteht bereits');return}if(from<=todayKey()&&!confirm(`Sollzeit ab ${formatDate(from,{day:'2-digit',month:'2-digit',year:'numeric'})} auf ${formatDuration(newMinutes,{signed:false})} ändern? Alle Tage ab diesem Datum werden neu berechnet. Frühere Zeiträume bleiben unverändert.`))return;state.settings.targetRules=upsertEffectiveRule(normalizeTargetRules(state.settings.targetRules),{from,minutes:newMinutes});state.settings.targetMinutes=targetMinutesFromSettings(todayKey(),state.settings);saveState();refreshAllDerivedViews();renderSettings();showToast(`Sollzeit ab ${formatDate(from,{day:'2-digit',month:'2-digit',year:'numeric'})} gespeichert`)}
+function applyHolidayRegionRule(){const from=$('holidayRegionValidFrom').value,region=$('holidayRegion').value;if(!isDateKey(from)||from<TRACKING_START_DATE||!HOLIDAY_REGIONS[region]){showToast('Bundesland und Gültigkeitsdatum prüfen');return}const previous=holidayRegionFromSettings(from,state.settings);if(previous===region&&normalizeHolidayRegionRules(state.settings.holidayRegionRules).some(r=>r.from===from&&r.region===region)){showToast('Diese Bundeslandregel besteht bereits');return}if(from<=todayKey()&&!confirm(`Feiertagsregion ab ${formatDate(from,{day:'2-digit',month:'2-digit',year:'numeric'})} auf ${HOLIDAY_REGIONS[region]} ändern? Gesetzliche Feiertage und Zeitkonto werden ab diesem Datum neu berechnet. Frühere Zeiträume bleiben unverändert.`))return;state.settings.holidayRegionRules=upsertEffectiveRule(normalizeHolidayRegionRules(state.settings.holidayRegionRules),{from,region});state.settings.holidayRegion=holidayRegionFromSettings(todayKey(),state.settings);ensureHolidayYears(Number(from.slice(0,4)),new Date().getFullYear()+1);saveState();refreshAllDerivedViews();renderSettings();showToast(`Feiertagsregion ab ${formatDate(from,{day:'2-digit',month:'2-digit',year:'numeric'})} gespeichert`)}
+function syncTargetRuleInput(){const date=$('targetValidFrom').value||todayKey();$('targetHours').value=clockFromMinutes(targetMinutesFromSettings(date,state.settings))}
+function syncHolidayRegionInput(){const date=$('holidayRegionValidFrom').value||todayKey();$('holidayRegion').value=holidayRegionFromSettings(date,state.settings)}
 function downloadBlob(name,blob){const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),2500)}
 function downloadFile(name,text,type){downloadBlob(name,new Blob([text],{type}))}
-function createBackupPayload(){return{format:BACKUP_FORMAT,version:2,appVersion:APP_VERSION,exportedAt:new Date().toISOString(),schemaVersion:CURRENT_SCHEMA,recordCount:Object.values(state.days||{}).reduce((n,d)=>n+(d.entries?.length||0),0),dayCount:Object.keys(state.days||{}).length,state:clone(state)}}
-function createBackupFile(){const payload=createBackupPayload();return new File([JSON.stringify(payload,null,2)],`Arbeitszeit_Backup_${todayKey()}.json`,{type:'application/json'})}
+function backupTimestamp(date=new Date()){return `${dateKey(date)}_${pad(date.getHours())}-${pad(date.getMinutes())}-${pad(date.getSeconds())}`}
+function createBackupPayload(exportedAt=new Date()){return{format:BACKUP_FORMAT,version:2,appVersion:APP_VERSION,exportedAt:exportedAt.toISOString(),schemaVersion:CURRENT_SCHEMA,recordCount:Object.values(state.days||{}).reduce((n,d)=>n+(d.entries?.length||0),0),dayCount:Object.keys(state.days||{}).length,state:clone(state)}}
+function createBackupFile(stamp=backupTimestamp(),exportedAt=new Date()){const payload=createBackupPayload(exportedAt);return new File([JSON.stringify(payload,null,2)],`Arbeitszeit_Backup_${stamp}.json`,{type:'application/json'})}
 function exportJSON(){const file=createBackupFile();downloadBlob(file.name,file);showToast('Sicherung erstellt')}
-function validateBackupEnvelope(raw){
-if(!raw||typeof raw!=='object'||raw.format!==BACKUP_FORMAT)throw new Error('Die Datei gehört nicht zu dieser Arbeitszeit-App.');
-if(!raw.state||typeof raw.state!=='object')throw new Error('Die Sicherung enthält keinen vollständigen App-Zustand.');
-const checked=validateStateShape(raw.state),expanded=checked.compact===true?expandCompact(checked):checked;
-const days=Object.values(expanded.days||{}),entries=days.reduce((n,d)=>n+(d.entries?.length||0),0);
-return{state:expanded,meta:{exportedAt:raw.exportedAt||raw.savedAt||null,appVersion:raw.appVersion||'unbekannt',days:days.length,entries}};
-}
+function validateBackupEnvelope(raw){if(!raw||typeof raw!=='object'||raw.format!==BACKUP_FORMAT)throw new Error('Die Datei gehört nicht zu dieser Arbeitszeit-App.');if(!raw.state||typeof raw.state!=='object')throw new Error('Die Sicherung enthält keinen vollständigen App-Zustand.');const suppliedSchema=Math.max(Number(raw.schemaVersion)||0,Number(raw.state?.schemaVersion)||0,Number(raw.state?.settings?.schemaVersion)||0);if(suppliedSchema>CURRENT_SCHEMA)throw new Error(`Diese Sicherung verwendet Datenschema ${suppliedSchema}. Die installierte App unterstützt höchstens Schema ${CURRENT_SCHEMA}. Bitte zuerst die App aktualisieren.`);const checked=validateStateShape(raw.state),expanded=checked.compact===true?expandCompact(checked):checked;const days=Object.values(expanded.days||{}),entries=days.reduce((n,d)=>n+(d.entries?.length||0),0);return{state:expanded,meta:{exportedAt:raw.exportedAt||raw.savedAt||null,appVersion:raw.appVersion||'unbekannt',days:days.length,entries}}}
 function restoreJSON(file){if(!file)return;const r=new FileReader();r.onload=()=>{try{
 const result=validateBackupEnvelope(JSON.parse(r.result));
 const stamp=result.meta.exportedAt?new Intl.DateTimeFormat('de-DE',{dateStyle:'medium',timeStyle:'short'}).format(new Date(result.meta.exportedAt)):'unbekannt';
 const info=`Sicherungsdatum: ${stamp}\nApp-Version: ${result.meta.appVersion}\nKalendertage: ${result.meta.days}\nBuchungen: ${result.meta.entries}`;
 if(!confirm(`${info}\n\nDie aktuellen Daten werden vor dem Überschreiben gesichert. Wiederherstellung fortsetzen?`))return;
 const safety=createBackupFile();downloadBlob(safety.name.replace('.json','_vor_Wiederherstellung.json'),safety);
-const previous=localStorage.getItem(STORAGE_KEY);if(previous)localStorage.setItem(STORAGE_BACKUP_KEY,previous);
 state=migrateState(result.state);if(!saveState())throw new Error('Speichern fehlgeschlagen');
 refreshAllDerivedViews();showToast('Sicherung wiederhergestellt');setTimeout(()=>location.reload(),500);
 }catch(e){alert(`Sicherung konnte nicht wiederhergestellt werden: ${e.message||'ungültige Datei'}`)}finally{$('restoreFile').value=''}};r.onerror=()=>alert('Die Datei konnte nicht gelesen werden.');r.readAsText(file)}
@@ -975,7 +921,7 @@ const monthKeys=[...new Set(countable.map(d=>d.date.slice(0,7)))].sort();for(con
 const yearKeys=[...new Set(countable.map(d=>Number(d.date.slice(0,4))))].sort();for(const y of yearKeys){const ss=yearSummary(y);years.push([{v:y,t:'n'},DUR(ss.net),DUR(ss.target),DUR(ss.pause),DUR(ss.diff,true),DUR(ss.closing,true),{v:ss.months.reduce((n,m)=>n+m.days.filter(d=>isCountable(d,m.cutoff)).length,0),t:'n'}])}
 const history=[[H('Datum'),H('Import Netto'),H('Neu Netto'),H('Delta Netto'),H('Import Soll'),H('Neu Soll'),H('Delta Soll'),H('Import Saldo'),H('Neu Saldo'),H('Delta Saldo'),H('Import Tagesstand'),H('Neu Tagesstand'),H('Delta Tagesstand'),H('Historisch einbezogen'),H('Bereinigung / Hinweis')]];
 for(const d of days.filter(x=>x.sourceYear||Number.isFinite(Number(x.excelDiffMinutes)))){const c=calculateDay(d),legacyNet=Number(d.excelNetMinutes)||0,legacyTarget=Number(d.excelTargetMinutes)||0,legacyDiff=Number(d.excelDiffMinutes)||0,legacyBalance=Number(d.excelBalanceMinutes)||0,currentBalance=balanceThrough(d.date);history.push([D(d.date),DUR(legacyNet),DUR(c.net),DUR(c.net-legacyNet,true),DUR(legacyTarget),DUR(c.target),DUR(c.target-legacyTarget,true),DUR(legacyDiff,true),DUR(c.diff,true),DUR(c.diff-legacyDiff,true),DUR(legacyBalance,true),DUR(currentBalance,true),DUR(currentBalance-legacyBalance,true),T(d.excelIncludedInSummary===false?'Nein':'Ja'),T(d.dataCorrection||'')])}
-const settings=[[H('Einstellung'),H('Wert')],[T('Name im Bericht'),T(state.settings.employeeName||'')],[T('Tägliche Sollzeit'),DUR(state.settings.targetMinutes||480)],[T(`Startwert Zeitkonto am ${TRACKING_START_DATE}`),DUR(state.settings.startBalanceMinutes||0,true)],[T('Heiligabend frei'),T(state.settings.freeChristmasEve!==false?'Ja':'Nein')],[T('Silvester frei'),T(state.settings.freeNewYearsEve!==false?'Ja':'Nein')],[T('Countdown aktiviert'),T(state.settings.countdownEnabled!==false?'Ja':'Nein')],[T('Retro-Buchungston'),T(state.settings.bookingSoundEnabled===true?'Ja':'Nein')],[T('Unterschriftsbereich'),T(state.settings.reportSignature!==false?'Ja':'Nein')],[T('Datenschema'),{v:CURRENT_SCHEMA,t:'n'}],[T('App-Version'),T(APP_VERSION)]];
+const settings=[[H('Einstellung'),H('Wert')],[T('Name im Bericht'),T(state.settings.employeeName||'')],[T('Tägliche Sollzeit heute'),DUR(targetMinutesFromSettings(todayKey(),state.settings))],[T('Sollzeitregeln'),T(normalizeTargetRules(state.settings.targetRules).map(r=>`${r.from}: ${formatDuration(r.minutes,{signed:false})}`).join(' | '))],[T(`Startwert Zeitkonto am ${TRACKING_START_DATE}`),DUR(state.settings.startBalanceMinutes||0,true)],[T('Feiertagsregion heute'),T(HOLIDAY_REGIONS[holidayRegionFromSettings(todayKey(),state.settings)])],[T('Bundeslandregeln'),T(normalizeHolidayRegionRules(state.settings.holidayRegionRules).map(r=>`${r.from}: ${HOLIDAY_REGIONS[r.region]}`).join(' | '))],[T('Heiligabend frei'),T(state.settings.freeChristmasEve!==false?'Ja':'Nein')],[T('Silvester frei'),T(state.settings.freeNewYearsEve!==false?'Ja':'Nein')],[T('Countdown aktiviert'),T(state.settings.countdownEnabled!==false?'Ja':'Nein')],[T('Retro-Buchungston'),T(state.settings.bookingSoundEnabled===true?'Ja':'Nein')],[T('Unterschriftsbereich'),T(state.settings.reportSignature!==false?'Ja':'Nein')],[T('Datenschema'),{v:CURRENT_SCHEMA,t:'n'}],[T('App-Version'),T(APP_VERSION)]];
 const sheets=[['Übersicht',overview,[32,28],false],['Tagesübersicht',daily,[12,14,18,18,14,18,16,15,14,14,16,24,22,34],true],['Buchungen',bookings,[12,12,18,20,24,18,24],true],['Monatsübersicht',months,[22,16,16,16,18,28,18],true],['Jahresübersicht',years,[12,16,16,16,18,28,18],true],['Historienvergleich',history,[12,16,16,16,16,16,16,16,16,16,20,20,20,20,54],true],['Einstellungen',settings,[34,28],false]];
 const files=[];files.push({name:'[Content_Types].xml',data:`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/><Override PartName="/xl/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/>${sheets.map((_,i)=>`<Override PartName="/xl/worksheets/sheet${i+1}.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/>`).join('')}</Types>`});
 files.push({name:'_rels/.rels',data:`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/></Relationships>`});
@@ -984,10 +930,13 @@ files.push({name:'xl/_rels/workbook.xml.rels',data:`<?xml version="1.0" encoding
 files.push({name:'xl/styles.xml',data:`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><numFmts count="3"><numFmt numFmtId="164" formatCode="dd.mm.yyyy"/><numFmt numFmtId="165" formatCode="hh:mm"/><numFmt numFmtId="166" formatCode="[h]:mm;-[h]:mm"/></numFmts><fonts count="4"><font><sz val="11"/><name val="Calibri"/></font><font><b/><color rgb="FFFFFFFF"/><sz val="11"/><name val="Calibri"/></font><font><color rgb="FF008000"/><sz val="11"/><name val="Calibri"/></font><font><color rgb="FFC00000"/><sz val="11"/><name val="Calibri"/></font></fonts><fills count="3"><fill><patternFill patternType="none"/></fill><fill><patternFill patternType="gray125"/></fill><fill><patternFill patternType="solid"><fgColor rgb="FF315B7D"/><bgColor indexed="64"/></patternFill></fill></fills><borders count="1"><border><left/><right/><top/><bottom/><diagonal/></border></borders><cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs><cellXfs count="7"><xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/><xf numFmtId="0" fontId="1" fillId="2" borderId="0" xfId="0" applyFont="1" applyFill="1"/><xf numFmtId="164" fontId="0" fillId="0" borderId="0" xfId="0" applyNumberFormat="1"/><xf numFmtId="165" fontId="0" fillId="0" borderId="0" xfId="0" applyNumberFormat="1"/><xf numFmtId="166" fontId="0" fillId="0" borderId="0" xfId="0" applyNumberFormat="1"/><xf numFmtId="166" fontId="2" fillId="0" borderId="0" xfId="0" applyNumberFormat="1" applyFont="1"/><xf numFmtId="166" fontId="3" fillId="0" borderId="0" xfId="0" applyNumberFormat="1" applyFont="1"/></cellXfs><cellStyles count="1"><cellStyle name="Normal" xfId="0" builtinId="0"/></cellStyles></styleSheet>`});
 sheets.forEach((sh,i)=>files.push({name:`xl/worksheets/sheet${i+1}.xml`,data:sheetXml(sh[1],sh[2],{filter:sh[3],freeze:true})}));return new Blob([zipStore(files)],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'})
 }
-function createExcelFile(){return new File([makeWorkbook()],`Arbeitszeit_Auswertung_${todayKey()}.xlsx`,{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'})}
+function createExcelFile(stamp=backupTimestamp()){return new File([makeWorkbook()],`Arbeitszeit_Auswertung_${stamp}.xlsx`,{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'})}
 function exportXLSX(){try{const file=createExcelFile();downloadBlob(file.name,file);showToast('Excel-Auswertung erstellt')}catch(e){console.error(e);alert(`Excel-Datei konnte nicht erstellt werden: ${e.message}`)}}
-async function createPackage(){const backup=createBackupFile(),xlsx=createExcelFile(),note=`Arbeitszeit-Sicherung\n\nSicherungsdatum: ${new Date().toLocaleString('de-DE')}\nApp-Version: ${APP_VERSION}\n\nDie JSON-Datei dient zur vollständigen Wiederherstellung in der App.\nDie Excel-Datei dient ausschließlich zur Ansicht und Auswertung.\n`;const files=[{name:backup.name,data:new Uint8Array(await backup.arrayBuffer())},{name:xlsx.name,data:new Uint8Array(await xlsx.arrayBuffer())},{name:'Hinweise.txt',data:note}];return new File([zipStore(files)],`Arbeitszeit_Sicherung_${todayKey()}.zip`,{type:'application/zip'})}
-async function sharePackage(){try{const zip=await createPackage();if(navigator.share&&navigator.canShare?.({files:[zip]})){await navigator.share({title:'Arbeitszeit-Sicherung',text:'JSON-Backup und Excel-Auswertung',files:[zip]});showToast('Teilen-Menü geöffnet')}else{downloadBlob(zip.name,zip);alert('Das Teilen von Dateien wird hier nicht unterstützt. Das ZIP-Paket wurde stattdessen heruntergeladen.')}}catch(e){if(e?.name!=='AbortError'){console.error(e);alert(`Sicherung konnte nicht geteilt werden: ${e.message}`)}}}
+async function createPackage(){const now=new Date(),stamp=backupTimestamp(now);return[createBackupFile(stamp,now),createExcelFile(stamp)]}
+async function sharePackage(){try{const files=await createPackage();if(navigator.share&&navigator.canShare?.({files})){await navigator.share({title:'Arbeitszeit-Sicherung',files});showToast('Teilen-Menü geöffnet')}else openShareFallback(files)}catch(e){if(e?.name!=='AbortError'){console.error(e);try{openShareFallback(await createPackage())}catch(inner){alert(`Sicherung konnte nicht erstellt werden: ${inner.message}`)}}}}
+
+function openShareFallback(files){pendingShareFiles=files;const [jsonFile,xlsxFile]=files;$('fallbackJsonName').textContent=jsonFile.name;$('fallbackExcelName').textContent=xlsxFile.name;openModal('shareFallbackModal')}
+function downloadFallbackFile(kind){const file=pendingShareFiles?.[kind==='json'?0:1];if(!file)return;downloadBlob(file.name,file);showToast(`${kind==='json'?'JSON-Sicherung':'Excel-Auswertung'} gespeichert`)}
 function pdfWinAnsiByte(ch){
 const code=ch.charCodeAt(0),map={0x20ac:128,0x201a:130,0x0192:131,0x201e:132,0x2026:133,0x2020:134,0x2021:135,0x02c6:136,0x2030:137,0x0160:138,0x2039:139,0x0152:140,0x017d:142,0x2018:145,0x2019:146,0x201c:147,0x201d:148,0x2022:149,0x2013:150,0x2014:151,0x02dc:152,0x2122:153,0x0161:154,0x203a:155,0x0153:156,0x017e:158,0x0178:159};
 if(code<=255)return code;return map[code]||63
@@ -1088,12 +1037,12 @@ reportShell(`Jahresbericht ${y}`,`Jahr ${y}`,summary,`<table><colgroup><col styl
 }
 function init(){
 document.title=`Arbeitszeit PWA · Version ${APP_VERSION}`;
-ensureHolidayYear(new Date().getFullYear());saveState();
+ensureHolidayYears();saveState();
 document.querySelectorAll('.tabbar button').forEach(b=>b.addEventListener('click',()=>showScreen(b.dataset.screen)));
 document.querySelectorAll('[data-view]').forEach(b=>b.addEventListener('click',()=>setTimesView(b.dataset.view)));
 document.querySelectorAll('[data-close]').forEach(button=>button.addEventListener('click',()=>requestCloseModal(button.dataset.close)));
 document.querySelectorAll('.modal').forEach(modal=>modal.addEventListener('click',event=>{if(event.target===modal)requestCloseModal(modal.id)}));
-document.addEventListener('keydown',event=>{if(event.key==='Escape'){const open=[...document.querySelectorAll('.modal.open')].at(-1);if(open)requestCloseModal(open.id)}});
+document.addEventListener('keydown',event=>{trapModalFocus(event);if(event.key==='Escape'){const open=topOpenModal();if(open)requestCloseModal(open.id)}});
 bindPunchButton($('punchAction'));
 $('todayAbsenceEdit').addEventListener('click',()=>openAbsenceEditorForDay(todayKey(),'day'));
 $('pauseToday').addEventListener('click',openPauseModal);$('savePauseBtn').addEventListener('click',saveQuickPause);$('quickAddBtn').addEventListener('click',()=>openQuickAdd(todayKey()));$('timesQuickAddBtn').addEventListener('click',()=>openQuickAdd(dateKey(cursorDate)));$('pastWorkdayNotice').addEventListener('click',openWorkdayIssues);
@@ -1105,8 +1054,8 @@ $('monthReportBtn').addEventListener('click',()=>openMobileReport('month'));
 $('yearReportBtn').addEventListener('click',()=>openMobileReport('year'));
 $('chartMonthMode').addEventListener('click',()=>setChartMode('month'));$('chartYearMode').addEventListener('click',()=>setChartMode('year'));$('chartHistoryMode').addEventListener('click',()=>setChartMode('history'));$('chartYear').addEventListener('change',()=>{chartSelection=null;renderOvertimeChart()});
 $('closeMobileReport').addEventListener('click',closeMobileReport);$('mobileReportPrev').addEventListener('click',()=>shiftMobileReport(-1));$('mobileReportNext').addEventListener('click',()=>shiftMobileReport(1));$('mobileReportPrint').addEventListener('click',printMobileReport);$('mobileReportShare').addEventListener('click',shareMobileReportPdf);$('closePrintPreview').addEventListener('click',closePrintPreview);$('printReportBtn').addEventListener('click',printCurrentReport);
-$('shareBackupBtn').addEventListener('click',sharePackage);$('jsonRestoreBtn').addEventListener('click',()=>$('restoreFile').click());$('restoreFile').addEventListener('change',e=>restoreJSON(e.target.files[0]));
-['employeeName','targetHours','checkpointBalance','freeChristmasEve','freeNewYearsEve','countdownEnabled','bookingSoundEnabled','reportSignature'].forEach(id=>$(id).addEventListener('change',saveSettings));
+$('shareBackupBtn').addEventListener('click',sharePackage);$('fallbackJsonBtn').addEventListener('click',()=>downloadFallbackFile('json'));$('fallbackExcelBtn').addEventListener('click',()=>downloadFallbackFile('excel'));$('jsonRestoreBtn').addEventListener('click',()=>$('restoreFile').click());$('restoreFile').addEventListener('change',e=>restoreJSON(e.target.files[0]));
+['employeeName','checkpointBalance','freeChristmasEve','freeNewYearsEve','countdownEnabled','bookingSoundEnabled','reportSignature'].forEach(id=>$(id).addEventListener('change',saveSettings));$('applyTargetRuleBtn').addEventListener('click',applyTargetRule);$('applyHolidayRegionBtn').addEventListener('click',applyHolidayRegionRule);$('targetValidFrom').addEventListener('change',syncTargetRuleInput);$('holidayRegionValidFrom').addEventListener('change',syncHolidayRegionInput);
 updateClock();setInterval(updateClock,1000);window.addEventListener('resize',()=>{if(document.body.classList.contains('today-fixed')){renderTodayCapture(dayObject(todayKey()));updateCountdown({allowCelebrate:false})}});document.addEventListener('visibilitychange',()=>{if(!document.hidden&&document.body.classList.contains('today-fixed')){updateClock();updateCountdown()}});renderToday();
 if('serviceWorker'in navigator&&location.protocol!=='file:')navigator.serviceWorker.register('./sw.js').catch(()=>{});
 }
