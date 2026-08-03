@@ -1,0 +1,7 @@
+Arbeitszeit-PWA V5.34
+
+- Offene Arbeitstage können nach fachlicher Prüfung als korrekt bestätigt werden.
+- Die Bestätigung verändert weder Buchungen noch Abwesenheiten, Sollzeit oder Zeitkonto.
+- Ein bestätigter Hinweis verschwindet von der Startseite.
+- In der Tagesansicht bleibt die Bestätigung mit Datum und Uhrzeit sichtbar.
+- Ändern sich Buchungen, Pause, Abwesenheit oder Sollzeit, wird die alte Bestätigung durch eine Signatur automatisch unwirksam und der Hinweis erscheint bei Bedarf erneut.

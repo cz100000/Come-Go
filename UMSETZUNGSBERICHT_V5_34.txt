@@ -1,0 +1,7 @@
+Arbeitszeit-PWA V5.34 – Umsetzungsbericht
+
+Umgesetzt wurde eine fachliche Bestätigung für offene Arbeitstage, deren Minusstunden nach Prüfung korrekt sind. Die Bestätigung speichert ausschließlich ein Prüfkennzeichen mit einer Signatur des relevanten Tageszustands. Arbeitszeitbuchungen, Pause, Abwesenheit, Sollzeit und Zeitkonto bleiben unverändert.
+
+Die Signatur berücksichtigt Datum, Hinweisart, Buchungen, Pause, Abwesenheit, Abwesenheitsumfang und Sollzeit. Sobald sich einer dieser Werte ändert, passt die gespeicherte Signatur nicht mehr; ein weiterhin bestehender Kontrollbedarf erscheint automatisch wieder.
+
+Der Referenzfall 24.03.2023 wurde gegen das aktuelle V5.33-JSON geprüft: halber Urlaubstag, keine Buchung und vier Stunden Sollzeit.

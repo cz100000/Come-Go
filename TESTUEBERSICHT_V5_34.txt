@@ -1,0 +1,12 @@
+[OK] App-Version 5.34
+[OK] Signaturfunktion
+[OK] Bestätigungsfunktion
+[OK] Bestätigungsschaltfläche
+[OK] Automatische Reaktivierung über Signatur
+[OK] Tagesanzeige vorhanden
+[OK] Keine Berechnungsänderung in Bestätigung
+[OK] Manifest-Version
+[OK] Service-Worker-Cache
+[OK] Referenzfall 24.03.2023: halber Urlaub
+[OK] Referenzfall 24.03.2023: keine Buchung
+[OK] Referenzfall 24.03.2023: 4 Stunden Soll
