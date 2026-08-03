@@ -1,0 +1,7 @@
+Arbeitszeit-PWA V5.33 – Externe Sicherungsbestätigung
+
+- Nach Rückkehr aus dem Teilen-Menü erscheint „Wurde die Sicherung erfolgreich gespeichert?“.
+- Nur „Ja, gespeichert“ setzt lastExternalBackupAt.
+- Nein oder Abbruch verändert den Sicherungsstatus nicht.
+- Beim Einzeldatei-Fallback erscheint die Bestätigung erst nach beiden Dateien.
+- In Einstellungen > App und Daten wird die letzte bestätigte externe Sicherung angezeigt.

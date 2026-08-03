@@ -1,0 +1,3 @@
+Umsetzungsbericht V5.33
+
+Ausgangsbasis: V5.32. Umgesetzt wurde ausschließlich die externe Sicherungsbestätigung. Daten, Berechnungen, Kartenlayout und Exportformate blieben unverändert.

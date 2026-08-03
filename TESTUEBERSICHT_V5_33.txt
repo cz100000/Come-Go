@@ -1,0 +1,12 @@
+Testübersicht V5.33
+
+9 Kernprüfungen bestanden, 0 fehlgeschlagen.
+- JavaScript-Syntax fehlerfrei
+- Versionsstand, Manifest und Cache aktualisiert
+- Bestätigungskarte vorhanden
+- Zeitstempel nur nach Ja-Bestätigung
+- Nein/Abbruch ohne Statusänderung
+- Fallback erst nach beiden Einzeldateien
+- Anzeige der letzten externen Sicherung vorhanden
+
+Das echte iOS-Teilen-Menü ist abschließend auf dem Gerät zu prüfen.

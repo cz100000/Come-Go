@@ -162,6 +162,10 @@
 <span class="settings-row-value"><strong>Aktiv</strong><i aria-hidden="true">›</i></span>
 </button>
 <div class="settings-compact-row settings-status-row">
+<span class="settings-row-copy"><b>Letzte externe Sicherung</b><small>Von dir als erfolgreich bestätigt</small></span>
+<strong aria-label="Letzte externe Sicherung" class="settings-status-value" id="lastExternalBackup"></strong>
+</div>
+<div class="settings-compact-row settings-status-row">
 <span class="settings-row-copy"><b>App-Version</b><small>Installierter Stand</small></span>
 <strong aria-label="Anwendungsversion" class="settings-status-value" id="appVersion"></strong>
 </div>
@@ -342,6 +346,13 @@
 
 
 <div class="unified-card-footer canonical-card-footer"><button class="dialog-action dialog-action-secondary quick-cancel cancel single-footer-action" data-close="shareFallbackModal" type="button">Schließen</button></div></div>
+</div>
+<div aria-labelledby="backupSuccessTitle" aria-modal="true" class="modal confirm-modal" id="backupSuccessModal" role="dialog">
+<div class="sheet confirm-sheet canonical-card-shell">
+<div class="unified-card-head canonical-card-head"><span aria-hidden="true" class="unified-card-head-spacer"></span><div class="unified-card-title-wrap"><h2 id="backupSuccessTitle">Sicherung gespeichert?</h2></div><span aria-hidden="true" class="unified-card-head-spacer"></span></div>
+<div class="unified-card-body canonical-card-body"><p>Wurde die Sicherung erfolgreich gespeichert?</p><p class="unified-help">Erst nach deiner Bestätigung wird der Sicherungshinweis zurückgesetzt.</p></div>
+<div class="modal-actions unified-card-footer canonical-card-footer"><button class="cancel" id="backupSuccessNo" type="button">Nein</button><button class="save" id="backupSuccessYes" type="button">Ja, gespeichert</button></div>
+</div>
 </div>
 <div aria-labelledby="workdayIssuesTitle" aria-modal="true" class="modal" id="workdayIssuesModal" role="dialog">
 <div class="sheet issues-sheet canonical-card-shell">

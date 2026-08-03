@@ -4,7 +4,7 @@ const STORAGE_BACKUP_KEYS=[1,2,3].map(n=>`${STORAGE_KEY}-backup-${n}`);
 const STORAGE_CORRUPT_KEY=STORAGE_KEY+'-corrupt';
 const BACKUP_FORMAT='arbeitszeit-pwa-backup';
 const TRACKING_START_DATE='2022-11-01';
-const APP_VERSION='5.32';
+const APP_VERSION='5.33';
 const CURRENT_SCHEMA=12;
 const IMPORT_DATA_VERSION=4;
 const CALCULATION_VERSION=2;
@@ -26,6 +26,7 @@ let manualQuickType='in';
 let quickContextDate=todayKey(),manualQuickDate=todayKey(),quickAbsenceCode='vacation';
 let commentEditorContext=null;
 let pendingShareFiles=null;
+let fallbackShareCompleted={json:false,excel:false};
 let pendingDiscardModalId=null,pendingDiscardAction=null,pendingUndo=null;
 const modalBaselines=new Map();
 const guardedModalIds=new Set(['dayModal','entryModal','pauseModal','manualQuickModal','quickAbsenceModal','absenceModal']);
@@ -85,7 +86,7 @@ Object.keys(migrated.days).filter(k=>k<TRACKING_START_DATE).forEach(k=>delete mi
 const s=migrated.settings;
 s.targetRules=normalizeTargetRules(s.targetRules);s.holidayRegionRules=normalizeHolidayRegionRules(s.holidayRegionRules);s.targetMinutes=targetMinutesFromSettings(todayKey(),s);s.holidayRegion=holidayRegionFromSettings(todayKey(),s);
 for(const d of Object.values(migrated.days)){const generatedName=computedHolidayNameForSettings(d.date,s);if(generatedName&&d.sourceYear&&dayAbsenceCode(d)==='holiday'&&!d.edited){d.generatedHoliday=true;d.absence='Feiertag';d.absenceCode='holiday';d.absenceDuration='full';d.holiday=generatedName}}
-if(typeof s.employeeName!=='string')s.employeeName='';if(typeof s.freeChristmasEve!=='boolean')s.freeChristmasEve=true;if(typeof s.freeNewYearsEve!=='boolean')s.freeNewYearsEve=true;if(typeof s.reportSignature!=='boolean')s.reportSignature=true;if(typeof s.countdownEnabled!=='boolean')s.countdownEnabled=true;if(typeof s.bookingSoundEnabled!=='boolean')s.bookingSoundEnabled=false;if(typeof s.countdownCelebratedDate!=='string')s.countdownCelebratedDate=null;if(typeof s.showWeekends!=='boolean')s.showWeekends=false;
+if(typeof s.lastExternalBackupAt!=='string')s.lastExternalBackupAt='';if(typeof s.employeeName!=='string')s.employeeName='';if(typeof s.freeChristmasEve!=='boolean')s.freeChristmasEve=true;if(typeof s.freeNewYearsEve!=='boolean')s.freeNewYearsEve=true;if(typeof s.reportSignature!=='boolean')s.reportSignature=true;if(typeof s.countdownEnabled!=='boolean')s.countdownEnabled=true;if(typeof s.bookingSoundEnabled!=='boolean')s.bookingSoundEnabled=false;if(typeof s.countdownCelebratedDate!=='string')s.countdownCelebratedDate=null;if(typeof s.showWeekends!=='boolean')s.showWeekends=false;
 if(!s.legacyBalanceCheckpoint&&Number.isFinite(Number(s.balanceCheckpointMinutes)))s.legacyBalanceCheckpoint={date:s.balanceCheckpointDate||'2026-07-22',minutes:Number(s.balanceCheckpointMinutes),version:s.balanceCheckpointVersion||2};
 s.startBalanceMinutes=0;s.trackingStartDate=TRACKING_START_DATE;s.calculationVersion=CALCULATION_VERSION;s.importDataVersion=IMPORT_DATA_VERSION;s.schemaVersion=CURRENT_SCHEMA;
 delete s.balanceCheckpointDate;delete s.balanceCheckpointMinutes;delete s.balanceCheckpointVersion;delete s.correction20260727Applied;
@@ -933,10 +934,13 @@ sheets.forEach((sh,i)=>files.push({name:`xl/worksheets/sheet${i+1}.xml`,data:she
 function createExcelFile(stamp=backupTimestamp()){return new File([makeWorkbook()],`Arbeitszeit_Auswertung_${stamp}.xlsx`,{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'})}
 function exportXLSX(){try{const file=createExcelFile();downloadBlob(file.name,file);showToast('Excel-Auswertung erstellt')}catch(e){console.error(e);alert(`Excel-Datei konnte nicht erstellt werden: ${e.message}`)}}
 async function createPackage(){const now=new Date(),stamp=backupTimestamp(now);return[createBackupFile(stamp,now),createExcelFile(stamp)]}
-async function sharePackage(){try{const files=await createPackage();if(navigator.share&&navigator.canShare?.({files})){await navigator.share({title:'Arbeitszeit-Sicherung',files});showToast('Teilen-Menü geöffnet')}else openShareFallback(files)}catch(e){if(e?.name!=='AbortError'){console.error(e);try{openShareFallback(await createPackage())}catch(inner){alert(`Sicherung konnte nicht erstellt werden: ${inner.message}`)}}}}
-
-function openShareFallback(files){pendingShareFiles=files;const [jsonFile,xlsxFile]=files;$('fallbackJsonName').textContent=jsonFile.name;$('fallbackExcelName').textContent=xlsxFile.name;openModal('shareFallbackModal')}
-function downloadFallbackFile(kind){const file=pendingShareFiles?.[kind==='json'?0:1];if(!file)return;downloadBlob(file.name,file);showToast(`${kind==='json'?'JSON-Sicherung':'Excel-Auswertung'} gespeichert`)}
+async function sharePackage(){try{const files=await createPackage();if(navigator.share&&navigator.canShare?.({files})){await navigator.share({title:'Arbeitszeit-Sicherung',files});openBackupSuccessConfirm()}else openShareFallback(files)}catch(e){if(e?.name!=='AbortError'){console.error(e);try{openShareFallback(await createPackage())}catch(inner){alert(`Sicherung konnte nicht erstellt werden: ${inner.message}`)}}}}
+function openShareFallback(files){pendingShareFiles=files;fallbackShareCompleted={json:false,excel:false};const [jsonFile,xlsxFile]=files;$('fallbackJsonName').textContent=jsonFile.name;$('fallbackExcelName').textContent=xlsxFile.name;openModal('shareFallbackModal')}
+function downloadFallbackFile(kind){const file=pendingShareFiles?.[kind==='json'?0:1];if(!file)return;downloadBlob(file.name,file);fallbackShareCompleted[kind]=true;showToast(`${kind==='json'?'JSON-Sicherung':'Excel-Auswertung'} gespeichert`);if(fallbackShareCompleted.json&&fallbackShareCompleted.excel){setTimeout(()=>{closeModal('shareFallbackModal');openBackupSuccessConfirm()},150)}}
+function openBackupSuccessConfirm(){openModal('backupSuccessModal')}
+function cancelBackupSuccess(){closeModal('backupSuccessModal')}
+function confirmBackupSuccess(){state.settings.lastExternalBackupAt=new Date().toISOString();storageNotice='';saveState(true);renderSettings();closeModal('backupSuccessModal');showToast('Externe Sicherung bestätigt')}
+function formatExternalBackup(value){if(!value)return'Noch nicht bestätigt';const date=new Date(value);if(Number.isNaN(date.getTime()))return'Noch nicht bestätigt';return new Intl.DateTimeFormat('de-DE',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'}).format(date)}
 function pdfWinAnsiByte(ch){
 const code=ch.charCodeAt(0),map={0x20ac:128,0x201a:130,0x0192:131,0x201e:132,0x2026:133,0x2020:134,0x2021:135,0x02c6:136,0x2030:137,0x0160:138,0x2039:139,0x0152:140,0x017d:142,0x2018:145,0x2019:146,0x201c:147,0x201d:148,0x2022:149,0x2013:150,0x2014:151,0x02dc:152,0x2122:153,0x0161:154,0x203a:155,0x0153:156,0x017e:158,0x0178:159};
 if(code<=255)return code;return map[code]||63
@@ -1054,7 +1058,7 @@ $('monthReportBtn').addEventListener('click',()=>openMobileReport('month'));
 $('yearReportBtn').addEventListener('click',()=>openMobileReport('year'));
 $('chartMonthMode').addEventListener('click',()=>setChartMode('month'));$('chartYearMode').addEventListener('click',()=>setChartMode('year'));$('chartHistoryMode').addEventListener('click',()=>setChartMode('history'));$('chartYear').addEventListener('change',()=>{chartSelection=null;renderOvertimeChart()});
 $('closeMobileReport').addEventListener('click',closeMobileReport);$('mobileReportPrev').addEventListener('click',()=>shiftMobileReport(-1));$('mobileReportNext').addEventListener('click',()=>shiftMobileReport(1));$('mobileReportPrint').addEventListener('click',printMobileReport);$('mobileReportShare').addEventListener('click',shareMobileReportPdf);$('closePrintPreview').addEventListener('click',closePrintPreview);$('printReportBtn').addEventListener('click',printCurrentReport);
-$('shareBackupBtn').addEventListener('click',sharePackage);$('fallbackJsonBtn').addEventListener('click',()=>downloadFallbackFile('json'));$('fallbackExcelBtn').addEventListener('click',()=>downloadFallbackFile('excel'));$('jsonRestoreBtn').addEventListener('click',()=>$('restoreFile').click());$('restoreFile').addEventListener('change',e=>restoreJSON(e.target.files[0]));
+$('shareBackupBtn').addEventListener('click',sharePackage);$('fallbackJsonBtn').addEventListener('click',()=>downloadFallbackFile('json'));$('fallbackExcelBtn').addEventListener('click',()=>downloadFallbackFile('excel'));$('backupSuccessNo').addEventListener('click',cancelBackupSuccess);$('backupSuccessYes').addEventListener('click',confirmBackupSuccess);$('jsonRestoreBtn').addEventListener('click',()=>$('restoreFile').click());$('restoreFile').addEventListener('change',e=>restoreJSON(e.target.files[0]));
 ['employeeName','checkpointBalance','freeChristmasEve','freeNewYearsEve','countdownEnabled','bookingSoundEnabled','reportSignature'].forEach(id=>$(id).addEventListener('change',saveSettings));$('applyTargetRuleBtn').addEventListener('click',applyTargetRule);$('applyHolidayRegionBtn').addEventListener('click',applyHolidayRegionRule);$('targetValidFrom').addEventListener('change',syncTargetRuleInput);$('holidayRegionValidFrom').addEventListener('change',syncHolidayRegionInput);
 updateClock();setInterval(updateClock,1000);window.addEventListener('resize',()=>{if(document.body.classList.contains('today-fixed')){renderTodayCapture(dayObject(todayKey()));updateCountdown({allowCelebrate:false})}});document.addEventListener('visibilitychange',()=>{if(!document.hidden&&document.body.classList.contains('today-fixed')){updateClock();updateCountdown()}});renderToday();
 if('serviceWorker'in navigator&&location.protocol!=='file:')navigator.serviceWorker.register('./sw.js').catch(()=>{});
@@ -1290,7 +1294,7 @@ function effectiveTargetRuleToday(){return effectiveRule(normalizeTargetRules(st
 function effectiveRegionRuleToday(){return effectiveRule(normalizeHolidayRegionRules(state.settings.holidayRegionRules),todayKey())||{from:TRACKING_START_DATE,region:'HE'}}
 function renderSettings(){
   $('employeeName').value=state.settings.employeeName||'';$('checkpointBalance').value=formatDuration(state.settings.startBalanceMinutes||0);$('freeChristmasEve').checked=state.settings.freeChristmasEve!==false;$('freeNewYearsEve').checked=state.settings.freeNewYearsEve!==false;$('countdownEnabled').checked=state.settings.countdownEnabled!==false;$('bookingSoundEnabled').checked=state.settings.bookingSoundEnabled===true;$('reportSignature').checked=state.settings.reportSignature!==false;
-  const target=effectiveTargetRuleToday(),region=effectiveRegionRuleToday();$('targetCurrentValue').textContent=`${formatDuration(target.minutes,{signed:false})} h`;$('targetCurrentSince').textContent=`Gültig seit ${formatDate(target.from,{day:'2-digit',month:'2-digit',year:'numeric'})}`;$('holidayRegionCurrentValue').textContent=HOLIDAY_REGIONS[region.region];$('holidayRegionCurrentSince').textContent=`Gültig seit ${formatDate(region.from,{day:'2-digit',month:'2-digit',year:'numeric'})}`;$('appVersion').textContent=`Version ${APP_VERSION}`;
+  const target=effectiveTargetRuleToday(),region=effectiveRegionRuleToday();$('targetCurrentValue').textContent=`${formatDuration(target.minutes,{signed:false})} h`;$('targetCurrentSince').textContent=`Gültig seit ${formatDate(target.from,{day:'2-digit',month:'2-digit',year:'numeric'})}`;$('holidayRegionCurrentValue').textContent=HOLIDAY_REGIONS[region.region];$('holidayRegionCurrentSince').textContent=`Gültig seit ${formatDate(region.from,{day:'2-digit',month:'2-digit',year:'numeric'})}`;$('lastExternalBackup').textContent=formatExternalBackup(state.settings.lastExternalBackupAt);$('appVersion').textContent=`Version ${APP_VERSION}`;
 }
 function saveSettings(){
   const startBalance=parseSignedTime($('checkpointBalance').value);if(startBalance===null){showToast('Startwert im Format +HH:MM mit Minuten von 00 bis 59 eingeben');$('checkpointBalance').value=formatDuration(state.settings.startBalanceMinutes||0);return}

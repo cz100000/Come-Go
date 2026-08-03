@@ -1,6 +1,6 @@
 {
-  "name": "Arbeitszeit – High-End Offline Zeiterfassung V5.31",
-  "short_name": "Arbeitszeit 5.31",
+  "name": "Arbeitszeit – High-End Offline Zeiterfassung V5.33",
+  "short_name": "Arbeitszeit 5.33",
   "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#f7f8fb",
@@ -27,5 +27,5 @@
       "purpose": "any maskable"
     }
   ],
-  "description": "Offline-Arbeitszeiterfassung mit einheitlicher Ein-Karten-Navigation, versionierter Sollzeit und bundeslandspezifischen Feiertagen."
+  "description": "Offline-Arbeitszeiterfassung mit bestätigtem externem Sicherungsstatus."
 }

@@ -1,6 +1,6 @@
 const CACHE_PREFIX='arbeitszeit-pwa-';
 const LEGACY_CACHE_PREFIX='arbeitszeit-v';
-const CACHE=`${CACHE_PREFIX}v5-32-2026-08-03`;
+const CACHE=`${CACHE_PREFIX}v5-33-2026-08-03`;
 const isOwnedCache=key=>key.startsWith(CACHE_PREFIX)||key.startsWith(LEGACY_CACHE_PREFIX);
 const APP_FILES=['./','./index.html','./app.css','./imported-data.js','./app.js','./manifest.webmanifest','./icon-180.png','./icon-192.png','./icon-512.png'];
 const CACHEABLE_PATHS=new Set(APP_FILES.filter(file=>file!=='./').map(file=>new URL(file,self.location.href).pathname));
