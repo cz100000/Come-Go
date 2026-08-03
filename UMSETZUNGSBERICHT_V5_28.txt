@@ -1,0 +1,60 @@
+Arbeitszeit PWA V5.28 – Umsetzungsbericht
+Stand: 03.08.2026
+
+Ausgangsbasis
+- Ausschließlich Arbeitszeit_PWA_Offline_V5_27_HighEnd_iPhone16.zip.
+- Bestehender Speicherschlüssel arbeitszeit-pwa-v1 unverändert.
+- Datenschema 11 unverändert.
+- Importierter Datenbestand imported-data.js unverändert.
+
+Umsetzung
+1. Kommentar im Tageseditor
+- Die bisherige Kommentarzeile wurde als vollständig antippbare Schaltfläche angebunden.
+- Der neue kompakte Dialog „Kommentar bearbeiten“ zeigt das Bezugsdatum deutlich an.
+- Vorhandene Texte werden vorbefüllt; leeres Übernehmen entfernt den Kommentar.
+- Innerhalb des Tageseditors bleibt die Änderung zunächst im Editor und wird erst mit „Tag speichern“ dauerhaft gespeichert.
+- Die bestehende Verwerfen-Warnung erkennt auch vorgemerkte Kommentaränderungen.
+
+2. Kommentar über den Plus-Button
+- Das Plus-Menü auf „Heute“ und „Zeiten → Tag“ enthält eine dritte Kommentaraktion.
+- Die Beschriftung wechselt abhängig vom Bestand zwischen „Kommentar eintragen“ und „Kommentar bearbeiten“.
+- Unter „Zeiten → Tag“ wird ausschließlich das aktuell ausgewählte Datum verwendet.
+- Beide Einstiegswege greifen auf das bestehende Tagesfeld note zu.
+
+3. Sichtbarkeit
+- Vorhandene Kommentare werden auf „Heute“ als schlanke antippbare Zeile angezeigt.
+- Unter „Zeiten → Tag“ erscheint nur bei vorhandenem Kommentar eine kompakte Zeile.
+- Im Tageseditor wird eine gekürzte Vorschau angezeigt; der vollständige Text bleibt im Dialog verfügbar.
+
+4. Erweiterte Aktionen
+- Der Inhaltsbereich des Tageseditors erhielt genügend unteren Scrollraum einschließlich Safe Area.
+- Beim Öffnen wird bei Bedarf automatisch nach unten gescrollt.
+- Die feste Aktionsleiste bleibt sichtbar; Aktionen werden nicht mehr überdeckt.
+- „Buchungen und Pause löschen“ beschreibt den tatsächlichen Funktionsumfang eindeutig.
+- „Importdaten wiederherstellen“ wird nur bei vorhandenen Importdaten gezeigt.
+- Nicht verfügbare Löschaktionen werden deaktiviert und erklärt.
+
+5. Buchungszeilen
+- Buchungsart steht in der ersten Zeile.
+- Tatsächliche und dokumentierte Uhrzeit stehen vollständig in der zweiten Zeile; „Dokumentiert“ wird platzsparend als „Dok.“ angezeigt.
+- Pfeil und Löschen besitzen getrennte Touch-Ziele; horizontales Abschneiden wurde beseitigt.
+
+6. Version und Offlinepaket
+- App-Version auf 5.28 gesetzt.
+- Manifest auf V5.28 aktualisiert.
+- Service-Worker-Cache auf arbeitszeit-v5-28-2026-08-03 erhöht.
+- Alte Cachebestände werden beim Aktivieren entfernt.
+- README, Änderungsliste und Testübersicht ergänzt.
+
+Testergebnisse
+- 67/67 automatisierte Funktions-, Regressions- und Responsive-Prüfungen bestanden.
+- JavaScript-Syntax fehlerfrei.
+- Berechnungssignatur gegenüber V5.27 unverändert.
+- JSON-Wiederherstellung, Migration und interne rollierende Sicherung erhalten Kommentare.
+- PDF, Excel und Sicherungs-ZIP werden weiterhin erzeugt.
+- Service Worker, Manifest und Offline-Navigation geprüft.
+- ZIP-Vollständigkeit und Integrität geprüft.
+
+Bekannte Einschränkungen
+- Kein bekannter funktionaler Fehler aus dem beauftragten Arbeitspaket.
+- Ein physischer iPhone-/Mobile-Safari-Installationstest war nicht möglich; geprüft wurde automatisiert mit der iPhone-16-Viewportgröße 393×852 sowie kleineren Kontrollgrößen.

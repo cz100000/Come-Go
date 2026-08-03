@@ -1,0 +1,38 @@
+Arbeitszeit PWA V5.28 – Testübersicht
+Prüfdatum: 03.08.2026
+
+Ergebnis
+- Automatisierte Funktions-, Regressions- und Responsive-Prüfung: 67/67 bestanden.
+- JavaScript-Syntaxprüfung: bestanden.
+- JSON-Wiederherstellung und Migration mit Kommentar: bestanden.
+- Interne rollierende Sicherung mit Kommentar: bestanden.
+- PDF-Erzeugung: bestanden; gültiger PDF-Dateikopf und Dateityp geprüft.
+- Excel-Erzeugung: bestanden.
+- Sicherungs-ZIP-Erzeugung: bestanden.
+- Service Worker: Installation, Cacheliste, Bereinigung alter Caches und Offline-Navigation bestanden.
+- Manifest: gültiges JSON, Versionsangaben V5.28 geprüft.
+- ZIP-Integrität: bestanden.
+
+Abgedeckte Funktionsbereiche
+1. Kommentarzeile im Tageseditor vollständig antippbar.
+2. Einheitlicher Kommentar-Dialog mit eindeutigem Bezugsdatum.
+3. Vorbelegung, Ändern, Entfernen, Abbrechen und Übernehmen.
+4. Vorgemerkte Editoränderung erst nach „Tag speichern“ dauerhaft gespeichert.
+5. Verwerfen-Warnung bei ungespeicherten Änderungen.
+6. Kommentaraktion im Plus-Menü auf „Heute“ und „Zeiten → Tag“.
+7. Dynamische Beschriftung „Kommentar eintragen“ / „Kommentar bearbeiten“.
+8. Richtige Zuordnung rückwirkender Kommentare zum ausgewählten Tag.
+9. Gemeinsames Tagesfeld note für alle Einstiegswege.
+10. Kompakte Kommentaranzeige und sichere Kürzung langer Texte.
+11. Erweiterte Aktionen vollständig sichtbar, deaktivierte Zustände erklärt.
+12. Ausreichender unterer Scrollraum und automatisches Nachscrollen.
+13. Buchungszeilen mit vollständiger tatsächlicher und dokumentierter Uhrzeit.
+14. Keine horizontale Überlagerung oder Seitenüberbreite.
+15. Responsive-Prüfung bei 393×852, 393×760, 360×780 und 320×680 Pixeln.
+16. Unveränderte Berechnungssignatur gegenüber V5.27 für Stichproben und Perioden.
+17. Unveränderte Speicherkennung arbeitszeit-pwa-v1 und Datenschema 11.
+18. Kommentare in lokaler Speicherung, interner Sicherung, JSON, Wiederherstellung, Sicherungs-ZIP, Tagesbericht und Excel-Datenmodell.
+19. Offline-Startpfad und Service-Worker-Fallback.
+
+Bekannte Einschränkung
+- Die mobile Darstellung wurde mit Chromium in iPhone-16-Abmessungen 393×852 geprüft. Ein Installationstest auf einem physischen iPhone mit Mobile Safari konnte in der Testumgebung nicht ausgeführt werden.

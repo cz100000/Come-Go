@@ -59,6 +59,11 @@
       <span id="todayBookingCount">0 Buchungen</span>
     </div>
     <div id="todayCaptureList" class="capture-list"></div>
+    <button id="todayCommentRow" class="today-comment-row" type="button" hidden aria-label="Kommentar für heute anzeigen und bearbeiten">
+      <span class="today-comment-icon" aria-hidden="true"><svg class="icon" viewBox="0 0 24 24"><path d="M21 12a8 8 0 0 1-8 8H7l-4 2 1.4-4.2A8 8 0 1 1 21 12Z"/></svg></span>
+      <span class="today-comment-copy"><b>Kommentar</b><small id="todayCommentPreview"></small></span>
+      <span class="today-comment-chev" aria-hidden="true">›</span>
+    </button>
   </section>
 
   <div class="quick-action-row" aria-label="Manuelle Einträge">
@@ -165,17 +170,21 @@
         <button type="button" class="compact-row-button" id="manageAbsenceFromDay">Bearbeiten</button>
       </section>
 
-      <details id="dayNoteDetails" class="editor-disclosure">
-        <summary><span><b>Kommentar</b><small id="dayNoteSummary">Kein Kommentar</small></span><i aria-hidden="true">›</i></summary>
-        <div class="editor-disclosure-body"><label class="sr-only" for="editNote">Kommentar oder Tagesnotiz</label><textarea id="editNote" rows="3" placeholder="Kommentar hinzufügen"></textarea></div>
-      </details>
+      <button type="button" id="dayNoteOpen" class="editor-disclosure editor-disclosure-button" aria-label="Kommentar bearbeiten">
+        <span><b>Kommentar</b><small id="dayNoteSummary">Kein Kommentar</small></span><i aria-hidden="true">›</i>
+      </button>
+      <textarea id="editNote" hidden aria-hidden="true"></textarea>
 
-      <details class="advanced-actions editor-disclosure">
+      <details id="advancedActions" class="advanced-actions editor-disclosure">
         <summary><span><b>Erweiterte Aktionen</b><small>Löschen oder Importdaten wiederherstellen</small></span><i aria-hidden="true">›</i></summary>
-        <div class="editor-disclosure-body day-data-actions"><button type="button" class="delete" id="deleteDayBtn">Alle Buchungen löschen</button><button type="button" class="restore" id="restoreImportBtn">Importdaten wiederherstellen</button></div>
+        <div class="editor-disclosure-body day-data-actions">
+          <button type="button" class="delete" id="deleteDayBtn">Buchungen und Pause löschen</button>
+          <button type="button" class="restore" id="restoreImportBtn">Importdaten wiederherstellen</button>
+          <p id="advancedActionsHint" class="advanced-actions-hint"></p>
+        </div>
       </details>
     </div>
-    <div class="modal-actions day-editor-actions"><button type="button" class="cancel" data-close="dayModal">Abbrechen</button><button type="button" class="save" id="saveDayBtn">Speichern</button></div>
+    <div class="modal-actions day-editor-actions"><button type="button" class="cancel" data-close="dayModal">Abbrechen</button><button type="button" class="save" id="saveDayBtn">Tag speichern</button></div>
   </div>
 </div>
 
@@ -207,11 +216,21 @@
   <div class="sheet quick-sheet compact-action-sheet">
     <div class="sheet-head"><h2 id="quickAddTitle">Eintrag für heute</h2><button class="close-btn" type="button" data-close="quickAddModal" aria-label="Schließen">×</button></div>
     <div id="quickAddContext" class="context-date"></div>
-    <div class="quick-list exact-two-actions">
+    <div class="quick-list quick-add-actions">
       <button type="button" id="quickAbsenceStart"><span>Abwesenheit eintragen</span><small>Urlaub, Krankheit oder Sonstiges</small><b>›</b></button>
       <button type="button" id="quickTimeStart"><span>Zeit ergänzen / korrigieren</span><small>Fehlende oder vorhandene Buchung</small><b>›</b></button>
+      <button type="button" id="quickCommentStart"><span id="quickCommentLabel">Kommentar eintragen</span><small id="quickCommentHint">Tageskommentar hinzufügen</small><b>›</b></button>
     </div>
     <button type="button" class="dialog-action dialog-action-secondary quick-cancel" data-close="quickAddModal">Abbrechen</button>
+  </div>
+</div>
+
+<div id="commentModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="commentModalTitle">
+  <div class="sheet comment-sheet">
+    <div class="sheet-head"><h2 id="commentModalTitle">Kommentar bearbeiten</h2><button class="close-btn" type="button" data-close="commentModal" aria-label="Kommentar-Dialog schließen">×</button></div>
+    <div id="commentContext" class="context-date"></div>
+    <div class="field comment-field"><label for="commentText">Kommentar</label><textarea id="commentText" rows="6" placeholder="Kommentar hinzufügen"></textarea></div>
+    <div class="modal-actions"><button type="button" class="cancel" id="cancelCommentBtn">Abbrechen</button><button type="button" class="save" id="applyCommentBtn">Übernehmen</button></div>
   </div>
 </div>
 

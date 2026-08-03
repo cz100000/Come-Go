@@ -3,7 +3,7 @@ const STORAGE_BACKUP_KEY=STORAGE_KEY+'-backup';
 const STORAGE_CORRUPT_KEY=STORAGE_KEY+'-corrupt';
 const BACKUP_FORMAT='arbeitszeit-pwa-backup';
 const TRACKING_START_DATE='2022-11-01';
-const APP_VERSION='5.27';
+const APP_VERSION='5.28';
 const CURRENT_SCHEMA=11;
 const IMPORT_DATA_VERSION=3;
 const CALCULATION_VERSION=1;
@@ -21,6 +21,7 @@ let lastModalFocus=null;
 let confettiTimer=null;
 let manualQuickType='in';
 let quickContextDate=todayKey(),manualQuickDate=todayKey(),quickAbsenceCode='vacation';
+let commentEditorContext=null;
 let pendingDiscardModalId=null,pendingDiscardAction=null,pendingUndo=null;
 const modalBaselines=new Map();
 const guardedModalIds=new Set(['dayModal','entryModal','pauseModal','manualQuickModal','quickAbsenceModal','absenceModal']);
@@ -45,10 +46,13 @@ function roundLogged(t,type){const m=minutes(t);return clockFromMinutes(type==='
 function formatDuration(v,{signed=true}={}){v=Math.round(Number(v)||0);const sign=signed?(v<0?'-':v>0?'+':''):'';v=Math.abs(v);return `${sign}${pad(Math.floor(v/60))}:${pad(v%60)}`}
 function parseSignedTime(v){const m=String(v||'').trim().replace(',',':').match(/^([+-])?(\d{1,4})(?::(\d{1,2}))?$/);if(!m)return null;const n=Number(m[2])*60+Number(m[3]||0);return m[1]==='-'?-n:n}
 function formatDate(k,opts={weekday:'long',day:'2-digit',month:'long',year:'numeric'}){return new Intl.DateTimeFormat('de-DE',opts).format(parseDateKey(k))}
+function normalizeNoteText(value){return String(value??'').replace(/\s+/g,' ').trim()}
+function notePreview(value,max=96){const text=normalizeNoteText(value);return text.length>max?`${text.slice(0,Math.max(1,max-1)).trimEnd()}…`:text}
 function hasMeaningfulData(d){return !!(d&&((d.entries&&d.entries.length)||(Number(d.pauseMinutes)||0)||d.absence||d.note||d.edited||d.capturedAfterImport))}
 function clone(v){return JSON.parse(JSON.stringify(v))}
 function isProtectedLocalDay(d){
 if(!d)return false;
+if(normalizeNoteText(d.note))return true;
 if(d.edited||d.capturedAfterImport||d.modifiedAt||d.importCleared)return true;
 if(!d.sourceYear&&hasMeaningfulData(d))return true;
 return (d.entries||[]).some(e=>e&&(['capture','manual'].includes(e.source)||e.edited));
@@ -446,6 +450,7 @@ document.title=`Arbeitszeit PWA · Version ${APP_VERSION}`;
 updateClock();
 $('pauseButtonLabel').textContent='Manuelle Pause';$('pauseButtonSub').textContent=pause?`${pause} Minuten eingetragen · ändern`:'Pause eintragen';
 const banner=$('todayAbsenceBanner'),full=hasFullAbsence(d),half=d.absence&&absenceDuration(d)==='half';
+const todayComment=$('todayCommentRow'),todayNote=normalizeNoteText(d.note);if(todayComment){todayComment.hidden=!todayNote;$('todayCommentPreview').textContent=notePreview(todayNote,112)}
 banner.hidden=!d.absence;document.querySelector('.punch-grid').classList.toggle('absence-full',full);
 if(d.absence){
 $('todayAbsenceTitle').textContent=half?`Heute: ${d.absence} (halber Tag)`:`Heute ist ${d.absence} eingetragen`;
@@ -548,7 +553,7 @@ ${absenceCard}
 <div class="card day-additional" role="button" tabindex="0" onclick="openDayEditor('${k}')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openDayEditor('${k}')}" aria-label="Zusätzliche Angaben bearbeiten">
 <h3>Zusätzliche Angaben</h3>
 <div class="additional-row"><span class="additional-icon pause">${SVG.pause}</span><b>Manuelle Pause</b><span class="additional-value">${Number(d.pauseMinutes)||0} Min.</span></div>
-<div class="additional-row"><span class="additional-icon note">${SVG.note||SVG.edit}</span><b>Kommentar</b><span class="additional-value comment">${esc(d.note||'Kein Kommentar')}</span></div>
+${normalizeNoteText(d.note)?`<button type="button" class="additional-row additional-row-button" onclick="event.stopPropagation();openCommentEditor('${k}','direct')" aria-label="Kommentar anzeigen und bearbeiten"><span class="additional-icon note">${SVG.note||SVG.edit}</span><b>Kommentar</b><span class="additional-value comment">${esc(notePreview(d.note,92))}</span></button>`:''}
 </div>`;
 $('dayPicker').addEventListener('change',event=>{const selected=event.target.value>today?today:event.target.value;cursorDate=parseDateKey(selected);renderDayView(selected)});
 updateTimesWeekendControl(true);updateDayQuickButton();
@@ -635,11 +640,22 @@ function openFullDayFromSingleEntry(){const k=singleEntryDate;if(k)runAfterDirty
 function dayEditorEntryLabel(index){
 const entry=editingEntries[index]||{},type=entry.type==='out'?'out':'in';let no=0;for(let i=0;i<=index;i++)if((editingEntries[i]?.type==='out'?'out':'in')===type)no++;return type==='in'?`Kommen ${no}`:`Gehen ${no}`;
 }
-function dayEditorEntrySummary(entry){return `Tatsächlich ${entry?.actual||'–'} · Dokumentiert ${entry?.logged||'–'}`}
-function updateDayNoteSummary(){const summary=$('dayNoteSummary');if(!summary)return;const note=$('editNote').value.trim();summary.textContent=note||'Kein Kommentar'}
+function dayEditorEntrySummary(entry){return `<span>Tatsächlich ${esc(entry?.actual||'–')}</span><span>Dok. ${esc(entry?.logged||'–')}</span>`}
+function updateDayNoteSummary(){const summary=$('dayNoteSummary');if(!summary)return;const note=normalizeNoteText($('editNote').value);summary.textContent=note?notePreview(note,92):'Kein Kommentar'}
+function openCommentEditor(date,mode='direct'){
+const fromDayEditor=mode==='dayEditor',source=fromDayEditor&&$('dayModal').classList.contains('open')&&$('editDate').value===date?$('editNote').value:(dayObject(date).note||'');
+commentEditorContext={date,mode:fromDayEditor?'dayEditor':'direct'};if($('quickAddModal').classList.contains('open'))closeModal('quickAddModal');$('commentModalTitle').textContent='Kommentar bearbeiten';$('commentContext').textContent=`Kommentar für ${formatContextDate(date)}`;$('commentText').value=source;openModal('commentModal');setTimeout(()=>$('commentText').focus(),80)
+}
+function cancelCommentEditor(){commentEditorContext=null;closeModal('commentModal')}
+function applyCommentEditor(){
+const context=commentEditorContext;if(!context)return;const note=$('commentText').value.trim();
+if(context.mode==='dayEditor'&&$('dayModal').classList.contains('open')&&$('editDate').value===context.date){$('editNote').value=note;updateDayNoteSummary();commentEditorContext=null;closeModal('commentModal');return}
+const existing=dayObject(context.date),before=String(existing.note||'');if(before===note){commentEditorContext=null;closeModal('commentModal');return}
+const d=clone(dayObject(context.date,true));d.note=note;d.edited=true;d.modifiedAt=new Date().toISOString();d.archived=Number(context.date.slice(0,4))<new Date().getFullYear();state.days[context.date]=d;touchDay(context.date);commentEditorContext=null;closeModal('commentModal');refreshAllDerivedViews();showToast(note?'Kommentar gespeichert':'Kommentar entfernt')
+}
 function updateDayEditorAddButton(){const button=$('addEntryBtn');if(!button)return;const type=!editingEntries.length||editingEntries.at(-1)?.type==='out'?'in':'out';button.textContent=type==='in'?(editingEntries.length?'Weiteres Kommen':'Kommen ergänzen'):'Gehen ergänzen'}
 function updateDayEditorEntrySummary(index){
-const entry=editingEntries[index],card=document.querySelector(`[data-entry-card="${index}"]`);if(!entry||!card)return;const label=card.querySelector('[data-entry-label]'),summary=card.querySelector('[data-entry-summary]');if(label)label.textContent=dayEditorEntryLabel(index);if(summary)summary.textContent=dayEditorEntrySummary(entry)
+const entry=editingEntries[index],card=document.querySelector(`[data-entry-card="${index}"]`);if(!entry||!card)return;const label=card.querySelector('[data-entry-label]'),summary=card.querySelector('[data-entry-summary]');if(label)label.textContent=dayEditorEntryLabel(index);if(summary)summary.innerHTML=dayEditorEntrySummary(entry)
 }
 function toggleDayEntryEditor(index){
 expandedDayEntryIndex=expandedDayEntryIndex===index?-1:index;document.querySelectorAll('[data-entry-card]').forEach(card=>{const open=Number(card.dataset.entryCard)===expandedDayEntryIndex;card.classList.toggle('is-open',open);const toggle=card.querySelector('[data-entry-toggle]'),details=card.querySelector('.entry-edit-details');if(toggle)toggle.setAttribute('aria-expanded',String(open));if(details)details.hidden=!open})
@@ -648,7 +664,7 @@ function removeEditingEntry(index){
 const removed=clone(editingEntries[index]);if(!removed)return;editingEntries.splice(index,1);expandedDayEntryIndex=editingEntries.length?Math.min(index,editingEntries.length-1):-1;renderEntryEditors();const label=removed.type==='in'?'Kommen':'Gehen',time=removed.logged||removed.actual||'';showUndoToast(`${label}${time?` ${time}`:''} entfernt.`,()=>{editingEntries.splice(Math.min(index,editingEntries.length),0,removed);expandedDayEntryIndex=Math.min(index,editingEntries.length-1);renderEntryEditors()})
 }
 function openDayEditor(k){
-const d=dayObject(k);$('dayModalTitle').textContent='Tag bearbeiten';$('dayModalContext').textContent=formatContextDate(k);editingEntries=clone(d.entries||[]);$('editDate').value=k;$('editPause').value=Number(d.pauseMinutes)||0;$('editNote').value=d.note||'';$('dayNoteDetails').open=false;updateDayNoteSummary();$('dayAbsenceEditorSummary').textContent=absenceSummaryText(d);$('manageAbsenceFromDay').textContent=d.absence?'Bearbeiten':'Eintragen';$('restoreImportBtn').hidden=!IMPORTED_BY_DATE[k];$('deleteDayBtn').disabled=!(d.entries||[]).length&&!Number(d.pauseMinutes);expandedDayEntryIndex=editingEntries.length<=1?(editingEntries.length?0:-1):(editingEntries.at(-1)?.type==='in'?editingEntries.length-1:-1);renderEntryEditors();openModal('dayModal')
+const d=dayObject(k),hasDeletable=(d.entries||[]).length||Number(d.pauseMinutes),hasImport=!!IMPORTED_BY_DATE[k];$('dayModalTitle').textContent='Tag bearbeiten';$('dayModalContext').textContent=formatContextDate(k);editingEntries=clone(d.entries||[]);$('editDate').value=k;$('editPause').value=Number(d.pauseMinutes)||0;$('editNote').value=d.note||'';$('advancedActions').open=false;updateDayNoteSummary();$('dayAbsenceEditorSummary').textContent=absenceSummaryText(d);$('manageAbsenceFromDay').textContent=d.absence?'Bearbeiten':'Eintragen';$('restoreImportBtn').hidden=!hasImport;$('deleteDayBtn').disabled=!hasDeletable;$('advancedActionsHint').textContent=!hasDeletable&&!hasImport?'Für diesen Tag sind keine löschbaren Buchungen, Pausen oder Importdaten vorhanden.':!hasDeletable?'Keine Buchungen oder Pausen zum Löschen vorhanden.':'';expandedDayEntryIndex=editingEntries.length<=1?(editingEntries.length?0:-1):(editingEntries.at(-1)?.type==='in'?editingEntries.length-1:-1);renderEntryEditors();openModal('dayModal')
 }
 function renderEntryEditors(){
 const scroll=$('dayModal')?.querySelector('.day-editor-scroll'),scrollTop=scroll?.scrollTop||0;let inNo=0,outNo=0;
@@ -682,8 +698,8 @@ function manageAbsenceFromDayEditor(){
 const key=$('editDate').value;if(isModalDirty('dayModal')&&!commitEditedDay({close:false,notify:false}))return;closeModal('dayModal');const d=dayObject(key);d.absence?openAbsenceEditorForDay(key,d.absenceGroupId&&absenceGroupDays(d.absenceGroupId).length>1?'group':'day'):openNewAbsence('vacation',key)
 }
 function deleteEditedDay(){
-const k=$('editDate').value,d=clone(dayObject(k,true));if(!confirm('Alle Kommen-, Gehen- und Pausenbuchungen dieses Tages dauerhaft löschen? Eine vorhandene Abwesenheit und Tagesnotiz bleiben erhalten.'))return;
-d.entries=[];d.pauseMinutes=0;d.edited=true;d.importCleared=!!IMPORTED_BY_DATE[k];d.modifiedAt=new Date().toISOString();state.days[k]=d;touchDay(k);closeModal('dayModal');refreshAllDerivedViews();showToast('Alle Buchungen gelöscht');
+const k=$('editDate').value,d=clone(dayObject(k,true));if(!confirm('Alle Kommen-, Gehen- und Pausenbuchungen dieses Tages dauerhaft löschen? Eine vorhandene Abwesenheit und der Kommentar bleiben erhalten.'))return;
+d.entries=[];d.pauseMinutes=0;d.edited=true;d.importCleared=!!IMPORTED_BY_DATE[k];d.modifiedAt=new Date().toISOString();state.days[k]=d;touchDay(k);closeModal('dayModal');refreshAllDerivedViews();showToast('Buchungen und Pause gelöscht');
 }
 function modalSnapshot(id){
 const modal=$(id);if(!modal)return'';
@@ -774,7 +790,7 @@ state.days[k]=clone(original);touchDay(k);closeModal('dayModal');refreshAllDeriv
 function formatContextDate(k){return formatDate(k,{weekday:'long',day:'2-digit',month:'2-digit',year:'numeric'})}
 function quickMenuTitle(k){return k===todayKey()?'Eintrag für heute':`Eintrag für ${formatContextDate(k)}`}
 function openQuickAdd(date=todayKey()){
-quickContextDate=date;$('quickAddTitle').textContent=quickMenuTitle(date);$('quickAddContext').textContent=`Bezugsdatum: ${formatContextDate(date)}`;openModal('quickAddModal')
+quickContextDate=date;const hasComment=!!normalizeNoteText(dayObject(date).note);$('quickAddTitle').textContent=quickMenuTitle(date);$('quickAddContext').textContent=`Bezugsdatum: ${formatContextDate(date)}`;$('quickCommentLabel').textContent=hasComment?'Kommentar bearbeiten':'Kommentar eintragen';$('quickCommentHint').textContent=hasComment?'Vorhandenen Tageskommentar ändern':'Tageskommentar hinzufügen';openModal('quickAddModal')
 }
 function openAbsenceTypePicker(date=quickContextDate){
 quickContextDate=date;closeModal('quickAddModal');$('absenceTypeQuickTitle').textContent=`Abwesenheit für ${formatContextDate(date)}`;$('absenceTypeContext').textContent=`Bezugsdatum: ${formatContextDate(date)}`;openModal('absenceTypeModal')
@@ -1081,9 +1097,9 @@ document.addEventListener('keydown',event=>{if(event.key==='Escape'){const open=
 bindPunchButton($('punchAction'));
 $('todayAbsenceEdit').addEventListener('click',()=>openAbsenceEditorForDay(todayKey(),'day'));
 $('pauseToday').addEventListener('click',openPauseModal);$('savePauseBtn').addEventListener('click',saveQuickPause);$('quickAddBtn').addEventListener('click',()=>openQuickAdd(todayKey()));$('timesQuickAddBtn').addEventListener('click',()=>openQuickAdd(dateKey(cursorDate)));$('pastWorkdayNotice').addEventListener('click',openWorkdayIssues);
-$('quickAbsenceStart').addEventListener('click',()=>openAbsenceTypePicker(quickContextDate));$('quickTimeStart').addEventListener('click',()=>openTimeAction(quickContextDate));document.querySelectorAll('[data-simple-absence]').forEach(button=>button.addEventListener('click',()=>openQuickAbsence(button.dataset.simpleAbsence,quickContextDate)));$('quickAbsenceExtent').addEventListener('change',updateQuickAbsenceConflict);$('saveQuickAbsence').addEventListener('click',saveQuickAbsence);$('quickAbsenceFurther').addEventListener('click',openQuickAbsenceFurther);
+$('quickAbsenceStart').addEventListener('click',()=>openAbsenceTypePicker(quickContextDate));$('quickTimeStart').addEventListener('click',()=>openTimeAction(quickContextDate));$('quickCommentStart').addEventListener('click',()=>openCommentEditor(quickContextDate,'direct'));document.querySelectorAll('[data-simple-absence]').forEach(button=>button.addEventListener('click',()=>openQuickAbsence(button.dataset.simpleAbsence,quickContextDate)));$('quickAbsenceExtent').addEventListener('change',updateQuickAbsenceConflict);$('saveQuickAbsence').addEventListener('click',saveQuickAbsence);$('quickAbsenceFurther').addEventListener('click',openQuickAbsenceFurther);
 ['absenceType','absenceFrom','absenceTo','absenceExtent','absenceConflictPolicy'].forEach(id=>$(id).addEventListener('change',updateAbsenceSummary));$('absenceNote').addEventListener('input',updateAbsenceSummary);$('saveAbsenceBtn').addEventListener('click',saveAbsence);$('deleteAbsenceDayBtn').addEventListener('click',()=>deleteAbsenceFromModal('day'));$('deleteAbsenceGroupBtn').addEventListener('click',()=>deleteAbsenceFromModal('group'));
-$('headerWeekendToggle')?.addEventListener('change',event=>{state.settings.showWeekends=event.target.checked;saveState();if(currentView==='day')renderDayView(dateKey(cursorDate));else if(currentView==='week')renderWeekView(dateKey(cursorDate))});$('addEntryBtn').addEventListener('click',addEditingEntry);$('saveDayBtn').addEventListener('click',saveEditedDay);$('editNote').addEventListener('input',updateDayNoteSummary);$('saveSingleEntry').addEventListener('click',saveSingleEntry);$('deleteSingleEntry').addEventListener('click',deleteSingleEntry);$('openFullDayFromEntry').addEventListener('click',openFullDayFromSingleEntry);$('singleEntryActual').addEventListener('input',event=>{$('singleEntryLogged').value=roundLogged(event.target.value,$('singleEntryType').value)});$('singleEntryType').addEventListener('change',()=>{if($('singleEntryActual').value)$('singleEntryLogged').value=roundLogged($('singleEntryActual').value,$('singleEntryType').value)});$('saveManualQuick').addEventListener('click',saveManualQuick);$('manualFullEditor').addEventListener('click',openFullTodayEditor);$('manualActual').addEventListener('input',event=>{$('manualLogged').value=roundLogged(event.target.value,manualQuickType)});document.querySelectorAll('[data-time-info]').forEach(button=>button.addEventListener('click',()=>toggleTimeInfo(button.dataset.timeInfo)));$('continueEditingBtn').addEventListener('click',continueEditing);$('discardChangesBtn').addEventListener('click',discardChanges);$('deleteDayBtn').addEventListener('click',deleteEditedDay);$('restoreImportBtn').addEventListener('click',restoreImportedDay);$('manageAbsenceFromDay').addEventListener('click',manageAbsenceFromDayEditor);
+$('headerWeekendToggle')?.addEventListener('change',event=>{state.settings.showWeekends=event.target.checked;saveState();if(currentView==='day')renderDayView(dateKey(cursorDate));else if(currentView==='week')renderWeekView(dateKey(cursorDate))});$('addEntryBtn').addEventListener('click',addEditingEntry);$('saveDayBtn').addEventListener('click',saveEditedDay);$('dayNoteOpen').addEventListener('click',()=>openCommentEditor($('editDate').value,'dayEditor'));$('todayCommentRow').addEventListener('click',()=>openCommentEditor(todayKey(),'direct'));$('cancelCommentBtn').addEventListener('click',cancelCommentEditor);$('applyCommentBtn').addEventListener('click',applyCommentEditor);$('editNote').addEventListener('input',updateDayNoteSummary);$('saveSingleEntry').addEventListener('click',saveSingleEntry);$('deleteSingleEntry').addEventListener('click',deleteSingleEntry);$('openFullDayFromEntry').addEventListener('click',openFullDayFromSingleEntry);$('singleEntryActual').addEventListener('input',event=>{$('singleEntryLogged').value=roundLogged(event.target.value,$('singleEntryType').value)});$('singleEntryType').addEventListener('change',()=>{if($('singleEntryActual').value)$('singleEntryLogged').value=roundLogged($('singleEntryActual').value,$('singleEntryType').value)});$('saveManualQuick').addEventListener('click',saveManualQuick);$('manualFullEditor').addEventListener('click',openFullTodayEditor);$('manualActual').addEventListener('input',event=>{$('manualLogged').value=roundLogged(event.target.value,manualQuickType)});document.querySelectorAll('[data-time-info]').forEach(button=>button.addEventListener('click',()=>toggleTimeInfo(button.dataset.timeInfo)));$('continueEditingBtn').addEventListener('click',continueEditing);$('discardChangesBtn').addEventListener('click',discardChanges);$('advancedActions').addEventListener('toggle',()=>{if(!$('advancedActions').open)return;requestAnimationFrame(()=>{const scroll=$('dayModal').querySelector('.day-editor-scroll'),section=$('advancedActions');if(!scroll||!section)return;const targetBottom=section.offsetTop+section.offsetHeight,visibleBottom=scroll.scrollTop+scroll.clientHeight;if(targetBottom>visibleBottom)scroll.scrollTo({top:Math.max(0,targetBottom-scroll.clientHeight+18),behavior:'smooth'})})});$('deleteDayBtn').addEventListener('click',deleteEditedDay);$('restoreImportBtn').addEventListener('click',restoreImportedDay);$('manageAbsenceFromDay').addEventListener('click',manageAbsenceFromDayEditor);
 $('dayReportBtn').addEventListener('click',()=>{const k=$('reportDay').value||todayKey();if(k>todayKey()){$('reportDay').value=todayKey();showToast('Tagesberichte sind nur bis heute möglich');return}dayReport(k)});
 $('monthReportBtn').addEventListener('click',()=>openMobileReport('month'));
 $('yearReportBtn').addEventListener('click',()=>openMobileReport('year'));

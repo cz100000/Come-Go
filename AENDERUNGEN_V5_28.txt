@@ -1,0 +1,23 @@
+Änderungen V5.28 gegenüber V5.27
+
+Kommentare
+- Bestehendes Tagesfeld note als einzige Kommentarquelle beibehalten.
+- Einheitlichen Kommentar-Dialog mit eindeutigem Bezugsdatum ergänzt.
+- Kommentar im Tageseditor wird erst mit „Tag speichern“ dauerhaft übernommen.
+- Plus-Menü auf „Heute“ und „Zeiten → Tag“ um Kommentaraktion ergänzt.
+- Dynamische Bezeichnung „Kommentar eintragen“/„Kommentar bearbeiten“ umgesetzt.
+- Kompakte Kommentarvorschau auf „Heute“, „Zeiten → Tag“ und im Tageseditor ergänzt.
+- Leeren des Textfelds entfernt einen vorhandenen Kommentar.
+
+Tageseditor
+- Kommentarzeile vollständig antippbar gemacht.
+- Erweiterte Aktionen mit ausreichendem unterem Scrollraum und automatischem Nachscrollen korrigiert.
+- Aktion „Buchungen und Pause löschen“ fachlich eindeutig beschriftet.
+- Nicht verfügbare Aktionen ausgeblendet oder verständlich deaktiviert.
+- Buchungszusammenfassungen auf zwei Informationsebenen umgestellt; „Dokumentiert“ platzsparend als „Dok.“.
+- Touch-Ziele und horizontale Überlauffreiheit verbessert.
+
+Kompatibilität
+- Speicherschlüssel arbeitszeit-pwa-v1 und Datenschema 11 unverändert.
+- Keine Änderungen an Arbeitszeitdaten, Rundung, Sollzeit, Tagessaldo oder Zeitkonto.
+- Manifest, Service Worker und Cache-Version auf V5.28 aktualisiert.
