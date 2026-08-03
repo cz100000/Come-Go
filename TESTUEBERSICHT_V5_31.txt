@@ -1,0 +1,23 @@
+Arbeitszeit-PWA V5.31 – Testübersicht
+
+Prüfschwerpunkte:
+- Kartenbreite 361 px bei 393 px Viewport
+- 16 px Außenabstand links und rechts
+- Titel kollidiert nicht mit der Schließen-Schaltfläche
+- Kein Inhalt überschreitet die Karteninnenkante
+- Auswahlzeilen bleiben vollständig innerhalb der Karte
+- Kein horizontaler Überlauf
+- Schnellwahl aus „Heute“ und „Zeiten“ identisch
+- Schließen und Abbrechen funktionieren
+- App-Version, Manifest und Service-Worker-Cache aktualisiert
+- Datenmodell und Speicherschlüssel unverändert
+
+Automatisiertes Ergebnis:
+94 Prüfungen bestanden, 0 fehlgeschlagen.
+
+Geprüfte Viewports:
+320 × 700 px, 350 × 750 px, 393 × 852 px, 430 × 900 px und 768 × 900 px.
+Zusätzlich wurden alle vorhandenen Dialogkarten bei 393 × 852 px geometrisch auf Außenabstände, Maximalbreite und horizontal überstehende Kindelemente geprüft.
+
+Nicht automatisierbar:
+Abschließende visuelle Kontrolle auf einem realen iPhone 16 in Mobile Safari.

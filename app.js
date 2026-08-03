@@ -4,7 +4,7 @@ const STORAGE_BACKUP_KEYS=[1,2,3].map(n=>`${STORAGE_KEY}-backup-${n}`);
 const STORAGE_CORRUPT_KEY=STORAGE_KEY+'-corrupt';
 const BACKUP_FORMAT='arbeitszeit-pwa-backup';
 const TRACKING_START_DATE='2022-11-01';
-const APP_VERSION='5.30';
+const APP_VERSION='5.31';
 const CURRENT_SCHEMA=12;
 const IMPORT_DATA_VERSION=4;
 const CALCULATION_VERSION=2;

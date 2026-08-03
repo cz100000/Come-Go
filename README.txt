@@ -1,4 +1,4 @@
-Arbeitszeit PWA – Version 5.30
+Arbeitszeit PWA – Version 5.31
 Stand: 03.08.2026
 
 Zweck
@@ -82,3 +82,11 @@ Der 24.03.2023 enthält einen halben Urlaubstag, aber keine Arbeitszeitbuchungen
 
 Technischer Hinweis
 Ein physischer Installationstest auf einem iPhone mit Mobile Safari war in der Entwicklungsumgebung nicht möglich. Die Oberfläche wurde automatisiert bei 320 × 700, 350 × 750, 393 × 852, 430 × 900, 768 × 900 und 1024 × 900 Pixeln geprüft.
+
+
+Wichtige Änderungen in V5.31
+- Grafische Korrektur der Karte „Eintrag für heute“.
+- Vollständige Migration dieser Karte auf die einheitliche Kartenstruktur.
+- Sichere Innenabstände sowie begrenzte Titel-, Text- und Aktionsbereiche.
+- Zusätzliche Schutzregeln gegen Inhaltsüberlauf in Bestandsdialogen.
+- Keine fachlichen oder datenbezogenen Änderungen.

@@ -602,3 +602,24 @@ html,body,.app,.screen,.modal,.sheet{max-width:100%;overflow-x:hidden}
 .modal .sheet:not(.unified-card-shell):not(.inline-confirm-active)>.sheet-head{min-height:68px;flex:none}
 .modal .sheet:not(.unified-card-shell):not(.inline-confirm-active)>.modal-actions{margin-top:auto}
 .modal .sheet:not(.unified-card-shell):not(.inline-confirm-active)>.quick-cancel:last-child{margin-top:auto}
+
+
+/* V5.31 – sichere Skalierung und Inhaltsbegrenzung der Einstiegskarte */
+.quick-entry-card{min-width:0;overflow:hidden!important}
+.quick-entry-card .unified-card-head{grid-template-columns:44px minmax(0,1fr) 44px}
+.quick-entry-card .unified-card-title-wrap,.quick-entry-card .unified-card-title-wrap h2{min-width:0;max-width:100%}
+.quick-entry-card .unified-card-title-wrap h2{font-size:19px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.quick-entry-card-body{min-width:0;overflow-x:hidden;padding:15px 14px 18px}
+.quick-entry-card-body>*{min-width:0;max-width:100%}
+.quick-entry-card .context-date{width:100%;max-width:100%;margin-left:0;margin-right:0;overflow-wrap:anywhere}
+.quick-entry-card .quick-add-actions{min-width:0;width:100%;max-width:100%}
+.quick-entry-card .quick-add-actions button{width:100%;min-width:0;max-width:100%;overflow:hidden;grid-template-columns:minmax(0,1fr) 24px;padding-left:14px;padding-right:12px}
+.quick-entry-card .quick-add-actions button>span,.quick-entry-card .quick-add-actions button>small{min-width:0;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.quick-entry-card .quick-add-actions button>b{width:24px;min-width:24px;text-align:center}
+.quick-entry-card-footer{min-width:0}
+
+/* V5.31 – Schutzregeln für noch nicht migrierte Bestandsdialoge */
+.modal .sheet:not(.unified-card-shell):not(.inline-confirm-active)>.sheet-head{display:grid;grid-template-columns:minmax(0,1fr) 44px;align-items:center;gap:10px;padding:10px 14px}
+.modal .sheet:not(.unified-card-shell):not(.inline-confirm-active)>.sheet-head h2{min-width:0;max-width:100%;margin:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.modal .sheet:not(.unified-card-shell):not(.inline-confirm-active)>.sheet-head .close-btn{width:44px;height:44px;min-width:44px;justify-self:end}
+.modal .sheet:not(.unified-card-shell):not(.inline-confirm-active)>*{max-width:100%}

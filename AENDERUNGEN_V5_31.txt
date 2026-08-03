@@ -1,0 +1,9 @@
+Arbeitszeit-PWA V5.31 – grafische Korrektur
+
+1. „Eintrag für heute“ vollständig auf die einheitliche Kartenstruktur migriert.
+2. Titel und Schließen-Schaltfläche besitzen nun eine feste, kollisionssichere Rasteraufteilung.
+3. Karteninhalt, Auswahlzeilen und Texte sind auf den verfügbaren Innenraum begrenzt.
+4. Lange Inhalte werden innerhalb ihrer Zeile gekürzt und können den Kartenrand nicht überschreiten.
+5. Noch nicht migrierte Bestandsdialoge erhalten sichere Kopfzeilen- und Überlaufschutzregeln.
+6. Kartenbreite von 361 px bei 393 px Viewport bleibt unverändert.
+7. Keine Änderungen an Datenmodell, Berechnungen, Persistenz, Exporten oder Sicherungen.

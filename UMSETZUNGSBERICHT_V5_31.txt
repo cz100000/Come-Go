@@ -1,0 +1,28 @@
+Arbeitszeit-PWA V5.31 – Umsetzungsbericht
+
+Ausgangsbasis
+- Ausschließlich Arbeitszeit_PWA_Offline_V5_30_HighEnd_iPhone16_EinKartenNavigation.zip.
+- Datenmodell, lokaler Speicherschlüssel, eingebetteter Datenbestand und Fachlogik wurden nicht verändert.
+
+Korrektur
+- Die Karte „Eintrag für heute“ wurde von der alten Bestandsdialog-Struktur auf die einheitliche V5.30-Kartenstruktur migriert.
+- Kopfzeile: feste Rasteraufteilung aus Platzhalter, begrenztem Titelbereich und 44-px-Schließen-Schaltfläche.
+- Inhalt: sichere Innenabstände, min-width: 0 und max-width: 100 % für alle relevanten Bereiche.
+- Auswahlzeilen: begrenzte Textspalte und feste Pfeilspalte; lange Texte werden innerhalb der Zeile gekürzt.
+- Für verbleibende Bestandsdialoge wurden zusätzliche Kopfzeilen- und Inhaltsgrenzen ergänzt.
+- Die Kartenbreite bleibt auf dem iPhone-16-Viewport bei 361 px mit 16 px Abstand links und rechts.
+
+Versionierung
+- App-Version 5.31.
+- Manifest auf 5.31 aktualisiert.
+- Service-Worker-Cache auf v5-31-2026-08-03 erhöht.
+
+Tests
+- JavaScript-Syntaxprüfung erfolgreich.
+- Manifest-JSON erfolgreich validiert.
+- 94 geometrische und responsive Prüfungen bestanden, 0 fehlgeschlagen.
+- Geprüfte Viewports: 320×700, 350×750, 393×852, 430×900 und 768×900 px.
+- Bei 393×852 px: Kartenbreite 361 px, 16 px Außenabstand auf beiden Seiten, keine horizontal überstehenden Kindelemente.
+
+Bekannte Einschränkung
+- Eine abschließende visuelle Geräteabnahme in Mobile Safari auf einem physischen iPhone 16 kann nur durch den Nutzer erfolgen.

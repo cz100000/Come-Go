@@ -259,15 +259,23 @@
 </div>
 
 <div id="quickAddModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="quickAddTitle">
-  <div class="sheet quick-sheet compact-action-sheet">
-    <div class="sheet-head"><h2 id="quickAddTitle">Eintrag für heute</h2><button class="close-btn" type="button" data-close="quickAddModal" aria-label="Schließen">×</button></div>
-    <div id="quickAddContext" class="context-date"></div>
-    <div class="quick-list quick-add-actions">
-      <button type="button" id="quickAbsenceStart"><span>Abwesenheit eintragen</span><small>Urlaub, Krankheit oder Sonstiges</small><b>›</b></button>
-      <button type="button" id="quickTimeStart"><span>Zeit ergänzen / korrigieren</span><small>Fehlende oder vorhandene Buchung</small><b>›</b></button>
-      <button type="button" id="quickCommentStart"><span id="quickCommentLabel">Kommentar eintragen</span><small id="quickCommentHint">Tageskommentar hinzufügen</small><b>›</b></button>
+  <div class="sheet unified-card-shell quick-entry-card">
+    <div class="unified-card-head">
+      <span class="unified-card-head-spacer" aria-hidden="true"></span>
+      <div class="unified-card-title-wrap"><h2 id="quickAddTitle">Eintrag für heute</h2></div>
+      <button class="close-btn" type="button" data-close="quickAddModal" aria-label="Schließen">×</button>
     </div>
-    <button type="button" class="dialog-action dialog-action-secondary quick-cancel" data-close="quickAddModal">Abbrechen</button>
+    <div class="unified-card-body quick-entry-card-body">
+      <div id="quickAddContext" class="context-date"></div>
+      <div class="quick-list quick-add-actions">
+        <button type="button" id="quickAbsenceStart"><span>Abwesenheit eintragen</span><small>Urlaub, Krankheit oder Sonstiges</small><b aria-hidden="true">›</b></button>
+        <button type="button" id="quickTimeStart"><span>Zeit ergänzen / korrigieren</span><small>Fehlende oder vorhandene Buchung</small><b aria-hidden="true">›</b></button>
+        <button type="button" id="quickCommentStart"><span id="quickCommentLabel">Kommentar eintragen</span><small id="quickCommentHint">Tageskommentar hinzufügen</small><b aria-hidden="true">›</b></button>
+      </div>
+    </div>
+    <div class="unified-card-footer quick-entry-card-footer">
+      <button type="button" class="cancel single-footer-action" data-close="quickAddModal">Abbrechen</button>
+    </div>
   </div>
 </div>
 
