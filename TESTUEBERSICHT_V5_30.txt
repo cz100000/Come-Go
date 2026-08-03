@@ -1,0 +1,80 @@
+Arbeitszeit PWA – Testübersicht V5.30
+Stand: 03.08.2026
+
+Gesamtergebnis
+- Automatisierte Prüfungen: 144
+- Bestanden: 144
+- Fehlgeschlagen: 0
+
+Aufteilung
+- 63 dynamische Funktions- und Regressionstests im geladenen Browser-Dokument
+- 29 Karten- und Viewporttests
+- 52 statische Struktur-, Daten-, Syntax- und Kompatibilitätstests
+
+Geprüfte Viewports
+- 320 × 700 px
+- 350 × 750 px
+- 393 × 852 px (iPhone-16-Zielgröße)
+- 430 × 900 px
+- 768 × 900 px
+- 1024 × 900 px
+
+Wesentliche Ergebnisse
+1. Start, Daten und Kompatibilität
+- App startet ohne JavaScript- oder Promise-Fehler.
+- Version 5.30, Datenschema 12 und Speicherschlüssel arbeitszeit-pwa-v1 korrekt.
+- Eingebettete Tagesdaten entsprechen dem Referenzbackup exakt.
+- 1.128 Tage und 1.792 Buchungen vorhanden.
+- Datenbeginn 01.11.2022 und Datenstand 03.08.2026 bestätigt.
+- Importdaten und App-Symbole gegenüber V5.29 unverändert.
+
+2. Karten und Darstellung
+- Alle 16 Dialog-/Kartentypen bei 393 px exakt 361 px breit.
+- Links und rechts jeweils exakt 16 px sichtbarer Abstand.
+- Bei 320 und 350 px jeweils 12 px Seitenabstand.
+- Auf 768 und 1024 px maximal 480 px Kartenbreite.
+- Kein horizontaler Dokument- oder Kartenüberlauf.
+- In allen geprüften Kartenwegen höchstens eine sichtbare Karte.
+- Längere Bestandsdialoge besitzen einen sicheren Scrollbereich und feste Bedienbereiche.
+
+3. Tageseditor
+- Übersicht mit Buchungen, Hinzufügen, Pause, Abwesenheit, Kommentar und weiteren Aktionen.
+- Buchungsdetails zeigen tatsächliche und dokumentierte Uhrzeit sowie Herkunft.
+- Buchungs-, Pausen-, Abwesenheits- und Kommentaränderungen bleiben vor „Tag speichern“ ausschließlich im Entwurf.
+- Gemeinsames Speichern übernimmt alle Änderungen.
+- Gemeinsames Verwerfen lässt dauerhafte Daten unverändert.
+- Unverändertes Speichern erhält das Tagesobjekt und die Import-/Erfassungsherkunft exakt.
+- Geänderte Buchung wird korrekt als manuell geändert markiert; unveränderte Buchungen behalten ihre Herkunft.
+- Lösch- und Verwerfen-Bestätigungen ersetzen den Inhalt derselben Karte.
+- Ganztägige Abwesenheit mit vorhandenen Buchungen wird blockiert.
+- Halbtägige Abwesenheit wird korrekt akzeptiert.
+- Nachtschichten über Mitternacht bleiben plausibel.
+
+4. Einstellungen und Fachregeln
+- Fünf Themenkarten vorhanden.
+- Sollzeit und Bundesland zeigen Wert und Gültigkeitsdatum kompakt.
+- 8:00 Stunden ab 01.11.2022 verbindlich geschützt.
+- Hessen ab 01.11.2022 verbindlich geschützt.
+- Alle 16 Bundesländer vorhanden.
+- Rückwirkende Änderungen erfordern eine interne Bestätigung.
+- Gesetzliche und betriebliche Feiertage bleiben korrekt; Heiligabend hat Sollzeit 0.
+
+5. Sicherung, Wiederherstellung und Berichte
+- JSON-Wiederherstellung öffnet genau eine Bestätigungskarte mit Metadatenübersicht.
+- Zwei-Dateien-Sicherung erzeugt genau JSON und XLSX.
+- Beide Dateinamen besitzen exakt denselben Zeitstempel.
+- Excel-Datei besitzt einen gültigen Office-ZIP-Header.
+- PDF-Datei besitzt einen gültigen PDF-Header und ist nicht leer.
+- Keine ZIP- oder Hinweise-TXT-Datei in der Sicherungsfunktion.
+- Neuere unbekannte Datenschemata bleiben blockiert.
+
+6. Offline-Technik
+- Manifest gültig und auf V5.30 aktualisiert.
+- Service-Worker-Syntax fehlerfrei.
+- Cache-Version auf v5-30-2026-08-03 erhöht.
+- Cache-Bereinigung ist auf Arbeitszeit-PWA-eigene Präfixe begrenzt.
+- Alle vom Service Worker benötigten Dateien sind vorhanden.
+- Keine externe Bibliothek oder Internetressource eingebunden.
+
+Manuelle/physische Einschränkung
+Ein echter Installations-, Safe-Area- und Teilen-Menü-Test auf einem physischen iPhone 16 mit Mobile Safari war in der Entwicklungsumgebung nicht möglich. Die iPhone-Darstellung, Kartenmaße, Fokus-/Modalzustände und Dateierzeugung wurden automatisiert geprüft. Das native iOS-Teilen-Menü selbst kann erst auf dem Zielgerät abschließend bestätigt werden.

@@ -1,6 +1,6 @@
 {
-  "name": "Arbeitszeit – High-End Offline Zeiterfassung V5.29",
-  "short_name": "Arbeitszeit 5.29",
+  "name": "Arbeitszeit – High-End Offline Zeiterfassung V5.30",
+  "short_name": "Arbeitszeit 5.30",
   "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#f7f8fb",
@@ -27,5 +27,5 @@
       "purpose": "any maskable"
     }
   ],
-  "description": "Offline-Arbeitszeiterfassung mit versionierter Sollzeit und bundeslandspezifischen Feiertagen ab 01.11.2022."
+  "description": "Offline-Arbeitszeiterfassung mit einheitlicher Ein-Karten-Navigation, versionierter Sollzeit und bundeslandspezifischen Feiertagen."
 }

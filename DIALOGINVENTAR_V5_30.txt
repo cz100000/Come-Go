@@ -1,0 +1,107 @@
+Arbeitszeit PWA V5.30 – Dialog- und Karteninventar
+Stand: 03.08.2026
+
+Verbindlicher gemeinsamer Kartenrahmen
+- iPhone 16, 393 px: 361 px Außenbreite, 16 px links und rechts
+- sehr schmale Geräte bis 350 px: 12 px links und rechts
+- größere Geräte: maximal 480 px, horizontal zentriert
+- Radius: 22 px
+- Schatten: 0 20 px 54 px rgba(16,28,46,.24)
+- Safe Area: unterer Karten- und Fußleistenabstand über env(safe-area-inset-bottom)
+- horizontaler Überlauf: gesperrt
+- Öffnungswächter: höchstens eine sichtbare .modal-Karte
+- Fokus: Rückgabe an das auslösende Element; Fokusfalle innerhalb der offenen Karte
+
+1. dayModal – „Tag bearbeiten“
+Auslöser: Zeiten/Tag, vollständigen Tag bearbeiten, manuelle Ergänzungswege.
+Interne Ansichten: Übersicht, Buchung bearbeiten/hinzufügen, Pause, Abwesenheit, Kommentar, weitere Aktionen, Bestätigung.
+Weitere Karten: keine; alle Unteransichten ersetzen den Karteninhalt.
+Kopf: fester einheitlicher Kopf mit Zurück-Pfeil, Titel, Datum und Schließen.
+Fuß: feste zweigeteilte Aktionsleiste; in der Übersicht Abbrechen/Tag speichern.
+Scroll: ausschließlich mittlerer Inhaltsbereich.
+Schließen: zentrale Entwurfsprüfung; Verwerfen-Bestätigung innerhalb derselben Karte.
+
+2. settingsModal – Sollzeit/Bundesland/Offline-Nutzung
+Auslöser: kompakte Einstellungszeilen.
+Interne Ansichten: Sollzeit bearbeiten, Bundesland bearbeiten, Offline-Nutzung, Rückwirkungs- oder Verwerfen-Bestätigung.
+Weitere Karten: keine.
+Kopf/Fuß/Scroll/Safe Area: identisch zum Tageseditor.
+Schließen: interne Verwerfen-Prüfung; Fokus zurück zur Einstellungszeile.
+
+3. restoreConfirmModal – „Sicherung wiederherstellen?“
+Auslöser: Auswahl einer gültigen JSON-Sicherung.
+Unterfunktionen: Abbrechen oder Wiederherstellen.
+Weitere Karten: keine.
+Kopf/Fuß/Scroll/Safe Area: einheitlicher Kartenrahmen; mittlerer Bereich scrollt.
+
+4. entryModal – direkte einzelne Buchung
+Auslöser: direkte Korrektur außerhalb des vollständigen Tageseditors.
+Unterfunktion: Löschen wird als Inline-Bestätigung in derselben sichtbaren Karte eingeblendet.
+Außenrahmen: gemeinsamer Rahmen; fester Kopf und feste Aktionsleiste; Inhalt scrollbar.
+
+5. pauseModal – direkte Pause heute
+Auslöser: Startseite „Manuelle Pause“.
+Unterfunktionen: keine weiteren Karten.
+Außenrahmen: gemeinsamer Rahmen; fester Kopf und feste Aktionsleiste; Inhalt scrollbar.
+
+6. quickAddModal – Eintrag für ausgewählten Tag
+Auslöser: Plus-Schaltfläche.
+Folgewege: Abwesenheit, Zeit ergänzen/korrigieren, Kommentar.
+Sichtbarkeit: vor Öffnen des Folgewegs wird die Ausgangskarte geschlossen; niemals zwei sichtbare Karten.
+Außenrahmen: gemeinsamer Rahmen mit festem Kopf und unterer Abbrechen-Aktion.
+
+7. commentModal – direkter Kommentar
+Auslöser: Schnellmenü oder Kommentarzeile außerhalb des Tageseditors.
+Unterfunktionen: keine weiteren Karten.
+Außenrahmen: gemeinsamer Rahmen; fester Kopf und feste Aktionsleiste; Textbereich scrollbar.
+
+8. absenceTypeModal – Abwesenheitsart auswählen
+Auslöser: Schnellmenü oder offene Arbeitstage.
+Folgeweg: quickAbsenceModal; Ausgangskarte wird zuvor geschlossen.
+Außenrahmen: gemeinsamer Rahmen mit fester Kopf- und Abbrechen-Zone.
+
+9. quickAbsenceModal – einzelne schnelle Abwesenheit
+Auslöser: absenceTypeModal.
+Folgeweg „Weitere Optionen“: vollständiger Tages-/Abwesenheitsweg; Ausgangskarte wird zuvor geschlossen.
+Außenrahmen: gemeinsamer Rahmen; fester Kopf und feste Aktionsleiste; Inhalt scrollbar.
+
+10. timeActionModal – Zeit ergänzen/korrigieren
+Auslöser: Schnellmenü oder offene Arbeitstage.
+Folgewege: neue Buchung, Buchungsliste, vollständiger Tageseditor; Ausgangskarte wird zuvor geschlossen.
+Außenrahmen: gemeinsamer Rahmen mit fester Kopf- und Abbrechen-Zone.
+
+11. bookingListModal – vorhandene Buchung auswählen
+Auslöser: timeActionModal.
+Folgeweg: entryModal; Ausgangskarte wird zuvor geschlossen.
+Außenrahmen: gemeinsamer Rahmen mit fester Kopf- und Abbrechen-Zone; Liste scrollbar.
+
+12. manualQuickModal – Zeit ergänzen
+Auslöser: timeActionModal.
+Folgeweg: vollständiger Tageseditor; Ausgangskarte wird zuvor geschlossen.
+Außenrahmen: gemeinsamer Rahmen; fester Kopf und feste Aktionsleiste; Inhalt scrollbar.
+
+13. absenceModal – Abwesenheitszeitraum
+Auslöser: gesonderter Mehrtagesweg oder Bearbeitung eines bestehenden Zeitraums.
+Unterfunktion: Konflikt- und Löschbestätigungen werden inline in derselben Karte angezeigt.
+Außenrahmen: gemeinsamer Rahmen; fester Kopf und feste Aktionsleiste; langer Inhalt scrollbar.
+
+14. shareFallbackModal – Dateien einzeln sichern
+Auslöser: Gerät unterstützt gemeinsames Teilen zweier Dateien nicht.
+Unterfunktionen: JSON und Excel einzeln speichern.
+Außenrahmen: gemeinsamer Rahmen mit fester Kopf- und Schließen-Zone.
+
+15. workdayIssuesModal – offene Arbeitstage
+Auslöser: Hinweis auf fehlende/unvollständige Arbeitstage.
+Folgewege: Zeit oder Abwesenheit nachtragen; Ausgangskarte wird zuvor geschlossen.
+Außenrahmen: gemeinsamer Rahmen; fester Kopf und Schließen-Zone; Liste scrollbar.
+
+16. discardConfirmModal – historischer Kompatibilitätsdialog
+Status: bleibt aus Kompatibilitätsgründen im DOM; die aktive V5.30-Verwerfen-Logik verwendet Inline-Bestätigungen beziehungsweise die internen Bestätigungsansichten des Tages- und Einstellungseditors.
+Außenrahmen: gemeinsamer Rahmen.
+
+Ergebnis der Inventarisierung
+- 16 Dialog-/Kartentypen vorhanden.
+- Alle 16 Typen haben bei 393 px Viewport 361 px Breite und 16 px Seitenabstand.
+- Kein Typ überschreitet 480 px auf größeren Viewports.
+- Der zentrale Öffnungswächter verhindert doppelte sichtbare Overlays.
+- Tageseditor, komplexe Einstellungen und Wiederherstellung verwenden den vollständigen neuen Ein-Karten-Aufbau.

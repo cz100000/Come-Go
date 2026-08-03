@@ -1,0 +1,39 @@
+Arbeitszeit PWA – Änderungen V5.30
+Stand: 03.08.2026
+
+1. Ein-Karten-Navigation
+- Einheitlicher Kartenrahmen mit maximal 480 px Breite.
+- Bei 393 px Viewport exakt 361 px Kartenbreite und 16 px sichtbarer Abstand je Seite.
+- Auf Geräten bis 350 px Breite 12 px Seitenabstand.
+- Kopfbereich, scrollbarer Inhaltsbereich und feste Fußleiste sind getrennt.
+- Unteransichten und Bestätigungen ersetzen den Inhalt derselben Karte.
+- Zentrale Schließen-, Zurück-, Fokus- und Verwerfen-Logik.
+
+2. Tageseditor
+- Ruhige Übersicht aus Buchungen, Buchung hinzufügen, Pause, Abwesenheit, Kommentar und weiteren Aktionen.
+- Buchungsdetail mit tatsächlicher und dokumentierter Uhrzeit sowie Herkunft.
+- Löschen nur in der Detailansicht und mit interner Bestätigung.
+- Pause, Abwesenheit und Kommentar als eigene interne Ansichten.
+- Weitere Aktionen ohne Akkordeon: Buchungen/Pause löschen, Tag vollständig löschen, Importdaten wiederherstellen.
+- Sämtliche Änderungen werden im zentralen Entwurf gesammelt und erst mit „Tag speichern“ dauerhaft übernommen.
+- Unveränderte Buchungen behalten Herkunft und Bearbeitungskennzeichen.
+
+3. Einstellungen
+- Fünf Themenkarten: Persönliche Angaben, Arbeitszeit, Feiertage, Darstellung und Berichte, App und Daten.
+- Sollzeit und Bundesland nur noch als kompakte Zeilen mit aktuellem Wert und Gültigkeitsdatum.
+- Separate Ein-Karten-Editoren für Sollzeit und Bundesland.
+- Verbindlicher Schutz der Grundregel 8:00 Stunden und Hessen ab 01.11.2022.
+- Rückwirkende neue Regeln erfordern eine bewusste interne Bestätigung.
+- Offline-Hinweise werden nur noch bei Bedarf in einer eigenen Kartenansicht angezeigt.
+
+4. Bestätigungen und Wiederherstellung
+- Verwerfen-, Lösch-, Wiederherstellungs- und Konfliktbestätigungen erscheinen innerhalb der jeweils sichtbaren Karte.
+- JSON-Wiederherstellung zeigt Sicherungsdatum, App-Version, Tages- und Buchungsanzahl.
+- Vor einer Wiederherstellung bleibt die bestehende Sicherheitskopie erhalten.
+
+5. Darstellung und Technik
+- Einheitliche Kartenbreiten für sämtliche 16 vorhandenen Dialogtypen.
+- Kein horizontaler Überlauf in den geprüften Viewports.
+- Bestehende direkte Einstiegskarten erhalten sicheren Scrollbereich sowie feste Kopf-/Aktionsbereiche.
+- App-Version, Manifest und Service-Worker-Cache auf V5.30 erhöht.
+- Speicherschlüssel arbeitszeit-pwa-v1 und Datenschema 12 unverändert.

@@ -1,0 +1,64 @@
+Arbeitszeit PWA – Umsetzungsbericht V5.30
+Stand: 03.08.2026
+
+Ausgangsbasis
+Alle Änderungen wurden ausschließlich auf der hochgeladenen V5.29 durchgeführt. Vor der Bearbeitung wurde der vollständige Ausgangsordner separat gesichert. Der lokale Speicherschlüssel, das Datenschema, die Importdaten, die Symbole und alle bestehenden Offline-/Exportfunktionen wurden erhalten.
+
+Datenprüfung
+Der eingebettete Datenbestand wurde gegen Arbeitszeit_Backup_2026-08-03.json geprüft:
+- 1.128 Tage
+- 1.792 Buchungen
+- identische Tagesobjekte
+- Start 01.11.2022
+- vorhandene Buchungen bis einschließlich 03.08.2026
+
+Umgesetzte Hauptpunkte
+1. Einheitlicher Kartenrahmen
+- 16 px Seitenabstand bei 393 px, 12 px auf sehr schmalen Geräten, maximal 480 px.
+- Einheitlicher Radius, Schatten, Kopf-/Aktionsbereiche, Safe-Area-Abstand und Überlaufschutz.
+- Zentraler Öffnungswächter verhindert mehrere gleichzeitig sichtbare Modal-Karten.
+- Fokus wird nach dem Schließen an den Auslöser zurückgegeben; Scroll-Sperren werden vollständig entfernt.
+
+2. Tageseditor
+- Vollständig neuer zentraler Entwurfszustand.
+- Übersichtliche Startansicht ohne aufgeklappte Eingabefelder oder Papierkorb-Symbole.
+- Interne Ansichten für Buchung bearbeiten/hinzufügen, Pause, Abwesenheit, Kommentar und weitere Aktionen.
+- Interne Bestätigungsansichten für Löschen, Importwiederherstellung und Verwerfen.
+- Erst „Tag speichern“ schreibt den Entwurf in den bestehenden Datenbestand.
+- Unveränderte Einträge behalten Herkunft, Zeitfelder und Bearbeitungskennzeichen.
+
+3. Einstellungen
+- Neuaufteilung in fünf kompakte Themenkarten.
+- Sollzeit und Bundesland aus der Hauptansicht in eigene Karteneditoren verlagert.
+- Historische Grundregeln 8:00 Stunden und Hessen ab 01.11.2022 verbindlich geschützt.
+- Rückwirkende spätere Regeln werden nur nach interner Bestätigung gespeichert.
+- Offline-Hilfe ist nicht mehr dauerhaft ausgeschrieben, sondern über eine kompakte Zeile erreichbar.
+
+4. Bestätigungen und Bestandsdialoge
+- Wiederherstellung verwendet eine einheitliche Kartenansicht.
+- Verwerfen-, Buchungslösch-, Abwesenheitslösch- und Konfliktbestätigungen werden inline oder intern angezeigt.
+- Bestehende direkte Einstiegskarten wurden auf identische Breite, sichere Scrollflächen und feste Bedienbereiche normiert.
+
+5. Offline- und Versionspflege
+- App-Version auf 5.30 erhöht.
+- Manifestname und Kurzname aktualisiert.
+- Service-Worker-Cache auf v5-30-2026-08-03 erhöht.
+- Alte Arbeitszeit-PWA-Caches werden weiterhin nur über die bestehenden app-eigenen Präfixe entfernt.
+- README, Changelog, Dialoginventar und Testübersicht ergänzt.
+
+Nicht verändert
+- Rechenlogik für Arbeitszeit, Pause, Sollzeit, Saldo und Zeitkonto
+- Datenmodell und Speicherschlüssel
+- Feiertagsberechnung und alle 16 Bundesländer
+- halbtägige Abwesenheiten und Zeitausgleich
+- Nachtschichten über Mitternacht
+- interne Rückfallsicherungen und Schema-Schutz
+- PDF-, JSON- und Excel-Funktionen
+- Zwei-Dateien-Sicherung ohne ZIP/Hinweise-Datei
+- reine Offline-Nutzung ohne externe Dienste
+
+Testergebnis
+144 automatisierte Prüfungen bestanden, 0 fehlgeschlagen. Einzelheiten stehen in TESTUEBERSICHT_V5_30.txt.
+
+Bekannte Einschränkung
+Der physische Test auf einem iPhone 16 mit Mobile Safari sowie das native iOS-Teilen-Menü waren in der Entwicklungsumgebung nicht verfügbar. Dafür wurden die relevanten Bildschirmgrößen, Kartenabstände, Laufzeitpfade und erzeugten Dateiformate automatisiert geprüft.

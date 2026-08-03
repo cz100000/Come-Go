@@ -523,3 +523,82 @@ html,body,.app,.screen,.modal,.sheet{max-width:100%;overflow-x:hidden}
 @media(max-width:350px){
   .modal .sheet{width:calc(100vw - 24px)!important;max-width:calc(100vw - 24px)!important}
 }
+
+/* V5.30 – einheitliche Bearbeitungs-, Auswahl- und Bestätigungskarten */
+.modal{padding:12px 16px calc(12px + env(safe-area-inset-bottom));align-items:flex-end;justify-content:center;overflow:hidden}
+.modal .sheet{
+  width:min(calc(100vw - 32px),480px)!important;
+  max-width:min(calc(100vw - 32px),480px)!important;
+  max-height:min(88dvh,760px);
+  margin:0 auto!important;
+  padding:0!important;
+  border-radius:22px!important;
+  box-shadow:0 20px 54px rgba(16,28,46,.24)!important;
+  overflow:hidden!important;
+}
+.unified-card-shell{display:grid;grid-template-rows:auto minmax(0,1fr) auto;min-height:min(72dvh,620px);background:#fff}
+.unified-card-head{min-height:68px;display:grid;grid-template-columns:44px minmax(0,1fr) 44px;align-items:center;gap:4px;padding:10px 12px;border-bottom:1px solid var(--line);background:#fff}
+.unified-card-title-wrap{min-width:0;text-align:center}.unified-card-title-wrap h2{margin:0;font-size:19px;line-height:1.2;letter-spacing:-.015em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.unified-card-context{margin-top:3px;color:var(--muted);font-size:11px;line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.unified-card-back,.unified-card-head-spacer,.unified-card-head .close-btn{width:44px;height:44px;min-width:44px;border:0;border-radius:13px;background:transparent;display:grid;place-items:center;padding:0}.unified-card-back{font-size:31px;line-height:1;color:var(--blue)}.unified-card-back[hidden]{visibility:hidden;display:grid!important}.unified-card-head .close-btn{font-size:27px;color:var(--muted)}
+.unified-card-body{min-width:0;min-height:0;overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;padding:15px 14px 18px;scroll-padding-bottom:18px}
+.unified-card-footer{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:10px;padding:11px 14px calc(11px + env(safe-area-inset-bottom));border-top:1px solid var(--line);background:#fff;box-shadow:0 -8px 20px rgba(26,38,54,.04)}
+.unified-card-footer button{min-width:0;min-height:48px;border-radius:13px;padding:10px 12px;font-weight:800}.unified-card-footer .cancel{border:1px solid var(--line);background:#f2f4f7;color:var(--text)}.unified-card-footer .save{border:1px solid var(--blue);background:var(--blue);color:#fff}.unified-card-footer .danger-button{border:1px solid var(--danger);background:var(--danger);color:#fff}.unified-card-footer .single-footer-action{grid-column:1/-1}
+.unified-list-section{margin:0 0 16px}.unified-list-section:last-child{margin-bottom:0}.unified-list-section h3{margin:0 0 7px;padding:0 2px;color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.065em}.unified-list{border:1px solid var(--line);border-radius:16px;background:#fff;overflow:hidden}.unified-list-row{width:100%;min-height:62px;border:0;border-bottom:1px solid var(--line);background:#fff;padding:10px 12px;display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:10px;text-align:left}.unified-list-row:last-child{border-bottom:0}.unified-list-row:active{background:#f6f9fd}.unified-row-main{display:grid;gap:3px;min-width:0}.unified-row-main b{font-size:14px;line-height:1.25}.unified-row-main small{min-width:0;color:var(--muted);font-size:11px;line-height:1.35;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.booking-disclosure .unified-row-main small{white-space:normal;overflow:visible;text-overflow:clip}.unified-list-row>i,.unified-row-end i{color:#9aa3af;font-size:24px;font-style:normal;line-height:1}.unified-row-end{display:flex;align-items:center;justify-content:flex-end;gap:8px;min-width:0;max-width:145px}.unified-row-end strong{min-width:0;font-size:12px;text-align:right;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.unified-add-row b{color:var(--blue)}.unified-empty-row{padding:15px 12px;color:var(--muted);font-size:12px;border-bottom:1px solid var(--line)}
+.unified-form{display:grid;gap:14px;min-width:0}.unified-form .field{min-width:0}.unified-form input,.unified-form select,.unified-form textarea{width:100%;max-width:100%;min-width:0}.unified-form textarea{resize:vertical;overflow-x:hidden;overflow-wrap:anywhere}.unified-time-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;min-width:0}.unified-origin{display:flex;align-items:center;justify-content:space-between;gap:12px;border:1px solid var(--line);border-radius:13px;background:#f7f8fa;padding:11px 12px;font-size:12px}.unified-origin span{color:var(--muted);text-align:right}.unified-inline-error{border:1px solid #efc7c4;border-radius:12px;background:var(--danger-soft);color:#9d2929;padding:10px 11px;font-size:12px;line-height:1.4}.unified-inline-error[hidden]{display:none!important}.unified-help{margin:0;color:var(--muted);font-size:12px;line-height:1.48}.day-comment-textarea{min-height:150px}.stepper{display:grid;grid-template-columns:48px minmax(0,1fr) 48px;gap:8px}.stepper button{min-height:48px;border:1px solid var(--line);border-radius:12px;background:#f3f5f8;font-size:24px}.stepper input{text-align:center;font-weight:800}
+.unified-action-list{display:grid;gap:10px}.unified-secondary-action,.unified-danger-action{width:100%;min-height:58px;border-radius:14px;padding:11px 12px;text-align:left;display:grid;gap:3px}.unified-secondary-action{border:1px solid #c9d9ed;background:#f5f9ff;color:#174c89}.unified-danger-action{border:1px solid #efc2c0;background:var(--danger-soft);color:#a22d2d}.unified-secondary-action b,.unified-danger-action b{font-size:13px}.unified-secondary-action small,.unified-danger-action small{font-size:11px;line-height:1.35;color:inherit;opacity:.78}.unified-secondary-action:disabled,.unified-danger-action:disabled{opacity:.45;cursor:not-allowed}
+.unified-confirm-state,.unified-info-state{min-height:260px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:18px 6px}.unified-confirm-state p,.unified-info-state p{margin:12px 0 0;color:var(--muted);font-size:14px;line-height:1.5;overflow-wrap:anywhere}.unified-info-state h3{margin:0;font-size:19px}.unified-confirm-icon{width:52px;height:52px;border-radius:50%;display:grid;place-items:center;background:var(--blue-soft);color:var(--blue);font-size:23px;font-weight:900}.unified-confirm-icon.danger{background:var(--danger-soft);color:var(--danger)}.unified-rule-note{border:1px solid #d5e4f7;border-radius:14px;background:#f6faff;padding:12px}.unified-rule-note b{font-size:12px;color:#285b95}.unified-rule-note p{margin:5px 0 0;color:var(--muted);font-size:11px;line-height:1.48}
+.inline-confirm-active{display:grid!important;grid-template-rows:minmax(0,1fr)!important}.inline-confirm-active>:not(.inline-card-confirm){display:none!important}.inline-card-confirm{display:grid;grid-template-rows:auto minmax(0,1fr) auto;min-height:min(62dvh,520px);max-height:min(88dvh,760px)}
+.restore-summary{display:grid;gap:0;border:1px solid var(--line);border-radius:15px;overflow:hidden;margin-bottom:14px}.restore-summary>div{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px;border-bottom:1px solid var(--line)}.restore-summary>div:last-child{border-bottom:0}.restore-summary span{color:var(--muted);font-size:12px}.restore-summary b{font-size:12px;text-align:right}
+
+/* V5.30 – kompakte Einstellungsseite */
+#settings{overflow-x:hidden}.settings-topic-card{padding:0;margin-bottom:12px;overflow:hidden}.settings-topic-title{margin:0;padding:14px 14px 8px;color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.065em}.settings-compact-row{width:100%;min-width:0;min-height:60px;border:0;border-top:1px solid var(--line);background:#fff;padding:10px 13px;display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:10px;text-align:left}.settings-topic-title+.settings-compact-row{border-top:0}.settings-row-copy{display:grid;gap:3px;min-width:0}.settings-row-copy b{font-size:13px;line-height:1.25}.settings-row-copy small{min-width:0;color:var(--muted);font-size:10.5px;line-height:1.35;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.settings-row-value{display:flex;align-items:center;justify-content:flex-end;gap:7px;min-width:0;max-width:145px}.settings-row-value strong{min-width:0;font-size:12px;text-align:right;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.settings-row-value i{color:#9aa3af;font-size:23px;font-style:normal}.settings-disclosure:active{background:#f6f9fd}.settings-input-row input{width:min(42vw,170px);max-width:170px;min-width:0;height:40px;border:1px solid var(--line);border-radius:11px;padding:0 10px;text-align:right}.settings-status-row{border-top:1px solid var(--line)}.settings-status-value{font-size:12px;color:var(--muted);text-align:right}.settings-topic-card .switch{margin-left:auto}.settings-topic-card .switch input+span{flex:none}
+
+@media(max-width:350px){
+  .modal{padding-left:12px;padding-right:12px}.modal .sheet{width:calc(100vw - 24px)!important;max-width:calc(100vw - 24px)!important}.unified-card-body{padding-left:12px;padding-right:12px}.unified-card-footer{padding-left:12px;padding-right:12px}.unified-time-grid{grid-template-columns:1fr}.settings-compact-row{padding-left:11px;padding-right:11px}.settings-input-row input{width:38vw}.unified-row-end{max-width:118px}
+}
+@media(min-width:351px) and (max-width:430px){.modal{padding-left:16px;padding-right:16px}}
+@media(max-height:700px){.unified-card-shell{min-height:78dvh}.unified-card-head{min-height:60px}.unified-card-body{padding-top:11px;padding-bottom:13px}.unified-list-row{min-height:56px}.unified-card-footer button{min-height:44px}}
+
+/* V5.30 – Bestandsdialoge: gleicher Kartenrahmen, sichere Scrollfläche und feste Bedienbereiche */
+.modal .sheet:not(.unified-card-shell):not(.inline-confirm-active){
+  position:relative;
+  overflow-y:auto!important;
+  overflow-x:hidden!important;
+  overscroll-behavior:contain;
+  -webkit-overflow-scrolling:touch;
+  scrollbar-gutter:stable;
+}
+.modal .sheet:not(.unified-card-shell):not(.inline-confirm-active)>.sheet-head{
+  position:sticky;
+  top:0;
+  z-index:4;
+  min-height:64px;
+  margin-top:0;
+  background:#fff;
+  border-bottom:1px solid var(--line);
+}
+.modal .sheet:not(.unified-card-shell):not(.inline-confirm-active)>.modal-actions{
+  position:sticky;
+  bottom:0;
+  z-index:4;
+  flex:none;
+  margin-bottom:0;
+  padding-bottom:calc(11px + env(safe-area-inset-bottom));
+  background:#fff;
+  border-top:1px solid var(--line);
+  box-shadow:0 -8px 20px rgba(26,38,54,.04);
+}
+.modal .sheet:not(.unified-card-shell):not(.inline-confirm-active)>.quick-cancel:last-child{
+  position:sticky;
+  bottom:0;
+  z-index:4;
+  margin-bottom:0;
+  background:#f2f4f7;
+}
+
+/* V5.30 – identische äußere Kartenposition auch für bestehende direkte Einstiegskarten */
+.modal .sheet{min-height:min(72dvh,620px)}
+.modal .sheet:not(.unified-card-shell):not(.inline-confirm-active){display:flex;flex-direction:column}
+.modal .sheet:not(.unified-card-shell):not(.inline-confirm-active)>.sheet-head{min-height:68px;flex:none}
+.modal .sheet:not(.unified-card-shell):not(.inline-confirm-active)>.modal-actions{margin-top:auto}
+.modal .sheet:not(.unified-card-shell):not(.inline-confirm-active)>.quick-cancel:last-child{margin-top:auto}

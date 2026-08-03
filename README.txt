@@ -1,4 +1,4 @@
-Arbeitszeit PWA – Version 5.29
+Arbeitszeit PWA – Version 5.30
 Stand: 03.08.2026
 
 Zweck
@@ -15,8 +15,27 @@ Daten und Kompatibilität
 - Datenschema: 12
 - Datenbeginn: 01.11.2022
 - Eingebetteter Ausgangsdatenstand: JSON-Sicherung vom 03.08.2026
+- 1.128 Kalendertage und 1.792 Buchungen im eingebetteten Referenzbestand
 - Bestehende lokale Daten, JSON-Sicherungen und Datenmigrationen bleiben kompatibel.
 - Sicherungen mit einem neueren als dem unterstützten Datenschema werden zum Schutz vor Datenverlust abgelehnt.
+
+Ein-Karten-Bearbeitung
+- Der Tageseditor verwendet einen zentralen Entwurfszustand.
+- Buchungen, Pause, Abwesenheit, Kommentar und weitere Aktionen wechseln innerhalb derselben äußeren Karte.
+- Unteransichten und Bestätigungen öffnen keine zweite sichtbare Karte.
+- Erst „Tag speichern“ übernimmt alle vorgemerkten Tagesänderungen gemeinsam.
+- Abbrechen oder Schließen verwirft den gesamten Entwurf erst nach einer Bestätigung innerhalb derselben Karte.
+- Alle Dialogkarten verwenden 16 px Seitenabstand bei 393 px Viewportbreite, 12 px auf sehr schmalen Geräten und höchstens 480 px Kartenbreite auf größeren Geräten.
+
+Einstellungen
+Die Einstellungsseite ist in fünf kompakte Themenkarten gegliedert:
+- Persönliche Angaben
+- Arbeitszeit
+- Feiertage
+- Darstellung und Berichte
+- App und Daten
+
+Sollzeit und Bundesland werden auf der Hauptseite nur mit aktuellem Wert und Gültigkeitsdatum angezeigt. Die Bearbeitung erfolgt in einheitlichen Ein-Karten-Editoren mit Schutz vor unbeabsichtigten rückwirkenden Änderungen.
 
 Verbindliche Sollzeit
 - Seit 01.11.2022 gilt für jeden regulären Arbeitstag eine Grundsollzeit von 08:00 Stunden.
@@ -25,33 +44,41 @@ Verbindliche Sollzeit
 - Künftige Sollzeitänderungen werden mit einem Gültigkeitsdatum erfasst und verändern frühere Zeiträume nicht.
 
 Feiertage
-- Das Bundesland ist in den Einstellungen auswählbar.
+- Das Bundesland ist aus allen 16 deutschen Bundesländern auswählbar.
 - Landesweit geltende gesetzliche Feiertage werden vollständig offline berechnet.
-- Hessen ist für den bisherigen Zeitraum ab 01.11.2022 vorbelegt.
+- Hessen ist für den bisherigen Zeitraum ab 01.11.2022 fest hinterlegt.
 - Ein späterer Bundeslandwechsel wird mit Gültigkeitsdatum gespeichert.
 - Heiligabend und Silvester bleiben als betriebliche freie Tage separat schaltbar.
-- Kommunale oder nur in Teilgebieten geltende Sonderfeiertage können nicht allein aus dem Bundesland bestimmt werden und werden deshalb nicht automatisch landesweit angesetzt.
+- Kommunale oder nur in Teilgebieten geltende Sonderfeiertage werden nicht automatisch landesweit angesetzt.
 
 Sicherung
-„Sicherung und Excel teilen“ erzeugt zwei einzelne Dateien mit identischem Zeitstempel:
+„Sicherung und Excel teilen“ erzeugt genau zwei einzelne Dateien mit identischem Zeitstempel:
 - Arbeitszeit_Backup_YYYY-MM-DD_HH-MM-SS.json
 - Arbeitszeit_Auswertung_YYYY-MM-DD_HH-MM-SS.xlsx
 
-Beide Dateien werden gemeinsam an das native Teilen-Menü übergeben. Unterstützt ein Gerät oder Ziel die gemeinsame Übergabe nicht, bietet die App beide Dateien einzeln zum Speichern an. Eine ZIP- und eine Hinweise-TXT-Datei werden nicht mehr erzeugt.
+Beide Dateien werden gemeinsam an das native Teilen-Menü übergeben. Unterstützt ein Gerät oder Ziel die gemeinsame Übergabe nicht, bietet die App beide Dateien einzeln zum Speichern an. Eine ZIP- oder Hinweise-TXT-Datei wird nicht erzeugt.
 
-Wichtige Änderungen in V5.29
-- drei echte interne Rückfallsicherungen
-- korrekte Prüfung halbtägiger Abwesenheiten
-- einheitliche Unterstützung plausibler Buchungen über Mitternacht
-- unverändertes Speichern verändert keine Importherkunft
-- dynamische Jahreskennzeichnung
-- direkte Auswahl „Zeitausgleich“
-- verbesserte Dialog- und Fokusführung
-- app-eigene Cache-Bereinigung ohne Löschen fremder Caches
-- aktueller Datenbestand einschließlich der Buchungen bis 03.08.2026 eingebettet
+Wichtige Änderungen in V5.30
+- einheitliche Ein-Karten-Navigation im vollständigen Tageseditor
+- zentraler Tagesentwurf mit gemeinsamer Speicher- und Verwerfen-Logik
+- interne Buchungs-, Pausen-, Abwesenheits-, Kommentar- und Aktionsansichten
+- interne Bestätigungsansichten statt übereinanderliegender Karten
+- kompakte, thematisch gegliederte Einstellungsseite
+- separate Sollzeit- und Bundeslandeditoren mit Gültigkeitsdatum
+- systemweit einheitliche Kartenbreite, Safe-Area-Abstände und Überlaufschutz
+- feste Bedienbereiche und sichere Scrollflächen auch für bestehende direkte Einstiegskarten
+- Wiederherstellungsbestätigung in einer einheitlichen Karte
+
+Unverändert erhalten
+- vollständiger Datenbestand und bestehendes Datenmodell
+- Arbeitszeit-, Pausen-, Abwesenheits-, Kommentar- und Zeitkontologik
+- halbtägige Abwesenheiten und Nachtschichten über Mitternacht
+- interne Rückfallsicherungen und Schutz vor neueren unbekannten Datenschemata
+- PDF-Berichte, JSON-Sicherung, Excel-Auswertung und Zwei-Dateien-Teilen
+- Manifest, Service Worker und vollständiger Offline-Betrieb
 
 Bekannter Datenhinweis
-Der 24.03.2023 enthält einen halben Urlaubstag, aber keine Arbeitszeitbuchungen für die verbleibende Sollzeit. Dieser Tag wird nun korrekt als offener Arbeitstag angezeigt und nicht automatisch verändert.
+Der 24.03.2023 enthält einen halben Urlaubstag, aber keine Arbeitszeitbuchungen für die verbleibende Sollzeit. Dieser Tag wird weiterhin korrekt als offener Arbeitstag angezeigt und nicht automatisch verändert.
 
 Technischer Hinweis
-Ein physischer Installationstest auf einem iPhone mit Mobile Safari war in der Entwicklungsumgebung nicht möglich. Die Darstellung wurde automatisiert mit 393 × 852 Pixeln sowie kleineren Kontrollgrößen geprüft.
+Ein physischer Installationstest auf einem iPhone mit Mobile Safari war in der Entwicklungsumgebung nicht möglich. Die Oberfläche wurde automatisiert bei 320 × 700, 350 × 750, 393 × 852, 430 × 900, 768 × 900 und 1024 × 900 Pixeln geprüft.
