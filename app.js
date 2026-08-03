@@ -4,7 +4,7 @@ const STORAGE_BACKUP_KEYS=[1,2,3].map(n=>`${STORAGE_KEY}-backup-${n}`);
 const STORAGE_CORRUPT_KEY=STORAGE_KEY+'-corrupt';
 const BACKUP_FORMAT='arbeitszeit-pwa-backup';
 const TRACKING_START_DATE='2022-11-01';
-const APP_VERSION='5.31';
+const APP_VERSION='5.32';
 const CURRENT_SCHEMA=12;
 const IMPORT_DATA_VERSION=4;
 const CALCULATION_VERSION=2;
@@ -744,12 +744,12 @@ if(!confirm('Lokale Änderungen dieses Tages verwerfen und die ursprünglichen I
 state.days[k]=clone(original);touchDay(k);closeModal('dayModal');refreshAllDerivedViews();showToast('Importdaten wiederhergestellt');
 }
 function formatContextDate(k){return formatDate(k,{weekday:'long',day:'2-digit',month:'2-digit',year:'numeric'})}
-function quickMenuTitle(k){return k===todayKey()?'Eintrag für heute':`Eintrag für ${formatContextDate(k)}`}
+function quickMenuTitle(k){return 'Eintrag hinzufügen'}
 function openQuickAdd(date=todayKey()){
 quickContextDate=date;const hasComment=!!normalizeNoteText(dayObject(date).note);$('quickAddTitle').textContent=quickMenuTitle(date);$('quickAddContext').textContent=`Bezugsdatum: ${formatContextDate(date)}`;$('quickCommentLabel').textContent=hasComment?'Kommentar bearbeiten':'Kommentar eintragen';$('quickCommentHint').textContent=hasComment?'Vorhandenen Tageskommentar ändern':'Tageskommentar hinzufügen';openModal('quickAddModal')
 }
 function openAbsenceTypePicker(date=quickContextDate){
-quickContextDate=date;closeModal('quickAddModal');$('absenceTypeQuickTitle').textContent=`Abwesenheit für ${formatContextDate(date)}`;$('absenceTypeContext').textContent=`Bezugsdatum: ${formatContextDate(date)}`;openModal('absenceTypeModal')
+quickContextDate=date;closeModal('quickAddModal');$('absenceTypeQuickTitle').textContent='Abwesenheit eintragen';$('absenceTypeContext').textContent=`Bezugsdatum: ${formatContextDate(date)}`;openModal('absenceTypeModal')
 }
 function openQuickAbsence(code,date=quickContextDate){
 quickContextDate=date;quickAbsenceCode=code;closeModal('absenceTypeModal');$('quickAbsenceTitle').textContent=`${absenceLabel(code)} eintragen`;$('quickAbsenceContext').textContent=`${absenceLabel(code)} für ${formatContextDate(date)}`;$('quickAbsenceTypeLabel').textContent=absenceLabel(code);$('quickAbsenceExtent').value='full';$('quickAbsenceNote').value='';updateQuickAbsenceConflict();openModal('quickAbsenceModal')
@@ -778,7 +778,7 @@ if(status==='Vollständig')return 'Die vorhandenen Buchungen sind vollständig. 
 return 'Die Buchungsfolge ist unvollständig und sollte geprüft werden.';
 }
 function openTimeAction(date=quickContextDate){
-quickContextDate=date;closeModal('quickAddModal');closeModal('workdayIssuesModal');const d=dayObject(date),entries=d.entries||[],next=nextActionForDay(d),status=dayStatus(d);$('timeActionTitle').textContent=`Zeit für ${formatContextDate(date)}`;$('timeActionContext').textContent=`Bezugsdatum: ${formatContextDate(date)}`;$('timeActionStatus').innerHTML=`<b>${esc(status)}</b><span>${esc(timeActionDescription(d))}</span>`;
+quickContextDate=date;closeModal('quickAddModal');closeModal('workdayIssuesModal');const d=dayObject(date),entries=d.entries||[],next=nextActionForDay(d),status=dayStatus(d);$('timeActionTitle').textContent='Zeit ergänzen';$('timeActionContext').textContent=`Bezugsdatum: ${formatContextDate(date)}`;$('timeActionStatus').innerHTML=`<b>${esc(status)}</b><span>${esc(timeActionDescription(d))}</span>`;
 const actions=[];
 if(!hasFullAbsence(d)){
 const nextLabel=next==='in'?'Kommen ergänzen':'Gehen ergänzen',sub=next==='in'&&entries.length?'Weiteren Arbeitsblock beginnen':next==='in'?'Erste Buchung des Tages':'Logisch nächste fehlende Buchung';actions.push(`<button type="button" class="recommended" onclick="openManualTimeQuick('${date}','${next}')"><span>${nextLabel}</span><small>${sub}</small><b>›</b></button>`);

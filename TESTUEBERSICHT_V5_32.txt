@@ -1,0 +1,81 @@
+TESTÜBERSICHT V5.32
+
+Bestanden: 76
+Fehlgeschlagen: 0
+
+[OK] Alle 16 Dialoge vorhanden – 16
+[OK] dayModal: Kopf vorhanden
+[OK] dayModal: Inhalt vorhanden
+[OK] dayModal: Fuß vorhanden
+[OK] dayModal: Titel ohne Ellipse – Tag bearbeiten
+[OK] settingsModal: Kopf vorhanden
+[OK] settingsModal: Inhalt vorhanden
+[OK] settingsModal: Fuß vorhanden
+[OK] settingsModal: Titel ohne Ellipse – Einstellung bearbeiten
+[OK] restoreConfirmModal: Kopf vorhanden
+[OK] restoreConfirmModal: Inhalt vorhanden
+[OK] restoreConfirmModal: Fuß vorhanden
+[OK] restoreConfirmModal: Titel ohne Ellipse – Sicherung laden?
+[OK] entryModal: Kopf vorhanden
+[OK] entryModal: Inhalt vorhanden
+[OK] entryModal: Fuß vorhanden
+[OK] entryModal: Titel ohne Ellipse – Buchung bearbeiten
+[OK] pauseModal: Kopf vorhanden
+[OK] pauseModal: Inhalt vorhanden
+[OK] pauseModal: Fuß vorhanden
+[OK] pauseModal: Titel ohne Ellipse – Pause bearbeiten
+[OK] quickAddModal: Kopf vorhanden
+[OK] quickAddModal: Inhalt vorhanden
+[OK] quickAddModal: Fuß vorhanden
+[OK] quickAddModal: Titel ohne Ellipse – Eintrag hinzufügen
+[OK] commentModal: Kopf vorhanden
+[OK] commentModal: Inhalt vorhanden
+[OK] commentModal: Fuß vorhanden
+[OK] commentModal: Titel ohne Ellipse – Kommentar bearbeiten
+[OK] absenceTypeModal: Kopf vorhanden
+[OK] absenceTypeModal: Inhalt vorhanden
+[OK] absenceTypeModal: Fuß vorhanden
+[OK] absenceTypeModal: Titel ohne Ellipse – Abwesenheit eintragen
+[OK] quickAbsenceModal: Kopf vorhanden
+[OK] quickAbsenceModal: Inhalt vorhanden
+[OK] quickAbsenceModal: Fuß vorhanden
+[OK] quickAbsenceModal: Titel ohne Ellipse – Abwesenheit eintragen
+[OK] timeActionModal: Kopf vorhanden
+[OK] timeActionModal: Inhalt vorhanden
+[OK] timeActionModal: Fuß vorhanden
+[OK] timeActionModal: Titel ohne Ellipse – Zeit ergänzen
+[OK] bookingListModal: Kopf vorhanden
+[OK] bookingListModal: Inhalt vorhanden
+[OK] bookingListModal: Fuß vorhanden
+[OK] bookingListModal: Titel ohne Ellipse – Buchung auswählen
+[OK] manualQuickModal: Kopf vorhanden
+[OK] manualQuickModal: Inhalt vorhanden
+[OK] manualQuickModal: Fuß vorhanden
+[OK] manualQuickModal: Titel ohne Ellipse – Zeit ergänzen
+[OK] absenceModal: Kopf vorhanden
+[OK] absenceModal: Inhalt vorhanden
+[OK] absenceModal: Fuß vorhanden
+[OK] absenceModal: Titel ohne Ellipse – Abwesenheit eintragen
+[OK] shareFallbackModal: Kopf vorhanden
+[OK] shareFallbackModal: Inhalt vorhanden
+[OK] shareFallbackModal: Fuß vorhanden
+[OK] shareFallbackModal: Titel ohne Ellipse – Dateien einzeln sichern
+[OK] workdayIssuesModal: Kopf vorhanden
+[OK] workdayIssuesModal: Inhalt vorhanden
+[OK] workdayIssuesModal: Fuß vorhanden
+[OK] workdayIssuesModal: Titel ohne Ellipse – Offene Arbeitstage
+[OK] discardConfirmModal: Kopf vorhanden
+[OK] discardConfirmModal: Inhalt vorhanden
+[OK] discardConfirmModal: Fuß vorhanden
+[OK] discardConfirmModal: Titel ohne Ellipse – Änderungen verwerfen?
+[OK] Viewport-Metatag unverändert
+[OK] App-Version 5.32
+[OK] Service-Worker-Cache 5.32
+[OK] Speicherschlüssel unverändert
+[OK] Datumsabhängige problematische Titel entfernt
+[OK] Gemeinsame Referenz-CSS vorhanden
+[OK] Keine externen Bibliotheken
+[OK] Alle Karten 361 px bei 393 px – [('dayModal', 361), ('settingsModal', 361), ('restoreConfirmModal', 361), ('entryModal', 361), ('pauseModal', 361), ('quickAddModal', 361), ('commentModal', 361), ('absenceTypeModal', 361), ('quickAbsenceModal', 361), ('timeActionModal', 361), ('bookingListModal', 361), ('manualQuickModal', 361), ('absenceModal', 361), ('shareFallbackModal', 361), ('workdayIssuesModal', 361), ('discardConfirmModal', 361)]
+[OK] Alle Karten 16 px Seitenabstand
+[OK] Kein Haupttitel überläuft – [('dayModal', 0), ('settingsModal', 0), ('restoreConfirmModal', 0), ('entryModal', 0), ('pauseModal', 0), ('quickAddModal', 0), ('commentModal', 0), ('absenceTypeModal', 0), ('quickAbsenceModal', 0), ('timeActionModal', 0), ('bookingListModal', 0), ('manualQuickModal', 0), ('absenceModal', 0), ('shareFallbackModal', 0), ('workdayIssuesModal', 0), ('discardConfirmModal', 0)]
+[OK] Einheitliche Titelschrift 19 px

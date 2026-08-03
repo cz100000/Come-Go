@@ -1,0 +1,8 @@
+Arbeitszeit-PWA V5.32 – einheitliche Kartenreferenz
+
+- Alle Bestandsdialoge verwenden denselben Kopf-, Inhalts- und Fußaufbau wie die freigegebene Bearbeitungskarte.
+- Einheitliche Kopfzeilenhöhe, Innenabstände, Schriftgrößen, Schließen-Schaltflächen, Zeilenhöhen und Fußleisten.
+- Datumsangaben aus langen Kartentiteln entfernt; vollständiges Datum bleibt in der Bezugsdatum-Zeile.
+- Keine abgeschnittenen Hauptüberschriften und keine Ellipsen als Layoutreparatur.
+- V5.31-Sonderregeln werden durch eine gemeinsame, schlanke Referenzgestaltung überschrieben.
+- Datenmodell, Berechnungen, Speicherlogik, Exporte und Navigation unverändert.

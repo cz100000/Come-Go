@@ -623,3 +623,140 @@ html,body,.app,.screen,.modal,.sheet{max-width:100%;overflow-x:hidden}
 .modal .sheet:not(.unified-card-shell):not(.inline-confirm-active)>.sheet-head h2{min-width:0;max-width:100%;margin:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .modal .sheet:not(.unified-card-shell):not(.inline-confirm-active)>.sheet-head .close-btn{width:44px;height:44px;min-width:44px;justify-self:end}
 .modal .sheet:not(.unified-card-shell):not(.inline-confirm-active)>*{max-width:100%}
+
+
+/* V5.32 – eine schlanke Referenzgestaltung für alle Dialogkarten */
+.canonical-card-shell{
+  display:grid!important;
+  grid-template-rows:auto minmax(0,1fr) auto!important;
+  min-height:min(72dvh,620px);
+  background:#fff;
+  overflow:hidden!important;
+}
+.canonical-card-head{
+  min-height:68px!important;
+  margin:0!important;
+  position:static!important;
+  display:grid!important;
+  grid-template-columns:44px minmax(0,1fr) 44px!important;
+  align-items:center!important;
+  gap:4px!important;
+  padding:10px 12px!important;
+  border-bottom:1px solid var(--line)!important;
+  background:#fff!important;
+}
+.canonical-card-head .unified-card-title-wrap{
+  min-width:0;
+  text-align:center;
+}
+.canonical-card-head h2,
+.quick-entry-card .unified-card-title-wrap h2{
+  margin:0!important;
+  font-size:19px!important;
+  line-height:1.2!important;
+  letter-spacing:-.015em!important;
+  white-space:nowrap!important;
+  overflow:visible!important;
+  text-overflow:clip!important;
+}
+.canonical-card-head .close-btn,
+.quick-entry-card .close-btn{
+  width:44px!important;
+  height:44px!important;
+  min-width:44px!important;
+  border:0!important;
+  border-radius:13px!important;
+  background:transparent!important;
+  color:var(--muted)!important;
+  font-size:27px!important;
+  display:grid!important;
+  place-items:center!important;
+  padding:0!important;
+}
+.canonical-card-body{
+  min-width:0;
+  min-height:0;
+  overflow-y:auto!important;
+  overflow-x:hidden!important;
+  padding:15px 14px 18px!important;
+  overscroll-behavior:contain;
+  -webkit-overflow-scrolling:touch;
+}
+.canonical-card-body>*{min-width:0;max-width:100%}
+.canonical-card-body .context-date,
+.quick-entry-card-body .context-date{
+  margin:0 0 13px!important;
+  padding:10px 12px!important;
+  border-radius:13px!important;
+  font-size:13px!important;
+  line-height:1.35!important;
+}
+.canonical-card-footer{
+  position:static!important;
+  margin:0!important;
+  display:grid!important;
+  grid-template-columns:minmax(0,1fr) minmax(0,1fr)!important;
+  gap:10px!important;
+  padding:11px 14px calc(11px + env(safe-area-inset-bottom))!important;
+  border-top:1px solid var(--line)!important;
+  background:#fff!important;
+  box-shadow:0 -8px 20px rgba(26,38,54,.04)!important;
+}
+.canonical-card-footer button{
+  min-width:0!important;
+  min-height:48px!important;
+  border-radius:13px!important;
+  padding:10px 12px!important;
+  font-size:15px!important;
+  font-weight:800!important;
+}
+.canonical-card-footer .single-footer-action{grid-column:1/-1}
+.canonical-card-body .quick-list,
+.quick-entry-card-body .quick-list{display:grid;gap:9px}
+.canonical-card-body .quick-list button,
+.quick-entry-card-body .quick-list button,
+.canonical-card-body .booking-choice-list button{
+  width:100%!important;
+  min-width:0!important;
+  max-width:100%!important;
+  min-height:62px!important;
+  border:1px solid var(--line)!important;
+  border-radius:15px!important;
+  background:#fff!important;
+  padding:11px 13px!important;
+  font-size:inherit!important;
+}
+.canonical-card-body .quick-list button>span,
+.quick-entry-card-body .quick-list button>span{
+  font-size:14px!important;
+  line-height:1.25!important;
+  font-weight:750!important;
+  white-space:normal!important;
+  overflow:visible!important;
+  text-overflow:clip!important;
+}
+.canonical-card-body .quick-list button>small,
+.quick-entry-card-body .quick-list button>small{
+  font-size:11px!important;
+  line-height:1.35!important;
+  white-space:normal!important;
+  overflow:visible!important;
+  text-overflow:clip!important;
+}
+.quick-entry-card .unified-card-title-wrap h2{
+  max-width:none!important;
+}
+.quick-entry-card-body .quick-add-actions button{
+  overflow:visible!important;
+}
+.quick-entry-card-body .quick-add-actions button>span,
+.quick-entry-card-body .quick-add-actions button>small{
+  white-space:normal!important;
+  overflow:visible!important;
+  text-overflow:clip!important;
+}
+@media(max-width:350px){
+  .canonical-card-head{padding-left:10px!important;padding-right:10px!important}
+  .canonical-card-body{padding-left:12px!important;padding-right:12px!important}
+  .canonical-card-footer{padding-left:12px!important;padding-right:12px!important}
+}

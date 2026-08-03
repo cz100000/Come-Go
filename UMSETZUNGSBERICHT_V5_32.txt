@@ -1,0 +1,7 @@
+UMSETZUNGSBERICHT V5.32
+
+Ausgangsbasis: V5.31.
+
+Umgesetzt wurde ausschließlich die visuelle Vereinheitlichung sämtlicher Dialogkarten. Die vorhandene, gut proportionierte Ein-Karten-Bearbeitung dient als gemeinsame Referenz. Alte Dialoge wurden ohne neue Architektur in denselben Kopf-/Inhalt-/Fuß-Aufbau überführt. Lange, datumsabhängige Titel wurden gekürzt; das Bezugsdatum bleibt vollständig sichtbar in der vorhandenen Datumzeile.
+
+Nicht verändert: Datenbestand, Arbeitszeitberechnung, Sollzeit, Feiertage, Persistenzschlüssel, JSON/Excel/PDF, Offline-Funktion und Navigation.

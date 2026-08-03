@@ -1,426 +1,390 @@
-<!doctype html>
+<!DOCTYPE html>
+
 <html lang="de">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,maximum-scale=1,user-scalable=no">
-<meta name="theme-color" content="#f7f8fb">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="default">
-<meta name="apple-mobile-web-app-title" content="Arbeitszeit">
-<link rel="manifest" href="manifest.webmanifest">
-<link rel="apple-touch-icon" sizes="180x180" href="icon-180.png">
-<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+<meta charset="utf-8"/>
+<meta content="width=device-width,initial-scale=1,viewport-fit=cover,maximum-scale=1,user-scalable=no" name="viewport"/>
+<meta content="#f7f8fb" name="theme-color"/>
+<meta content="yes" name="apple-mobile-web-app-capable"/>
+<meta content="default" name="apple-mobile-web-app-status-bar-style"/>
+<meta content="Arbeitszeit" name="apple-mobile-web-app-title"/>
+<link href="manifest.webmanifest" rel="manifest"/>
+<link href="icon-180.png" rel="apple-touch-icon" sizes="180x180"/>
+<link href="icon-192.png" rel="icon" sizes="192x192" type="image/png"/>
 <title>Arbeitszeit PWA</title>
-<link rel="stylesheet" href="./app.css">
+<link href="./app.css" rel="stylesheet"/>
 </head>
 <body class="today-fixed">
 <main class="app">
-<section id="today" class="screen active" aria-label="Heute">
-
-  <header class="today-head">
-    <div class="today-title-group">
-      <h1>Arbeitszeit</h1>
-      <div id="todayDateShort" class="today-date-btn" aria-live="polite"></div>
-    </div>
-  </header>
-
-  <section id="todayAbsenceBanner" class="today-absence-banner" hidden aria-live="polite">
-    <div><b id="todayAbsenceTitle"></b><span id="todayAbsenceText"></span></div>
-    <button type="button" id="todayAbsenceEdit">Bearbeiten</button>
-  </section>
-
-  <div class="punch-grid single" aria-label="Arbeitszeit buchen">
-    <button id="punchAction" class="punch-btn punch-in" type="button" data-punch="in">
-      <span class="punch-icon-box" aria-hidden="true"><svg class="icon" viewBox="0 0 32 32"><path class="door" d="M11 5.5h12v21H11"/><path d="M4.5 16h16M15.5 10.5 21 16l-5.5 5.5"/></svg></span>
-      <span class="label" id="punchActionLabel">Kommen</span>
-      <span class="clock" id="punchActionClock">--:--</span>
-      <span class="punch-status" id="punchActionStatus">Jetzt möglich</span>
-    </button>
-  </div>
-
-  <section id="workCountdown" class="work-countdown" aria-live="polite" hidden>
-    <div class="countdown-main">
-      <span class="countdown-icon" aria-hidden="true"><svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="M12 7v5l3 2"/></svg></span>
-      <div class="countdown-copy"><strong id="countdownHeadline">Countdown startet nach dem Kommen</strong><span id="countdownEnd">Tagesziel wird nach der ersten Buchung berechnet.</span></div>
-      <span id="countdownRing" class="countdown-ring" aria-hidden="true"></span>
-    </div>
-    <div class="countdown-pause"><svg class="icon" viewBox="0 0 24 24"><path d="M5 7h11v7a5 5 0 0 1-5 5H10a5 5 0 0 1-5-5Z"/><path d="M16 9h2a3 3 0 0 1 0 6h-2M4 21h14"/></svg><span id="countdownPause">Mindestpause wird berücksichtigt.</span></div>
-  </section>
-
-  <button id="pastWorkdayNotice" class="past-workday-notice" type="button" hidden aria-live="polite">
-    <span class="past-workday-icon" aria-hidden="true">!</span>
-    <span><b id="pastWorkdayNoticeTitle">Offene Arbeitstage</b><small id="pastWorkdayNoticeText"></small></span>
-    <span class="past-workday-chev" aria-hidden="true">›</span>
-  </button>
-
-  <section class="today-capture" aria-labelledby="capturedTitle">
-    <div class="capture-head">
-      <h2 id="capturedTitle">Heute erfasst</h2>
-      <span id="todayBookingCount">0 Buchungen</span>
-    </div>
-    <div id="todayCaptureList" class="capture-list"></div>
-    <button id="todayCommentRow" class="today-comment-row" type="button" hidden aria-label="Kommentar für heute anzeigen und bearbeiten">
-      <span class="today-comment-icon" aria-hidden="true"><svg class="icon" viewBox="0 0 24 24"><path d="M21 12a8 8 0 0 1-8 8H7l-4 2 1.4-4.2A8 8 0 1 1 21 12Z"/></svg></span>
-      <span class="today-comment-copy"><b>Kommentar</b><small id="todayCommentPreview"></small></span>
-      <span class="today-comment-chev" aria-hidden="true">›</span>
-    </button>
-  </section>
-
-  <div class="quick-action-row" aria-label="Manuelle Einträge">
-    <button id="pauseToday" class="pause-btn home-pressable" type="button">
-      <svg class="icon" viewBox="0 0 24 24"><path d="M5 7h11v7a5 5 0 0 1-5 5H10a5 5 0 0 1-5-5Z"/><path d="M16 9h2a3 3 0 0 1 0 6h-2M4 21h14"/></svg>
-      <span class="pause-copy"><b id="pauseButtonLabel">Manuelle Pause</b><small id="pauseButtonSub">Pause eintragen</small></span>
-      <svg class="icon pause-chev" viewBox="0 0 24 24"><path d="m9 6 6 6-6 6"/></svg>
-    </button>
-  </div>
-  <button id="quickAddBtn" class="quick-add-btn floating-quick-add today-floating-quick home-pressable" type="button" aria-label="Eintrag für heute öffnen"><span class="plus-glyph" aria-hidden="true"></span></button>
+<section aria-label="Heute" class="screen active" id="today">
+<header class="today-head">
+<div class="today-title-group">
+<h1>Arbeitszeit</h1>
+<div aria-live="polite" class="today-date-btn" id="todayDateShort"></div>
+</div>
+</header>
+<section aria-live="polite" class="today-absence-banner" hidden="" id="todayAbsenceBanner">
+<div><b id="todayAbsenceTitle"></b><span id="todayAbsenceText"></span></div>
+<button id="todayAbsenceEdit" type="button">Bearbeiten</button>
 </section>
-
-<section id="times" class="screen" aria-label="Zeiten">
-  <header class="page-header times-page-header"><div><h1>Zeiten</h1><div class="sub">Tag, Woche, Monat und Jahr</div></div><label class="weekend-switch times-header-weekend" id="timesHeaderWeekend"><span>Wochenende</span><input id="headerWeekendToggle" type="checkbox" aria-label="Wochenende anzeigen"><i aria-hidden="true"></i></label></header>
-  <div class="segmented" role="tablist">
-    <button type="button" data-view="day" class="active">Tag</button>
-    <button type="button" data-view="week">Woche</button>
-    <button type="button" data-view="month">Monat</button>
-    <button type="button" data-view="year">Jahr</button>
-  </div>
-  <div id="timesContent"></div>
-  <button id="timesQuickAddBtn" class="quick-add-btn floating-quick-add times-floating-quick" type="button" aria-label="Eintrag für den angezeigten Tag öffnen" hidden><span class="plus-glyph" aria-hidden="true"></span></button>
+<div aria-label="Arbeitszeit buchen" class="punch-grid single">
+<button class="punch-btn punch-in" data-punch="in" id="punchAction" type="button">
+<span aria-hidden="true" class="punch-icon-box"><svg class="icon" viewbox="0 0 32 32"><path class="door" d="M11 5.5h12v21H11"></path><path d="M4.5 16h16M15.5 10.5 21 16l-5.5 5.5"></path></svg></span>
+<span class="label" id="punchActionLabel">Kommen</span>
+<span class="clock" id="punchActionClock">--:--</span>
+<span class="punch-status" id="punchActionStatus">Jetzt möglich</span>
+</button>
+</div>
+<section aria-live="polite" class="work-countdown" hidden="" id="workCountdown">
+<div class="countdown-main">
+<span aria-hidden="true" class="countdown-icon"><svg class="icon" viewbox="0 0 24 24"><circle cx="12" cy="12" r="8"></circle><path d="M12 7v5l3 2"></path></svg></span>
+<div class="countdown-copy"><strong id="countdownHeadline">Countdown startet nach dem Kommen</strong><span id="countdownEnd">Tagesziel wird nach der ersten Buchung berechnet.</span></div>
+<span aria-hidden="true" class="countdown-ring" id="countdownRing"></span>
+</div>
+<div class="countdown-pause"><svg class="icon" viewbox="0 0 24 24"><path d="M5 7h11v7a5 5 0 0 1-5 5H10a5 5 0 0 1-5-5Z"></path><path d="M16 9h2a3 3 0 0 1 0 6h-2M4 21h14"></path></svg><span id="countdownPause">Mindestpause wird berücksichtigt.</span></div>
 </section>
-
-<section id="reports" class="screen" aria-label="Auswertung">
-  <header class="page-header"><div><h1>Auswertung</h1><div class="sub">Berichte, Exporte und Sicherung</div></div></header>
-  <div class="card balance-hero"><span>Aktueller Zeitkontostand</span><strong id="reportBalance">+193:51</strong></div>
-  <section class="card overtime-card" aria-labelledby="overtimeTitle">
-    <div class="overtime-head">
-      <div class="overtime-title-row"><h2 class="card-title" id="overtimeTitle">Verlauf</h2><div class="chart-toggle" role="group" aria-label="Diagrammansicht"><button type="button" id="chartMonthMode" class="active">Monat</button><button type="button" id="chartYearMode">Jahr</button><button type="button" id="chartHistoryMode">Verlauf</button></div></div>
-      <p id="chartSubtitle">Verlauf des gesamten Zeitkontostands</p>
-    </div>
-    <div class="chart-filter"><label for="chartYear">Jahr</label><select id="chartYear"></select></div>
-    <div id="overtimeChart" class="overtime-chart" role="img" aria-label="Überstundengrafik"></div>
-    <div id="chartDetail" class="chart-detail" aria-live="polite"></div>
-  </section>
-  <div class="card report-card">
-    <h2 class="card-title">Berichte und PDF</h2>
-    <div class="report-controls"><input id="reportDay" type="date"><button type="button" id="dayReportBtn">Tagesbericht</button></div>
-    <button type="button" class="report-entry" id="monthReportBtn"><span class="report-icon" aria-hidden="true"><svg class="icon" viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="15" rx="2"/><path d="M8 3v4M16 3v4M4 9h16M8 13h2M14 13h2M8 17h2M14 17h2"/></svg></span><span><b>Monatsbericht</b><small>Detaillierter Bericht und PDF</small></span><span class="chev">›</span></button>
-    <button type="button" class="report-entry" id="yearReportBtn"><span class="report-icon" aria-hidden="true"><svg class="icon" viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="15" rx="2"/><path d="M8 3v4M16 3v4M4 9h16M8 13h8M8 17h8"/></svg></span><span><b>Jahresbericht</b><small>Detaillierter Bericht und PDF</small></span><span class="chev">›</span></button>
-    <input id="reportMonth" type="month" hidden><select id="reportYear" hidden></select>
-  </div>
-  <div class="action-list">
-    <button type="button" class="action-row" id="shareBackupBtn"><span class="icon-wrap"><svg class="icon" viewBox="0 0 24 24"><path d="M12 16V4M8 8l4-4 4 4M5 12v8h14v-8"/></svg></span><span><b>Sicherung und Excel teilen</b><small>JSON und Excel als zwei einzelne Dateien</small></span><span class="chev">›</span></button>
-    <button type="button" class="action-row" id="jsonRestoreBtn"><span class="icon-wrap"><svg class="icon" viewBox="0 0 24 24"><path d="M4 12a8 8 0 1 0 2.3-5.7L4 8.5M4 4v4.5h4.5"/></svg></span><span><b>Sicherung wiederherstellen</b><small>JSON-Datei prüfen und vollständig einlesen</small></span><span class="chev">›</span></button>
-    <input type="file" id="restoreFile" accept="application/json" hidden>
-  </div>
+<button aria-live="polite" class="past-workday-notice" hidden="" id="pastWorkdayNotice" type="button">
+<span aria-hidden="true" class="past-workday-icon">!</span>
+<span><b id="pastWorkdayNoticeTitle">Offene Arbeitstage</b><small id="pastWorkdayNoticeText"></small></span>
+<span aria-hidden="true" class="past-workday-chev">›</span>
+</button>
+<section aria-labelledby="capturedTitle" class="today-capture">
+<div class="capture-head">
+<h2 id="capturedTitle">Heute erfasst</h2>
+<span id="todayBookingCount">0 Buchungen</span>
+</div>
+<div class="capture-list" id="todayCaptureList"></div>
+<button aria-label="Kommentar für heute anzeigen und bearbeiten" class="today-comment-row" hidden="" id="todayCommentRow" type="button">
+<span aria-hidden="true" class="today-comment-icon"><svg class="icon" viewbox="0 0 24 24"><path d="M21 12a8 8 0 0 1-8 8H7l-4 2 1.4-4.2A8 8 0 1 1 21 12Z"></path></svg></span>
+<span class="today-comment-copy"><b>Kommentar</b><small id="todayCommentPreview"></small></span>
+<span aria-hidden="true" class="today-comment-chev">›</span>
+</button>
 </section>
-
-<section id="settings" class="screen" aria-label="Einstellungen">
-  <header class="page-header"><div><h1>Einstellungen</h1><div class="sub">Persönliche Angaben, Arbeitszeit und App</div></div></header>
-
-  <section class="settings-topic-card card" aria-labelledby="settingsPersonalTitle">
-    <h2 id="settingsPersonalTitle" class="settings-topic-title">Persönliche Angaben</h2>
-    <label class="settings-compact-row settings-input-row" for="employeeName">
-      <span class="settings-row-copy"><b>Name im Bericht</b><small>Optional</small></span>
-      <input id="employeeName" type="text" placeholder="Name" autocomplete="name">
-    </label>
-    <label class="settings-compact-row" for="reportSignature">
-      <span class="settings-row-copy"><b>Unterschriftsbereich</b><small>Monats- und Jahresberichte</small></span>
-      <span class="switch"><input id="reportSignature" type="checkbox"><span></span></span>
-    </label>
-  </section>
-
-  <section class="settings-topic-card card" aria-labelledby="settingsWorkTitle">
-    <h2 id="settingsWorkTitle" class="settings-topic-title">Arbeitszeit</h2>
-    <button type="button" class="settings-compact-row settings-disclosure" id="openTargetRuleBtn">
-      <span class="settings-row-copy"><b>Tägliche Sollzeit</b><small id="targetCurrentSince">Gültig seit 01.11.2022</small></span>
-      <span class="settings-row-value"><strong id="targetCurrentValue">8:00 h</strong><i aria-hidden="true">›</i></span>
-    </button>
-    <label class="settings-compact-row settings-input-row" for="checkpointBalance">
-      <span class="settings-row-copy"><b>Startwert Zeitkonto</b><small>Am 01.11.2022</small></span>
-      <input id="checkpointBalance" type="text" inputmode="text" aria-label="Startwert Zeitkonto">
-    </label>
-    <label class="settings-compact-row" for="countdownEnabled">
-      <span class="settings-row-copy"><b>Countdown auf der Startseite</b><small>Mindestpause und Zielhinweis</small></span>
-      <span class="switch"><input id="countdownEnabled" type="checkbox"><span></span></span>
-    </label>
-  </section>
-
-  <section class="settings-topic-card card" aria-labelledby="settingsHolidayTitle">
-    <h2 id="settingsHolidayTitle" class="settings-topic-title">Feiertage</h2>
-    <button type="button" class="settings-compact-row settings-disclosure" id="openHolidayRegionBtn">
-      <span class="settings-row-copy"><b>Bundesland</b><small id="holidayRegionCurrentSince">Gültig seit 01.11.2022</small></span>
-      <span class="settings-row-value"><strong id="holidayRegionCurrentValue">Hessen</strong><i aria-hidden="true">›</i></span>
-    </button>
-    <label class="settings-compact-row" for="freeChristmasEve">
-      <span class="settings-row-copy"><b>Heiligabend betrieblich frei</b><small>Sollzeit 0 Stunden</small></span>
-      <span class="switch"><input id="freeChristmasEve" type="checkbox"><span></span></span>
-    </label>
-    <label class="settings-compact-row" for="freeNewYearsEve">
-      <span class="settings-row-copy"><b>Silvester betrieblich frei</b><small>Sollzeit 0 Stunden</small></span>
-      <span class="switch"><input id="freeNewYearsEve" type="checkbox"><span></span></span>
-    </label>
-  </section>
-
-  <section class="settings-topic-card card" aria-labelledby="settingsDisplayTitle">
-    <h2 id="settingsDisplayTitle" class="settings-topic-title">Darstellung und Berichte</h2>
-    <label class="settings-compact-row" for="bookingSoundEnabled">
-      <span class="settings-row-copy"><b>Retro-Buchungston</b><small>Kurze Töne für Kommen und Gehen</small></span>
-      <span class="switch"><input id="bookingSoundEnabled" type="checkbox"><span></span></span>
-    </label>
-  </section>
-
-  <section class="settings-topic-card card" aria-labelledby="settingsDataTitle">
-    <h2 id="settingsDataTitle" class="settings-topic-title">App und Daten</h2>
-    <button type="button" class="settings-compact-row settings-disclosure" id="openOfflineInfoBtn">
-      <span class="settings-row-copy"><b>Offline-Nutzung</b><small>Installation und lokaler Datenspeicher</small></span>
-      <span class="settings-row-value"><strong>Aktiv</strong><i aria-hidden="true">›</i></span>
-    </button>
-    <div class="settings-compact-row settings-status-row">
-      <span class="settings-row-copy"><b>App-Version</b><small>Installierter Stand</small></span>
-      <strong id="appVersion" class="settings-status-value" aria-label="Anwendungsversion"></strong>
-    </div>
-  </section>
+<div aria-label="Manuelle Einträge" class="quick-action-row">
+<button class="pause-btn home-pressable" id="pauseToday" type="button">
+<svg class="icon" viewbox="0 0 24 24"><path d="M5 7h11v7a5 5 0 0 1-5 5H10a5 5 0 0 1-5-5Z"></path><path d="M16 9h2a3 3 0 0 1 0 6h-2M4 21h14"></path></svg>
+<span class="pause-copy"><b id="pauseButtonLabel">Manuelle Pause</b><small id="pauseButtonSub">Pause eintragen</small></span>
+<svg class="icon pause-chev" viewbox="0 0 24 24"><path d="m9 6 6 6-6 6"></path></svg>
+</button>
+</div>
+<button aria-label="Eintrag für heute öffnen" class="quick-add-btn floating-quick-add today-floating-quick home-pressable" id="quickAddBtn" type="button"><span aria-hidden="true" class="plus-glyph"></span></button>
+</section>
+<section aria-label="Zeiten" class="screen" id="times">
+<header class="page-header times-page-header"><div><h1>Zeiten</h1><div class="sub">Tag, Woche, Monat und Jahr</div></div><label class="weekend-switch times-header-weekend" id="timesHeaderWeekend"><span>Wochenende</span><input aria-label="Wochenende anzeigen" id="headerWeekendToggle" type="checkbox"/><i aria-hidden="true"></i></label></header>
+<div class="segmented" role="tablist">
+<button class="active" data-view="day" type="button">Tag</button>
+<button data-view="week" type="button">Woche</button>
+<button data-view="month" type="button">Monat</button>
+<button data-view="year" type="button">Jahr</button>
+</div>
+<div id="timesContent"></div>
+<button aria-label="Eintrag für den angezeigten Tag öffnen" class="quick-add-btn floating-quick-add times-floating-quick" hidden="" id="timesQuickAddBtn" type="button"><span aria-hidden="true" class="plus-glyph"></span></button>
+</section>
+<section aria-label="Auswertung" class="screen" id="reports">
+<header class="page-header"><div><h1>Auswertung</h1><div class="sub">Berichte, Exporte und Sicherung</div></div></header>
+<div class="card balance-hero"><span>Aktueller Zeitkontostand</span><strong id="reportBalance">+193:51</strong></div>
+<section aria-labelledby="overtimeTitle" class="card overtime-card">
+<div class="overtime-head">
+<div class="overtime-title-row"><h2 class="card-title" id="overtimeTitle">Verlauf</h2><div aria-label="Diagrammansicht" class="chart-toggle" role="group"><button class="active" id="chartMonthMode" type="button">Monat</button><button id="chartYearMode" type="button">Jahr</button><button id="chartHistoryMode" type="button">Verlauf</button></div></div>
+<p id="chartSubtitle">Verlauf des gesamten Zeitkontostands</p>
+</div>
+<div class="chart-filter"><label for="chartYear">Jahr</label><select id="chartYear"></select></div>
+<div aria-label="Überstundengrafik" class="overtime-chart" id="overtimeChart" role="img"></div>
+<div aria-live="polite" class="chart-detail" id="chartDetail"></div>
+</section>
+<div class="card report-card">
+<h2 class="card-title">Berichte und PDF</h2>
+<div class="report-controls"><input id="reportDay" type="date"/><button id="dayReportBtn" type="button">Tagesbericht</button></div>
+<button class="report-entry" id="monthReportBtn" type="button"><span aria-hidden="true" class="report-icon"><svg class="icon" viewbox="0 0 24 24"><rect height="15" rx="2" width="16" x="4" y="5"></rect><path d="M8 3v4M16 3v4M4 9h16M8 13h2M14 13h2M8 17h2M14 17h2"></path></svg></span><span><b>Monatsbericht</b><small>Detaillierter Bericht und PDF</small></span><span class="chev">›</span></button>
+<button class="report-entry" id="yearReportBtn" type="button"><span aria-hidden="true" class="report-icon"><svg class="icon" viewbox="0 0 24 24"><rect height="15" rx="2" width="16" x="4" y="5"></rect><path d="M8 3v4M16 3v4M4 9h16M8 13h8M8 17h8"></path></svg></span><span><b>Jahresbericht</b><small>Detaillierter Bericht und PDF</small></span><span class="chev">›</span></button>
+<input hidden="" id="reportMonth" type="month"/><select hidden="" id="reportYear"></select>
+</div>
+<div class="action-list">
+<button class="action-row" id="shareBackupBtn" type="button"><span class="icon-wrap"><svg class="icon" viewbox="0 0 24 24"><path d="M12 16V4M8 8l4-4 4 4M5 12v8h14v-8"></path></svg></span><span><b>Sicherung und Excel teilen</b><small>JSON und Excel als zwei einzelne Dateien</small></span><span class="chev">›</span></button>
+<button class="action-row" id="jsonRestoreBtn" type="button"><span class="icon-wrap"><svg class="icon" viewbox="0 0 24 24"><path d="M4 12a8 8 0 1 0 2.3-5.7L4 8.5M4 4v4.5h4.5"></path></svg></span><span><b>Sicherung wiederherstellen</b><small>JSON-Datei prüfen und vollständig einlesen</small></span><span class="chev">›</span></button>
+<input accept="application/json" hidden="" id="restoreFile" type="file"/>
+</div>
+</section>
+<section aria-label="Einstellungen" class="screen" id="settings">
+<header class="page-header"><div><h1>Einstellungen</h1><div class="sub">Persönliche Angaben, Arbeitszeit und App</div></div></header>
+<section aria-labelledby="settingsPersonalTitle" class="settings-topic-card card">
+<h2 class="settings-topic-title" id="settingsPersonalTitle">Persönliche Angaben</h2>
+<label class="settings-compact-row settings-input-row" for="employeeName">
+<span class="settings-row-copy"><b>Name im Bericht</b><small>Optional</small></span>
+<input autocomplete="name" id="employeeName" placeholder="Name" type="text"/>
+</label>
+<label class="settings-compact-row" for="reportSignature">
+<span class="settings-row-copy"><b>Unterschriftsbereich</b><small>Monats- und Jahresberichte</small></span>
+<span class="switch"><input id="reportSignature" type="checkbox"/><span></span></span>
+</label>
+</section>
+<section aria-labelledby="settingsWorkTitle" class="settings-topic-card card">
+<h2 class="settings-topic-title" id="settingsWorkTitle">Arbeitszeit</h2>
+<button class="settings-compact-row settings-disclosure" id="openTargetRuleBtn" type="button">
+<span class="settings-row-copy"><b>Tägliche Sollzeit</b><small id="targetCurrentSince">Gültig seit 01.11.2022</small></span>
+<span class="settings-row-value"><strong id="targetCurrentValue">8:00 h</strong><i aria-hidden="true">›</i></span>
+</button>
+<label class="settings-compact-row settings-input-row" for="checkpointBalance">
+<span class="settings-row-copy"><b>Startwert Zeitkonto</b><small>Am 01.11.2022</small></span>
+<input aria-label="Startwert Zeitkonto" id="checkpointBalance" inputmode="text" type="text"/>
+</label>
+<label class="settings-compact-row" for="countdownEnabled">
+<span class="settings-row-copy"><b>Countdown auf der Startseite</b><small>Mindestpause und Zielhinweis</small></span>
+<span class="switch"><input id="countdownEnabled" type="checkbox"/><span></span></span>
+</label>
+</section>
+<section aria-labelledby="settingsHolidayTitle" class="settings-topic-card card">
+<h2 class="settings-topic-title" id="settingsHolidayTitle">Feiertage</h2>
+<button class="settings-compact-row settings-disclosure" id="openHolidayRegionBtn" type="button">
+<span class="settings-row-copy"><b>Bundesland</b><small id="holidayRegionCurrentSince">Gültig seit 01.11.2022</small></span>
+<span class="settings-row-value"><strong id="holidayRegionCurrentValue">Hessen</strong><i aria-hidden="true">›</i></span>
+</button>
+<label class="settings-compact-row" for="freeChristmasEve">
+<span class="settings-row-copy"><b>Heiligabend betrieblich frei</b><small>Sollzeit 0 Stunden</small></span>
+<span class="switch"><input id="freeChristmasEve" type="checkbox"/><span></span></span>
+</label>
+<label class="settings-compact-row" for="freeNewYearsEve">
+<span class="settings-row-copy"><b>Silvester betrieblich frei</b><small>Sollzeit 0 Stunden</small></span>
+<span class="switch"><input id="freeNewYearsEve" type="checkbox"/><span></span></span>
+</label>
+</section>
+<section aria-labelledby="settingsDisplayTitle" class="settings-topic-card card">
+<h2 class="settings-topic-title" id="settingsDisplayTitle">Darstellung und Berichte</h2>
+<label class="settings-compact-row" for="bookingSoundEnabled">
+<span class="settings-row-copy"><b>Retro-Buchungston</b><small>Kurze Töne für Kommen und Gehen</small></span>
+<span class="switch"><input id="bookingSoundEnabled" type="checkbox"/><span></span></span>
+</label>
+</section>
+<section aria-labelledby="settingsDataTitle" class="settings-topic-card card">
+<h2 class="settings-topic-title" id="settingsDataTitle">App und Daten</h2>
+<button class="settings-compact-row settings-disclosure" id="openOfflineInfoBtn" type="button">
+<span class="settings-row-copy"><b>Offline-Nutzung</b><small>Installation und lokaler Datenspeicher</small></span>
+<span class="settings-row-value"><strong>Aktiv</strong><i aria-hidden="true">›</i></span>
+</button>
+<div class="settings-compact-row settings-status-row">
+<span class="settings-row-copy"><b>App-Version</b><small>Installierter Stand</small></span>
+<strong aria-label="Anwendungsversion" class="settings-status-value" id="appVersion"></strong>
+</div>
+</section>
 </section>
 </main>
-
-<nav class="tabbar" aria-label="Hauptnavigation">
-  <button type="button" class="active" data-screen="today"><svg class="icon" viewBox="0 0 24 24"><path d="m3 11 9-8 9 8v10h-6v-6H9v6H3z"/></svg><span>Heute</span></button>
-  <button type="button" data-screen="times"><svg class="icon" viewBox="0 0 24 24"><circle cx="10" cy="10" r="7"/><path d="M10 6v4l3 2M15.5 15.5 20 20"/></svg><span>Zeiten</span></button>
-  <button type="button" data-screen="reports"><svg class="icon" viewBox="0 0 24 24"><path d="M4 20V10h4v10M10 20V4h4v16M16 20v-7h4v7"/></svg><span>Auswertung</span></button>
-  <button type="button" data-screen="settings"><svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1-2.8 2.8-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.6v.2h-4V21a1.7 1.7 0 0 0-1-1.6 1.7 1.7 0 0 0-1.9.3l-.1.1L4.2 17l.1-.1a1.7 1.7 0 0 0 .3-1.9A1.7 1.7 0 0 0 3 14H2.8v-4H3a1.7 1.7 0 0 0 1.6-1 1.7 1.7 0 0 0-.3-1.9L4.2 7 7 4.2l.1.1A1.7 1.7 0 0 0 9 4.6a1.7 1.7 0 0 0 1-1.6v-.2h4V3a1.7 1.7 0 0 0 1 1.6 1.7 1.7 0 0 0 1.9-.3l.1-.1L19.8 7l-.1.1a1.7 1.7 0 0 0-.3 1.9 1.7 1.7 0 0 0 1.6 1h.2v4H21a1.7 1.7 0 0 0-1.6 1Z"/></svg><span>Einstellungen</span></button>
+<nav aria-label="Hauptnavigation" class="tabbar">
+<button class="active" data-screen="today" type="button"><svg class="icon" viewbox="0 0 24 24"><path d="m3 11 9-8 9 8v10h-6v-6H9v6H3z"></path></svg><span>Heute</span></button>
+<button data-screen="times" type="button"><svg class="icon" viewbox="0 0 24 24"><circle cx="10" cy="10" r="7"></circle><path d="M10 6v4l3 2M15.5 15.5 20 20"></path></svg><span>Zeiten</span></button>
+<button data-screen="reports" type="button"><svg class="icon" viewbox="0 0 24 24"><path d="M4 20V10h4v10M10 20V4h4v16M16 20v-7h4v7"></path></svg><span>Auswertung</span></button>
+<button data-screen="settings" type="button"><svg class="icon" viewbox="0 0 24 24"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1-2.8 2.8-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.6v.2h-4V21a1.7 1.7 0 0 0-1-1.6 1.7 1.7 0 0 0-1.9.3l-.1.1L4.2 17l.1-.1a1.7 1.7 0 0 0 .3-1.9A1.7 1.7 0 0 0 3 14H2.8v-4H3a1.7 1.7 0 0 0 1.6-1 1.7 1.7 0 0 0-.3-1.9L4.2 7 7 4.2l.1.1A1.7 1.7 0 0 0 9 4.6a1.7 1.7 0 0 0 1-1.6v-.2h4V3a1.7 1.7 0 0 0 1 1.6 1.7 1.7 0 0 0 1.9-.3l.1-.1L19.8 7l-.1.1a1.7 1.7 0 0 0-.3 1.9 1.7 1.7 0 0 0 1.6 1h.2v4H21a1.7 1.7 0 0 0-1.6 1Z"></path></svg><span>Einstellungen</span></button>
 </nav>
-
-<div id="dayModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="dayModalTitle">
-  <div class="sheet unified-card-shell day-editor-sheet">
-    <div class="unified-card-head">
-      <button id="dayCardBack" class="unified-card-back" type="button" aria-label="Zurück" hidden>‹</button>
-      <div class="unified-card-title-wrap"><h2 id="dayModalTitle">Tag bearbeiten</h2><div id="dayModalContext" class="unified-card-context" aria-live="polite"></div></div>
-      <button id="dayCardClose" class="close-btn" type="button" aria-label="Tageseditor schließen">×</button>
-    </div>
-    <input id="editDate" type="hidden">
-    <div id="dayCardBody" class="unified-card-body day-card-body"></div>
-    <div id="dayCardFooter" class="unified-card-footer"></div>
-  </div>
+<div aria-labelledby="dayModalTitle" aria-modal="true" class="modal" id="dayModal" role="dialog">
+<div class="sheet unified-card-shell day-editor-sheet">
+<div class="unified-card-head">
+<button aria-label="Zurück" class="unified-card-back" hidden="" id="dayCardBack" type="button">‹</button>
+<div class="unified-card-title-wrap"><h2 id="dayModalTitle">Tag bearbeiten</h2><div aria-live="polite" class="unified-card-context" id="dayModalContext"></div></div>
+<button aria-label="Tageseditor schließen" class="close-btn" id="dayCardClose" type="button">×</button>
 </div>
-
-<div id="settingsModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="settingsModalTitle">
-  <div class="sheet unified-card-shell settings-editor-sheet">
-    <div class="unified-card-head">
-      <button id="settingsCardBack" class="unified-card-back" type="button" aria-label="Zurück" hidden>‹</button>
-      <div class="unified-card-title-wrap"><h2 id="settingsModalTitle">Einstellung bearbeiten</h2><div id="settingsModalContext" class="unified-card-context"></div></div>
-      <button id="settingsCardClose" class="close-btn" type="button" aria-label="Einstellungsdialog schließen">×</button>
-    </div>
-    <div id="settingsCardBody" class="unified-card-body"></div>
-    <div id="settingsCardFooter" class="unified-card-footer"></div>
-  </div>
+<input id="editDate" type="hidden"/>
+<div class="unified-card-body day-card-body" id="dayCardBody"></div>
+<div class="unified-card-footer" id="dayCardFooter"></div>
 </div>
-
-<div id="restoreConfirmModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="restoreConfirmTitle">
-  <div class="sheet unified-card-shell restore-card-shell">
-    <div class="unified-card-head">
-      <span class="unified-card-head-spacer" aria-hidden="true"></span>
-      <div class="unified-card-title-wrap"><h2 id="restoreConfirmTitle">Sicherung wiederherstellen?</h2><div class="unified-card-context">Prüfung vor dem Überschreiben</div></div>
-      <button id="restoreConfirmClose" class="close-btn" type="button" aria-label="Wiederherstellung abbrechen">×</button>
-    </div>
-    <div id="restoreConfirmBody" class="unified-card-body"></div>
-    <div class="unified-card-footer"><button type="button" class="cancel" id="restoreCancelBtn">Abbrechen</button><button type="button" class="save" id="restoreProceedBtn">Wiederherstellen</button></div>
-  </div>
 </div>
-
-<div id="legacyBindingFields" hidden aria-hidden="true">
-  <button id="addEntryBtn" type="button"></button><button id="saveDayBtn" type="button"></button><button id="dayNoteOpen" type="button"></button>
-  <textarea id="editNote"></textarea><input id="editPause" type="number"><details id="advancedActions"></details>
-  <button id="deleteDayBtn" type="button"></button><button id="restoreImportBtn" type="button"></button><button id="manageAbsenceFromDay" type="button"></button>
-  <input id="targetHours" type="time"><input id="targetValidFrom" type="date"><button id="applyTargetRuleBtn" type="button"></button><p id="targetRuleStatus"></p>
-  <select id="holidayRegion"><option value="HE">Hessen</option></select><input id="holidayRegionValidFrom" type="date"><button id="applyHolidayRegionBtn" type="button"></button><p id="holidayRegionRuleStatus"></p>
+<div aria-labelledby="settingsModalTitle" aria-modal="true" class="modal" id="settingsModal" role="dialog">
+<div class="sheet unified-card-shell settings-editor-sheet">
+<div class="unified-card-head">
+<button aria-label="Zurück" class="unified-card-back" hidden="" id="settingsCardBack" type="button">‹</button>
+<div class="unified-card-title-wrap"><h2 id="settingsModalTitle">Einstellung bearbeiten</h2><div class="unified-card-context" id="settingsModalContext"></div></div>
+<button aria-label="Einstellungsdialog schließen" class="close-btn" id="settingsCardClose" type="button">×</button>
 </div>
-
-<div id="entryModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="entryModalTitle">
-  <div class="sheet single-entry-sheet">
-    <div class="sheet-head"><h2 id="entryModalTitle">Buchung bearbeiten</h2><button class="close-btn" type="button" data-close="entryModal" aria-label="Buchungsdialog schließen">×</button></div>
-    <div class="single-entry-body">
-      <div id="entryContextDate" class="context-date"></div>
-      <div class="field"><label for="singleEntryType">Buchungsart</label><select id="singleEntryType"><option value="in">Kommen</option><option value="out">Gehen</option></select></div>
-      <div class="field"><label for="singleEntryActual">Tatsächliche Uhrzeit</label><div class="time-input-wrap"><input id="singleEntryActual" type="time"></div></div>
-      <div class="field"><label for="singleEntryLogged">Dokumentierte Uhrzeit</label><div class="time-input-wrap"><input id="singleEntryLogged" type="time"></div></div>
-      <button type="button" class="dialog-action dialog-action-secondary" id="openFullDayFromEntry">Vollständigen Tag bearbeiten</button>
-      <button type="button" class="dialog-action dialog-action-danger" id="deleteSingleEntry">Buchung löschen</button>
-    </div>
-    <div class="modal-actions"><button type="button" class="cancel" data-close="entryModal">Abbrechen</button><button type="button" class="save" id="saveSingleEntry">Speichern</button></div>
-  </div>
+<div class="unified-card-body" id="settingsCardBody"></div>
+<div class="unified-card-footer" id="settingsCardFooter"></div>
 </div>
-
-<div id="pauseModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="pauseModalTitle">
-  <div class="sheet">
-    <div class="sheet-head"><h2 id="pauseModalTitle">Pause eintragen</h2><button class="close-btn" type="button" data-close="pauseModal" aria-label="Pausendialog schließen">×</button></div>
-    <div class="field"><label for="quickPause">Pause für heute (Minuten)</label><input id="quickPause" type="number" min="0" step="1" inputmode="numeric"></div>
-    <div class="modal-actions"><button type="button" class="cancel" data-close="pauseModal">Abbrechen</button><button type="button" class="save" id="savePauseBtn">Speichern</button></div>
-  </div>
 </div>
-
-<div id="quickAddModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="quickAddTitle">
-  <div class="sheet unified-card-shell quick-entry-card">
-    <div class="unified-card-head">
-      <span class="unified-card-head-spacer" aria-hidden="true"></span>
-      <div class="unified-card-title-wrap"><h2 id="quickAddTitle">Eintrag für heute</h2></div>
-      <button class="close-btn" type="button" data-close="quickAddModal" aria-label="Schließen">×</button>
-    </div>
-    <div class="unified-card-body quick-entry-card-body">
-      <div id="quickAddContext" class="context-date"></div>
-      <div class="quick-list quick-add-actions">
-        <button type="button" id="quickAbsenceStart"><span>Abwesenheit eintragen</span><small>Urlaub, Krankheit oder Sonstiges</small><b aria-hidden="true">›</b></button>
-        <button type="button" id="quickTimeStart"><span>Zeit ergänzen / korrigieren</span><small>Fehlende oder vorhandene Buchung</small><b aria-hidden="true">›</b></button>
-        <button type="button" id="quickCommentStart"><span id="quickCommentLabel">Kommentar eintragen</span><small id="quickCommentHint">Tageskommentar hinzufügen</small><b aria-hidden="true">›</b></button>
-      </div>
-    </div>
-    <div class="unified-card-footer quick-entry-card-footer">
-      <button type="button" class="cancel single-footer-action" data-close="quickAddModal">Abbrechen</button>
-    </div>
-  </div>
+<div aria-labelledby="restoreConfirmTitle" aria-modal="true" class="modal" id="restoreConfirmModal" role="dialog">
+<div class="sheet unified-card-shell restore-card-shell">
+<div class="unified-card-head">
+<span aria-hidden="true" class="unified-card-head-spacer"></span>
+<div class="unified-card-title-wrap"><h2 id="restoreConfirmTitle">Sicherung laden?</h2><div class="unified-card-context">Prüfung vor dem Überschreiben</div></div>
+<button aria-label="Wiederherstellung abbrechen" class="close-btn" id="restoreConfirmClose" type="button">×</button>
 </div>
-
-<div id="commentModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="commentModalTitle">
-  <div class="sheet comment-sheet">
-    <div class="sheet-head"><h2 id="commentModalTitle">Kommentar bearbeiten</h2><button class="close-btn" type="button" data-close="commentModal" aria-label="Kommentar-Dialog schließen">×</button></div>
-    <div id="commentContext" class="context-date"></div>
-    <div class="field comment-field"><label for="commentText">Kommentar</label><textarea id="commentText" rows="6" placeholder="Kommentar hinzufügen"></textarea></div>
-    <div class="modal-actions"><button type="button" class="cancel" id="cancelCommentBtn">Abbrechen</button><button type="button" class="save" id="applyCommentBtn">Übernehmen</button></div>
-  </div>
+<div class="unified-card-body" id="restoreConfirmBody"></div>
+<div class="unified-card-footer"><button class="cancel" id="restoreCancelBtn" type="button">Abbrechen</button><button class="save" id="restoreProceedBtn" type="button">Wiederherstellen</button></div>
 </div>
-
-<div id="absenceTypeModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="absenceTypeQuickTitle">
-  <div class="sheet compact-action-sheet">
-    <div class="sheet-head"><h2 id="absenceTypeQuickTitle">Abwesenheit auswählen</h2><button class="close-btn" type="button" data-close="absenceTypeModal" aria-label="Schließen">×</button></div>
-    <div id="absenceTypeContext" class="context-date"></div>
-    <div class="quick-list absence-type-list">
-      <button type="button" data-simple-absence="vacation"><span>Urlaub</span><small>Ganzer oder halber Tag</small><b>›</b></button>
-      <button type="button" data-simple-absence="sick"><span>Krankheit</span><small>Ganzer oder halber Tag</small><b>›</b></button>
-      <button type="button" data-simple-absence="timeOff"><span>Zeitausgleich</span><small>Zeitkonto für den Arbeitstag belasten</small><b>›</b></button>
-      <button type="button" data-simple-absence="other"><span>Sonstige Abwesenheit</span><small>Mit optionaler Notiz</small><b>›</b></button>
-    </div>
-    <button type="button" class="dialog-action dialog-action-secondary quick-cancel" data-close="absenceTypeModal">Abbrechen</button>
-  </div>
 </div>
-
-<div id="quickAbsenceModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="quickAbsenceTitle">
-  <div class="sheet quick-absence-sheet">
-    <div class="sheet-head"><h2 id="quickAbsenceTitle">Abwesenheit eintragen</h2><button class="close-btn" type="button" data-close="quickAbsenceModal" aria-label="Schließen">×</button></div>
-    <div id="quickAbsenceContext" class="context-date"></div>
-    <div class="field"><label>Ausgewählte Abwesenheitsart</label><div id="quickAbsenceTypeLabel" class="readonly-field"></div></div>
-    <div class="field"><label for="quickAbsenceExtent">Zeitraum</label><select id="quickAbsenceExtent"><option value="full">Ganzer Tag</option><option value="half">Halber Tag</option></select></div>
-    <div class="field"><label for="quickAbsenceNote">Optionale kurze Notiz</label><textarea id="quickAbsenceNote" rows="2" maxlength="180" placeholder="Kurze Notiz"></textarea></div>
-    <div id="quickAbsenceConflict" class="quick-conflict" aria-live="polite"></div>
-    <button type="button" class="dialog-action dialog-action-secondary" id="quickAbsenceFurther">Weitere Optionen</button>
-    <div class="modal-actions"><button type="button" class="cancel" data-close="quickAbsenceModal">Abbrechen</button><button type="button" class="save" id="saveQuickAbsence">Speichern</button></div>
-  </div>
+<div aria-hidden="true" hidden="" id="legacyBindingFields">
+<button id="addEntryBtn" type="button"></button><button id="saveDayBtn" type="button"></button><button id="dayNoteOpen" type="button"></button>
+<textarea id="editNote"></textarea><input id="editPause" type="number"/><details id="advancedActions"></details>
+<button id="deleteDayBtn" type="button"></button><button id="restoreImportBtn" type="button"></button><button id="manageAbsenceFromDay" type="button"></button>
+<input id="targetHours" type="time"/><input id="targetValidFrom" type="date"/><button id="applyTargetRuleBtn" type="button"></button><p id="targetRuleStatus"></p>
+<select id="holidayRegion"><option value="HE">Hessen</option></select><input id="holidayRegionValidFrom" type="date"/><button id="applyHolidayRegionBtn" type="button"></button><p id="holidayRegionRuleStatus"></p>
 </div>
+<div aria-labelledby="entryModalTitle" aria-modal="true" class="modal" id="entryModal" role="dialog">
+<div class="sheet single-entry-sheet canonical-card-shell">
+<div class="unified-card-head canonical-card-head"><span aria-hidden="true" class="unified-card-head-spacer"></span><div class="unified-card-title-wrap"><h2 id="entryModalTitle">Buchung bearbeiten</h2></div><button aria-label="Buchungsdialog schließen" class="close-btn" data-close="entryModal" type="button">×</button></div><div class="unified-card-body canonical-card-body"><div class="single-entry-body">
+<div class="context-date" id="entryContextDate"></div>
+<div class="field"><label for="singleEntryType">Buchungsart</label><select id="singleEntryType"><option value="in">Kommen</option><option value="out">Gehen</option></select></div>
+<div class="field"><label for="singleEntryActual">Tatsächliche Uhrzeit</label><div class="time-input-wrap"><input id="singleEntryActual" type="time"/></div></div>
+<div class="field"><label for="singleEntryLogged">Dokumentierte Uhrzeit</label><div class="time-input-wrap"><input id="singleEntryLogged" type="time"/></div></div>
+<button class="dialog-action dialog-action-secondary" id="openFullDayFromEntry" type="button">Vollständigen Tag bearbeiten</button>
+<button class="dialog-action dialog-action-danger" id="deleteSingleEntry" type="button">Buchung löschen</button>
+</div></div>
 
-<div id="timeActionModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="timeActionTitle">
-  <div class="sheet compact-action-sheet">
-    <div class="sheet-head"><h2 id="timeActionTitle">Zeit ergänzen / korrigieren</h2><button class="close-btn" type="button" data-close="timeActionModal" aria-label="Schließen">×</button></div>
-    <div id="timeActionContext" class="context-date"></div>
-    <div id="timeActionStatus" class="action-status"></div>
-    <div id="timeActionList" class="quick-list time-action-list"></div>
-    <button type="button" class="dialog-action dialog-action-secondary quick-cancel" data-close="timeActionModal">Abbrechen</button>
-  </div>
+
+<div class="modal-actions unified-card-footer canonical-card-footer"><button class="cancel" data-close="entryModal" type="button">Abbrechen</button><button class="save" id="saveSingleEntry" type="button">Speichern</button></div></div>
 </div>
+<div aria-labelledby="pauseModalTitle" aria-modal="true" class="modal" id="pauseModal" role="dialog">
+<div class="sheet canonical-card-shell">
+<div class="unified-card-head canonical-card-head"><span aria-hidden="true" class="unified-card-head-spacer"></span><div class="unified-card-title-wrap"><h2 id="pauseModalTitle">Pause bearbeiten</h2></div><button aria-label="Pausendialog schließen" class="close-btn" data-close="pauseModal" type="button">×</button></div><div class="unified-card-body canonical-card-body"><div class="field"><label for="quickPause">Pause für heute (Minuten)</label><input id="quickPause" inputmode="numeric" min="0" step="1" type="number"/></div></div>
 
-<div id="bookingListModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="bookingListTitle">
-  <div class="sheet compact-action-sheet">
-    <div class="sheet-head"><h2 id="bookingListTitle">Vorhandene Buchung korrigieren</h2><button class="close-btn" type="button" data-close="bookingListModal" aria-label="Schließen">×</button></div>
-    <div id="bookingListContext" class="context-date"></div>
-    <div id="bookingChoiceList" class="booking-choice-list"></div>
-    <button type="button" class="dialog-action dialog-action-secondary quick-cancel" data-close="bookingListModal">Abbrechen</button>
-  </div>
+
+<div class="modal-actions unified-card-footer canonical-card-footer"><button class="cancel" data-close="pauseModal" type="button">Abbrechen</button><button class="save" id="savePauseBtn" type="button">Speichern</button></div></div>
 </div>
-
-<div id="manualQuickModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="manualQuickTitle">
-  <div class="sheet manual-quick-sheet">
-    <div class="sheet-head"><h2 id="manualQuickTitle">Zeit ergänzen</h2><button class="close-btn" type="button" data-close="manualQuickModal" aria-label="Schließen">×</button></div>
-    <div id="manualQuickContext" class="context-date"></div>
-    <div class="field"><label>Buchungsart</label><div id="manualQuickBookingType" class="readonly-field"></div></div>
-    <div id="manualQuickHint" class="manual-quick-hint"></div>
-    <div class="manual-quick-grid">
-      <div class="field"><label for="manualActual">Tatsächliche Uhrzeit <button type="button" class="info-dot" aria-label="Erklärung tatsächliche Uhrzeit" data-time-info="actual">i</button></label><input id="manualActual" type="time"></div>
-      <div class="field"><label for="manualLogged">Dokumentierte Uhrzeit <button type="button" class="info-dot" aria-label="Erklärung dokumentierte Uhrzeit" data-time-info="logged">i</button></label><input id="manualLogged" type="time"></div>
-    </div>
-    <div id="timeInfoText" class="time-info-text" hidden></div>
-    <button type="button" class="manual-full-editor" id="manualFullEditor">Vollständigen Tag bearbeiten</button>
-    <div class="modal-actions"><button type="button" class="cancel" data-close="manualQuickModal">Abbrechen</button><button type="button" class="save" id="saveManualQuick">Zeit speichern</button></div>
-  </div>
+<div aria-labelledby="quickAddTitle" aria-modal="true" class="modal" id="quickAddModal" role="dialog">
+<div class="sheet unified-card-shell quick-entry-card">
+<div class="unified-card-head">
+<span aria-hidden="true" class="unified-card-head-spacer"></span>
+<div class="unified-card-title-wrap"><h2 id="quickAddTitle">Eintrag hinzufügen</h2></div>
+<button aria-label="Schließen" class="close-btn" data-close="quickAddModal" type="button">×</button>
 </div>
-
-<div id="absenceModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="absenceModalTitle">
-  <div class="sheet absence-sheet">
-    <div class="sheet-head"><h2 id="absenceModalTitle">Abwesenheit eintragen</h2><button class="close-btn" type="button" data-close="absenceModal" aria-label="Schließen">×</button></div>
-    <div class="field"><label for="absenceType">Art der Abwesenheit</label><select id="absenceType"><option value="vacation">Urlaub</option><option value="sick">Krankheit</option><option value="timeOff">Zeitausgleich</option><option value="other">Sonstige Abwesenheit</option></select></div>
-    <div class="absence-date-grid"><div class="field"><label for="absenceFrom">Von</label><input id="absenceFrom" type="date"></div><div class="field"><label for="absenceTo">Bis</label><input id="absenceTo" type="date"></div></div>
-    <div class="field"><label for="absenceExtent">Umfang je Arbeitstag</label><select id="absenceExtent"><option value="full">Ganzer Tag</option><option value="half">Halber Tag</option></select></div>
-    <div class="field"><label for="absenceNote">Optionale Notiz</label><textarea id="absenceNote" rows="2" placeholder="z. B. Arztbesuch oder Anlass"></textarea></div>
-    <div class="field"><label for="absenceConflictPolicy">Bei vorhandenen Buchungen oder Abwesenheiten</label><select id="absenceConflictPolicy"><option value="abort">Vorgang abbrechen</option><option value="skip">Betroffene Tage überspringen</option><option value="replace">Vorhandene Einträge ersetzen</option></select></div>
-    <div id="absenceSummary" class="absence-summary" aria-live="polite"></div>
-    <div class="modal-actions"><button type="button" class="cancel" data-close="absenceModal">Abbrechen</button><button type="button" class="save" id="saveAbsenceBtn">Abwesenheit speichern</button></div>
-    <div id="absenceDeleteActions" class="day-data-actions" hidden><button type="button" class="delete" id="deleteAbsenceDayBtn">Diesen Tag löschen</button><button type="button" class="delete" id="deleteAbsenceGroupBtn">Gesamten Zeitraum löschen</button></div>
-  </div>
+<div class="unified-card-body quick-entry-card-body">
+<div class="context-date" id="quickAddContext"></div>
+<div class="quick-list quick-add-actions">
+<button id="quickAbsenceStart" type="button"><span>Abwesenheit eintragen</span><small>Urlaub, Krankheit oder Sonstiges</small><b aria-hidden="true">›</b></button>
+<button id="quickTimeStart" type="button"><span>Zeit ergänzen / korrigieren</span><small>Fehlende oder vorhandene Buchung</small><b aria-hidden="true">›</b></button>
+<button id="quickCommentStart" type="button"><span id="quickCommentLabel">Kommentar eintragen</span><small id="quickCommentHint">Tageskommentar hinzufügen</small><b aria-hidden="true">›</b></button>
 </div>
-
-<div id="shareFallbackModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="shareFallbackTitle">
-  <div class="sheet compact-action-sheet">
-    <div class="sheet-head"><h2 id="shareFallbackTitle">Dateien einzeln sichern</h2><button class="close-btn" type="button" data-close="shareFallbackModal" aria-label="Sicherungsdialog schließen">×</button></div>
-    <p class="share-fallback-intro">Das gemeinsame Teilen mehrerer Dateien wird von diesem Gerät oder Browser nicht unterstützt. Beide Dateien können einzeln gespeichert oder geteilt werden.</p>
-    <button type="button" class="dialog-action dialog-action-secondary share-file-button" id="fallbackJsonBtn"><b>JSON-Sicherung speichern</b><small id="fallbackJsonName"></small></button>
-    <button type="button" class="dialog-action dialog-action-secondary share-file-button" id="fallbackExcelBtn"><b>Excel-Auswertung speichern</b><small id="fallbackExcelName"></small></button>
-    <button type="button" class="dialog-action dialog-action-secondary quick-cancel" data-close="shareFallbackModal">Schließen</button>
-  </div>
 </div>
-
-<div id="workdayIssuesModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="workdayIssuesTitle">
-  <div class="sheet issues-sheet">
-    <div class="sheet-head"><h2 id="workdayIssuesTitle">Offene Arbeitstage</h2><button class="close-btn" type="button" data-close="workdayIssuesModal" aria-label="Schließen">×</button></div>
-    <div id="workdayIssuesSummary" class="context-date"></div>
-    <div id="workdayIssuesList" class="workday-issues-list"></div>
-    <button type="button" class="dialog-action dialog-action-secondary quick-cancel" data-close="workdayIssuesModal">Schließen</button>
-  </div>
+<div class="unified-card-footer quick-entry-card-footer">
+<button class="cancel single-footer-action" data-close="quickAddModal" type="button">Abbrechen</button>
 </div>
-
-<div id="discardConfirmModal" class="modal confirm-modal" role="dialog" aria-modal="true" aria-labelledby="discardConfirmTitle">
-  <div class="sheet confirm-sheet">
-    <div class="sheet-head"><h2 id="discardConfirmTitle">Änderungen verwerfen?</h2></div>
-    <p>Die noch nicht gespeicherten Änderungen gehen verloren.</p>
-    <div class="modal-actions"><button type="button" class="cancel" id="continueEditingBtn">Weiter bearbeiten</button><button type="button" class="danger-button" id="discardChangesBtn">Verwerfen</button></div>
-  </div>
 </div>
+</div>
+<div aria-labelledby="commentModalTitle" aria-modal="true" class="modal" id="commentModal" role="dialog">
+<div class="sheet comment-sheet canonical-card-shell">
+<div class="unified-card-head canonical-card-head"><span aria-hidden="true" class="unified-card-head-spacer"></span><div class="unified-card-title-wrap"><h2 id="commentModalTitle">Kommentar bearbeiten</h2></div><button aria-label="Kommentar-Dialog schließen" class="close-btn" data-close="commentModal" type="button">×</button></div><div class="unified-card-body canonical-card-body"><div class="context-date" id="commentContext"></div><div class="field comment-field"><label for="commentText">Kommentar</label><textarea id="commentText" placeholder="Kommentar hinzufügen" rows="6"></textarea></div></div>
 
-<div id="confettiLayer" class="confetti-layer" aria-hidden="true"></div>
-<div id="toast" class="toast" role="status" aria-live="polite"></div>
 
-<section id="mobileReport" class="mobile-report" aria-hidden="true">
-  <header class="mobile-report-bar">
-    <button type="button" id="closeMobileReport" class="mobile-report-back" aria-label="Zurück">‹</button>
-    <strong id="mobileReportTitle">Bericht</strong>
-    <div class="mobile-report-actions">
-      <button type="button" id="mobileReportPrint" class="mobile-report-action"><svg class="icon" viewBox="0 0 24 24"><path d="M7 9V3h10v6M7 17H5a2 2 0 0 1-2-2v-4a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v4a2 2 0 0 1-2 2h-2M7 14h10v7H7z"/></svg><span>Drucken / PDF</span></button>
-      <button type="button" id="mobileReportShare" class="mobile-report-action"><svg class="icon" viewBox="0 0 24 24"><path d="M12 16V4M8 8l4-4 4 4M5 12v8h14v-8"/></svg><span>PDF teilen</span></button>
-    </div>
-  </header>
-  <div class="mobile-report-scroll">
-    <div class="mobile-period-nav"><button type="button" id="mobileReportPrev" aria-label="Vorheriger Zeitraum">‹</button><strong id="mobileReportPeriod"></strong><button type="button" id="mobileReportNext" aria-label="Nächster Zeitraum">›</button></div>
-    <div id="mobileReportContent"></div>
-  </div>
+
+<div class="modal-actions unified-card-footer canonical-card-footer"><button class="cancel" id="cancelCommentBtn" type="button">Abbrechen</button><button class="save" id="applyCommentBtn" type="button">Übernehmen</button></div></div>
+</div>
+<div aria-labelledby="absenceTypeQuickTitle" aria-modal="true" class="modal" id="absenceTypeModal" role="dialog">
+<div class="sheet compact-action-sheet canonical-card-shell">
+<div class="unified-card-head canonical-card-head"><span aria-hidden="true" class="unified-card-head-spacer"></span><div class="unified-card-title-wrap"><h2 id="absenceTypeQuickTitle">Abwesenheit eintragen</h2></div><button aria-label="Schließen" class="close-btn" data-close="absenceTypeModal" type="button">×</button></div><div class="unified-card-body canonical-card-body"><div class="context-date" id="absenceTypeContext"></div><div class="quick-list absence-type-list">
+<button data-simple-absence="vacation" type="button"><span>Urlaub</span><small>Ganzer oder halber Tag</small><b>›</b></button>
+<button data-simple-absence="sick" type="button"><span>Krankheit</span><small>Ganzer oder halber Tag</small><b>›</b></button>
+<button data-simple-absence="timeOff" type="button"><span>Zeitausgleich</span><small>Zeitkonto für den Arbeitstag belasten</small><b>›</b></button>
+<button data-simple-absence="other" type="button"><span>Sonstige Abwesenheit</span><small>Mit optionaler Notiz</small><b>›</b></button>
+</div></div>
+
+
+
+<div class="unified-card-footer canonical-card-footer"><button class="dialog-action dialog-action-secondary quick-cancel cancel single-footer-action" data-close="absenceTypeModal" type="button">Abbrechen</button></div></div>
+</div>
+<div aria-labelledby="quickAbsenceTitle" aria-modal="true" class="modal" id="quickAbsenceModal" role="dialog">
+<div class="sheet quick-absence-sheet canonical-card-shell">
+<div class="unified-card-head canonical-card-head"><span aria-hidden="true" class="unified-card-head-spacer"></span><div class="unified-card-title-wrap"><h2 id="quickAbsenceTitle">Abwesenheit eintragen</h2></div><button aria-label="Schließen" class="close-btn" data-close="quickAbsenceModal" type="button">×</button></div><div class="unified-card-body canonical-card-body"><div class="context-date" id="quickAbsenceContext"></div><div class="field"><label>Ausgewählte Abwesenheitsart</label><div class="readonly-field" id="quickAbsenceTypeLabel"></div></div><div class="field"><label for="quickAbsenceExtent">Zeitraum</label><select id="quickAbsenceExtent"><option value="full">Ganzer Tag</option><option value="half">Halber Tag</option></select></div><div class="field"><label for="quickAbsenceNote">Optionale kurze Notiz</label><textarea id="quickAbsenceNote" maxlength="180" placeholder="Kurze Notiz" rows="2"></textarea></div><div aria-live="polite" class="quick-conflict" id="quickAbsenceConflict"></div><button class="dialog-action dialog-action-secondary" id="quickAbsenceFurther" type="button">Weitere Optionen</button></div>
+
+
+
+
+
+
+
+<div class="modal-actions unified-card-footer canonical-card-footer"><button class="cancel" data-close="quickAbsenceModal" type="button">Abbrechen</button><button class="save" id="saveQuickAbsence" type="button">Speichern</button></div></div>
+</div>
+<div aria-labelledby="timeActionTitle" aria-modal="true" class="modal" id="timeActionModal" role="dialog">
+<div class="sheet compact-action-sheet canonical-card-shell">
+<div class="unified-card-head canonical-card-head"><span aria-hidden="true" class="unified-card-head-spacer"></span><div class="unified-card-title-wrap"><h2 id="timeActionTitle">Zeit ergänzen</h2></div><button aria-label="Schließen" class="close-btn" data-close="timeActionModal" type="button">×</button></div><div class="unified-card-body canonical-card-body"><div class="context-date" id="timeActionContext"></div><div class="action-status" id="timeActionStatus"></div><div class="quick-list time-action-list" id="timeActionList"></div></div>
+
+
+
+
+<div class="unified-card-footer canonical-card-footer"><button class="dialog-action dialog-action-secondary quick-cancel cancel single-footer-action" data-close="timeActionModal" type="button">Abbrechen</button></div></div>
+</div>
+<div aria-labelledby="bookingListTitle" aria-modal="true" class="modal" id="bookingListModal" role="dialog">
+<div class="sheet compact-action-sheet canonical-card-shell">
+<div class="unified-card-head canonical-card-head"><span aria-hidden="true" class="unified-card-head-spacer"></span><div class="unified-card-title-wrap"><h2 id="bookingListTitle">Buchung auswählen</h2></div><button aria-label="Schließen" class="close-btn" data-close="bookingListModal" type="button">×</button></div><div class="unified-card-body canonical-card-body"><div class="context-date" id="bookingListContext"></div><div class="booking-choice-list" id="bookingChoiceList"></div></div>
+
+
+
+<div class="unified-card-footer canonical-card-footer"><button class="dialog-action dialog-action-secondary quick-cancel cancel single-footer-action" data-close="bookingListModal" type="button">Abbrechen</button></div></div>
+</div>
+<div aria-labelledby="manualQuickTitle" aria-modal="true" class="modal" id="manualQuickModal" role="dialog">
+<div class="sheet manual-quick-sheet canonical-card-shell">
+<div class="unified-card-head canonical-card-head"><span aria-hidden="true" class="unified-card-head-spacer"></span><div class="unified-card-title-wrap"><h2 id="manualQuickTitle">Zeit ergänzen</h2></div><button aria-label="Schließen" class="close-btn" data-close="manualQuickModal" type="button">×</button></div><div class="unified-card-body canonical-card-body"><div class="context-date" id="manualQuickContext"></div><div class="field"><label>Buchungsart</label><div class="readonly-field" id="manualQuickBookingType"></div></div><div class="manual-quick-hint" id="manualQuickHint"></div><div class="manual-quick-grid">
+<div class="field"><label for="manualActual">Tatsächliche Uhrzeit <button aria-label="Erklärung tatsächliche Uhrzeit" class="info-dot" data-time-info="actual" type="button">i</button></label><input id="manualActual" type="time"/></div>
+<div class="field"><label for="manualLogged">Dokumentierte Uhrzeit <button aria-label="Erklärung dokumentierte Uhrzeit" class="info-dot" data-time-info="logged" type="button">i</button></label><input id="manualLogged" type="time"/></div>
+</div><div class="time-info-text" hidden="" id="timeInfoText"></div><button class="manual-full-editor" id="manualFullEditor" type="button">Vollständigen Tag bearbeiten</button></div>
+
+
+
+
+
+
+
+<div class="modal-actions unified-card-footer canonical-card-footer"><button class="cancel" data-close="manualQuickModal" type="button">Abbrechen</button><button class="save" id="saveManualQuick" type="button">Zeit speichern</button></div></div>
+</div>
+<div aria-labelledby="absenceModalTitle" aria-modal="true" class="modal" id="absenceModal" role="dialog">
+<div class="sheet absence-sheet canonical-card-shell">
+<div class="unified-card-head canonical-card-head"><span aria-hidden="true" class="unified-card-head-spacer"></span><div class="unified-card-title-wrap"><h2 id="absenceModalTitle">Abwesenheit eintragen</h2></div><button aria-label="Schließen" class="close-btn" data-close="absenceModal" type="button">×</button></div><div class="unified-card-body canonical-card-body"><div class="field"><label for="absenceType">Art der Abwesenheit</label><select id="absenceType"><option value="vacation">Urlaub</option><option value="sick">Krankheit</option><option value="timeOff">Zeitausgleich</option><option value="other">Sonstige Abwesenheit</option></select></div><div class="absence-date-grid"><div class="field"><label for="absenceFrom">Von</label><input id="absenceFrom" type="date"/></div><div class="field"><label for="absenceTo">Bis</label><input id="absenceTo" type="date"/></div></div><div class="field"><label for="absenceExtent">Umfang je Arbeitstag</label><select id="absenceExtent"><option value="full">Ganzer Tag</option><option value="half">Halber Tag</option></select></div><div class="field"><label for="absenceNote">Optionale Notiz</label><textarea id="absenceNote" placeholder="z. B. Arztbesuch oder Anlass" rows="2"></textarea></div><div class="field"><label for="absenceConflictPolicy">Bei vorhandenen Buchungen oder Abwesenheiten</label><select id="absenceConflictPolicy"><option value="abort">Vorgang abbrechen</option><option value="skip">Betroffene Tage überspringen</option><option value="replace">Vorhandene Einträge ersetzen</option></select></div><div aria-live="polite" class="absence-summary" id="absenceSummary"></div><div class="day-data-actions" hidden="" id="absenceDeleteActions"><button class="delete" id="deleteAbsenceDayBtn" type="button">Diesen Tag löschen</button><button class="delete" id="deleteAbsenceGroupBtn" type="button">Gesamten Zeitraum löschen</button></div></div>
+
+
+
+
+
+
+
+
+<div class="modal-actions unified-card-footer canonical-card-footer"><button class="cancel" data-close="absenceModal" type="button">Abbrechen</button><button class="save" id="saveAbsenceBtn" type="button">Abwesenheit speichern</button></div></div>
+</div>
+<div aria-labelledby="shareFallbackTitle" aria-modal="true" class="modal" id="shareFallbackModal" role="dialog">
+<div class="sheet compact-action-sheet canonical-card-shell">
+<div class="unified-card-head canonical-card-head"><span aria-hidden="true" class="unified-card-head-spacer"></span><div class="unified-card-title-wrap"><h2 id="shareFallbackTitle">Dateien einzeln sichern</h2></div><button aria-label="Sicherungsdialog schließen" class="close-btn" data-close="shareFallbackModal" type="button">×</button></div><div class="unified-card-body canonical-card-body"><p class="share-fallback-intro">Das gemeinsame Teilen mehrerer Dateien wird von diesem Gerät oder Browser nicht unterstützt. Beide Dateien können einzeln gespeichert oder geteilt werden.</p><button class="dialog-action dialog-action-secondary share-file-button" id="fallbackJsonBtn" type="button"><b>JSON-Sicherung speichern</b><small id="fallbackJsonName"></small></button><button class="dialog-action dialog-action-secondary share-file-button" id="fallbackExcelBtn" type="button"><b>Excel-Auswertung speichern</b><small id="fallbackExcelName"></small></button></div>
+
+
+
+
+<div class="unified-card-footer canonical-card-footer"><button class="dialog-action dialog-action-secondary quick-cancel cancel single-footer-action" data-close="shareFallbackModal" type="button">Schließen</button></div></div>
+</div>
+<div aria-labelledby="workdayIssuesTitle" aria-modal="true" class="modal" id="workdayIssuesModal" role="dialog">
+<div class="sheet issues-sheet canonical-card-shell">
+<div class="unified-card-head canonical-card-head"><span aria-hidden="true" class="unified-card-head-spacer"></span><div class="unified-card-title-wrap"><h2 id="workdayIssuesTitle">Offene Arbeitstage</h2></div><button aria-label="Schließen" class="close-btn" data-close="workdayIssuesModal" type="button">×</button></div><div class="unified-card-body canonical-card-body"><div class="context-date" id="workdayIssuesSummary"></div><div class="workday-issues-list" id="workdayIssuesList"></div></div>
+
+
+
+<div class="unified-card-footer canonical-card-footer"><button class="dialog-action dialog-action-secondary quick-cancel cancel single-footer-action" data-close="workdayIssuesModal" type="button">Schließen</button></div></div>
+</div>
+<div aria-labelledby="discardConfirmTitle" aria-modal="true" class="modal confirm-modal" id="discardConfirmModal" role="dialog">
+<div class="sheet confirm-sheet canonical-card-shell">
+<div class="unified-card-head canonical-card-head"><span aria-hidden="true" class="unified-card-head-spacer"></span><div class="unified-card-title-wrap"><h2 id="discardConfirmTitle">Änderungen verwerfen?</h2></div><span aria-hidden="true" class="unified-card-head-spacer"></span></div><div class="unified-card-body canonical-card-body"><p>Die noch nicht gespeicherten Änderungen gehen verloren.</p></div>
+
+
+<div class="modal-actions unified-card-footer canonical-card-footer"><button class="cancel" id="continueEditingBtn" type="button">Weiter bearbeiten</button><button class="danger-button" id="discardChangesBtn" type="button">Verwerfen</button></div></div>
+</div>
+<div aria-hidden="true" class="confetti-layer" id="confettiLayer"></div>
+<div aria-live="polite" class="toast" id="toast" role="status"></div>
+<section aria-hidden="true" class="mobile-report" id="mobileReport">
+<header class="mobile-report-bar">
+<button aria-label="Zurück" class="mobile-report-back" id="closeMobileReport" type="button">‹</button>
+<strong id="mobileReportTitle">Bericht</strong>
+<div class="mobile-report-actions">
+<button class="mobile-report-action" id="mobileReportPrint" type="button"><svg class="icon" viewbox="0 0 24 24"><path d="M7 9V3h10v6M7 17H5a2 2 0 0 1-2-2v-4a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v4a2 2 0 0 1-2 2h-2M7 14h10v7H7z"></path></svg><span>Drucken / PDF</span></button>
+<button class="mobile-report-action" id="mobileReportShare" type="button"><svg class="icon" viewbox="0 0 24 24"><path d="M12 16V4M8 8l4-4 4 4M5 12v8h14v-8"></path></svg><span>PDF teilen</span></button>
+</div>
+</header>
+<div class="mobile-report-scroll">
+<div class="mobile-period-nav"><button aria-label="Vorheriger Zeitraum" id="mobileReportPrev" type="button">‹</button><strong id="mobileReportPeriod"></strong><button aria-label="Nächster Zeitraum" id="mobileReportNext" type="button">›</button></div>
+<div id="mobileReportContent"></div>
+</div>
 </section>
-
-<section id="printPreview" class="print-preview" aria-hidden="true">
-  <header class="print-preview-bar">
-    <button type="button" id="closePrintPreview">‹ Zurück zur App</button>
-    <strong>Druckvorschau</strong>
-    <span aria-hidden="true"></span>
-  </header>
-  <div class="print-preview-scroll">
-    <article id="printReport" class="print-report"></article>
-    <button type="button" id="printReportBtn" class="print-action">Drucken / als PDF sichern</button>
-  </div>
+<section aria-hidden="true" class="print-preview" id="printPreview">
+<header class="print-preview-bar">
+<button id="closePrintPreview" type="button">‹ Zurück zur App</button>
+<strong>Druckvorschau</strong>
+<span aria-hidden="true"></span>
+</header>
+<div class="print-preview-scroll">
+<article class="print-report" id="printReport"></article>
+<button class="print-action" id="printReportBtn" type="button">Drucken / als PDF sichern</button>
+</div>
 </section>
-
 <script src="./imported-data.js"></script>
 <script src="./app.js"></script>
 </body>
