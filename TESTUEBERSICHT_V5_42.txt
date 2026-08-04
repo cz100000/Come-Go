@@ -1,0 +1,14 @@
+TESTÜBERSICHT V5.42
+
+Statische Prüfungen:
+- date-input-shell in beiden Von-/Bis-Feldern vorhanden: bestanden
+- date-input-shell im Dialog Vollständigen Tag bearbeiten vorhanden: bestanden
+- Gridspalten verwenden minmax(0,1fr): bestanden
+- Wrapper begrenzt inline-size/max-inline-size auf 100 %: bestanden
+- overflow hidden und contain inline-size gesetzt: bestanden
+- App-Version 5.42 konsistent in app.js, Manifest und Service Worker: bestanden
+- JavaScript-Syntaxprüfung: bestanden
+
+Noch auf dem Gerät zu prüfen:
+- Sichtprüfung auf iPhone 16 im Hochformat
+- Öffnen der nativen Datumsauswahl durch Antippen aller drei Datumsfelder

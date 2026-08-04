@@ -1,4 +1,4 @@
-Arbeitszeit PWA – Version 5.41
+Arbeitszeit PWA – Version 5.43
 Stand: 04.08.2026
 
 Zweck
@@ -115,3 +115,9 @@ Wichtige Änderungen in V5.41
 - Die Schnelleintragskarte steht fest unmittelbar links neben dem Plus-Button und beginnt nicht oberhalb dessen Oberkante.
 - Der bestätigte 24.03.2026 ist mit Kommen 09:40, Gehen 21:00 und 45 Minuten Pause in der Importbasis hinterlegt; eine gezielte Migration behebt leere Altstände, ohne neuere manuelle Änderungen zu überschreiben.
 - Die Urlaubsgrafik verwendet standardmäßig eine Y-Achse bis 15 Tage. Erst bei einem tatsächlichen Monatswert über 15 Tagen wird die Achse in 5-Tage-Schritten erweitert.
+
+
+Wichtige Änderungen in V5.43
+- Datumsfelder in allen betroffenen Dialogen erhalten einen eigenen, begrenzenden Feldrahmen.
+- Die sichtbare Feldkante wird nicht mehr vom nativen iOS-Datumsfeld bestimmt.
+- Von/Bis-Felder und das Datumsfeld der vollständigen Tagesbearbeitung bleiben innerhalb der Karten-Innenbreite.

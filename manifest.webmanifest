@@ -1,6 +1,6 @@
 {
-  "name": "Arbeitszeit – High-End Offline Zeiterfassung V5.41",
-  "short_name": "Arbeitszeit 5.41",
+  "name": "Arbeitszeit – High-End Offline Zeiterfassung V5.43",
+  "short_name": "Arbeitszeit 5.43",
   "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#f7f8fb",
@@ -28,5 +28,5 @@
     }
   ],
   "description": "Offline-Arbeitszeiterfassung mit schlanker Bedienlogik, Urlaubskonto und Berichten.",
-  "version": "5.41"
+  "version": "5.43"
 }

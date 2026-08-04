@@ -1,0 +1,14 @@
+Arbeitszeit-PWA V5.42 – Datumsfelder dauerhaft begrenzt
+
+1. Von-/Bis-Datumsfelder
+- Beide Felder verwenden weiterhin zwei gleich breite Spalten.
+- Jede Spalte ist mit minmax(0,1fr) begrenzt.
+- Ein eigener date-input-shell übernimmt den sichtbaren Rahmen und schneidet intrinsische iOS-Überbreiten sicher ab.
+
+2. Vollständigen Tag bearbeiten
+- Das einzelne Datumsfeld nutzt denselben date-input-shell.
+- Die Label-/Feld-Zeile ist auf 78 px plus flexible Restbreite begrenzt.
+
+3. Root-Cause-Behebung
+- Der sichtbare Rahmen liegt nicht mehr direkt auf dem nativen iOS-date-input.
+- Dadurch kann dessen interne Mindestbreite die Karten-Innenbreite nicht mehr vergrößern.

@@ -1,0 +1,9 @@
+UMSETZUNGSBERICHT V5.42
+
+Die wiederkehrenden horizontalen Überstände der Datumsfelder wurden nicht erneut nur über width/max-width korrigiert. Stattdessen wurde die technische Ursache abgefangen: Native iOS-Datumsfelder liegen nun in einem festen, auf die Karten-Innenbreite begrenzten Wrapper. Der Wrapper zeichnet Rahmen und Rundung; das native Eingabefeld bleibt vollständig darin eingeschlossen.
+
+Betroffene Ansichten:
+- Abwesenheit eintragen oder bearbeiten: Von und Bis
+- Vollständigen Tag bearbeiten: Datum
+
+App-Version, Manifest und Service-Worker-Cache wurden auf 5.42 aktualisiert.

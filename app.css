@@ -970,3 +970,105 @@ body.modal-open #today .today-quick-card.quick-action-row{visibility:hidden}
 #today .today-quick-card.quick-action-row{position:fixed!important;z-index:45!important;left:max(17px,calc((100vw - 620px)/2 + 17px))!important;right:max(89px,calc((100vw - 620px)/2 + 89px))!important;bottom:calc(var(--nav-h) + env(safe-area-inset-bottom) + 22px)!important;width:auto!important;max-width:none!important;height:56px!important;min-height:56px!important;margin:0!important;padding:0!important;align-self:auto!important}
 #today .today-quick-card.quick-action-row .today-quick-row{height:56px!important;min-height:56px!important;padding-top:6px!important;padding-bottom:6px!important}
 @media(max-height:760px){#today .today-quick-card.quick-action-row{right:max(84px,calc((100vw - 620px)/2 + 84px))!important;bottom:calc(var(--nav-h) + env(safe-area-inset-bottom) + 19px)!important;height:52px!important;min-height:52px!important}#today .today-quick-card.quick-action-row .today-quick-row{height:52px!important;min-height:52px!important}}
+
+
+/* V5.42 – dauerhafte Root-Cause-Korrektur für iOS-Datumsfelder */
+/*
+   Native date inputs besitzen auf iOS eine eigene intrinsische Mindestbreite.
+   Der sichtbare Rahmen liegt deshalb ab jetzt auf einem begrenzenden Wrapper;
+   das native Eingabeelement kann die Kartenbreite nicht mehr vergrößern.
+*/
+.date-input-shell{
+  display:block;
+  inline-size:100%;
+  min-inline-size:0;
+  max-inline-size:100%;
+  block-size:52px;
+  overflow:hidden;
+  border:1px solid var(--line);
+  border-radius:12px;
+  background:#fff;
+  box-sizing:border-box;
+  contain:inline-size;
+}
+.date-input-shell>input[type="date"]{
+  display:block!important;
+  inline-size:100%!important;
+  width:100%!important;
+  min-inline-size:0!important;
+  min-width:0!important;
+  max-inline-size:100%!important;
+  max-width:100%!important;
+  block-size:100%!important;
+  height:100%!important;
+  margin:0!important;
+  border:0!important;
+  border-radius:0!important;
+  background:transparent!important;
+  padding:0 12px!important;
+  box-sizing:border-box!important;
+  text-align:center;
+  font-weight:750;
+  overflow:hidden!important;
+}
+.absence-date-grid{
+  grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  inline-size:100%!important;
+  max-inline-size:100%!important;
+  overflow:hidden!important;
+}
+.absence-date-grid>.field{
+  inline-size:100%!important;
+  min-inline-size:0!important;
+  max-inline-size:100%!important;
+  overflow:hidden!important;
+}
+.day-editor-date-row{
+  grid-template-columns:minmax(0,78px) minmax(0,1fr)!important;
+  inline-size:100%!important;
+  max-inline-size:100%!important;
+  overflow:hidden!important;
+}
+.day-editor-date-row>.date-input-shell{
+  min-inline-size:0!important;
+  max-inline-size:100%!important;
+  block-size:42px;
+}
+@media(max-width:369px){
+  .absence-date-grid{grid-template-columns:minmax(0,1fr)!important}
+}
+@media(max-width:350px){
+  .day-editor-date-row{grid-template-columns:minmax(0,1fr)!important}
+}
+
+
+/* V5.43 – verbindliche Releasekorrekturen */
+/* Eine zentrale, letztgültige Breitenlogik für alle Formularfelder. */
+.modal-card,.unified-card-shell,.canonical-card,.sheet,.card,.field,
+.absence-editor-body,.absence-date-grid,.day-editor-date-row{min-inline-size:0;max-inline-size:100%;box-sizing:border-box}
+.field>input,.field>select,.field>textarea,.date-input-shell{inline-size:100%;max-inline-size:100%;min-inline-size:0;box-sizing:border-box}
+
+/* Von/Bis auf dem iPhone-16-Zielviewport kompakt nebeneinander. */
+.absence-date-grid{display:grid!important;grid-template-columns:minmax(0,1fr) minmax(0,1fr)!important;gap:8px!important;inline-size:100%!important;overflow:visible!important}
+.absence-date-grid>.field{min-inline-size:0!important;overflow:visible!important}
+.absence-date-grid .date-input-shell{block-size:52px;overflow:hidden;contain:inline-size}
+.absence-date-grid input[type=date]{inline-size:100%!important;min-inline-size:0!important;max-inline-size:100%!important;padding-inline:8px!important;font-size:14px!important}
+@media(max-width:340px){.absence-date-grid{grid-template-columns:minmax(0,1fr)!important}}
+
+/* Tagesbearbeitung: Label und Datumsfeld bleiben innerhalb der echten Karten-Innenbreite. */
+.day-editor-date-row{grid-template-columns:minmax(0,78px) minmax(0,1fr)!important;inline-size:100%!important;overflow:visible!important}
+.day-editor-date-row .date-input-shell{min-inline-size:0;max-inline-size:100%;overflow:hidden;contain:inline-size}
+
+/* Schnelleinträge und Plus bilden eine gemeinsame, exakt fluchtende Aktionszeile. */
+#today .today-quick-card.quick-action-row{inset-inline-start:max(17px,calc((100vw - 620px)/2 + 17px))!important;inset-inline-end:max(89px,calc((100vw - 620px)/2 + 89px))!important;inset-block-end:calc(var(--nav-h) + env(safe-area-inset-bottom) + 22px)!important;block-size:56px!important;min-block-size:56px!important}
+#today .today-floating-quick{inset-block-end:calc(var(--nav-h) + env(safe-area-inset-bottom) + 22px)!important;block-size:56px!important;inline-size:56px!important}
+#today .today-quick-card.quick-action-row .today-quick-row{block-size:56px!important;min-block-size:56px!important}
+@media(max-height:760px){#today .today-quick-card.quick-action-row,#today .today-floating-quick{inset-block-end:calc(var(--nav-h) + env(safe-area-inset-bottom) + 19px)!important;block-size:52px!important;min-block-size:52px!important}#today .today-floating-quick{inline-size:52px!important}}
+
+/* Dialog Schnelleinträge kompakt, aber mit unveränderten Touch-Zielen. */
+.quick-today-sheet{max-block-size:min(68dvh,560px)!important}
+.quick-today-body{gap:10px!important;padding-block:12px!important}
+.quick-today-body textarea{block-size:96px!important;min-block-size:96px!important}
+
+/* Einheitlicher Kartenabstand. */
+.card{margin-block-end:12px}

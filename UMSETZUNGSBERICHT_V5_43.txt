@@ -1,0 +1,3 @@
+UMSETZUNGSBERICHT V5.43
+
+Die Korrekturen wurden auf Basis von V5.42 im bestehenden Quellcode umgesetzt. Entscheidend ist die tatsächliche Einfassung der nativen iOS-Datumsfelder durch begrenzende Wrapper. Zusätzlich wurde die Von-/Bis-Logik gekoppelt, die Aktionszeile auf der Heute-Seite exakt ausgerichtet und der aktuelle Datensatz vom 04.08.2026 migrationssicher ergänzt.

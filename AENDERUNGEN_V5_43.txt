@@ -1,0 +1,13 @@
+Arbeitszeit-PWA V5.43 – Releasekorrekturen
+
+- Von-/Bis-Datumsfelder besitzen nun tatsächlich begrenzende Wrapper und bleiben innerhalb der Kartenbreite.
+- Bis-Datum erhält das Von-Datum als Mindestdatum.
+- Bei Änderung des Von-Datums wird das Bis-Datum auf denselben Tag gesetzt, solange es nicht bewusst angepasst wurde.
+- Beim Öffnen des Bis-Kalenders ist ein gültiger Wert im Monat des Von-Datums gesetzt.
+- Bis-Datum vor Von-Datum wird automatisch korrigiert.
+- Datumsfeld der vollständigen Tagesbearbeitung bleibt innerhalb der Karten-Innenbreite.
+- Schnelleinträge und Plus-Button sind exakt auf derselben vertikalen Position und Höhe.
+- Schnelleintragsdialog weiter verdichtet.
+- Urlaubsgraph: Standardskala 15 Tage, dynamische Erweiterung in 5-Tage-Schritten, breitere Balken und Tagesachse.
+- Der bestätigte Datensatz vom 04.08.2026 wird bei leerem lokalem Tag migrationssicher ergänzt; neuere lokale Daten bleiben unangetastet.
+- Bestätigte beziehungsweise vollständig belegte Tage erzeugen keinen offenen Hinweis.

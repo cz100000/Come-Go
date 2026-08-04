@@ -1,0 +1,18 @@
+TESTUEBERSICHT V5.43
+
+Automatisch geprüft:
+- JavaScript-Syntax
+- JSON-Syntax von Manifest und aktuellem Backup
+- Service-Worker-Syntax
+- ZIP-Integrität
+- Versionskonsistenz
+- Vorhandensein der Date-Input-Wrapper
+- Von-/Bis-Eventlogik und Mindestdatum
+- Urlaubsachse mit Standardwert 15
+- Migrationsdatensatz 04.08.2026
+
+Manuell auf dem iPhone zu prüfen:
+- Native Kalenderanzeige beim Wechsel Von -> Bis
+- Keine horizontalen Überstände in Abwesenheit und vollständiger Tagesbearbeitung
+- Exakte Flucht von Schnelleinträgen und Plus-Button
+- PWA-Update und Offline-Neustart
