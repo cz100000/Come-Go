@@ -27,5 +27,6 @@
       "purpose": "any maskable"
     }
   ],
-  "description": "Offline-Arbeitszeiterfassung mit bestätigtem externem Sicherungsstatus."
+  "description": "Offline-Arbeitszeiterfassung mit bestätigtem externem Sicherungsstatus.",
+  "version": "5.36"
 }

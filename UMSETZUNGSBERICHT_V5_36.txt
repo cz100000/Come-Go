@@ -1,0 +1,9 @@
+UMSETZUNGSBERICHT V5.36
+
+Ausgangsbasis: V5.35.
+
+Umgesetzt wurden die vereinbarten nächsten Entwicklungsschritte: mobile Korrektur der Von-/Bis-Datumsfelder, Verschlankung der Kommen-/Gehen-Schnellkarte, zusätzliche Tagesauswahl im Plus-Menü, Verwaltung zukünftiger Abwesenheiten, Urlaubsanspruch je Kalenderjahr und eine Urlaubsübersicht mit Anspruch, genommenen, geplanten und verbleibenden Tagen. Bestehende Urlaubszeiträume lassen sich aus der Übersicht direkt öffnen, bearbeiten oder löschen.
+
+Arbeitszeitbuchungen für zukünftige Tage bleiben gesperrt. Für einen zukünftigen Tag ohne Abwesenheit öffnet die Tagesauswahl gezielt die Abwesenheitserfassung.
+
+Die Datenstruktur bleibt mit Schema 12 kompatibel; die neuen Urlaubsansprüche werden in state.settings.vacationEntitlements gespeichert.

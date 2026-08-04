@@ -1,0 +1,19 @@
+TESTÜBERSICHT V5.36
+
+BESTANDEN – JavaScript-Version 5.36
+BESTANDEN – Von-/Bis-Raster mit minmax(0,1fr)
+BESTANDEN – Mobile Einspalten-Ausweichregel
+BESTANDEN – Plus-Aktion Tag auswählen
+BESTANDEN – Tagesauswahl-Dialog
+BESTANDEN – Urlaubsübersicht
+BESTANDEN – Urlaubsanspruch je Jahr
+BESTANDEN – Direkte Bearbeitung Urlaub
+BESTANDEN – Schnellkarte verschlankt
+BESTANDEN – Vollständigen Tag als Schaltfläche
+BESTANDEN – Service-Worker-Cache 5.36
+BESTANDEN – Keine doppelten IDs
+
+Ergebnis: 12 bestanden, 0 fehlgeschlagen.
+
+Zusätzlich ausgeführt: node --check app.js.
+Hinweis: Die iOS-Datumsdarstellung und Touch-Bedienung sind abschließend auf dem iPhone zu prüfen.

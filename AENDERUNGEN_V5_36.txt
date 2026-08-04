@@ -1,0 +1,11 @@
+Arbeitszeit PWA V5.36
+
+- Von-/Bis-Datumsfelder auf schmalen iPhone-Displays korrigiert.
+- Schnellkarte „Kommen/Gehen ergänzen“ verschlankt.
+- „Vollständigen Tag bearbeiten“ als sekundäre Schaltfläche gestaltet.
+- Plus-Menü um „Tag auswählen und bearbeiten“ ergänzt.
+- Zukünftige Abwesenheiten können direkt geöffnet, bearbeitet oder gelöscht werden.
+- Eigene Urlaubsübersicht mit Anspruch, genommen, geplant und verfügbar.
+- Chronologische Urlaubsliste mit direkter Bearbeitung.
+- Urlaubsanspruch und Resturlaub je Kalenderjahr in Einstellungen erfassbar.
+- Einheitliche Kartenabstände und mobile Breitenkontrolle nachgeschärft.

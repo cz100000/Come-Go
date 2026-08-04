@@ -4,7 +4,7 @@ const STORAGE_BACKUP_KEYS=[1,2,3].map(n=>`${STORAGE_KEY}-backup-${n}`);
 const STORAGE_CORRUPT_KEY=STORAGE_KEY+'-corrupt';
 const BACKUP_FORMAT='arbeitszeit-pwa-backup';
 const TRACKING_START_DATE='2022-11-01';
-const APP_VERSION='5.35';
+const APP_VERSION='5.36';
 const CURRENT_SCHEMA=12;
 const IMPORT_DATA_VERSION=4;
 const CALCULATION_VERSION=2;
@@ -1072,6 +1072,69 @@ $('shareBackupBtn').addEventListener('click',sharePackage);$('fallbackJsonBtn').
 updateClock();setInterval(updateClock,1000);window.addEventListener('resize',()=>{if(document.body.classList.contains('today-fixed')){renderTodayCapture(dayObject(todayKey()));updateCountdown({allowCelebrate:false})}});document.addEventListener('visibilitychange',()=>{if(!document.hidden&&document.body.classList.contains('today-fixed')){updateClock();updateCountdown()}});renderToday();
 if('serviceWorker'in navigator&&location.protocol!=='file:')navigator.serviceWorker.register('./sw.js').catch(()=>{});
 }
+
+/* V5.36 – Urlaubsverwaltung, Tagesauswahl und mobile Dialogkorrekturen */
+function vacationEntitlements(){
+  if(!state.settings.vacationEntitlements||typeof state.settings.vacationEntitlements!=='object')state.settings.vacationEntitlements={};
+  return state.settings.vacationEntitlements;
+}
+function vacationEntitlementForYear(year){
+  const raw=vacationEntitlements()[String(year)]||{};
+  return{days:Math.max(0,Number(raw.days)||0),carryover:Math.max(0,Number(raw.carryover)||0)};
+}
+function vacationRecordsForYear(year){
+  const prefix=`${year}-`,today=todayKey();
+  const days=Object.values(state.days||{}).filter(d=>d.date?.startsWith(prefix)&&dayAbsenceCode(d)==='vacation').sort((a,b)=>a.date.localeCompare(b.date));
+  const groups=new Map();
+  for(const d of days){
+    const key=d.absenceGroupId||`day:${d.date}`;
+    if(!groups.has(key))groups.set(key,[]);
+    groups.get(key).push(d);
+  }
+  return [...groups.entries()].map(([key,items])=>{
+    const sorted=items.sort((a,b)=>a.date.localeCompare(b.date));
+    const units=sorted.reduce((n,d)=>n+(absenceDuration(d)==='half'?0.5:1),0);
+    return{key,from:sorted[0].date,to:sorted.at(-1).date,units,note:sorted.find(d=>normalizeNoteText(d.absenceNote))?.absenceNote||'',planned:sorted.some(d=>d.date>today),days:sorted};
+  }).sort((a,b)=>a.from.localeCompare(b.from));
+}
+function vacationSummary(year){
+  const records=vacationRecordsForYear(year),ent=vacationEntitlementForYear(year);
+  let taken=0,planned=0;
+  for(const r of records){for(const d of r.days){const u=absenceDuration(d)==='half'?0.5:1;if(d.date>todayKey())planned+=u;else taken+=u}}
+  const total=ent.days+ent.carryover;
+  return{records,ent,total,taken,planned,remaining:total-taken-planned};
+}
+function formatVacationDays(v){return Number(v).toLocaleString('de-DE',{minimumFractionDigits:Number(v)%1?1:0,maximumFractionDigits:1})+' Tage'}
+function vacationYearOptions(){
+  const now=new Date().getFullYear(),years=[];for(let y=now+2;y>=Math.min(2022,earliestYear());y--)years.push(y);return years;
+}
+function renderVacationOverview(){
+  const yearSel=$('vacationYear');if(!yearSel)return;
+  const selected=Number(yearSel.value)||new Date().getFullYear();
+  yearSel.innerHTML=vacationYearOptions().map(y=>`<option value="${y}">${y}</option>`).join('');yearSel.value=String(selected);
+  const s=vacationSummary(selected);
+  $('vacationMetrics').innerHTML=`<div><span>Anspruch</span><strong>${formatVacationDays(s.total)}</strong></div><div><span>Genommen</span><strong>${formatVacationDays(s.taken)}</strong></div><div><span>Geplant</span><strong>${formatVacationDays(s.planned)}</strong></div><div><span>Verfügbar</span><strong class="${s.remaining<0?'red':'green'}">${formatVacationDays(s.remaining)}</strong></div>`;
+  $('vacationList').innerHTML=s.records.length?s.records.map(r=>`<button type="button" class="vacation-list-row" data-vacation-date="${r.from}"><span><b>${r.from===r.to?formatDate(r.from,{day:'2-digit',month:'2-digit',year:'numeric'}):`${formatDate(r.from,{day:'2-digit',month:'2-digit'})} – ${formatDate(r.to,{day:'2-digit',month:'2-digit',year:'numeric'})}`}</b><small>${r.planned?'Geplant':'Genommen'}${r.note?' · '+esc(notePreview(r.note,55)):''}</small></span><strong>${formatVacationDays(r.units)}</strong><i>›</i></button>`).join(''):'<div class="vacation-empty">Für dieses Jahr sind keine Urlaubstage eingetragen.</div>';
+  document.querySelectorAll('[data-vacation-date]').forEach(btn=>btn.addEventListener('click',()=>openAbsenceEditorForDay(btn.dataset.vacationDate,dayObject(btn.dataset.vacationDate).absenceGroupId?'group':'day')));
+}
+function openVacationEntitlement(year=Number($('vacationYear')?.value)||new Date().getFullYear()){
+  const sel=$('vacationEntitlementYear');sel.innerHTML=vacationYearOptions().map(y=>`<option value="${y}">${y}</option>`).join('');sel.value=String(year);loadVacationEntitlementFields();openModal('vacationEntitlementModal');
+}
+function loadVacationEntitlementFields(){const y=Number($('vacationEntitlementYear').value),e=vacationEntitlementForYear(y);$('vacationEntitlementDays').value=e.days||'';$('vacationCarryoverDays').value=e.carryover||'';updateVacationEntitlementSummary()}
+function updateVacationEntitlementSummary(){const d=Math.max(0,Number($('vacationEntitlementDays').value)||0),c=Math.max(0,Number($('vacationCarryoverDays').value)||0);$('vacationEntitlementSummary').innerHTML=`<span>Verfügbarer Gesamtanspruch</span><strong>${formatVacationDays(d+c)}</strong>`}
+function saveVacationEntitlement(){const y=Number($('vacationEntitlementYear').value),days=Number($('vacationEntitlementDays').value),carry=Number($('vacationCarryoverDays').value);if(!Number.isFinite(days)||days<0||!Number.isFinite(carry)||carry<0){showToast('Urlaubsanspruch prüfen');return}vacationEntitlements()[String(y)]={days,carryover:carry};saveState();closeModal('vacationEntitlementModal');renderVacationOverview();renderSettings();showToast(`Urlaubsanspruch ${y} gespeichert`)}
+function openDayPicker(){closeModal('quickAddModal');$('selectedEditDate').value=todayKey();$('dayPickerNote').textContent='Zukünftige Arbeitszeitbuchungen bleiben gesperrt. Vorhandene Abwesenheiten können bearbeitet oder gelöscht werden.';openModal('dayPickerModal')}
+function openSelectedDay(){const date=$('selectedEditDate').value;if(!isDateKey(date)){showToast('Gültiges Datum auswählen');return}closeModal('dayPickerModal');const d=dayObject(date);if(date>todayKey()){if(d.absence)openAbsenceEditorForDay(date,d.absenceGroupId&&absenceGroupDays(d.absenceGroupId).length>1?'group':'day');else openNewAbsence('vacation',date);return}openFullDayForDate(date)}
+function v536Refresh(){renderVacationOverview();const y=new Date().getFullYear(),e=vacationEntitlementForYear(y);if($('vacationEntitlementCurrentValue'))$('vacationEntitlementCurrentValue').textContent=formatVacationDays(e.days+e.carryover);}
+document.addEventListener('DOMContentLoaded',()=>{
+  $('quickSelectDay')?.addEventListener('click',openDayPicker);$('openSelectedDayBtn')?.addEventListener('click',openSelectedDay);
+  $('vacationYear')?.addEventListener('change',renderVacationOverview);$('openVacationEntitlementFromReports')?.addEventListener('click',()=>openVacationEntitlement());$('openVacationEntitlementBtn')?.addEventListener('click',()=>openVacationEntitlement(new Date().getFullYear()));
+  $('vacationEntitlementYear')?.addEventListener('change',loadVacationEntitlementFields);$('vacationEntitlementDays')?.addEventListener('input',updateVacationEntitlementSummary);$('vacationCarryoverDays')?.addEventListener('input',updateVacationEntitlementSummary);$('saveVacationEntitlement')?.addEventListener('click',saveVacationEntitlement);
+  setTimeout(v536Refresh,0);
+});
+const v536OriginalRenderSettings=renderSettings;renderSettings=function(){v536OriginalRenderSettings();v536Refresh()};
+const v536OriginalRefreshAll=refreshAllDerivedViews;refreshAllDerivedViews=function(){v536OriginalRefreshAll();v536Refresh()};
+
 document.addEventListener('DOMContentLoaded',init);
 document.addEventListener('DOMContentLoaded',()=>{if(storageNotice)setTimeout(()=>showToast(storageNotice),250)});
 

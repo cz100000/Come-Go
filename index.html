@@ -92,6 +92,12 @@
 <div aria-label="Überstundengrafik" class="overtime-chart" id="overtimeChart" role="img"></div>
 <div aria-live="polite" class="chart-detail" id="chartDetail"></div>
 </section>
+<section aria-labelledby="vacationOverviewTitle" class="card vacation-overview-card">
+<div class="vacation-overview-head"><div><h2 class="card-title" id="vacationOverviewTitle">Urlaub</h2><p>Anspruch, Planung und bisherige Nutzung</p></div><select aria-label="Urlaubsjahr" id="vacationYear"></select></div>
+<div class="vacation-metrics" id="vacationMetrics"></div>
+<div class="vacation-list" id="vacationList"></div>
+<button class="dialog-action dialog-action-secondary vacation-manage-btn" id="openVacationEntitlementFromReports" type="button">Urlaubsanspruch bearbeiten</button>
+</section>
 <div class="card report-card">
 <h2 class="card-title">Berichte und PDF</h2>
 <div class="report-controls"><input id="reportDay" type="date"/><button id="dayReportBtn" type="button">Tagesbericht</button></div>
@@ -252,6 +258,7 @@
 <div class="context-date" id="quickAddContext"></div>
 <div class="quick-list quick-add-actions">
 <button id="quickAbsenceStart" type="button"><span>Abwesenheit eintragen</span><small>Urlaub, Krankheit oder Sonstiges</small><b aria-hidden="true">›</b></button>
+<button id="quickSelectDay" type="button"><span>Tag auswählen und bearbeiten</span><small>Abwesenheiten prüfen, ändern oder löschen</small><b aria-hidden="true">›</b></button>
 <button id="quickTimeStart" type="button"><span>Zeit ergänzen / korrigieren</span><small>Fehlende oder vorhandene Buchung</small><b aria-hidden="true">›</b></button>
 <button id="quickCommentStart" type="button"><span id="quickCommentLabel">Kommentar eintragen</span><small id="quickCommentHint">Tageskommentar hinzufügen</small><b aria-hidden="true">›</b></button>
 </div>
@@ -313,7 +320,7 @@
 </div>
 <div aria-labelledby="manualQuickTitle" aria-modal="true" class="modal" id="manualQuickModal" role="dialog">
 <div class="sheet manual-quick-sheet canonical-card-shell">
-<div class="unified-card-head canonical-card-head"><span aria-hidden="true" class="unified-card-head-spacer"></span><div class="unified-card-title-wrap"><h2 id="manualQuickTitle">Zeit ergänzen</h2></div><button aria-label="Schließen" class="close-btn" data-close="manualQuickModal" type="button">×</button></div><div class="unified-card-body canonical-card-body"><div class="context-date" id="manualQuickContext"></div><div class="field"><label>Buchungsart</label><div class="readonly-field" id="manualQuickBookingType"></div></div><div class="manual-quick-hint" id="manualQuickHint"></div><div class="manual-quick-grid">
+<div class="unified-card-head canonical-card-head"><span aria-hidden="true" class="unified-card-head-spacer"></span><div class="unified-card-title-wrap"><h2 id="manualQuickTitle">Zeit ergänzen</h2></div><button aria-label="Schließen" class="close-btn" data-close="manualQuickModal" type="button">×</button></div><div class="unified-card-body canonical-card-body"><div class="manual-quick-date" id="manualQuickContext"></div><div id="manualQuickBookingType" hidden></div><div id="manualQuickHint" hidden></div><div class="manual-quick-grid">
 <div class="field"><label for="manualActual">Tatsächliche Uhrzeit <button aria-label="Erklärung tatsächliche Uhrzeit" class="info-dot" data-time-info="actual" type="button">i</button></label><input id="manualActual" type="time"/></div>
 <div class="field"><label for="manualLogged">Dokumentierte Uhrzeit <button aria-label="Erklärung dokumentierte Uhrzeit" class="info-dot" data-time-info="logged" type="button">i</button></label><input id="manualLogged" type="time"/></div>
 </div><div class="time-info-text" hidden="" id="timeInfoText"></div><button class="manual-full-editor" id="manualFullEditor" type="button">Vollständigen Tag bearbeiten</button></div>
@@ -399,5 +406,18 @@
 </section>
 <script src="./imported-data.js"></script>
 <script src="./app.js"></script>
+
+<div aria-labelledby="dayPickerTitle" aria-modal="true" class="modal" id="dayPickerModal" role="dialog">
+<div class="sheet unified-card-shell compact-picker-sheet">
+<div class="unified-card-head"><span class="unified-card-head-spacer"></span><div class="unified-card-title-wrap"><h2 id="dayPickerTitle">Tag auswählen</h2><div class="unified-card-context">Abwesenheiten auch in der Zukunft bearbeiten</div></div><button aria-label="Schließen" class="close-btn" data-close="dayPickerModal" type="button">×</button></div>
+<div class="unified-card-body"><div class="field"><label for="selectedEditDate">Datum</label><input id="selectedEditDate" type="date"></div><p class="picker-note" id="dayPickerNote"></p></div>
+<div class="unified-card-footer"><button class="cancel" data-close="dayPickerModal" type="button">Abbrechen</button><button class="save" id="openSelectedDayBtn" type="button">Tag öffnen</button></div>
+</div></div>
+<div aria-labelledby="vacationEntitlementTitle" aria-modal="true" class="modal" id="vacationEntitlementModal" role="dialog">
+<div class="sheet unified-card-shell compact-picker-sheet">
+<div class="unified-card-head"><span class="unified-card-head-spacer"></span><div class="unified-card-title-wrap"><h2 id="vacationEntitlementTitle">Urlaubsanspruch</h2><div class="unified-card-context">Anspruch je Kalenderjahr</div></div><button aria-label="Schließen" class="close-btn" data-close="vacationEntitlementModal" type="button">×</button></div>
+<div class="unified-card-body"><div class="field"><label for="vacationEntitlementYear">Jahr</label><select id="vacationEntitlementYear"></select></div><div class="field"><label for="vacationEntitlementDays">Jahresanspruch</label><input id="vacationEntitlementDays" inputmode="decimal" min="0" max="366" step="0.5" type="number"></div><div class="field"><label for="vacationCarryoverDays">Übertragener Resturlaub</label><input id="vacationCarryoverDays" inputmode="decimal" min="0" max="366" step="0.5" type="number"></div><div class="vacation-entitlement-summary" id="vacationEntitlementSummary"></div></div>
+<div class="unified-card-footer"><button class="cancel" data-close="vacationEntitlementModal" type="button">Abbrechen</button><button class="save" id="saveVacationEntitlement" type="button">Speichern</button></div>
+</div></div>
 </body>
 </html>
