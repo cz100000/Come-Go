@@ -1,0 +1,27 @@
+ARBEITSZEIT-PWA V5.44 – ÄNDERUNGEN
+
+1. Zeiten-Navigation entschlackt
+- Tagesregister aus der Hauptnavigation entfernt.
+- Verbleibende Ansichten: Woche, Monat und Jahr.
+- Woche ist die Standardansicht.
+- Ein Tipp auf einen Wochentag öffnet den bestehenden Tagesdetail-/Bearbeitungsdialog als Pop-up.
+- Die inhaltsreiche Tageskarte wird nicht mehr als eigene Hauptseite angezeigt.
+
+2. Dialoge und Felder
+- Datumswerte in Abwesenheits- und Tagesdialogen vertikal mittig ausgerichtet.
+- Schnelleintragsdialog deutlich kompakter gestaltet.
+- Feld-, Label- und Buttonabstände vereinheitlicht.
+- Tagesbericht: klarer Abstand zwischen Datumsfeld und Schaltfläche.
+
+3. Diagramme
+- Jahresauswahl für Zeitkonto und Urlaub einheitlich als graues, kompaktes Dropdown.
+- Diagrammfarben auf eine gemeinsame gedeckte Farbfamilie abgestimmt.
+- Urlaubsdiagramm kompakter; Achse und Hilfslinien zurückhaltender.
+- Urlaubsskala bleibt standardmäßig bei 15 Tagen und erweitert sich nur bei Bedarf.
+
+4. Urlaubskonto
+- Offensichtlich fehlerhafte Urlaubsansprüche über 60 Tagen werden einmalig auf 30 Tage zurückgesetzt.
+- Eingaben für Anspruch und Übertrag sind auf 60 Tage begrenzt.
+
+5. Technisches
+- App-Version, Manifest und Service-Worker-Cache auf V5.44 aktualisiert.

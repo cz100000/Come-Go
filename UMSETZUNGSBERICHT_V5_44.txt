@@ -1,0 +1,7 @@
+UMSETZUNGSBERICHT V5.44
+
+Ausgangsbasis: V5.43 Releasekorrekturen.
+
+Umgesetzt wurden die vereinbarte Verschlankung der Zeiten-Seite, die Wochenansicht als Standard, Tagesdetails im Pop-up, die Vereinheitlichung der Diagramm-Dropdowns, ein harmonisiertes gedecktes Farbkonzept, kompaktere Dialoge, mittig ausgerichtete Datumswerte und die Korrektur offensichtlich unplausibler Urlaubsansprüche.
+
+Die bestehende Fachlogik, Offlinefähigkeit, lokale Datenspeicherung und Importstruktur wurden beibehalten. Der im Paket vorhandene aktuelle JSON-Datenbestand bleibt als separate Test- und Importdatei enthalten; persönliche Daten wurden nicht fest in den Programmcode eingebaut.

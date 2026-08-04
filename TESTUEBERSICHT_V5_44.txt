@@ -1,0 +1,19 @@
+TESTÜBERSICHT V5.44
+
+Automatisch/technisch geprüft:
+- JavaScript-Syntax app.js: bestanden
+- JavaScript-Syntax sw.js: bestanden
+- Manifest JSON: gültig
+- Versionskonsistenz 5.44: geprüft
+- Zeiten-Standardansicht Woche: geprüft
+- Tagesregister in Hauptnavigation ausgeblendet: geprüft
+- Wochentag öffnet Tagesdialog: geprüft
+- Urlaubseingabe-Obergrenze: geprüft
+- ZIP-Integrität: geprüft
+
+Noch auf dem realen iPhone zu prüfen:
+- native iOS-Datumsanzeige und vertikale Zentrierung
+- exakte Dialoghöhe bei aktivierter Tastatur
+- Kalenderverhalten Von/Bis
+- visuelle Wirkung der neuen Diagrammfarben
+- Installation/Aktualisierung der PWA und Offline-Neustart

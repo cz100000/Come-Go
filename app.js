@@ -4,7 +4,7 @@ const STORAGE_BACKUP_KEYS=[1,2,3].map(n=>`${STORAGE_KEY}-backup-${n}`);
 const STORAGE_CORRUPT_KEY=STORAGE_KEY+'-corrupt';
 const BACKUP_FORMAT='arbeitszeit-pwa-backup';
 const TRACKING_START_DATE='2022-11-01';
-const APP_VERSION='5.43';
+const APP_VERSION='5.44';
 const CURRENT_SCHEMA=14;
 const IMPORT_DATA_VERSION=5;
 const CALCULATION_VERSION=2;
@@ -14,7 +14,16 @@ let lastSavedFingerprint=null;
 let calculationCache=null;
 let calculationRevision=0;
 let state=loadState();
-let currentView='day';
+// V5.44 Datenbereinigung: offensichtlich fehlerhafte Urlaubsansprüche aus früheren UI-Eingaben korrigieren.
+try{
+  const ents=state?.settings?.vacationEntitlements||{};
+  for(const [year,value] of Object.entries(ents)){
+    if(Number(value?.days)>60){ value.days=30; value.correctedBy='v5.44'; }
+    if(Number(value?.carryover)>60){ value.carryover=0; value.correctedBy='v5.44'; }
+  }
+}catch(_err){}
+
+let currentView='week';
 let cursorDate=parseDateKey(todayKey());
 let monthDrill=null;
 let editingEntries=[];
@@ -292,7 +301,7 @@ document.querySelectorAll('.screen').forEach(screen=>screen.classList.toggle('ac
 document.querySelectorAll('.tabbar button').forEach(button=>button.classList.toggle('active',button.dataset.screen===id));
 if(id==='today')renderToday();
 if(id==='times'){
-currentView='day';monthDrill=null;cursorDate=parseDateKey(todayKey());
+currentView='week';monthDrill=null;cursorDate=parseDateKey(todayKey());
 document.querySelectorAll('[data-view]').forEach(button=>button.classList.toggle('active',button.dataset.view==='day'));
 renderTimes();
 }
@@ -519,7 +528,7 @@ ${normalizeNoteText(d.note)?`<button type="button" class="additional-row additio
 $('dayPicker').addEventListener('change',event=>{const selected=event.target.value>today?today:event.target.value;cursorDate=parseDateKey(selected);renderDayView(selected)});
 updateTimesWeekendControl(true);updateDayQuickButton();
 }
-function goToToday(){cursorDate=parseDateKey(todayKey());currentView='day';document.querySelectorAll('[data-view]').forEach(b=>b.classList.toggle('active',b.dataset.view==='day'));renderDayView(todayKey())}
+function goToToday(){cursorDate=parseDateKey(todayKey());currentView='week';document.querySelectorAll('[data-view]').forEach(b=>b.classList.toggle('active',b.dataset.view==='week'));renderWeekView(todayKey())}
 function changeDay(n){
 const today=todayKey();if(n>0&&dateKey(cursorDate)>=today)return;
 do{cursorDate.setDate(cursorDate.getDate()+n)}while(!state.settings.showWeekends&&[0,6].includes(cursorDate.getDay())&&!hasMeaningfulData(state.days[dateKey(cursorDate)]));
@@ -531,7 +540,7 @@ function weekHasWeekendData(start){for(let i=5;i<7;i++){const d=new Date(start);
 function renderWeekView(k){
 const currentStart=weekStart(todayKey());let start=weekStart(k);if(start>currentStart)start=currentStart;cursorDate=new Date(start);
 const force=weekHasWeekendData(start),show=state.settings.showWeekends||force,count=show?7:5,days=[],isCurrent=dateKey(start)===dateKey(currentStart);
-for(let i=0;i<count;i++){const dt=new Date(start);dt.setDate(start.getDate()+i);const key=dateKey(dt),d=dayObject(key),c=calculateDay(d),future=key>todayKey();days.push(`<button type="button" class="week-day-card${future?' future-day':''}" ${future?'disabled':''} onclick="currentView='day';document.querySelectorAll('[data-view]').forEach(b=>b.classList.toggle('active',b.dataset.view==='day'));renderDayView('${key}')"><span><b>${formatDate(key,{weekday:'short',day:'2-digit',month:'2-digit'})}</b><small>${future?'Noch nicht verfügbar':esc(dayStatus(d))}</small></span><strong class="${future?'neutral':c.diff<0?'red':c.diff>0?'green':'neutral'}">${future?'–':formatDuration(c.diff)}</strong></button>`)}
+for(let i=0;i<count;i++){const dt=new Date(start);dt.setDate(start.getDate()+i);const key=dateKey(dt),d=dayObject(key),c=calculateDay(d),future=key>todayKey();days.push(`<button type="button" class="week-day-card${future?' future-day':''}" ${future?'disabled':''} onclick="openDayEditor('${key}')"><span><b>${formatDate(key,{weekday:'short',day:'2-digit',month:'2-digit'})}</b><small>${future?'Noch nicht verfügbar':esc(dayStatus(d))}</small></span><strong class="${future?'neutral':c.diff<0?'red':c.diff>0?'green':'neutral'}">${future?'–':formatDuration(c.diff)}</strong></button>`)}
 const end=new Date(start);end.setDate(start.getDate()+6);
 $('timesContent').innerHTML=`<div class="week-toolbar"><button type="button" onclick="changeWeek(-1)" aria-label="Vorherige Woche">‹</button><b>${formatDate(dateKey(start),{day:'2-digit',month:'2-digit'})} – ${formatDate(dateKey(end),{day:'2-digit',month:'2-digit',year:'numeric'})}</b><button type="button" onclick="changeWeek(1)" aria-label="Nächste Woche" ${isCurrent?'disabled':''}>›</button></div><div class="week-options week-options-today-only">${isCurrent?'':`<button type="button" class="today-week-btn" onclick="cursorDate=parseDateKey(todayKey());renderWeekView(todayKey())">Aktuelle Woche</button>`}</div>${force?'<p class="weekend-note">Wochenende wird angezeigt, weil dort Daten vorhanden sind.</p>':''}<div class="week-list">${days.join('')}</div>`;
 updateTimesWeekendControl(true,force);
@@ -807,7 +816,7 @@ quickContextDate=date;closeModal('timeActionModal');const entries=dayObject(date
 }
 function openEntryFromList(date,index){closeModal('bookingListModal');openSingleEntryEditor(date,index)}
 function openFullDayForDate(date=quickContextDate,sourceModalId=null){
-if(sourceModalId)closeModal(sourceModalId);['quickAddModal','timeActionModal','manualQuickModal','bookingListModal','quickAbsenceModal','absenceTypeModal','workdayIssuesModal'].forEach(id=>{if($(id)?.classList.contains('open'))closeModal(id)});showScreen('times');currentView='day';document.querySelectorAll('[data-view]').forEach(button=>button.classList.toggle('active',button.dataset.view==='day'));cursorDate=parseDateKey(date);renderDayView(date);openDayEditor(date)
+if(sourceModalId)closeModal(sourceModalId);['quickAddModal','timeActionModal','manualQuickModal','bookingListModal','quickAbsenceModal','absenceTypeModal','workdayIssuesModal'].forEach(id=>{if($(id)?.classList.contains('open'))closeModal(id)});showScreen('times');currentView='week';document.querySelectorAll('[data-view]').forEach(button=>button.classList.toggle('active',button.dataset.view==='week'));cursorDate=parseDateKey(date);renderWeekView(date);openDayEditor(date)
 }
 function openFullTodayEditor(){const k=manualQuickDate;runAfterDirtyCheck('manualQuickModal',()=>openFullDayForDate(k))}
 function toggleTimeInfo(kind){const box=$('timeInfoText');box.hidden=false;box.textContent=kind==='actual'?'Tatsächliche Uhrzeit = die reale Uhrzeit der Buchung.':'Dokumentierte Uhrzeit = die gerundete beziehungsweise angerechnete Uhrzeit.'}
@@ -1111,7 +1120,7 @@ function openVacationEntitlement(year=Number($('vacationYear')?.value)||new Date
 }
 function loadVacationEntitlementFields(){const y=Number($('vacationEntitlementYear').value),e=vacationEntitlementForYear(y);$('vacationEntitlementDays').value=Number.isFinite(Number(e.days))?String(e.days):'0';$('vacationCarryoverDays').value=Number.isFinite(Number(e.carryover))?String(e.carryover):'0';updateVacationEntitlementSummary()}
 function updateVacationEntitlementSummary(){const d=Math.max(0,Number($('vacationEntitlementDays').value)||0),c=Math.max(0,Number($('vacationCarryoverDays').value)||0);$('vacationEntitlementSummary').innerHTML=`<span>Verfügbarer Gesamtanspruch</span><strong>${formatVacationDays(d+c)}</strong>`}
-function saveVacationEntitlement(){const y=Number($('vacationEntitlementYear').value),days=Number($('vacationEntitlementDays').value),carry=Number($('vacationCarryoverDays').value);if(!Number.isFinite(days)||days<0||!Number.isFinite(carry)||carry<0){showToast('Urlaubsanspruch prüfen');return}vacationEntitlements()[String(y)]={days,carryover:carry};saveState();closeModal('vacationEntitlementModal');renderVacationOverview();renderSettings();showToast(`Urlaubsanspruch ${y} gespeichert`)}
+function saveVacationEntitlement(){const y=Number($('vacationEntitlementYear').value),days=Number($('vacationEntitlementDays').value),carry=Number($('vacationCarryoverDays').value);if(!Number.isFinite(days)||days<0||days>60||!Number.isFinite(carry)||carry<0||carry>60){showToast('Urlaubsanspruch prüfen');return}vacationEntitlements()[String(y)]={days,carryover:carry};saveState();closeModal('vacationEntitlementModal');renderVacationOverview();renderSettings();showToast(`Urlaubsanspruch ${y} gespeichert`)}
 function openDayPicker(){closeModal('quickAddModal');$('selectedEditDate').value=todayKey();$('dayPickerNote').textContent='Zukünftige Arbeitszeitbuchungen bleiben gesperrt. Vorhandene Abwesenheiten können bearbeitet oder gelöscht werden.';openModal('dayPickerModal')}
 function openSelectedDay(){const date=$('selectedEditDate').value;if(!isDateKey(date)){showToast('Gültiges Datum auswählen');return}closeModal('dayPickerModal');const d=dayObject(date);if(date>todayKey()){if(d.absence)openAbsenceEditorForDay(date,d.absenceGroupId&&absenceGroupDays(d.absenceGroupId).length>1?'group':'day');else openNewAbsence('vacation',date);return}openFullDayForDate(date)}
 function v536Refresh(){renderVacationOverview();const y=new Date().getFullYear(),e=vacationEntitlementForYear(y);if($('vacationSettingsTitle'))$('vacationSettingsTitle').textContent=`Urlaub ${y}`;if($('vacationSettingsSummary'))$('vacationSettingsSummary').textContent=`${formatVacationNumber(e.days)} Tage Anspruch · ${formatVacationNumber(e.carryover)} Tage Übertrag`;if($('vacationEntitlementCurrentValue'))$('vacationEntitlementCurrentValue').textContent=formatVacationDays(e.days+e.carryover);}

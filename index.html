@@ -69,10 +69,10 @@
 <button aria-label="Eintrag für heute öffnen" class="quick-add-btn floating-quick-add today-floating-quick home-pressable" id="quickAddBtn" type="button"><span aria-hidden="true" class="plus-glyph"></span></button>
 </section>
 <section aria-label="Zeiten" class="screen" id="times">
-<header class="page-header times-page-header"><div><h1>Zeiten</h1><div class="sub">Tag, Woche, Monat und Jahr</div></div><label class="weekend-switch times-header-weekend" id="timesHeaderWeekend"><span>Wochenende</span><input aria-label="Wochenende anzeigen" id="headerWeekendToggle" type="checkbox"/><i aria-hidden="true"></i></label></header>
+<header class="page-header times-page-header"><div><h1>Zeiten</h1><div class="sub">Woche, Monat und Jahr</div></div><label class="weekend-switch times-header-weekend" id="timesHeaderWeekend"><span>Wochenende</span><input aria-label="Wochenende anzeigen" id="headerWeekendToggle" type="checkbox"/><i aria-hidden="true"></i></label></header>
 <div class="segmented" role="tablist">
-<button class="active" data-view="day" type="button">Tag</button>
-<button data-view="week" type="button">Woche</button>
+<button data-view="day" type="button" hidden aria-hidden="true" tabindex="-1">Tag</button>
+<button class="active" data-view="week" type="button">Woche</button>
 <button data-view="month" type="button">Monat</button>
 <button data-view="year" type="button">Jahr</button>
 </div>
@@ -445,7 +445,7 @@
 <div aria-labelledby="vacationEntitlementTitle" aria-modal="true" class="modal" id="vacationEntitlementModal" role="dialog">
 <div class="sheet unified-card-shell compact-picker-sheet">
 <div class="unified-card-head"><span class="unified-card-head-spacer"></span><div class="unified-card-title-wrap"><h2 id="vacationEntitlementTitle">Urlaubsanspruch</h2><div class="unified-card-context">Anspruch je Kalenderjahr</div></div><button aria-label="Schließen" class="close-btn" data-close="vacationEntitlementModal" type="button">×</button></div>
-<div class="unified-card-body"><div class="field"><label for="vacationEntitlementYear">Jahr</label><select id="vacationEntitlementYear"></select></div><div class="field"><label for="vacationEntitlementDays">Jahresanspruch</label><input id="vacationEntitlementDays" inputmode="decimal" min="0" max="366" step="0.5" type="number"></div><div class="field"><label for="vacationCarryoverDays">Übertragener Resturlaub</label><input id="vacationCarryoverDays" inputmode="decimal" min="0" max="366" step="0.5" type="number"></div><div class="vacation-entitlement-summary" id="vacationEntitlementSummary"></div></div>
+<div class="unified-card-body"><div class="field"><label for="vacationEntitlementYear">Jahr</label><select id="vacationEntitlementYear"></select></div><div class="field"><label for="vacationEntitlementDays">Jahresanspruch</label><input id="vacationEntitlementDays" inputmode="decimal" min="0" max="60" step="0.5" type="number"></div><div class="field"><label for="vacationCarryoverDays">Übertragener Resturlaub</label><input id="vacationCarryoverDays" inputmode="decimal" min="0" max="60" step="0.5" type="number"></div><div class="vacation-entitlement-summary" id="vacationEntitlementSummary"></div></div>
 <div class="unified-card-footer"><button class="cancel" data-close="vacationEntitlementModal" type="button">Abbrechen</button><button class="save" id="saveVacationEntitlement" type="button">Speichern</button></div>
 </div></div>
 

@@ -1072,3 +1072,101 @@ body.modal-open #today .today-quick-card.quick-action-row{visibility:hidden}
 
 /* Einheitlicher Kartenabstand. */
 .card{margin-block-end:12px}
+
+
+/* V5.44 – entschlackte Zeiten-Navigation, einheitliche Diagrammsteuerung und UI-Harmonisierung */
+#times .segmented{grid-template-columns:repeat(3,minmax(0,1fr))}
+#times .segmented [data-view="day"]{display:none!important}
+#times .segmented [data-view="week"]{grid-column:1}
+#times .segmented [data-view="month"]{grid-column:2}
+#times .segmented [data-view="year"]{grid-column:3}
+
+/* Wochenübersicht als primäre, ruhige Navigation */
+.week-list{gap:7px}
+.week-day-card{min-height:62px;padding:10px 13px;border-radius:15px;box-shadow:0 3px 12px rgba(22,34,52,.025)}
+.week-day-card b{font-size:15px}
+.week-day-card small{font-size:12px}
+.week-day-card strong{font-size:15px;font-variant-numeric:tabular-nums}
+.week-toolbar{margin-bottom:8px}
+
+/* Datumswerte in nativen iOS-Feldern vertikal wirklich mittig */
+.absence-date-grid input[type="date"],
+#dayModal input[type="date"],
+.day-card-date input[type="date"]{
+  height:52px!important;
+  min-height:52px!important;
+  padding-top:0!important;
+  padding-bottom:0!important;
+  line-height:52px!important;
+  display:block!important;
+}
+.absence-date-grid input[type="date"]::-webkit-date-and-time-value,
+#dayModal input[type="date"]::-webkit-date-and-time-value{
+  text-align:center;
+  min-height:52px;
+  line-height:52px;
+}
+
+/* Schnelleinträge kompakt: keine künstliche Vollhöhe */
+#quickTodayModal .sheet,
+#quickAddModal .sheet{height:auto!important;min-height:0!important;max-height:min(72dvh,620px)!important}
+#quickTodayModal .modal-body,
+#quickAddModal .modal-body{padding-top:14px!important;padding-bottom:12px!important}
+#quickTodayModal .field{margin-bottom:12px!important}
+#quickTodayModal textarea{min-height:92px!important;height:92px!important}
+#quickTodayModal .modal-actions,
+#quickAddModal .modal-actions{margin-top:10px!important}
+
+/* Dialogfelder und Schaltflächen konsistent */
+.modal .field label{margin-bottom:6px!important}
+.modal input,.modal select,.modal textarea{border-radius:14px}
+.modal-actions button,.day-editor-actions button{min-height:50px;border-radius:14px}
+
+/* Tagesbericht: klarer Abstand zwischen Datum und Aktion */
+.report-controls{display:grid!important;grid-template-columns:minmax(0,1fr) minmax(150px,.82fr)!important;gap:12px!important;align-items:stretch}
+.report-controls input,.report-controls button{min-width:0!important;width:100%!important}
+@media(max-width:370px){.report-controls{grid-template-columns:minmax(0,1fr) minmax(132px,.78fr)!important;gap:8px!important}}
+
+/* Einheitliche graue Jahresauswahl in beiden Diagrammkarten */
+#chartYear,#vacationYear{
+  width:auto!important;
+  min-width:94px!important;
+  max-width:118px!important;
+  height:38px!important;
+  padding:0 34px 0 14px!important;
+  border:0!important;
+  border-radius:999px!important;
+  background-color:#e8eaee!important;
+  box-shadow:none!important;
+  font-weight:600!important;
+}
+.vacation-overview-head{align-items:flex-start!important}
+
+/* Diagrammfarben aus einer gemeinsamen gedämpften Farbfamilie */
+:root{
+  --chart-positive:#8299b7;
+  --chart-negative:#b99592;
+  --chart-vacation:#76967f;
+  --chart-vacation-light:#adc4b3;
+}
+.vacation-chart-legend i.taken,.vacation-bars i.taken{background:var(--chart-vacation)!important}
+.vacation-chart-legend i.planned,.vacation-bars i.planned{background:var(--chart-vacation-light)!important}
+.vacation-month.selected{background:rgba(118,150,127,.12)!important}
+.vacation-month.selected b{color:#607d68!important}
+
+/* Urlaubsdiagramm ruhiger und kompakter */
+.vacation-chart{height:132px!important;padding-top:5px!important}
+.vacation-gridlines i{border-color:#e6e8ec!important;opacity:.9}
+.vacation-axis span{font-size:8px!important;color:#727b88!important}
+.vacation-bars i{width:min(10px,48%)!important}
+.vacation-months{gap:1px!important}
+
+/* Urlaubseingaben: realistische Obergrenze und lesbare Zusammenfassung */
+#vacationEntitlementDays,#vacationCarryoverDays{font-variant-numeric:tabular-nums}
+.vacation-entitlement-summary{margin-top:10px}
+
+/* Zusätzliche Tageskarte verschwindet mit der Tages-Hauptansicht; Details bleiben im Popup. */
+.day-additional{display:none!important}
+.chart-bar.positive{fill:var(--chart-positive)!important}
+.chart-bar.negative{fill:var(--chart-negative)!important}
+.chart-item.current .chart-bar{stroke:#526d8f!important;stroke-width:1.2}

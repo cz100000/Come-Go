@@ -1,4 +1,4 @@
-Arbeitszeit PWA – Version 5.43
+Arbeitszeit PWA – Version 5.44
 Stand: 04.08.2026
 
 Zweck
@@ -117,7 +117,7 @@ Wichtige Änderungen in V5.41
 - Die Urlaubsgrafik verwendet standardmäßig eine Y-Achse bis 15 Tage. Erst bei einem tatsächlichen Monatswert über 15 Tagen wird die Achse in 5-Tage-Schritten erweitert.
 
 
-Wichtige Änderungen in V5.43
+Wichtige Änderungen in V5.44
 - Datumsfelder in allen betroffenen Dialogen erhalten einen eigenen, begrenzenden Feldrahmen.
 - Die sichtbare Feldkante wird nicht mehr vom nativen iOS-Datumsfeld bestimmt.
 - Von/Bis-Felder und das Datumsfeld der vollständigen Tagesbearbeitung bleiben innerhalb der Karten-Innenbreite.
