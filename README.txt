@@ -1,4 +1,4 @@
-Arbeitszeit PWA – Version 5.37
+Arbeitszeit PWA – Version 5.39
 Stand: 04.08.2026
 
 Zweck
@@ -12,10 +12,10 @@ Installation über GitHub Pages
 
 Daten und Kompatibilität
 - Lokaler Speicherschlüssel unverändert: arbeitszeit-pwa-v1
-- Datenschema: 13
+- Datenschema: 14
 - Datenbeginn: 01.11.2022
 - Eingebetteter Ausgangsdatenstand: JSON-Sicherung vom 03.08.2026
-- 1.128 Kalendertage und 1.792 Buchungen im eingebetteten Referenzbestand
+- 1.128 Kalendertage und 1.792 Buchungen im eingebetteten Referenzbestand; einschließlich ergänzter Feiertagstage werden beim geprüften Start 1.148 Tage geführt
 - Bestehende lokale Daten, JSON-Sicherungen und Datenmigrationen bleiben kompatibel.
 - Sicherungen mit einem neueren als dem unterstützten Datenschema werden zum Schutz vor Datenverlust abgelehnt.
 
@@ -31,10 +31,9 @@ Einstellungen
 Die Einstellungsseite ist in kompakte Themenkarten gegliedert:
 - Persönliche Angaben
 - Arbeitszeit
-- Feiertage
+- Urlaub und Feiertage
 - Darstellung und Berichte
 - App und Daten
-- Urlaub
 
 Sollzeit und Bundesland werden auf der Hauptseite nur mit aktuellem Wert und Gültigkeitsdatum angezeigt. Die Bearbeitung erfolgt in einheitlichen Ein-Karten-Editoren mit Schutz vor unbeabsichtigten rückwirkenden Änderungen.
 
@@ -82,7 +81,7 @@ Bekannter Datenhinweis
 Der 24.03.2023 enthält einen halben Urlaubstag, aber keine Arbeitszeitbuchungen für die verbleibende Sollzeit. Dieser Tag wird weiterhin korrekt als offener Arbeitstag angezeigt und nicht automatisch verändert.
 
 Technischer Hinweis
-Ein physischer Installationstest auf einem iPhone mit Mobile Safari war in der Entwicklungsumgebung nicht möglich. Die Oberfläche wurde automatisiert bei 320 × 700, 350 × 750, 393 × 852, 430 × 900, 768 × 900 und 1024 × 900 Pixeln geprüft.
+Ein physischer Installationstest auf einem iPhone mit Mobile Safari war in der Entwicklungsumgebung nicht möglich. Für V5.39 wurden die relevanten Karten automatisiert bei 320, 350, 375, 393 und 430 px Breite geprüft; die Haupt-Sichtprüfung erfolgte bei 393 × 852 px.
 
 
 Wichtige Änderungen in V5.32
@@ -93,14 +92,20 @@ Wichtige Änderungen in V5.32
 - Keine fachlichen oder datenbezogenen Änderungen.
 
 
-Wichtige Änderungen in V5.37
-- Plus-Menü auf „Abwesenheit eintragen oder bearbeiten“ und „Zeit ergänzen oder korrigieren“ reduziert.
-- Neue kompakte Karte „Schnelleinträge für heute“ für Pause und Kommentar ohne Datumswahl.
-- Einheitlicher Abwesenheitseditor mit Von-/Bis-Datum in getrennten mobilen Zeilen, Arbeitstagsvorschau, Konfliktbehandlung sowie Bearbeiten und Löschen zusammengehöriger Zeiträume.
+Wichtige Änderungen in V5.39
+- Plus-Menü auf „Vollständigen Tag bearbeiten“ und „Abwesenheit eintragen oder bearbeiten“ reduziert.
+- Neue kompakte Zeile „Schnelleinträge“ auf der Heute-Seite und eine gemeinsame Bearbeitungskarte für Pause und Kommentar ohne Datumswahl.
+- Einheitlicher Abwesenheitseditor mit Von-/Bis-Datum nebeneinander ab 370 px, einspaltigem Fallback darunter, kompakter Arbeitstagsvorschau, Konfliktbehandlung sowie Bearbeiten und Löschen zusammengehöriger Zeiträume.
 - Zukünftige Abwesenheiten bleiben zulässig; zukünftige Arbeitszeitbuchungen bleiben gesperrt.
 - Urlaubsanspruch und Resturlaubsübertrag werden jahresbezogen ausschließlich in den Einstellungen geführt.
-- Neue Urlaubsübersicht mit Monatsgraph, dynamischem Detailbereich und separater vollständiger Urlaubsverwaltung.
+- Grüne Urlaubsgrafik ohne zusätzliche Kennzahlenkarte oberhalb der Grafik, mit dynamischem Jahres-/Monatsdetailbereich und separater vollständiger Urlaubsverwaltung.
 - Zusammengehörige neue Urlaubszeiträume erhalten eine Gruppen-ID; ältere Einzelbestände werden für die Anzeige fachlich zusammengefasst, ohne die Quelldaten umzuschreiben.
 - JSON- und Excel-Dateien eines Sicherungsvorgangs erhalten denselben Zeitstempel im Namen und in den Dateimetadaten.
-- Schema 13 ergänzt migrationssicher `settings.vacationEntitlements`; bei älteren Sicherungen startet jedes Jahr mit Anspruch 0 und Übertrag 0.
-- Mobile Sichtprüfung automatisiert bei 320 × 700, 350 × 750, 393 × 852 und 430 × 900 Pixeln. Ein physischer iPhone-/Safari-Test bleibt erforderlich.
+- Schema 14 ergänzt migrationssicher den Ausgangsanspruch 2026 mit 139 Tagen, ohne vorhandene Nutzerwerte oder Überträge zu überschreiben.
+- Mobile Überlaufprüfung automatisiert bei 320, 350, 375, 393 und 430 px Breite; 14 Sichtprüfungen wurden bei 393 px beziehungsweise für den Fallback bei 350 px dokumentiert. Ein physischer iPhone-/Safari-Test bleibt erforderlich.
+
+
+Wichtige Änderungen in V5.39
+- Die alte Zwischenansicht „Zeit ergänzen oder korrigieren“ wird nicht mehr aufgerufen; alle entsprechenden Wege öffnen direkt „Vollständigen Tag bearbeiten“.
+- Die nächste Buchungsaktion wird eindeutig als „Kommen hinzufügen“, „Gehen ergänzen“ oder „Weiteren Arbeitsblock hinzufügen“ bezeichnet.
+- Dokumentierte Uhrzeiten sind nicht mehr frei editierbar und werden beim Speichern verbindlich aus der tatsächlichen Uhrzeit berechnet: Kommen aufwärts, Gehen abwärts auf 5 Minuten.

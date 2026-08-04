@@ -1,0 +1,42 @@
+UMSETZUNGSBERICHT V5.39
+========================
+
+Ausgangsbasis
+-------------
+Arbeitszeit_PWA_Offline_V5_38_HighEnd_iPhone16_Schlanke_Bedienlogik.zip
+
+Tatsächlich umgesetzt
+---------------------
+1. Alle bisherigen Aufrufe der Zwischenfunktion „Zeit ergänzen oder korrigieren“ leiten nun direkt in „Vollständigen Tag bearbeiten“.
+2. Die Tagesbearbeitung bezeichnet die nächste zulässige Buchungsaktion abhängig vom aktuellen Zustand eindeutig:
+   - keine Buchung: „Kommen hinzufügen“
+   - offenes Kommen: „Gehen ergänzen“
+   - vollständiger Arbeitsblock: „Weiteren Arbeitsblock hinzufügen“
+3. Der zusätzliche Bearbeitungsweg innerhalb der alten Zwischenansicht wird dadurch im normalen Bedienablauf nicht mehr angezeigt.
+4. Die dokumentierte Uhrzeit ist in den Buchungsformularen nur noch eine automatisch berechnete Anzeige und nicht mehr frei änderbar.
+5. Beim Speichern wird die dokumentierte Uhrzeit zwingend neu aus der tatsächlichen Uhrzeit berechnet:
+   - Kommen: Aufrundung auf den nächsten 5-Minuten-Wert
+   - Gehen: Abrundung auf den vorherigen 5-Minuten-Wert
+6. Diese verbindliche Neuberechnung wurde sowohl für die vollständige Tagesbearbeitung als auch für vorhandene manuelle Einzelbuchungswege umgesetzt.
+7. App-, Manifest- und Cache-Version wurden auf 5.39 angehoben.
+
+Daten und Migration
+-------------------
+Das Datenschema wurde nicht verändert. Vorhandene Daten und ältere Backups bleiben kompatibel. Bestehende gespeicherte Buchungen werden beim bloßen Öffnen nicht verändert. Sobald eine Buchung bearbeitet und gespeichert wird, wird ihre dokumentierte Uhrzeit verbindlich nach der 5-Minuten-Regel neu berechnet.
+
+Technisch geprüft
+-----------------
+- JavaScript-Syntaxprüfung mit node --check: bestanden.
+- Versionskennung 5.39 in App und Manifest geprüft.
+- Direkte Weiterleitung in die vollständige Tagesbearbeitung statisch geprüft.
+- Dynamische Aktionsbezeichnungen statisch geprüft.
+- Schreibschutz der dokumentierten Uhrzeit statisch geprüft.
+- Zwingende Rundungsberechnung beim Speichern statisch geprüft.
+
+Noch praktisch auf dem iPhone zu prüfen
+---------------------------------------
+- Aufruf über Plus-Menü und über leere Tagesansichten.
+- Anzeige „Kommen hinzufügen“, „Gehen ergänzen“ und „Weiteren Arbeitsblock hinzufügen“ in den jeweiligen Tageszuständen.
+- Safari-Zeitfelder und Bildschirmtastatur.
+- Tatsächliche Kommen-/Gehen-Rundung bei manueller Änderung.
+- Offline-Neustart und Aktualisierung des PWA-Caches auf Version 5.39.

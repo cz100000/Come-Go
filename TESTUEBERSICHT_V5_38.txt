@@ -1,0 +1,385 @@
+TESTÜBERSICHT V5.38
+Arbeitszeit-PWA – Schlanke Bedienlogik
+Stand: 04.08.2026
+
+GESAMTERGEBNIS
+- Automatisierte statische, funktionale, fachliche und responsive Prüfungen: 87 bestanden, 0 fehlgeschlagen.
+- Zusätzlich dokumentiert: 14 Browser-Sichtprüfungen und 1 Kontaktbogen.
+- Kein physisches iPhone wurde verwendet.
+
+HINWEIS ZU TEST 3
+Eine separate aktuelle Nutzer-JSON lag im aktuellen Chat nicht als eigenständige Datei vor. Der eingebettete V5.37-Datenbestand, erzeugte vollständige JSON-Sicherungen, Schema-13-Migration und der Wiederherstellungspfad wurden geprüft.
+
+EINZELPRÜFUNGEN
+
+1. App startet ohne JavaScript-Fehler.
+   Status: BESTANDEN
+   Nachweis: Chromium-Start ohne pageerror und ohne console.error.
+
+2. V5.37-Datenbestand wird geladen.
+   Status: BESTANDEN
+   Nachweis: Eingebetteter V5.37-Bestand mit 1.148 Tagen geladen.
+
+3. Aktueller JSON-Datenbestand wird vollständig importiert.
+   Status: EINGESCHRÄNKT
+   Nachweis: Keine separate aktuelle JSON-Datei im Chat verfügbar; JSON-Wiederherstellung mit vollständigen Testbeständen geprüft.
+
+4. Zeitkonto bleibt unverändert.
+   Status: BESTANDEN
+   Nachweis: V5.37 und V5.38 jeweils 10.452 Minuten / +174:12.
+
+5. Heute-Seite zeigt nur eine kompakte Zeile „Schnelleinträge“.
+   Status: BESTANDEN
+   Nachweis: DOM- und Sichtprüfung.
+
+6. Keine offene Schnellzugriffskarte überlädt die Startseite.
+   Status: BESTANDEN
+   Nachweis: Keine dauerhaft offene Unterkarte.
+
+7. „Schnelleinträge“ öffnet eine einzige Karte.
+   Status: BESTANDEN
+   Nachweis: Eine gemeinsame Karte geöffnet.
+
+8. Pausenminuten werden direkt eingegeben.
+   Status: BESTANDEN
+   Nachweis: Direktes Zahlenfeld vorhanden.
+
+9. Vorhandene Pausenminuten werden geladen.
+   Status: BESTANDEN
+   Nachweis: 25 Minuten im Test geladen.
+
+10. Pausenwert kann geändert werden.
+   Status: BESTANDEN
+   Nachweis: Auf 40 Minuten geändert.
+
+11. Pausenwert kann auf 0 gesetzt werden.
+   Status: BESTANDEN
+   Nachweis: 0 dauerhaft übernommen.
+
+12. Kommentar für heute wird direkt eingegeben.
+   Status: BESTANDEN
+   Nachweis: Direktes Textfeld vorhanden.
+
+13. Vorhandener Kommentar wird geladen.
+   Status: BESTANDEN
+   Nachweis: Vorhandener Testkommentar geladen.
+
+14. Kommentar kann geändert werden.
+   Status: BESTANDEN
+   Nachweis: Änderung gespeichert.
+
+15. Kommentar kann gelöscht werden.
+   Status: BESTANDEN
+   Nachweis: Leerer Kommentar gespeichert.
+
+16. Pause und Kommentar werden gemeinsam gespeichert.
+   Status: BESTANDEN
+   Nachweis: Gemeinsame Speicheraktion geprüft.
+
+17. Plus-Menü enthält genau zwei Einträge.
+   Status: BESTANDEN
+   Nachweis: Genau zwei Aktionsschaltflächen.
+
+18. „Vollständigen Tag bearbeiten“ öffnet heute.
+   Status: BESTANDEN
+   Nachweis: Heutiges Datum als Startwert.
+
+19. Datum kann innerhalb der Karte gewechselt werden.
+   Status: BESTANDEN
+   Nachweis: Interner date-Input geprüft.
+
+20. Der neu gewählte Tag wird vollständig geladen.
+   Status: BESTANDEN
+   Nachweis: Tag mit vier Buchungen geladen.
+
+21. Arbeitszeitbuchungen können bearbeitet werden.
+   Status: BESTANDEN
+   Nachweis: Buchungseditor geöffnet und Tageszustand gespeichert.
+
+22. Arbeitszeitbuchungen können gelöscht werden.
+   Status: BESTANDEN
+   Nachweis: Ein vollständiges Buchungspaar gelöscht und gespeichert.
+
+23. Mehrere Arbeitsblöcke bleiben bearbeitbar.
+   Status: BESTANDEN
+   Nachweis: Vier Buchungen bei Tagesänderung unverändert erhalten.
+
+24. Pause und Kommentar sind in der vollständigen Tagesbearbeitung verfügbar.
+   Status: BESTANDEN
+   Nachweis: Beide Tagesangaben im Editor vorhanden.
+
+25. Zukünftige Arbeitszeitbuchungen bleiben gesperrt.
+   Status: BESTANDEN
+   Nachweis: Buchung, Pause und Arbeitszeitaktionen deaktiviert.
+
+26. „Abwesenheit eintragen oder bearbeiten“ funktioniert.
+   Status: BESTANDEN
+   Nachweis: Direkter zweiter Plus-Menü-Weg geprüft.
+
+27. Zukünftiger Urlaub kann angelegt werden.
+   Status: BESTANDEN
+   Nachweis: Mehrtägigen Testurlaub gespeichert.
+
+28. Zukünftiger Urlaub kann bearbeitet werden.
+   Status: BESTANDEN
+   Nachweis: Zeitraum verlängert.
+
+29. Zukünftiger Urlaub kann gelöscht werden.
+   Status: BESTANDEN
+   Nachweis: Zusammengehöriger Zeitraum vollständig gelöscht.
+
+30. Krankheit kann mehrtägig eingetragen werden.
+   Status: BESTANDEN
+   Nachweis: Drei Arbeitstage gespeichert.
+
+31. Halber Tag ist nur bei einem Einzeltag möglich.
+   Status: BESTANDEN
+   Nachweis: Bei Mehrtag deaktiviert und auf Ganztag zurückgesetzt.
+
+32. Wochenenden werden ausgelassen.
+   Status: BESTANDEN
+   Nachweis: Fünf Kalendertage ergaben drei Arbeitstage.
+
+33. Gesetzliche Feiertage werden ausgelassen.
+   Status: BESTANDEN
+   Nachweis: 25.12. nicht berücksichtigt.
+
+34. Betriebliche Feiertage werden ausgelassen.
+   Status: BESTANDEN
+   Nachweis: 24.12. nicht berücksichtigt.
+
+35. Konflikte werden nicht still überschrieben.
+   Status: BESTANDEN
+   Nachweis: Konflikt erkannt; Buchungen blieben bestehen.
+
+36. Von- und Bis-Feld stehen bei 393 px nebeneinander.
+   Status: BESTANDEN
+   Nachweis: 155 px + 155 px innerhalb der Karte.
+
+37. Datumsfelder ragen nicht über den Kartenrand.
+   Status: BESTANDEN
+   Nachweis: Bei 320, 350, 375, 393 und 430 px geprüft.
+
+38. Datumsfelder sind vollständig lesbar.
+   Status: BESTANDEN IN BROWSER-SICHTPRÜFUNG
+   Nachweis: Browser-Emulation und Screenshots; native Safari-Felder bleiben auf echtem iPhone offen.
+
+39. Kein horizontaler Scrollbalken.
+   Status: BESTANDEN
+   Nachweis: documentElement.scrollWidth entsprach bei allen fünf Breiten dem Viewport.
+
+40. Fallback unter 370 px funktioniert.
+   Status: BESTANDEN
+   Nachweis: 320 und 350 px einspaltig.
+
+41. Viewport 320 px ohne Überlauf.
+   Status: BESTANDEN
+   Nachweis: Felder und Schaltflächen innerhalb der Karte.
+
+42. Viewport 350 px ohne Überlauf.
+   Status: BESTANDEN
+   Nachweis: Felder und Schaltflächen innerhalb der Karte.
+
+43. Viewport 375 px ohne Überlauf.
+   Status: BESTANDEN
+   Nachweis: Zweispaltig ohne Überlauf.
+
+44. Viewport 393 px ohne Überlauf.
+   Status: BESTANDEN
+   Nachweis: Zweispaltig ohne Überlauf.
+
+45. Viewport 430 px ohne Überlauf.
+   Status: BESTANDEN
+   Nachweis: Zweispaltig ohne Überlauf.
+
+46. Großer blauer Vorschau-Block ist entfernt.
+   Status: BESTANDEN
+   Nachweis: Keine Vorschaukarte im Normalzustand.
+
+47. Arbeitstage-Vorschau bleibt kompakt erhalten.
+   Status: BESTANDEN
+   Nachweis: Neutrale Textvorschau geprüft.
+
+48. Nur echte Konflikte werden auffällig dargestellt.
+   Status: BESTANDEN
+   Nachweis: Normalhinweis neutral; Konflikt separat erkannt.
+
+49. Einstellungen enthalten einen gemeinsamen Block „Urlaub und Feiertage“.
+   Status: BESTANDEN
+   Nachweis: DOM- und Sichtprüfung.
+
+50. Hauptseiteneintrag heißt „Urlaubsanspruch“.
+   Status: BESTANDEN
+   Nachweis: Neutraler Titel gesetzt.
+
+51. Keine feste Jahreszahl im Titel der Einstellungs-Hauptseite.
+   Status: BESTANDEN
+   Nachweis: Titel enthält keine Jahreszahl.
+
+52. Jahresauswahl erscheint nach dem Öffnen.
+   Status: BESTANDEN
+   Nachweis: Im separaten Dialog vorhanden.
+
+53. Urlaubsanspruch 2026 beträgt 139, sofern kein Nutzerwert existiert.
+   Status: BESTANDEN
+   Nachweis: Initialwert 139.
+
+54. Vorhandener Nutzerwert wird nicht überschrieben.
+   Status: BESTANDEN
+   Nachweis: 35 Tage blieben in Schema-13-Migration erhalten.
+
+55. Vorhandener Übertrag wird nicht überschrieben.
+   Status: BESTANDEN
+   Nachweis: 5 Tage blieben erhalten.
+
+56. Übertrag kann später manuell ergänzt werden.
+   Status: BESTANDEN
+   Nachweis: 7,5 Tage gespeichert und nach Neustart geladen.
+
+57. Urlaubsgrafik verwendet die grüne Farbfamilie der Verlaufsgrafik.
+   Status: BESTANDEN
+   Nachweis: Berechnete CSS-Farben geprüft.
+
+58. Genommen und geplant bleiben unterscheidbar.
+   Status: BESTANDEN
+   Nachweis: Dunkle und helle Grünabstufung verschieden.
+
+59. Oberhalb der Grafik steht kein Block „Urlaubskonto“.
+   Status: BESTANDEN
+   Nachweis: Alter Block verborgen/entfernt.
+
+60. Urlaubskonto erscheint standardmäßig im Detailbereich.
+   Status: BESTANDEN
+   Nachweis: Jahreskonto nach Öffnen sichtbar.
+
+61. Monatsauswahl ersetzt den Detailinhalt dynamisch.
+   Status: BESTANDEN
+   Nachweis: Monatsdetails nach Fingertipp/Klick.
+
+62. Rückkehr zur Gesamtansicht funktioniert.
+   Status: BESTANDEN
+   Nachweis: Aktion „Urlaubskonto anzeigen“ geprüft.
+
+63. Monatsbericht zeigt genommenen Urlaub.
+   Status: BESTANDEN
+   Nachweis: UI und PDF.
+
+64. Monatsbericht zeigt geplanten Urlaub.
+   Status: BESTANDEN
+   Nachweis: UI und PDF.
+
+65. Monatsbericht zeigt Urlaub gesamt.
+   Status: BESTANDEN
+   Nachweis: UI und PDF.
+
+66. Jahresbericht zeigt genommenen Urlaub.
+   Status: BESTANDEN
+   Nachweis: UI und PDF.
+
+67. Jahresbericht zeigt geplanten Urlaub.
+   Status: BESTANDEN
+   Nachweis: UI und PDF.
+
+68. Jahresbericht zeigt Urlaub gesamt.
+   Status: BESTANDEN
+   Nachweis: UI und PDF.
+
+69. Halbe Urlaubstage zählen mit 0,5.
+   Status: BESTANDEN
+   Nachweis: Monatsberechnung 0,5 geprüft.
+
+70. Feiertage werden in den Berichten nicht als Urlaub gezählt.
+   Status: BESTANDEN
+   Nachweis: Urlaubsplanung lässt gesetzliche und betriebliche Feiertage aus.
+
+71. PDF-Monatsbericht enthält die Werte.
+   Status: BESTANDEN
+   Nachweis: PDF erzeugt und Text extrahiert.
+
+72. PDF-Jahresbericht enthält die Werte.
+   Status: BESTANDEN
+   Nachweis: PDF erzeugt und Text extrahiert.
+
+73. JSON-Export funktioniert.
+   Status: BESTANDEN
+   Nachweis: Schema 14 und Urlaubseinstellungen geprüft.
+
+74. Excel-Export funktioniert.
+   Status: BESTANDEN
+   Nachweis: Gültige XLSX-Struktur und Urlaubseinstellungen geprüft.
+
+75. Wiederherstellung funktioniert.
+   Status: BESTANDEN
+   Nachweis: Vollständigen gesicherten Zustand technisch wiederhergestellt.
+
+76. Neue Urlaubseinstellungen bleiben nach Neustart erhalten.
+   Status: BESTANDEN
+   Nachweis: Carryover 7,5 nach neuem App-Start vorhanden.
+
+77. Alte Backups bleiben importierbar.
+   Status: BESTANDEN
+   Nachweis: Schema-13-Backup validiert und Migration 13 → 14 geprüft.
+
+78. Neue Backups enthalten alle jahresbezogenen Urlaubseinstellungen.
+   Status: BESTANDEN
+   Nachweis: JSON und Excel geprüft.
+
+79. Graphwechsel verursacht keine Speicherfehlermeldung.
+   Status: BESTANDEN
+   Nachweis: Keine Fehler; Speicherzustand unverändert.
+
+80. Reine UI-Wechsel erzeugen keine Backup-Rotation.
+   Status: BESTANDEN
+   Nachweis: localStorage vor/nach UI-Wechsel identisch.
+
+81. Keine doppelten HTML-IDs.
+   Status: BESTANDEN
+   Nachweis: 268 IDs, keine Duplikate.
+
+82. Keine sichtbaren Überläufe.
+   Status: BESTANDEN IN BROWSER-SICHTPRÜFUNG
+   Nachweis: Fünf Breiten und 14 Ansichten geprüft.
+
+83. Keine abgeschnittenen Aktionsschaltflächen.
+   Status: BESTANDEN
+   Nachweis: Bei allen fünf Breiten innerhalb der Kartenränder.
+
+84. Keine Regression der bestehenden Berichte.
+   Status: BESTANDEN
+   Nachweis: Monats-/Jahresansicht und beide PDFs technisch erzeugt.
+
+85. Keine Regression der Zeitberechnung.
+   Status: BESTANDEN
+   Nachweis: Netto, Soll, Differenz und Zeitkonto identisch zu V5.37.
+
+86. Keine Regression der Feiertagslogik.
+   Status: BESTANDEN
+   Nachweis: Gesetzliche und betriebliche Feiertage in Planung und Sollzeitlogik geprüft.
+
+87. Keine Regression der Offlinefunktion.
+   Status: TECHNISCH BESTANDEN / ECHTES IPHONE OFFEN
+   Nachweis: Manifest, Service Worker, Cachekennung und Assets geprüft; realer Offline-Neustart auf physischem iPhone noch praktisch zu prüfen.
+
+SICHTPRÜFUNGEN
+- 01 Heute – 393 px
+- 02 Schnelleinträge – 393 px
+- 03 Plus-Menü – 393 px
+- 04 Vollständiger Tag – 393 px
+- 05 Zukünftiger Tag – 393 px
+- 06 Abwesenheit – 393 px
+- 07 Einstellungen – 393 px
+- 08 Feiertage – 393 px
+- 09 Urlaubsanspruch – 393 px
+- 10 Urlaubsauswertung – 393 px
+- 11 Urlaubsmonat – 393 px
+- 12 Monatsbericht – 393 px
+- 13 Jahresbericht – 393 px
+- 14 Abwesenheit-Fallback – 350 px
+
+NOCH AUF ECHTEM IPHONE PRAKTISCH ZU PRÜFEN
+- Native Safari-Datumsfelder
+- Touch-Bedienung und Bildschirmtastatur
+- PWA-Installation
+- Offline-Neustart
+- Teilen-Menü
+- Safe-Area-Abstände

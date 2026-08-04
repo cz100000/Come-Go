@@ -4,8 +4,8 @@ const STORAGE_BACKUP_KEYS=[1,2,3].map(n=>`${STORAGE_KEY}-backup-${n}`);
 const STORAGE_CORRUPT_KEY=STORAGE_KEY+'-corrupt';
 const BACKUP_FORMAT='arbeitszeit-pwa-backup';
 const TRACKING_START_DATE='2022-11-01';
-const APP_VERSION='5.37';
-const CURRENT_SCHEMA=13;
+const APP_VERSION='5.39';
+const CURRENT_SCHEMA=14;
 const IMPORT_DATA_VERSION=4;
 const CALCULATION_VERSION=2;
 const HOLIDAY_REGIONS=Object.freeze({BW:'Baden-Württemberg',BY:'Bayern',BE:'Berlin',BB:'Brandenburg',HB:'Bremen',HH:'Hamburg',HE:'Hessen',MV:'Mecklenburg-Vorpommern',NI:'Niedersachsen',NW:'Nordrhein-Westfalen',RP:'Rheinland-Pfalz',SL:'Saarland',SN:'Sachsen',ST:'Sachsen-Anhalt',SH:'Schleswig-Holstein',TH:'Thüringen'});
@@ -29,7 +29,7 @@ let pendingShareFiles=null;
 let fallbackShareCompleted={json:false,excel:false};
 let pendingDiscardModalId=null,pendingDiscardAction=null,pendingUndo=null;
 const modalBaselines=new Map();
-const guardedModalIds=new Set(['dayModal','entryModal','pauseModal','manualQuickModal','quickAbsenceModal','absenceModal']);
+const guardedModalIds=new Set(['dayModal','entryModal','pauseModal','quickTodayModal','manualQuickModal','quickAbsenceModal','absenceModal']);
 const $=id=>document.getElementById(id);
 const SVG={
 in:`<svg class="icon" viewBox="0 0 32 32"><path d="M11 5.5h12v21H11"/><path d="M4.5 16h16M15.5 10.5 21 16l-5.5 5.5"/></svg>`,
@@ -88,6 +88,7 @@ s.targetRules=normalizeTargetRules(s.targetRules);s.holidayRegionRules=normalize
 for(const d of Object.values(migrated.days)){const generatedName=computedHolidayNameForSettings(d.date,s);if(generatedName&&d.sourceYear&&dayAbsenceCode(d)==='holiday'&&!d.edited){d.generatedHoliday=true;d.absence='Feiertag';d.absenceCode='holiday';d.absenceDuration='full';d.holiday=generatedName}}
 if(!s.vacationEntitlements||typeof s.vacationEntitlements!=='object'||Array.isArray(s.vacationEntitlements))s.vacationEntitlements={};
 for(const [year,value] of Object.entries(s.vacationEntitlements)){if(!/^\d{4}$/.test(year)||!value||typeof value!=='object'){delete s.vacationEntitlements[year];continue}s.vacationEntitlements[year]={days:Math.max(0,Number(value.days)||0),carryover:Math.max(0,Number(value.carryover)||0)}}
+if(!Object.prototype.hasOwnProperty.call(s.vacationEntitlements,'2026'))s.vacationEntitlements['2026']={days:139,carryover:0};
 if(typeof s.lastExternalBackupAt!=='string')s.lastExternalBackupAt='';if(typeof s.employeeName!=='string')s.employeeName='';if(typeof s.freeChristmasEve!=='boolean')s.freeChristmasEve=true;if(typeof s.freeNewYearsEve!=='boolean')s.freeNewYearsEve=true;if(typeof s.reportSignature!=='boolean')s.reportSignature=true;if(typeof s.countdownEnabled!=='boolean')s.countdownEnabled=true;if(typeof s.bookingSoundEnabled!=='boolean')s.bookingSoundEnabled=false;if(typeof s.countdownCelebratedDate!=='string')s.countdownCelebratedDate=null;if(typeof s.showWeekends!=='boolean')s.showWeekends=false;
 if(!s.legacyBalanceCheckpoint&&Number.isFinite(Number(s.balanceCheckpointMinutes)))s.legacyBalanceCheckpoint={date:s.balanceCheckpointDate||'2026-07-22',minutes:Number(s.balanceCheckpointMinutes),version:s.balanceCheckpointVersion||2};
 s.startBalanceMinutes=0;s.trackingStartDate=TRACKING_START_DATE;s.calculationVersion=CALCULATION_VERSION;s.importDataVersion=IMPORT_DATA_VERSION;s.schemaVersion=CURRENT_SCHEMA;
@@ -490,7 +491,7 @@ const statusClass=status==='Vollständig'||status==='Abwesenheit erfasst'?'succe
 const source=d.edited?'Nachträglich geändert':d.capturedAfterImport?'Lokale Erfassung':d.sourceYear?`Importierte Daten aus ${d.sourceYear}`:'Lokale Erfassung';
 const rows=entries.length?entries.map((entry,index)=>`<tr><td>${index+1}</td><td>${entry.type==='in'?'Kommen':'Gehen'}</td><td class="num">${esc(entry.actual||'–')}</td><td class="num">${esc(entry.logged||'–')}</td><td><span class="booking-source">${esc(entrySource(d,entry))}</span></td></tr>`).join(''):`<tr><td colspan="5" class="empty">Für diesen Tag sind noch keine Zeiten erfasst.</td></tr>`;
 let inNo=0,outNo=0;
-const mobileRows=entries.length?`<div class="booking-compact-head"><span></span><span>Tatsächlich</span><span>Dokumentiert</span><span></span></div>${entries.map((entry,index)=>{const no=entry.type==='in'?++inNo:++outNo,label=entry.type==='in'?`Kommen ${no}`:`Gehen ${no}`;return `<div class="booking-compact-row ${entry.type}"><div class="booking-compact-label"><span class="booking-type-icon">${entry.type==='in'?SVG.in:SVG.out}</span><span><b>${label}</b><small>${esc(entrySource(d,entry))}</small></span></div><b class="booking-compact-time">${esc(entry.actual||'–')}</b><b class="booking-compact-time">${esc(entry.logged||'–')}</b><button type="button" class="edit-icon-btn" onclick="openSingleEntryEditor('${k}',${index})" aria-label="${label} bearbeiten">${SVG.edit}</button></div>`}).join('')}`:`<div class="empty-day-state"><b>Für diesen Tag sind noch keine Zeiten erfasst.</b><span>Nutze den Plus-Button oder eine der direkten Aktionen.</span><div><button type="button" onclick="openTimeAction('${k}')">Zeit ergänzen</button><button type="button" onclick="openAbsenceTypePicker('${k}')">Abwesenheit eintragen</button></div></div>`;
+const mobileRows=entries.length?`<div class="booking-compact-head"><span></span><span>Tatsächlich</span><span>Dokumentiert</span><span></span></div>${entries.map((entry,index)=>{const no=entry.type==='in'?++inNo:++outNo,label=entry.type==='in'?`Kommen ${no}`:`Gehen ${no}`;return `<div class="booking-compact-row ${entry.type}"><div class="booking-compact-label"><span class="booking-type-icon">${entry.type==='in'?SVG.in:SVG.out}</span><span><b>${label}</b><small>${esc(entrySource(d,entry))}</small></span></div><b class="booking-compact-time">${esc(entry.actual||'–')}</b><b class="booking-compact-time">${esc(entry.logged||'–')}</b><button type="button" class="edit-icon-btn" onclick="openSingleEntryEditor('${k}',${index})" aria-label="${label} bearbeiten">${SVG.edit}</button></div>`}).join('')}`:`<div class="empty-day-state"><b>Für diesen Tag sind noch keine Zeiten erfasst.</b><span>Nutze den Plus-Button oder eine der direkten Aktionen.</span><div><button type="button" onclick="openFullDayForDate('${k}')">Vollständigen Tag bearbeiten</button><button type="button" onclick="openAbsenceTypePicker('${k}')">Abwesenheit eintragen</button></div></div>`;
 const groupCount=d.absenceGroupId?absenceGroupDays(d.absenceGroupId).length:1;
 const reviewIssue=workdayIssueForDate(k,{includeReviewed:true});
 const reviewStatus=d.workdayIssueReview&&reviewIssue?.reviewed?`<div class="detail-row review-status-row"><span>Prüfstatus</span><b class="review-status-chip">Geprüft</b></div><div class="review-status-meta">Minusstunden bestätigt am ${esc(new Intl.DateTimeFormat('de-DE',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'}).format(new Date(d.workdayIssueReview.reviewedAt)))}</div>`:'';
@@ -576,7 +577,7 @@ singleEntryDate=k;singleEntryIndex=index;$('singleEntryType').value=entry.type;$
 }
 function saveSingleEntry(){
 if(singleEntryDate===null||singleEntryIndex<0)return;
-const actual=$('singleEntryActual').value,logged=$('singleEntryLogged').value,type=$('singleEntryType').value;
+const actual=$('singleEntryActual').value,type=$('singleEntryType').value,logged=roundLogged(actual,type);
 if(!isClock(actual)||!isClock(logged)){alert('Bitte beide Uhrzeiten vollständig eingeben.');return}
 if(singleEntryDate===todayKey()&&minutes(actual)>minutes(hm())){alert('Zukünftige Arbeitszeitbuchungen sind nicht zulässig.');return}
 const d=clone(dayObject(singleEntryDate,true)),entries=clone(d.entries||[]),old=entries[singleEntryIndex];if(!old)return;
@@ -781,7 +782,7 @@ if(status==='Vollständig')return 'Die vorhandenen Buchungen sind vollständig. 
 return 'Die Buchungsfolge ist unvollständig und sollte geprüft werden.';
 }
 function openTimeAction(date=quickContextDate){
-quickContextDate=date;closeModal('quickAddModal');closeModal('workdayIssuesModal');$('timeActionTitle').textContent='Zeit ergänzen oder korrigieren';$('timeActionDate').max=todayKey();$('timeActionDate').value=date>todayKey()?todayKey():date;renderTimeCorrectionCard();openModal('timeActionModal');
+  openFullDayForDate(date);
 }
 function suggestedActualForDate(k,type){
 if(k===todayKey())return hm();const entries=dayObject(k).entries||[],previous=entries.at(-1);if(!previous)return'';const base=minutes(previous.actual||previous.logged||'00:00');return clockFromMinutes(Math.min(1435,base+5));
@@ -790,7 +791,7 @@ function openManualTimeQuick(date=quickContextDate,type=null){
 quickContextDate=date;manualQuickDate=date;closeModal('timeActionModal');const d=dayObject(date),entries=d.entries||[];manualQuickType=type||nextActionForDay(d);const label=manualQuickType==='in'?'Kommen':'Gehen',actual=suggestedActualForDate(date,manualQuickType),logged=actual?roundLogged(actual,manualQuickType):'';$('manualQuickTitle').textContent=`${label} ergänzen`;$('manualQuickContext').textContent=formatContextDate(date);$('manualQuickBookingType').textContent=label;$('manualQuickHint').innerHTML='';$('manualActual').value=actual;$('manualLogged').value=logged;$('saveManualQuick').textContent=`${label} speichern`;$('timeInfoText').hidden=true;openModal('manualQuickModal');
 }
 function saveManualQuick(){
-const k=manualQuickDate,d=clone(dayObject(k,true)),actual=$('manualActual').value,logged=$('manualLogged').value,label=manualQuickType==='in'?'Kommen':'Gehen';
+const k=manualQuickDate,d=clone(dayObject(k,true)),actual=$('manualActual').value,logged=roundLogged(actual,manualQuickType),label=manualQuickType==='in'?'Kommen':'Gehen';
 if(k>todayKey()){alert('Zukünftige Arbeitszeitbuchungen sind nicht zulässig.');return}
 if(hasFullAbsence(d)){alert('Für diesen Tag ist eine ganztägige Abwesenheit eingetragen. Nutze den vollständigen Tageseditor, um den Konflikt zu prüfen.');return}
 if(!isClock(actual)||!isClock(logged)){alert('Bitte beide Uhrzeiten vollständig eingeben.');return}
@@ -1097,7 +1098,7 @@ $('vacationChart').querySelectorAll('[data-vacation-month]').forEach(button=>but
 function openVacationEntitlement(year=Number($('vacationYear')?.value)||new Date().getFullYear()){
   const sel=$('vacationEntitlementYear');sel.innerHTML=vacationYearOptions().map(y=>`<option value="${y}">${y}</option>`).join('');sel.value=String(year);loadVacationEntitlementFields();openModal('vacationEntitlementModal');
 }
-function loadVacationEntitlementFields(){const y=Number($('vacationEntitlementYear').value),e=vacationEntitlementForYear(y);$('vacationEntitlementDays').value=e.days||'';$('vacationCarryoverDays').value=e.carryover||'';updateVacationEntitlementSummary()}
+function loadVacationEntitlementFields(){const y=Number($('vacationEntitlementYear').value),e=vacationEntitlementForYear(y);$('vacationEntitlementDays').value=Number.isFinite(Number(e.days))?String(e.days):'0';$('vacationCarryoverDays').value=Number.isFinite(Number(e.carryover))?String(e.carryover):'0';updateVacationEntitlementSummary()}
 function updateVacationEntitlementSummary(){const d=Math.max(0,Number($('vacationEntitlementDays').value)||0),c=Math.max(0,Number($('vacationCarryoverDays').value)||0);$('vacationEntitlementSummary').innerHTML=`<span>Verfügbarer Gesamtanspruch</span><strong>${formatVacationDays(d+c)}</strong>`}
 function saveVacationEntitlement(){const y=Number($('vacationEntitlementYear').value),days=Number($('vacationEntitlementDays').value),carry=Number($('vacationCarryoverDays').value);if(!Number.isFinite(days)||days<0||!Number.isFinite(carry)||carry<0){showToast('Urlaubsanspruch prüfen');return}vacationEntitlements()[String(y)]={days,carryover:carry};saveState();closeModal('vacationEntitlementModal');renderVacationOverview();renderSettings();showToast(`Urlaubsanspruch ${y} gespeichert`)}
 function openDayPicker(){closeModal('quickAddModal');$('selectedEditDate').value=todayKey();$('dayPickerNote').textContent='Zukünftige Arbeitszeitbuchungen bleiben gesperrt. Vorhandene Abwesenheiten können bearbeitet oder gelöscht werden.';openModal('dayPickerModal')}
@@ -1231,12 +1232,18 @@ function dayCardAbsenceText(d=dayCardDraft){
   if(!d?.absence)return'Keine';
   const extent=absenceDuration(d)==='half'?' · halber Tag':'';return`${d.absence}${extent}`;
 }
+
+function nextBookingActionMeta(entries=[]){
+  if(!entries.length)return{type:'in',title:'Kommen hinzufügen',subtitle:'Erste Buchung des Arbeitsblocks'};
+  if(entries.at(-1)?.type==='in')return{type:'out',title:'Gehen ergänzen',subtitle:'Offenen Arbeitsblock abschließen'};
+  return{type:'in',title:'Weiteren Arbeitsblock hinzufügen',subtitle:'Mit einer weiteren Kommen-Buchung beginnen'};
+}
 function renderDayOverview(){
-  const entries=dayCardDraft.entries||[];
+  const entries=dayCardDraft.entries||[],nextBooking=nextBookingActionMeta(entries);
   const entryRows=entries.map((entry,index)=>`<button type="button" class="unified-list-row booking-disclosure" data-day-entry="${index}"><span class="unified-row-main"><b>${esc(dayCardEntryLabel(index))}</b><small>Tatsächlich ${esc(entry.actual||'–')} · Dokumentiert ${esc(entry.logged||'–')}</small></span><i aria-hidden="true">›</i></button>`).join('');
   const note=normalizeNoteText(dayCardDraft.note);
   $('dayCardBody').innerHTML=`
-    <section class="unified-list-section" aria-labelledby="dayCardBookings"><h3 id="dayCardBookings">Buchungen</h3><div class="unified-list">${entryRows||'<div class="unified-empty-row">Keine Buchungen vorhanden</div>'}<button type="button" class="unified-list-row unified-add-row" id="dayAddEntry"><span class="unified-row-main"><b>Buchung hinzufügen</b><small>Kommen oder Gehen ergänzen</small></span><i aria-hidden="true">›</i></button></div></section>
+    <section class="unified-list-section" aria-labelledby="dayCardBookings"><h3 id="dayCardBookings">Buchungen</h3><div class="unified-list">${entryRows||'<div class="unified-empty-row">Keine Buchungen vorhanden</div>'}<button type="button" class="unified-list-row unified-add-row" id="dayAddEntry"><span class="unified-row-main"><b>${nextBooking.title}</b><small>${nextBooking.subtitle}</small></span><i aria-hidden="true">›</i></button></div></section>
     <section class="unified-list-section" aria-labelledby="dayCardDetails"><h3 id="dayCardDetails">Tagesangaben</h3><div class="unified-list">
       <button type="button" class="unified-list-row" data-day-route="pause"><span class="unified-row-main"><b>Pause</b><small>Manuelle Pausenzeit</small></span><span class="unified-row-end"><strong>${Math.max(0,Number(dayCardDraft.pauseMinutes)||0)} Min.</strong><i aria-hidden="true">›</i></span></button>
       <button type="button" class="unified-list-row" data-day-route="absence"><span class="unified-row-main"><b>Abwesenheit</b><small>${esc(dayCardDraft.absenceNote||'Einzelner ausgewählter Tag')}</small></span><span class="unified-row-end"><strong>${esc(dayCardAbsenceText())}</strong><i aria-hidden="true">›</i></span></button>
@@ -1244,7 +1251,7 @@ function renderDayOverview(){
     </div></section>
     <section class="unified-list-section"><div class="unified-list"><button type="button" class="unified-list-row" data-day-route="actions"><span class="unified-row-main"><b>Weitere Aktionen</b><small>Löschen oder Importdaten wiederherstellen</small></span><i aria-hidden="true">›</i></button></div></section>`;
   document.querySelectorAll('[data-day-entry]').forEach(button=>button.addEventListener('click',()=>dayCardNavigate('entry',{index:Number(button.dataset.dayEntry)})));
-  $('dayAddEntry').addEventListener('click',()=>{const type=!entries.length||entries.at(-1)?.type==='out'?'in':'out';dayCardNavigate('entry',{index:-1,type})});
+  $('dayAddEntry').addEventListener('click',()=>dayCardNavigate('entry',{index:-1,type:nextBooking.type}));
   document.querySelectorAll('[data-day-route]').forEach(button=>button.addEventListener('click',()=>dayCardNavigate(button.dataset.dayRoute)));
   dayCardSetFooter('<button type="button" class="cancel" id="dayCancelEdit">Abbrechen</button><button type="button" class="save" id="daySaveEdit">Tag speichern</button>');
   $('dayCancelEdit').addEventListener('click',requestDayCardClose);$('daySaveEdit').addEventListener('click',saveDayCard);
@@ -1256,7 +1263,7 @@ function renderDayEntry(){
   $('dayCardBody').innerHTML=`<div class="unified-form">
     <div class="context-date">${formatContextDate($('editDate').value)}</div>
     <div class="field"><label for="dayEntryType">Buchungsart</label><select id="dayEntryType"><option value="in" ${type==='in'?'selected':''}>Kommen</option><option value="out" ${type==='out'?'selected':''}>Gehen</option></select></div>
-    <div class="unified-time-grid"><div class="field"><label for="dayEntryActual">Tatsächliche Uhrzeit</label><input id="dayEntryActual" type="time" value="${esc(actual)}"></div><div class="field"><label for="dayEntryLogged">Dokumentierte Uhrzeit</label><input id="dayEntryLogged" type="time" value="${esc(logged)}"></div></div>
+    <div class="unified-time-grid"><div class="field"><label for="dayEntryActual">Tatsächliche Uhrzeit</label><input id="dayEntryActual" type="time" value="${esc(actual)}"></div><div class="field"><label for="dayEntryLogged">Dokumentierte Uhrzeit</label><input id="dayEntryLogged" type="time" value="${esc(logged)}" readonly aria-readonly="true"><small class="field-hint">Automatisch ${type==='in'?'auf den nächsten':'auf den vorherigen'} 5-Minuten-Wert gerundet.</small></div></div>
     <div class="unified-origin"><b>Herkunft</b><span>${esc(origin)}</span></div>
     <div id="dayEntryError" class="unified-inline-error" role="alert" hidden></div>
     ${existing?'<button type="button" class="unified-danger-action" id="dayDeleteEntry">Buchung löschen</button>':''}
@@ -1269,7 +1276,7 @@ function renderDayEntry(){
   dayCardFormBaseline=dayCardFormSnapshot();
 }
 function applyDayEntry(){
-  const index=Number(dayCardCurrent.params.index),type=$('dayEntryType').value,actual=$('dayEntryActual').value,logged=$('dayEntryLogged').value,error=$('dayEntryError');
+  const index=Number(dayCardCurrent.params.index),type=$('dayEntryType').value,actual=$('dayEntryActual').value,logged=roundLogged(actual,type),error=$('dayEntryError');
   if(!isClock(actual)||!isClock(logged)){error.hidden=false;error.textContent='Bitte beide Uhrzeiten vollständig und gültig eingeben.';return}
   if($('editDate').value===todayKey()&&minutes(actual)>minutes(hm())){error.hidden=false;error.textContent='Zukünftige Arbeitszeitbuchungen sind nicht zulässig.';return}
   const entries=clone(dayCardDraft.entries||[]),old=index>=0?entries[index]:null,unchanged=old&&old.type===type&&String(old.actual||'')===actual&&String(old.logged||'')===logged;
@@ -1515,3 +1522,295 @@ function saveAbsence(){
   }
   commitAbsencePlan(plan);
 }
+
+
+/* V5.39 – eindeutige Tagesbearbeitung und verbindliche Rundung */
+renderToday=function(){
+  ensureHolidayYear(new Date().getFullYear());
+  const d=dayObject(todayKey());
+  document.title=`Arbeitszeit PWA · Version ${APP_VERSION}`;
+  updateClock();
+  const quickSummary=$('todayQuickSummary');
+  if(quickSummary)quickSummary.textContent='Pause oder Kommentar für heute';
+  const legacyComment=$('todayCommentRow');if(legacyComment)legacyComment.hidden=true;
+  const banner=$('todayAbsenceBanner'),full=hasFullAbsence(d),half=d.absence&&absenceDuration(d)==='half';
+  banner.hidden=!d.absence;document.querySelector('.punch-grid')?.classList.toggle('absence-full',full);
+  if(d.absence){
+    $('todayAbsenceTitle').textContent=half?`Heute: ${d.absence} (halber Tag)`:`Heute ist ${d.absence} eingetragen`;
+    $('todayAbsenceText').textContent=half?`Die Sollzeit ist auf ${formatDuration(targetMinutesForDate(d.date,d),{signed:false})} Stunden reduziert; Arbeitszeitbuchungen bleiben möglich.`:`Die Sollzeit beträgt heute ${formatDuration(targetMinutesForDate(d.date,d),{signed:false})} Stunden.`;
+  }
+  renderPastWorkdayNotice();renderTodayCapture(d);updateCountdown();
+};
+
+function openQuickTodayEntries(){
+  const d=dayObject(todayKey());
+  $('quickTodayPause').value=String(Math.max(0,Number(d.pauseMinutes)||0));
+  $('quickTodayNote').value=d.note||'';
+  $('quickTodayError').hidden=true;$('quickTodayError').textContent='';
+  openModal('quickTodayModal');
+  setTimeout(()=>$('quickTodayPause')?.focus(),60);
+}
+function saveQuickTodayEntries(){
+  const raw=String($('quickTodayPause').value??'').trim(),pause=raw===''?0:Number(raw),error=$('quickTodayError'),d=clone(dayObject(todayKey(),true));
+  if(!Number.isFinite(pause)||pause<0||pause>1440||!Number.isInteger(pause)){
+    error.hidden=false;error.textContent='Pausenminuten als ganze Zahl zwischen 0 und 1440 eingeben.';return;
+  }
+  if(hasFullAbsence(d)&&pause>0){
+    error.hidden=false;error.textContent='Bei einer ganztägigen Abwesenheit kann keine Pause eingetragen werden.';return;
+  }
+  d.pauseMinutes=pause;d.note=$('quickTodayNote').value.trim();d.edited=true;d.modifiedAt=new Date().toISOString();
+  state.days[todayKey()]=d;touchDay(todayKey());closeModal('quickTodayModal');refreshAllDerivedViews();showToast('Pause und Kommentar gespeichert');
+}
+
+openQuickAdd=function(date=todayKey()){
+  quickContextDate=date||todayKey();
+  openModal('quickAddModal');
+};
+openFullDayForDate=function(date=quickContextDate,sourceModalId=null){
+  const target=isDateKey(date)?date:todayKey();
+  ['quickAddModal','timeActionModal','manualQuickModal','entryModal','bookingListModal','dayPickerModal'].forEach(id=>{if($(id)?.classList.contains('open'))closeModal(id)});
+  openDayEditor(target);
+};
+
+updateAbsenceSummary=function(){
+  const box=$('absenceSummary'),from=$('absenceFrom').value,to=$('absenceTo').value,halfOption=$('absenceExtent').querySelector('option[value="half"]'),multi=!!(from&&to&&from!==to);
+  halfOption.disabled=multi;if(multi&&$('absenceExtent').value==='half')$('absenceExtent').value='full';
+  const plan=absencePlan(),policyField=$('absenceConflictPolicyField');syncAbsenceExistingNotice();
+  box.classList.toggle('has-conflict',!!plan.conflicts?.length);
+  if(plan.error){
+    policyField.hidden=true;box.innerHTML=`<div class="absence-preview-error"><b>Eingaben prüfen</b><span>${esc(plan.error)}</span></div>`;$('saveAbsenceBtn').disabled=true;return;
+  }
+  const weekendCount=plan.range.filter(k=>{const day=parseDateKey(k).getDay();return day===0||day===6}).length;
+  const holidayCount=Math.max(0,plan.range.length-plan.workdays.length-weekendCount);
+  policyField.hidden=!plan.conflicts.length;if(!plan.conflicts.length)$('absenceConflictPolicy').value='abort';
+  const workText=`${plan.workdays.length} ${plan.workdays.length===1?'Arbeitstag wird':'Arbeitstage werden'} berücksichtigt.`;
+  const skipped=[];
+  if(holidayCount)skipped.push(`${holidayCount} ${holidayCount===1?'Feiertag wird':'Feiertage werden'} ausgelassen`);
+  if(weekendCount)skipped.push(`${weekendCount} ${weekendCount===1?'Wochenendtag wird':'Wochenendtage werden'} ausgelassen`);
+  const neutral=`<p>${workText}${skipped.length?` ${skipped.join(' und ')}.`:''}</p>`;
+  const conflict=plan.conflicts.length?`<div class="conflict">Konflikte an ${plan.conflicts.length} Tag(en): ${plan.conflicts.slice(0,4).map(k=>formatDate(k,{day:'2-digit',month:'2-digit'})).join(', ')}${plan.conflicts.length>4?' …':''}. Es wird nichts still überschrieben.</div>`:'';
+  box.innerHTML=neutral+conflict;$('saveAbsenceBtn').disabled=!plan.workdays.length;
+};
+
+function vacationPeriodBreakdown(start,end){
+  let taken=0,planned=0;
+  if(!isDateKey(start)||!isDateKey(end)||start>end)return{taken,planned,total:0};
+  for(const k of dateRange(start,end)){
+    const d=state.days[k];if(!d||dayAbsenceCode(d)!=='vacation'||!isAbsenceWorkday(k))continue;
+    const units=absenceDuration(d)==='half'?0.5:1;
+    if(k<=todayKey())taken+=units;else planned+=units;
+  }
+  return{taken,planned,total:taken+planned};
+}
+renderVacationDetail=function(year,s,monthData){
+  const month=vacationChartSelection.month,detail=$('vacationDetail');if(!detail)return;
+  if(month===null){
+    detail.innerHTML=`<h3>Urlaubskonto ${year}</h3><div><span>Anspruch</span><strong>${formatVacationDays(s.ent.days)}</strong></div><div><span>Übertrag</span><strong>${formatVacationDays(s.ent.carryover)}</strong></div><div><span>Gesamt verfügbar</span><strong>${formatVacationDays(s.total)}</strong></div><div><span>Genommen</span><strong>${formatVacationDays(s.taken)}</strong></div><div><span>Geplant</span><strong>${formatVacationDays(s.planned)}</strong></div><div><span>Verbleibend</span><strong class="${s.remaining<0?'red':'green'}">${formatVacationDays(s.remaining)}</strong></div>`;
+    return;
+  }
+  const range=vacationMonthRange(year,month),m=monthData[month],affected=s.records.filter(r=>r.days.some(d=>d.date>=range.from&&d.date<=range.to));
+  const usedThrough=s.records.flatMap(r=>r.days).filter(d=>d.date<=range.to).reduce((n,d)=>n+(absenceDuration(d)==='half'?0.5:1),0),remaining=s.total-usedThrough;
+  detail.innerHTML=`<div class="vacation-detail-head"><h3>${new Intl.DateTimeFormat('de-DE',{month:'long',year:'numeric'}).format(new Date(year,month,1))}</h3><button type="button" class="vacation-overall-link" id="vacationShowOverall">Urlaubskonto anzeigen</button></div><div><span>Genommen</span><strong>${formatVacationDays(m.taken)}</strong></div><div><span>Geplant</span><strong>${formatVacationDays(m.planned)}</strong></div><div class="vacation-periods"><span>Betroffene Zeiträume</span><strong>${affected.length?affected.map(vacationRecordLabel).join(', '):'Keine'}</strong></div><div><span>Verfügbar nach den Planungen</span><strong class="${remaining<0?'red':'green'}">${formatVacationDays(remaining)}</strong></div>`;
+  $('vacationShowOverall').addEventListener('click',()=>{vacationChartSelection={year,month:null};renderVacationOverview()});
+};
+renderVacationOverview=function(){
+  const yearSel=$('vacationYear');if(!yearSel)return;
+  const selected=Number(yearSel.value)||new Date().getFullYear();yearSel.innerHTML=vacationYearOptions().map(y=>`<option value="${y}">${y}</option>`).join('');yearSel.value=String(selected);
+  const s=vacationSummary(selected);if(vacationChartSelection.year!==selected)vacationChartSelection={year:selected,month:null};
+  const monthData=Array.from({length:12},(_,month)=>{let taken=0,planned=0;for(const r of s.records)for(const d of r.days){if(Number(d.date.slice(5,7))-1!==month)continue;const u=absenceDuration(d)==='half'?0.5:1;if(d.date<=todayKey())taken+=u;else planned+=u}return{month,taken,planned,total:taken+planned}});
+  const max=Math.max(1,...monthData.map(x=>x.total));
+  $('vacationChart').innerHTML=monthData.map(item=>{const takenHeight=item.taken/max*76,plannedHeight=item.planned/max*76,selectedMonth=vacationChartSelection.month===item.month;return `<button type="button" class="vacation-month ${selectedMonth?'selected':''}" data-vacation-month="${item.month}" aria-pressed="${selectedMonth}" aria-label="${['Januar','Februar','März','April','Mai','Juni','Juli','August','September','Oktober','November','Dezember'][item.month]}: ${formatVacationDays(item.taken)} genommen, ${formatVacationDays(item.planned)} geplant"><span class="vacation-bars"><i class="taken" style="height:${takenHeight}px"></i><i class="planned" style="height:${plannedHeight}px"></i></span><b>${['Jan','Feb','Mär','Apr','Mai','Jun','Jul','Aug','Sep','Okt','Nov','Dez'][item.month]}</b></button>`}).join('');
+  $('vacationChart').querySelectorAll('[data-vacation-month]').forEach(button=>button.addEventListener('click',()=>{const clicked=Number(button.dataset.vacationMonth);vacationChartSelection={year:selected,month:vacationChartSelection.month===clicked?null:clicked};renderVacationOverview()}));
+  renderVacationDetail(selected,s,monthData);renderVacationManager();
+};
+v536Refresh=function(){
+  renderVacationOverview();
+  const y=new Date().getFullYear(),e=vacationEntitlementForYear(y);
+  if($('vacationSettingsTitle'))$('vacationSettingsTitle').textContent='Urlaubsanspruch';
+  if($('vacationSettingsSummary'))$('vacationSettingsSummary').textContent='Anspruch und Übertrag je Kalenderjahr';
+  if($('vacationEntitlementCurrentValue'))$('vacationEntitlementCurrentValue').textContent=formatVacationDays(e.days+e.carryover);
+};
+
+dayCardTitle=function(view){
+  const entry=dayCardCurrent?.params?.index;
+  if(view==='entry'){
+    const existing=Number.isInteger(entry)&&entry>=0?dayCardDraft?.entries?.[entry]:null,type=existing?.type||dayCardCurrent?.params?.type||'in';
+    return existing?`${type==='in'?'Kommen':'Gehen'} bearbeiten`:'Buchung hinzufügen';
+  }
+  return({overview:'Vollständigen Tag bearbeiten',pause:'Pause bearbeiten',absence:'Abwesenheit bearbeiten',comment:'Kommentar bearbeiten',actions:'Weitere Aktionen',confirm:dayCardConfirmState?.title||'Bestätigen'})[view]||'Vollständigen Tag bearbeiten';
+};
+function loadDayEditorDate(k){
+  const key=isDateKey(k)&&k>=TRACKING_START_DATE?k:todayKey(),d=clone(dayObject(key));
+  dayCardOriginal=d;dayCardDraft=clone(d);dayCardCurrent={view:'overview',params:{}};dayCardStack=[];dayCardConfirmState=null;dayCardRestoreForm=null;$('editDate').value=key;renderDayCard();
+}
+function requestDayEditorDateChange(k){
+  if(!isDateKey(k)||k<TRACKING_START_DATE){renderDayCard();return}
+  if(k===$('editDate').value)return;
+  if(dayCardIsDirty()||dayCardSubviewDirty()){
+    dayCardAskConfirm({title:'Tag wechseln?',message:'Nicht gespeicherte Änderungen des aktuellen Tages gehen verloren.',confirmLabel:'Tag wechseln',onConfirm:()=>loadDayEditorDate(k)});return;
+  }
+  loadDayEditorDate(k);
+}
+dayCardNavigate=function(view,params={}){
+  const future=$('editDate').value>todayKey();
+  if(future&&['entry','pause','absence','actions'].includes(view)){showToast('Zukünftige Arbeitszeitdaten sind gesperrt. Abwesenheiten werden über die separate Abwesenheitsfunktion gepflegt.');return}
+  dayCardStack.push(dayCardCurrent);dayCardCurrent={view,params};renderDayCard();
+};
+renderDayOverview=function(){
+  const key=$('editDate').value,entries=dayCardDraft.entries||[],nextBooking=nextBookingActionMeta(entries),future=key>todayKey(),calc=calculateDay({...dayCardDraft,date:key}),validation=validateDayEditorEntries(entries,key);
+  const review=dayCardDraft.workdayIssueReview?.label||dayStatus({...dayCardDraft,date:key}),note=normalizeNoteText(dayCardDraft.note);
+  const entryRows=entries.map((entry,index)=>`<button type="button" class="unified-list-row booking-disclosure" data-day-entry="${index}" ${future?'disabled':''}><span class="unified-row-main"><b>${esc(dayCardEntryLabel(index))}</b><small>Tatsächlich ${esc(entry.actual||'–')} · Dokumentiert ${esc(entry.logged||'–')}</small></span>${future?'':'<i aria-hidden="true">›</i>'}</button>`).join('');
+  const issueText=!validation.valid?`<div class="day-editor-issue">Die Buchungsfolge enthält ${validation.errors.filter(Boolean).length} Hinweis(e). Bitte vor dem Speichern prüfen.</div>`:'';
+  const futureText=future?`<div class="day-editor-future-note"><b>Zukünftiger Tag</b><span>Arbeitszeitbuchungen und Pausen sind gesperrt. Zukünftige Abwesenheiten werden ausschließlich über „Abwesenheit eintragen oder bearbeiten“ gepflegt.</span></div>`:'';
+  $('dayCardBody').innerHTML=`
+    <div class="day-editor-date-row"><label for="dayEditorDateSelector">Datum</label><input id="dayEditorDateSelector" type="date" min="${TRACKING_START_DATE}" value="${key}"></div>
+    <div class="day-editor-status-grid"><div><span>Prüfstatus</span><b>${esc(review)}</b></div><div><span>Netto / Soll</span><b>${formatDuration(calc.net,{signed:false})} / ${formatDuration(calc.target,{signed:false})}</b></div><div><span>Tagessaldo</span><b class="${calc.diff<0?'red':'green'}">${formatDuration(calc.diff)}</b></div></div>
+    ${futureText}${issueText}
+    <section class="unified-list-section" aria-labelledby="dayCardBookings"><h3 id="dayCardBookings">Buchungen</h3><div class="unified-list">${entryRows||'<div class="unified-empty-row">Keine Buchungen vorhanden</div>'}<button type="button" class="unified-list-row unified-add-row" id="dayAddEntry" ${future?'disabled':''}><span class="unified-row-main"><b>${future?'Buchung hinzufügen':nextBooking.title}</b><small>${future?'Für zukünftige Tage nicht zulässig':nextBooking.subtitle}</small></span>${future?'':'<i aria-hidden="true">›</i>'}</button></div></section>
+    <section class="unified-list-section" aria-labelledby="dayCardDetails"><h3 id="dayCardDetails">Tagesangaben</h3><div class="unified-list">
+      <button type="button" class="unified-list-row" data-day-route="pause" ${future?'disabled':''}><span class="unified-row-main"><b>Pause</b><small>${future?'Für zukünftige Tage gesperrt':'Manuelle Pausenzeit'}</small></span><span class="unified-row-end"><strong>${Math.max(0,Number(dayCardDraft.pauseMinutes)||0)} Min.</strong>${future?'':'<i aria-hidden="true">›</i>'}</span></button>
+      <button type="button" class="unified-list-row" data-day-route="absence" ${future?'disabled':''}><span class="unified-row-main"><b>Abwesenheit</b><small>${future?'Über die separate Abwesenheitsfunktion pflegen':esc(dayCardDraft.absenceNote||'Einzelner ausgewählter Tag')}</small></span><span class="unified-row-end"><strong>${esc(dayCardAbsenceText())}</strong>${future?'':'<i aria-hidden="true">›</i>'}</span></button>
+      <button type="button" class="unified-list-row" data-day-route="comment"><span class="unified-row-main"><b>Kommentar</b><small>${esc(note?notePreview(note,72):'Kein Kommentar')}</small></span><i aria-hidden="true">›</i></button>
+    </div></section>
+    <section class="unified-list-section"><div class="unified-list"><button type="button" class="unified-list-row" data-day-route="actions" ${future?'disabled':''}><span class="unified-row-main"><b>Weitere Aktionen</b><small>${future?'Für zukünftige Tage gesperrt':'Löschen oder Importdaten wiederherstellen'}</small></span>${future?'':'<i aria-hidden="true">›</i>'}</button></div></section>`;
+  $('dayEditorDateSelector').addEventListener('change',event=>requestDayEditorDateChange(event.target.value));
+  document.querySelectorAll('[data-day-entry]').forEach(button=>button.addEventListener('click',()=>dayCardNavigate('entry',{index:Number(button.dataset.dayEntry)})));
+  $('dayAddEntry').addEventListener('click',()=>dayCardNavigate('entry',{index:-1,type:nextBooking.type}));
+  document.querySelectorAll('[data-day-route]').forEach(button=>button.addEventListener('click',()=>dayCardNavigate(button.dataset.dayRoute)));
+  dayCardSetFooter('<button type="button" class="cancel" id="dayCancelEdit">Abbrechen</button><button type="button" class="save" id="daySaveEdit">Tag speichern</button>');
+  $('dayCancelEdit').addEventListener('click',requestDayCardClose);$('daySaveEdit').addEventListener('click',saveDayCard);dayCardFormBaseline='';
+};
+renderDayCard=function(){
+  if(!$('dayModal')?.classList.contains('open')&&!dayCardDraft)return;
+  const view=dayCardCurrent.view;$('dayModalTitle').textContent=dayCardTitle(view);$('dayModalContext').textContent=view==='overview'?'':formatContextDate($('editDate').value);$('dayCardBack').hidden=view==='overview'||view==='confirm';
+  if(view==='overview')renderDayOverview();else if(view==='entry')renderDayEntry();else if(view==='pause')renderDayPause();else if(view==='absence')renderDayAbsence();else if(view==='comment')renderDayComment();else if(view==='actions')renderDayActions();else if(view==='confirm')renderDayConfirm();
+  if(dayCardRestoreForm){const form=dayCardRestoreForm;dayCardRestoreForm=null;restoreDayCardForm(form)}
+  requestAnimationFrame(()=>$('dayCardBody')?.scrollTo({top:0}));
+};
+openDayEditor=function(k=todayKey()){
+  const key=isDateKey(k)&&k>=TRACKING_START_DATE?k:todayKey();$('editDate').value=key;openModal('dayModal');loadDayEditorDate(key);
+};
+saveDayCard=function(){
+  const key=$('editDate').value;if(!dayCardDraft||!key)return;
+  const candidate=cleanDayCardDraft(dayCardDraft),validation=validateDayEditorEntries(candidate.entries||[],key);
+  if(key>todayKey()){
+    const original=cleanDayCardDraft(dayCardOriginal||{});
+    const workChanged=JSON.stringify({entries:candidate.entries||[],pause:Number(candidate.pauseMinutes)||0,absence:candidate.absence||null,code:dayAbsenceCode(candidate),extent:absenceDuration(candidate)})!==JSON.stringify({entries:original.entries||[],pause:Number(original.pauseMinutes)||0,absence:original.absence||null,code:dayAbsenceCode(original),extent:absenceDuration(original)});
+    if(workChanged){showToast('Zukünftige Arbeitszeitdaten und Abwesenheiten können hier nicht geändert werden.');loadDayEditorDate(key);return}
+  }
+  if(!validation.valid){showToast('Buchungsfolge prüfen');const first=validation.errors.findIndex(x=>x.length);dayCardNavigate('entry',{index:Math.max(0,first)});return}
+  if(dayAbsenceCode(candidate)!=='holiday'&&candidate.absence&&absenceDuration(candidate)==='full'&&(candidate.entries||[]).length){showToast('Ganztägige Abwesenheit und Buchungen können nicht gemeinsam gespeichert werden');dayCardNavigate('absence');return}
+  if(!dayCardIsDirty()){dayCardDraft=null;dayCardOriginal=null;closeModal('dayModal');refreshAllDerivedViews();showToast('Keine Änderungen vorhanden.');return}
+  const originalImport=IMPORTED_BY_DATE[key];
+  if(dayCardDraft.__deleteAll){
+    if(originalImport)state.days[key]={date:key,entries:[],pauseMinutes:0,absence:null,absenceCode:null,note:'',holiday:null,absenceNote:'',edited:true,importCleared:true,modifiedAt:new Date().toISOString(),archived:Number(key.slice(0,4))<new Date().getFullYear()};else delete state.days[key];
+  }else if(originalImport&&JSON.stringify(candidate)===JSON.stringify(originalImport))state.days[key]=clone(originalImport);else{
+    candidate.date=key;candidate.edited=true;candidate.modifiedAt=new Date().toISOString();candidate.archived=Number(key.slice(0,4))<new Date().getFullYear();state.days[key]=candidate;
+  }
+  cursorDate=parseDateKey(key);touchDay(key);dayCardDraft=null;dayCardOriginal=null;closeModal('dayModal');refreshAllDerivedViews();showToast('Tag gespeichert. Tagessaldo und Zeitkonto wurden aktualisiert.');
+};
+
+settingsCardFormSnapshot=function(){
+  if(settingsCardView==='target')return JSON.stringify({hours:$('settingsTargetHours')?.value||'',from:$('settingsTargetFrom')?.value||''});
+  if(settingsCardView==='holidays')return JSON.stringify({region:$('settingsRegionValue')?.value||'',from:$('settingsRegionFrom')?.value||'',christmas:!!$('settingsChristmasEve')?.checked,newyear:!!$('settingsNewYearsEve')?.checked});
+  if(settingsCardView==='region')return JSON.stringify({region:$('settingsRegionValue')?.value||'',from:$('settingsRegionFrom')?.value||''});
+  if(settingsCardView==='balance')return JSON.stringify({balance:$('settingsStartBalance')?.value||''});return'';
+};
+function renderSettingsHolidays(){
+  const current=effectiveRegionRuleToday(),options=Object.entries(HOLIDAY_REGIONS).map(([key,label])=>`<option value="${key}" ${key===current.region?'selected':''}>${esc(label)}</option>`).join('');
+  $('settingsModalTitle').textContent='Feiertage';$('settingsModalContext').textContent=`Aktuell ${HOLIDAY_REGIONS[current.region]} seit ${formatDate(current.from,{day:'2-digit',month:'2-digit',year:'numeric'})}`;
+  $('settingsCardBody').innerHTML=`<div class="unified-form"><div class="field"><label for="settingsRegionValue">Bundesland</label><select id="settingsRegionValue">${options}</select></div><div class="field"><label for="settingsRegionFrom">Gültig ab</label><input id="settingsRegionFrom" type="date" min="${TRACKING_START_DATE}" value="${todayKey()}"></div><div class="settings-holiday-switches"><label class="settings-inline-switch" for="settingsChristmasEve"><span><b>Heiligabend betrieblich frei</b><small>Sollzeit 0 Stunden</small></span><span class="switch"><input id="settingsChristmasEve" type="checkbox" ${state.settings.freeChristmasEve!==false?'checked':''}><span></span></span></label><label class="settings-inline-switch" for="settingsNewYearsEve"><span><b>Silvester betrieblich frei</b><small>Sollzeit 0 Stunden</small></span><span class="switch"><input id="settingsNewYearsEve" type="checkbox" ${state.settings.freeNewYearsEve!==false?'checked':''}><span></span></span></label></div><div id="settingsCardError" class="unified-inline-error" hidden role="alert"></div><div class="unified-rule-note"><b>Feiertagsberechnung</b><p>Gesetzliche Feiertage werden offline aus dem gültigen Bundesland abgeleitet. Betriebliche Feiertage haben unabhängig davon eine Sollzeit von 0 Stunden.</p></div></div>`;
+  settingsCardFooter('<button type="button" class="cancel" id="settingsHolidayCancel">Abbrechen</button><button type="button" class="save" id="settingsHolidayApply">Übernehmen</button>');
+  $('settingsHolidayCancel').addEventListener('click',requestSettingsCardClose);$('settingsHolidayApply').addEventListener('click',applyHolidaySettings);settingsCardBaseline=settingsCardFormSnapshot();
+}
+renderSettingsCard=function(){
+  $('settingsCardBack').hidden=true;$('settingsModalContext').textContent='';
+  if(settingsCardView==='target')renderSettingsTarget();else if(settingsCardView==='holidays')renderSettingsHolidays();else if(settingsCardView==='region')renderSettingsRegion();else if(settingsCardView==='balance')renderSettingsBalance();else if(settingsCardView==='offline')renderSettingsOffline();else if(settingsCardView==='confirm')renderSettingsConfirm();
+  if(settingsCardRestoreForm){const data=settingsCardRestoreForm;settingsCardRestoreForm=null;requestAnimationFrame(()=>{if($('settingsTargetHours'))$('settingsTargetHours').value=data.hours;if($('settingsTargetFrom'))$('settingsTargetFrom').value=data.from;if($('settingsRegionValue'))$('settingsRegionValue').value=data.region;if($('settingsRegionFrom'))$('settingsRegionFrom').value=data.from;if($('settingsChristmasEve'))$('settingsChristmasEve').checked=!!data.christmas;if($('settingsNewYearsEve'))$('settingsNewYearsEve').checked=!!data.newyear;if($('settingsStartBalance'))$('settingsStartBalance').value=data.balance;settingsCardBaseline=settingsCardFormSnapshot()})}
+};
+requestSettingsCardClose=function(){
+  if(settingsCardView==='confirm'){const current=settingsCardConfirmState;settingsCardView=current.returnView;settingsCardRestoreForm=current.form;settingsCardConfirmState=null;renderSettingsCard();return}
+  if(settingsCardDirty()){
+    const view=settingsCardView,form=view==='target'?{hours:$('settingsTargetHours').value,from:$('settingsTargetFrom').value}:view==='holidays'?{region:$('settingsRegionValue').value,from:$('settingsRegionFrom').value,christmas:$('settingsChristmasEve').checked,newyear:$('settingsNewYearsEve').checked}:view==='region'?{region:$('settingsRegionValue').value,from:$('settingsRegionFrom').value}:{balance:$('settingsStartBalance').value};
+    settingsAskConfirm({title:'Eingaben verwerfen?',message:'Die noch nicht übernommenen Änderungen gehen verloren.',confirmLabel:'Verwerfen',danger:true,returnView:view,form,onConfirm:()=>closeModal('settingsModal')});return;
+  }
+  closeModal('settingsModal');
+};
+function commitHolidaySettings(from,region,christmas,newyear,regionChanged){
+  if(regionChanged)state.settings.holidayRegionRules=upsertEffectiveRule(normalizeHolidayRegionRules(state.settings.holidayRegionRules),{from,region});
+  state.settings.freeChristmasEve=christmas;state.settings.freeNewYearsEve=newyear;state.settings.holidayRegion=holidayRegionFromSettings(todayKey(),state.settings);
+  ensureHolidayYears(Number(from.slice(0,4)),new Date().getFullYear()+1);saveState();refreshAllDerivedViews();renderSettings();closeModal('settingsModal');showToast('Feiertagseinstellungen gespeichert');
+}
+function applyHolidaySettings(){
+  const from=$('settingsRegionFrom').value,region=$('settingsRegionValue').value,christmas=$('settingsChristmasEve').checked,newyear=$('settingsNewYearsEve').checked,error=$('settingsCardError');
+  if(!isDateKey(from)||from<TRACKING_START_DATE||!HOLIDAY_REGIONS[region]){error.hidden=false;error.textContent='Bundesland und Gültigkeitsdatum prüfen.';return}
+  if(from===TRACKING_START_DATE&&region!=='HE'){error.hidden=false;error.textContent='Der verbindliche Ausgangswert ab 01.11.2022 bleibt Hessen. Wähle für einen späteren Wechsel ein späteres Gültigkeitsdatum.';return}
+  const effective=holidayRegionFromSettings(from,state.settings),regionChanged=effective!==region||normalizeHolidayRegionRules(state.settings.holidayRegionRules).some(r=>r.from===from&&r.region!==region);
+  const form={region,from,christmas,newyear};
+  if(regionChanged&&from<=todayKey()){
+    settingsAskConfirm({title:'Rückwirkendes Bundesland bestätigen',message:`Bundesland ab ${formatDate(from,{day:'2-digit',month:'2-digit',year:'numeric'})} auf ${HOLIDAY_REGIONS[region]} ändern? Gesetzliche Feiertage und Zeitkonto werden erst ab diesem Datum neu berechnet.`,confirmLabel:'Feiertage übernehmen',returnView:'holidays',form,onConfirm:()=>commitHolidaySettings(from,region,christmas,newyear,true)});return;
+  }
+  commitHolidaySettings(from,region,christmas,newyear,regionChanged);
+}
+renderSettings=function(){
+  $('employeeName').value=state.settings.employeeName||'';if($('checkpointBalance'))$('checkpointBalance').value=formatDuration(state.settings.startBalanceMinutes||0);if($('startBalanceCurrentValue'))$('startBalanceCurrentValue').textContent=formatDuration(state.settings.startBalanceMinutes||0);
+  $('freeChristmasEve').checked=state.settings.freeChristmasEve!==false;$('freeNewYearsEve').checked=state.settings.freeNewYearsEve!==false;$('countdownEnabled').checked=state.settings.countdownEnabled!==false;$('bookingSoundEnabled').checked=state.settings.bookingSoundEnabled===true;$('reportSignature').checked=state.settings.reportSignature!==false;
+  const target=effectiveTargetRuleToday(),region=effectiveRegionRuleToday(),y=new Date().getFullYear(),ent=vacationEntitlementForYear(y);
+  $('targetCurrentValue').textContent=`${formatDuration(target.minutes,{signed:false})} h`;$('targetCurrentSince').textContent=`Gültig seit ${formatDate(target.from,{day:'2-digit',month:'2-digit',year:'numeric'})}`;
+  $('holidayRegionCurrentValue').textContent=HOLIDAY_REGIONS[region.region];$('holidayRegionCurrentSince').textContent=`Gültig seit ${formatDate(region.from,{day:'2-digit',month:'2-digit',year:'numeric'})}`;
+  if($('holidaySettingsSummary'))$('holidaySettingsSummary').textContent=`${HOLIDAY_REGIONS[region.region]} · gesetzliche und betriebliche Feiertage`;
+  if($('vacationSettingsTitle'))$('vacationSettingsTitle').textContent='Urlaubsanspruch';if($('vacationSettingsSummary'))$('vacationSettingsSummary').textContent='Anspruch und Übertrag je Kalenderjahr';if($('vacationEntitlementCurrentValue'))$('vacationEntitlementCurrentValue').textContent=formatVacationDays(ent.days+ent.carryover);
+  $('lastExternalBackup').textContent=formatExternalBackup(state.settings.lastExternalBackupAt);$('appVersion').textContent=`Version ${APP_VERSION}`;
+};
+
+renderMobileReport=function(){
+  const month=mobileReportType==='month',s=month?monthSummary(mobileReportYear,mobileReportMonth):yearSummary(mobileReportYear),title=month?'Monatsbericht':'Jahresbericht';
+  const periodStart=month?`${mobileReportYear}-${pad(mobileReportMonth+1)}-01`:`${mobileReportYear}-01-01`,periodEnd=month?dateKey(new Date(mobileReportYear,mobileReportMonth+1,0,12)):`${mobileReportYear}-12-31`,vac=vacationPeriodBreakdown(periodStart,periodEnd);
+  $('mobileReportTitle').textContent=title;$('mobileReportPeriod').textContent=month?new Intl.DateTimeFormat('de-DE',{month:'long',year:'numeric'}).format(new Date(mobileReportYear,mobileReportMonth,1)):String(mobileReportYear);
+  $('mobileReportPrev').disabled=month?(mobileReportYear===earliestYear()&&mobileReportMonth===0):mobileReportYear<=earliestYear();$('mobileReportNext').disabled=month?(mobileReportYear===new Date().getFullYear()&&mobileReportMonth===new Date().getMonth()):mobileReportYear>=new Date().getFullYear();
+  const metrics=(month?[['Zeitkontostand zu Monatsbeginn',s.opening],['Nettozeit (Ist)',s.net,false],['Sollzeit',s.target,false],['Monatsdifferenz',s.diff,true],['Pausenzeit',s.pause,false]]:[['Zeitkontostand zu Jahresbeginn',s.opening],['Nettozeit (Ist)',s.net,false],['Sollzeit',s.target,false],['Jahresveränderung',s.diff,true],['Pausenzeit',s.pause,false]]).concat([['Urlaub genommen',vac.taken,'days'],['Urlaub geplant',vac.planned,'days'],['Urlaub gesamt',vac.total,'days'],['Arbeitstage',s.days.filter(d=>calculateDay(d).net>0||d.absence).length,'number'],['Zeitkontostand zum Stichtag',s.closing,true]]);
+  const metricHtml=`<div class="mobile-report-metrics">${metrics.map(([label,val,mode])=>`<div><span>${label}</span><b class="${mode===true?reportDiffClass(val):''}">${mode==='number'?val:mode==='days'?formatDayCount(val):formatDuration(val,{signed:mode!==false})}</b></div>`).join('')}</div>`;
+  let rows='',head='';
+  if(month){
+    rows=s.days.map(d=>{const c=calculateDay(d);return `<tr><td>${new Intl.DateTimeFormat('de-DE',{weekday:'short'}).format(parseDateKey(d.date))}<br><b>${formatDate(d.date,{day:'2-digit',month:'2-digit'})}</b></td><td class="num">${formatDuration(c.net,{signed:false})}</td><td class="num">${formatDuration(c.target,{signed:false})}</td><td class="num ${reportDiffClass(c.diff)}">${formatDuration(c.diff)}</td></tr>`}).join('')||'<tr><td colspan="4" class="empty">Keine Daten vorhanden</td></tr>';
+    head='<tr><th>Tag</th><th class="num">Ist (Netto)</th><th class="num">Soll</th><th class="num">Diff.</th></tr>';
+  }else{
+    rows=Array.from({length:12},(_,m)=>{const ms=monthSummary(mobileReportYear,m),mv=vacationPeriodBreakdown(`${mobileReportYear}-${pad(m+1)}-01`,dateKey(new Date(mobileReportYear,m+1,0,12)));return `<tr><td>${new Intl.DateTimeFormat('de-DE',{month:'short'}).format(new Date(mobileReportYear,m,1))} ${mobileReportYear}</td><td class="num">${formatDuration(ms.net,{signed:false})}</td><td class="num">${formatDuration(ms.target,{signed:false})}</td><td class="num ${reportDiffClass(ms.diff)}">${formatDuration(ms.diff)}</td><td class="num">${formatDayCount(mv.taken)}</td><td class="num">${formatDayCount(mv.planned)}</td><td class="num">${formatDayCount(mv.total)}</td></tr>`}).join('');
+    head='<tr><th>Monat</th><th class="num">Ist</th><th class="num">Soll</th><th class="num">Diff.</th><th class="num">Urlaub genommen</th><th class="num">Urlaub geplant</th><th class="num">Urlaub gesamt</th></tr>';
+  }
+  $('mobileReportContent').innerHTML=`${metricHtml}<h2 class="mobile-report-section">${month?'Tagesübersicht':'Monatsübersicht'}</h2><div class="mobile-report-table"><table><thead>${head}</thead><tbody>${rows}</tbody></table></div>`;
+};
+
+monthReport=function(y,m){
+  const start=`${y}-${pad(m+1)}-01`,end=dateKey(new Date(y,m+1,0,12)),s=periodSummary(start,end),vac=vacationPeriodBreakdown(start,end),title=new Intl.DateTimeFormat('de-DE',{month:'long',year:'numeric'}).format(new Date(y,m,1));
+  const summary=`<div class="hero"><span>Zeitkonto Monatsende / Stichtag</span><strong>${formatDuration(s.closing)}</strong></div><div class="summary"><div><span>Übertrag Vormonat</span><b>${formatDuration(s.opening)}</b></div><div><span>Monatsdifferenz</span><b>${formatDuration(s.diff)}</b></div><div><span>Sollzeit</span><b>${formatDuration(s.target,{signed:false})}</b></div><div><span>Nettozeit</span><b>${formatDuration(s.net,{signed:false})}</b></div><div><span>Pausenzeit</span><b>${formatDuration(s.pause,{signed:false})}</b></div><div><span>Urlaub genommen</span><b>${formatDayCount(vac.taken)}</b></div><div><span>Urlaub geplant</span><b>${formatDayCount(vac.planned)}</b></div><div><span>Urlaub gesamt</span><b>${formatDayCount(vac.total)}</b></div><div><span>Krankheitstage</span><b>${formatDayCount(s.sick)}</b></div><div><span>Zeitausgleichstage</span><b>${formatDayCount(s.timeOff||0)}</b></div><div><span>Sonstige Abwesenheiten</span><b>${formatDayCount(s.other)}</b></div><div><span>Unvollständige Tage</span><b>${s.incomplete}</b></div></div>`;
+  const body=s.days.map(d=>{const c=calculateDay(d),ins=(d.entries||[]).filter(e=>e.type==='in').map(e=>e.logged).join(', ')||'–',outs=(d.entries||[]).filter(e=>e.type==='out').map(e=>e.logged).join(', ')||'–',absence=d.absence?`${d.absence} (${absenceDuration(d)==='half'?'½ Tag':'ganzer Tag'}, Soll ${formatDuration(targetMinutesForDate(d.date,d),{signed:false})})`:'–';return `<tr><td>${formatDate(d.date,{day:'2-digit',month:'2-digit',year:'numeric'})}</td><td>${esc(dayStatus(d))}</td><td>${esc(absence)}</td><td class="num">${esc(ins)}</td><td class="num">${esc(outs)}</td><td class="num">${Number(d.pauseMinutes)||0}</td><td class="num">${formatDuration(c.net,{signed:false})}</td><td class="num">${formatDuration(c.target,{signed:false})}</td><td class="num">${formatDuration(c.diff)}</td><td class="num">${formatDuration(balanceThrough(d.date))}</td><td class="wrap">${esc(d.absenceNote||d.note||'')}</td></tr>`}).join('');
+  reportShell(`Monatsbericht ${title}`,`Zeitraum: ${formatDate(start,{day:'2-digit',month:'2-digit',year:'numeric'})} bis ${formatDate(s.cutoff,{day:'2-digit',month:'2-digit',year:'numeric'})}`,summary,`<table><colgroup><col style="width:9%"><col style="width:8%"><col style="width:15%"><col style="width:7%"><col style="width:7%"><col style="width:6%"><col style="width:7%"><col style="width:7%"><col style="width:7%"><col style="width:9%"><col style="width:18%"></colgroup><thead><tr><th>Datum</th><th>Status</th><th>Abwesenheit</th><th class="num">Kommen</th><th class="num">Gehen</th><th class="num">Pause</th><th class="num">Netto</th><th class="num">Soll</th><th class="num">Diff.</th><th class="num">Zeitkonto</th><th>Notiz</th></tr></thead><tbody>${body}</tbody></table>`,'month');
+};
+yearReport=function(y){
+  const start=`${y}-01-01`,end=`${y}-12-31`,s=periodSummary(start,end),vac=vacationPeriodBreakdown(start,end),rows=Array.from({length:12},(_,m)=>({m,s:monthSummary(y,m),v:vacationPeriodBreakdown(`${y}-${pad(m+1)}-01`,dateKey(new Date(y,m+1,0,12)))}));
+  const summary=`<div class="hero"><span>Zeitkonto Jahresende / aktueller Stichtag</span><strong>${formatDuration(s.closing)}</strong></div><div class="summary"><div><span>Übertrag Vorjahr</span><b>${formatDuration(s.opening)}</b></div><div><span>Jahresveränderung</span><b>${formatDuration(s.diff)}</b></div><div><span>Sollzeit</span><b>${formatDuration(s.target,{signed:false})}</b></div><div><span>Nettozeit</span><b>${formatDuration(s.net,{signed:false})}</b></div><div><span>Pausenzeit</span><b>${formatDuration(s.pause,{signed:false})}</b></div><div><span>Urlaub genommen</span><b>${formatDayCount(vac.taken)}</b></div><div><span>Urlaub geplant</span><b>${formatDayCount(vac.planned)}</b></div><div><span>Urlaub gesamt</span><b>${formatDayCount(vac.total)}</b></div><div><span>Krankheitstage</span><b>${formatDayCount(s.sick)}</b></div><div><span>Zeitausgleichstage</span><b>${formatDayCount(s.timeOff||0)}</b></div><div><span>Sonstige Abwesenheiten</span><b>${formatDayCount(s.other)}</b></div></div>`;
+  const body=rows.map(r=>`<tr><td>${new Intl.DateTimeFormat('de-DE',{month:'long'}).format(new Date(y,r.m,1))}</td><td class="num">${formatDuration(r.s.target,{signed:false})}</td><td class="num">${formatDuration(r.s.net,{signed:false})}</td><td class="num">${formatDuration(r.s.pause,{signed:false})}</td><td class="num">${formatDuration(r.s.diff)}</td><td class="num">${formatDuration(r.s.closing)}</td><td class="num">${formatDayCount(r.v.taken)}</td><td class="num">${formatDayCount(r.v.planned)}</td><td class="num">${formatDayCount(r.v.total)}</td><td class="num">${formatDayCount(r.s.sick)}</td><td class="num">${formatDayCount(r.s.timeOff||0)}</td></tr>`).join('');
+  reportShell(`Jahresbericht ${y}`,`Jahr ${y}`,summary,`<table><thead><tr><th>Monat</th><th class="num">Soll</th><th class="num">Netto</th><th class="num">Pause</th><th class="num">Veränderung</th><th class="num">Zeitkonto</th><th class="num">Urlaub genommen</th><th class="num">Urlaub geplant</th><th class="num">Urlaub gesamt</th><th class="num">Krank</th><th class="num">Zeitausgleich</th></tr></thead><tbody>${body}</tbody></table>`,'year');
+};
+createReportPdfFile=function(type,y,m){
+  if(type==='month'){
+    const start=`${y}-${pad(m+1)}-01`,end=dateKey(new Date(y,m+1,0,12)),s=periodSummary(start,end),vac=vacationPeriodBreakdown(start,end),title=new Intl.DateTimeFormat('de-DE',{month:'long',year:'numeric'}).format(new Date(y,m,1));
+    const metrics=[['Übertrag Vormonat',formatDuration(s.opening)],['Monatsdifferenz',formatDuration(s.diff)],['Sollzeit',formatDuration(s.target,{signed:false})],['Nettozeit',formatDuration(s.net,{signed:false})],['Pausenzeit',formatDuration(s.pause,{signed:false})],['Urlaub genommen',formatDayCount(vac.taken)],['Urlaub geplant',formatDayCount(vac.planned)],['Urlaub gesamt',formatDayCount(vac.total)],['Krankheitstage',formatDayCount(s.sick)],['Unvollständige Tage',String(s.incomplete)]];
+    const columns=[{label:'Datum',width:58},{label:'Status / Abwesenheit',width:132},{label:'Kommen',width:62,align:'right'},{label:'Gehen',width:62,align:'right'},{label:'Pause',width:49,align:'right'},{label:'Netto',width:58,align:'right'},{label:'Soll',width:58,align:'right'},{label:'Diff.',width:58,align:'right'},{label:'Zeitkonto',width:70,align:'right'},{label:'Notiz',width:175}];
+    const rows=s.days.map(d=>{const c=calculateDay(d),ins=(d.entries||[]).filter(e=>e.type==='in').map(e=>e.logged).join(', ')||'–',outs=(d.entries||[]).filter(e=>e.type==='out').map(e=>e.logged).join(', ')||'–',status=d.absence?`${dayStatus(d)} / ${d.absence}`:dayStatus(d);return[formatDate(d.date,{day:'2-digit',month:'2-digit',year:'numeric'}),status,ins,outs,String(Number(d.pauseMinutes)||0),formatDuration(c.net,{signed:false}),formatDuration(c.target,{signed:false}),formatDuration(c.diff),formatDuration(balanceThrough(d.date)),d.absenceNote||d.note||'']});
+    const blob=pdfBuildDocument(pdfReportPages({title:`Monatsbericht ${title}`,subtitle:`Zeitraum: ${formatDate(start,{day:'2-digit',month:'2-digit',year:'numeric'})} bis ${formatDate(s.cutoff,{day:'2-digit',month:'2-digit',year:'numeric'})}`,closingLabel:'Zeitkonto Monatsende / Stichtag',closingValue:formatDuration(s.closing),metrics,columns,rows,signature:state.settings.reportSignature!==false}));return new File([blob],`Arbeitszeit_Monat_${pad(m+1)}-${y}.pdf`,{type:'application/pdf'});
+  }
+  const start=`${y}-01-01`,end=`${y}-12-31`,s=periodSummary(start,end),vac=vacationPeriodBreakdown(start,end),metrics=[['Übertrag Vorjahr',formatDuration(s.opening)],['Jahresveränderung',formatDuration(s.diff)],['Sollzeit',formatDuration(s.target,{signed:false})],['Nettozeit',formatDuration(s.net,{signed:false})],['Pausenzeit',formatDuration(s.pause,{signed:false})],['Urlaub genommen',formatDayCount(vac.taken)],['Urlaub geplant',formatDayCount(vac.planned)],['Urlaub gesamt',formatDayCount(vac.total)],['Krankheitstage',formatDayCount(s.sick)],['Zeitausgleichstage',formatDayCount(s.timeOff||0)]];
+  const columns=[{label:'Monat',width:105},{label:'Soll',width:62,align:'right'},{label:'Netto',width:62,align:'right'},{label:'Pause',width:55,align:'right'},{label:'Veränd.',width:70,align:'right'},{label:'Zeitkonto',width:72,align:'right'},{label:'U gen.',width:60,align:'right'},{label:'U gepl.',width:60,align:'right'},{label:'U ges.',width:60,align:'right'},{label:'Krank',width:55,align:'right'},{label:'ZA',width:55,align:'right'}],rows=[];
+  for(let month=0;month<12;month++){const ms=monthSummary(y,month),mv=vacationPeriodBreakdown(`${y}-${pad(month+1)}-01`,dateKey(new Date(y,month+1,0,12)));rows.push([new Intl.DateTimeFormat('de-DE',{month:'long'}).format(new Date(y,month,1)),formatDuration(ms.target,{signed:false}),formatDuration(ms.net,{signed:false}),formatDuration(ms.pause,{signed:false}),formatDuration(ms.diff),formatDuration(ms.closing),formatDayCount(mv.taken),formatDayCount(mv.planned),formatDayCount(mv.total),formatDayCount(ms.sick),formatDayCount(ms.timeOff||0)])}
+  const blob=pdfBuildDocument(pdfReportPages({title:`Jahresbericht ${y}`,subtitle:`Jahr ${y}`,closingLabel:'Zeitkonto Jahresende / aktueller Stichtag',closingValue:formatDuration(s.closing),metrics,columns,rows,signature:state.settings.reportSignature!==false}));return new File([blob],`Arbeitszeit_Jahr_${y}.pdf`,{type:'application/pdf'});
+};
+
+document.addEventListener('DOMContentLoaded',()=>{
+  $('quickTodayEntries')?.addEventListener('click',openQuickTodayEntries);
+  $('saveQuickToday')?.addEventListener('click',saveQuickTodayEntries);
+  $('quickFullDayStart')?.addEventListener('click',()=>openFullDayForDate(quickContextDate,'quickAddModal'));
+  $('openHolidayRegionBtn')?.addEventListener('click',event=>{event.preventDefault();event.stopImmediatePropagation();openSettingsCard('holidays')},true);
+  setTimeout(()=>{renderSettings();renderVacationOverview()},0);
+});

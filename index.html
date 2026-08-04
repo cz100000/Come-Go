@@ -61,14 +61,9 @@
 </button>
 </section>
 <section aria-labelledby="todayQuickTitle" class="today-quick-card card quick-action-row">
-<div class="today-quick-head"><h2 id="todayQuickTitle">Schnelleinträge für heute</h2></div>
-<button class="today-quick-row home-pressable" id="pauseToday" type="button">
+<button class="today-quick-row home-pressable" id="quickTodayEntries" type="button">
 <span class="today-quick-icon" aria-hidden="true"><svg class="icon" viewbox="0 0 24 24"><path d="M5 7h11v7a5 5 0 0 1-5 5H10a5 5 0 0 1-5-5Z"></path><path d="M16 9h2a3 3 0 0 1 0 6h-2M4 21h14"></path></svg></span>
-<span class="today-quick-copy"><b id="pauseButtonLabel">Pause eintragen</b><small id="pauseButtonSub">Für den heutigen Tag</small></span><span class="today-quick-chev" aria-hidden="true">›</span>
-</button>
-<button class="today-quick-row home-pressable" id="quickCommentToday" type="button">
-<span class="today-quick-icon" aria-hidden="true"><svg class="icon" viewbox="0 0 24 24"><path d="M21 12a8 8 0 0 1-8 8H7l-4 2 1.4-4.2A8 8 0 1 1 21 12Z"></path></svg></span>
-<span class="today-quick-copy"><b id="quickTodayCommentLabel">Kommentar eintragen</b><small id="quickTodayCommentSub">Für den heutigen Tag</small></span><span class="today-quick-chev" aria-hidden="true">›</span>
+<span class="today-quick-copy"><b id="todayQuickTitle">Schnelleinträge</b><small id="todayQuickSummary">Pause oder Kommentar für heute</small></span><span class="today-quick-chev" aria-hidden="true">›</span>
 </button>
 </section>
 <button aria-label="Eintrag für heute öffnen" class="quick-add-btn floating-quick-add today-floating-quick home-pressable" id="quickAddBtn" type="button"><span aria-hidden="true" class="plus-glyph"></span></button>
@@ -98,7 +93,6 @@
 </section>
 <section aria-labelledby="vacationOverviewTitle" class="card vacation-overview-card">
 <div class="vacation-overview-head"><div><h2 class="card-title" id="vacationOverviewTitle">Urlaub</h2><p>Jahreskonto und Monatsverlauf</p></div><select aria-label="Urlaubsjahr" id="vacationYear"></select></div>
-<button class="vacation-account-selector" id="vacationAccountSelector" type="button"><span>Urlaubskonto</span><strong id="vacationAccountRemaining">0 Tage verfügbar</strong></button>
 <div class="vacation-chart-legend" aria-hidden="true"><span><i class="taken"></i>Genommen</span><span><i class="planned"></i>Geplant</span></div>
 <div aria-label="Urlaubsverlauf Januar bis Dezember" class="vacation-chart" id="vacationChart" role="img"></div>
 <div aria-live="polite" class="vacation-detail" id="vacationDetail"></div>
@@ -146,27 +140,19 @@
 <span class="switch"><input id="countdownEnabled" type="checkbox"/><span></span></span>
 </label>
 </section>
-<section aria-labelledby="settingsVacationTitle" class="settings-topic-card card">
-<h2 class="settings-topic-title" id="settingsVacationTitle">Urlaub</h2>
+<section aria-labelledby="settingsVacationHolidayTitle" class="settings-topic-card card">
+<h2 class="settings-topic-title" id="settingsVacationHolidayTitle">Urlaub und Feiertage</h2>
 <button class="settings-compact-row settings-disclosure" id="openVacationEntitlementBtn" type="button">
-<span class="settings-row-copy"><b id="vacationSettingsTitle">Urlaub 2026</b><small id="vacationSettingsSummary">0 Tage Anspruch · 0 Tage Übertrag</small></span>
+<span class="settings-row-copy"><b id="vacationSettingsTitle">Urlaubsanspruch</b><small id="vacationSettingsSummary">Anspruch und Übertrag je Kalenderjahr</small></span>
 <span class="settings-row-value"><strong id="vacationEntitlementCurrentValue">0 Tage</strong><i aria-hidden="true">›</i></span>
 </button>
-</section>
-<section aria-labelledby="settingsHolidayTitle" class="settings-topic-card card">
-<h2 class="settings-topic-title" id="settingsHolidayTitle">Feiertage</h2>
 <button class="settings-compact-row settings-disclosure" id="openHolidayRegionBtn" type="button">
-<span class="settings-row-copy"><b>Bundesland</b><small id="holidayRegionCurrentSince">Gültig seit 01.11.2022</small></span>
+<span class="settings-row-copy"><b>Feiertage</b><small id="holidaySettingsSummary">Gesetzliche und betriebliche Feiertage</small></span>
 <span class="settings-row-value"><strong id="holidayRegionCurrentValue">Hessen</strong><i aria-hidden="true">›</i></span>
 </button>
-<label class="settings-compact-row" for="freeChristmasEve">
-<span class="settings-row-copy"><b>Heiligabend betrieblich frei</b><small>Sollzeit 0 Stunden</small></span>
-<span class="switch"><input id="freeChristmasEve" type="checkbox"/><span></span></span>
-</label>
-<label class="settings-compact-row" for="freeNewYearsEve">
-<span class="settings-row-copy"><b>Silvester betrieblich frei</b><small>Sollzeit 0 Stunden</small></span>
-<span class="switch"><input id="freeNewYearsEve" type="checkbox"/><span></span></span>
-</label>
+<input id="holidayRegionCurrentSince" type="hidden"/>
+<input id="freeChristmasEve" type="checkbox" hidden/>
+<input id="freeNewYearsEve" type="checkbox" hidden/>
 </section>
 <section aria-labelledby="settingsDisplayTitle" class="settings-topic-card card">
 <h2 class="settings-topic-title" id="settingsDisplayTitle">Darstellung und Berichte</h2>
@@ -233,6 +219,11 @@
 </div>
 </div>
 <div aria-hidden="true" hidden="" id="legacyBindingFields">
+<button id="pauseToday" type="button"></button><span id="pauseButtonLabel"></span><span id="pauseButtonSub"></span>
+<button id="quickCommentToday" type="button"></button><span id="quickTodayCommentLabel"></span><span id="quickTodayCommentSub"></span>
+<button id="quickTimeStart" type="button"></button><div id="quickAddContext"></div>
+<button id="vacationAccountSelector" type="button"><span id="vacationAccountRemaining"></span></button>
+
 <button id="addEntryBtn" type="button"></button><button id="saveDayBtn" type="button"></button><button id="dayNoteOpen" type="button"></button>
 <textarea id="editNote"></textarea><input id="editPause" type="number"/><details id="advancedActions"></details>
 <button id="deleteDayBtn" type="button"></button><button id="restoreImportBtn" type="button"></button><button id="manageAbsenceFromDay" type="button"></button>
@@ -245,7 +236,7 @@
 <div class="context-date" id="entryContextDate"></div>
 <div class="field"><label for="singleEntryType">Buchungsart</label><select id="singleEntryType"><option value="in">Kommen</option><option value="out">Gehen</option></select></div>
 <div class="field"><label for="singleEntryActual">Tatsächliche Uhrzeit</label><div class="time-input-wrap"><input id="singleEntryActual" type="time"/></div></div>
-<div class="field"><label for="singleEntryLogged">Dokumentierte Uhrzeit</label><div class="time-input-wrap"><input id="singleEntryLogged" type="time"/></div></div>
+<div class="field"><label for="singleEntryLogged">Dokumentierte Uhrzeit</label><div class="time-input-wrap"><input id="singleEntryLogged" type="time" readonly aria-readonly="true"/><small class="field-hint">Wird automatisch nach der 5-Minuten-Regel berechnet.</small></div></div>
 <button class="dialog-action dialog-action-secondary" id="openFullDayFromEntry" type="button">Vollständigen Tag bearbeiten</button>
 <button class="dialog-action dialog-action-danger" id="deleteSingleEntry" type="button">Buchung löschen</button>
 </div></div>
@@ -260,6 +251,17 @@
 
 <div class="modal-actions unified-card-footer canonical-card-footer"><button class="cancel" data-close="pauseModal" type="button">Abbrechen</button><button class="save" id="savePauseBtn" type="button">Speichern</button></div></div>
 </div>
+<div aria-labelledby="quickTodayModalTitle" aria-modal="true" class="modal" id="quickTodayModal" role="dialog">
+<div class="sheet canonical-card-shell quick-today-sheet">
+<div class="unified-card-head canonical-card-head"><span aria-hidden="true" class="unified-card-head-spacer"></span><div class="unified-card-title-wrap"><h2 id="quickTodayModalTitle">Schnelleinträge für heute</h2></div><button aria-label="Schnelleinträge schließen" class="close-btn" data-close="quickTodayModal" type="button">×</button></div>
+<div class="unified-card-body canonical-card-body quick-today-body">
+<div class="field"><label for="quickTodayPause">Pause eintragen</label><div class="number-unit-field"><input id="quickTodayPause" inputmode="numeric" min="0" step="1" type="number"/><span>Minuten</span></div></div>
+<div class="field"><label for="quickTodayNote">Kommentar für heute</label><textarea id="quickTodayNote" maxlength="500" placeholder="Kommentar hinzufügen" rows="4"></textarea></div>
+<div aria-live="polite" class="quick-conflict" hidden id="quickTodayError"></div>
+</div>
+<div class="modal-actions unified-card-footer canonical-card-footer"><button class="cancel" data-close="quickTodayModal" type="button">Abbrechen</button><button class="save" id="saveQuickToday" type="button">Speichern</button></div>
+</div>
+</div>
 <div aria-labelledby="quickAddTitle" aria-modal="true" class="modal" id="quickAddModal" role="dialog">
 <div class="sheet unified-card-shell quick-entry-card">
 <div class="unified-card-head">
@@ -268,10 +270,9 @@
 <button aria-label="Schließen" class="close-btn" data-close="quickAddModal" type="button">×</button>
 </div>
 <div class="unified-card-body quick-entry-card-body">
-<div class="context-date" id="quickAddContext"></div>
 <div class="quick-list quick-add-actions exact-two-actions">
+<button id="quickFullDayStart" type="button"><span>Vollständigen Tag bearbeiten</span><small>Arbeitszeiten und Tagesangaben prüfen oder ändern</small><b aria-hidden="true">›</b></button>
 <button id="quickAbsenceStart" type="button"><span>Abwesenheit eintragen oder bearbeiten</span><small>Urlaub, Krankheit oder sonstige Abwesenheit</small><b aria-hidden="true">›</b></button>
-<button id="quickTimeStart" type="button"><span>Zeit ergänzen oder korrigieren</span><small>Arbeitszeiten ergänzen, ändern oder löschen</small><b aria-hidden="true">›</b></button>
 </div>
 </div>
 <div class="unified-card-footer quick-entry-card-footer">
@@ -343,7 +344,7 @@
 <div class="sheet manual-quick-sheet canonical-card-shell">
 <div class="unified-card-head canonical-card-head"><span aria-hidden="true" class="unified-card-head-spacer"></span><div class="unified-card-title-wrap"><h2 id="manualQuickTitle">Zeit ergänzen</h2></div><button aria-label="Schließen" class="close-btn" data-close="manualQuickModal" type="button">×</button></div><div class="unified-card-body canonical-card-body"><div class="manual-quick-date" id="manualQuickContext"></div><div id="manualQuickBookingType" hidden></div><div id="manualQuickHint" hidden></div><div class="manual-quick-grid">
 <div class="field"><label for="manualActual">Tatsächliche Uhrzeit <button aria-label="Erklärung tatsächliche Uhrzeit" class="info-dot" data-time-info="actual" type="button">i</button></label><input id="manualActual" type="time"/></div>
-<div class="field"><label for="manualLogged">Dokumentierte Uhrzeit <button aria-label="Erklärung dokumentierte Uhrzeit" class="info-dot" data-time-info="logged" type="button">i</button></label><input id="manualLogged" type="time"/></div>
+<div class="field"><label for="manualLogged">Dokumentierte Uhrzeit <button aria-label="Erklärung dokumentierte Uhrzeit" class="info-dot" data-time-info="logged" type="button">i</button></label><input id="manualLogged" type="time" readonly aria-readonly="true"/><small class="field-hint">Wird automatisch nach der 5-Minuten-Regel berechnet.</small></div>
 </div><div class="time-info-text" hidden="" id="timeInfoText"></div><button class="manual-full-editor" id="manualFullEditor" type="button"><span>Vollständigen Tag bearbeiten</span><b aria-hidden="true">›</b></button></div>
 
 

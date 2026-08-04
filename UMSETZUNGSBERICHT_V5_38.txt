@@ -1,0 +1,156 @@
+UMSETZUNGSBERICHT V5.38
+Arbeitszeit-PWA – Schlanke Bedienlogik
+Stand: 04.08.2026
+
+TECHNISCHE AUSGANGSBASIS
+Ausschließliche Grundlage war die bereitgestellte V5.37:
+Arbeitszeit_PWA_Offline_V5_37_HighEnd_iPhone16_Urlaub_und_Bedienlogik.zip
+Die Anwendung wurde nicht neu aufgebaut. Die bestehende Dateistruktur und die vorhandene Fachlogik wurden weiterverwendet.
+
+ZIELVERSION
+App-Version: 5.38
+Datenschema: 14
+Service-Worker-Cache: arbeitszeit-pwa-v5-38-2026-08-04
+
+============================================================
+TATSÄCHLICH UMGESETZT
+============================================================
+
+1. Heute-Seite und Schnelleinträge
+- Die dauerhaft geöffnete Karte „Schnelleinträge für heute“ wurde entfernt.
+- Auf der Heute-Seite verbleibt eine kompakte Aktionszeile „Schnelleinträge“ mit der Unterzeile „Pause oder Kommentar für heute“.
+- Die Aktion öffnet eine einzelne Bearbeitungskarte für Pausenminuten und Kommentar des heutigen Tages.
+- Vorhandene Werte werden geladen; Pause und Kommentar werden gemeinsam gespeichert.
+- Pause kann auf 0 und der Kommentar auf leer zurückgesetzt werden.
+
+2. Plus-Menü
+- Das Plus-Menü enthält genau zwei Funktionen:
+  1. „Vollständigen Tag bearbeiten“
+  2. „Abwesenheit eintragen oder bearbeiten“
+- Pause, Kommentar und weitere parallele Bedienwege wurden aus dem Plus-Menü entfernt.
+
+3. Vollständige Tagesbearbeitung
+- Die vollständige Tagesbearbeitung öffnet standardmäßig den heutigen Tag.
+- Die Datumsauswahl befindet sich direkt in der geöffneten Karte.
+- Beim Datumswechsel werden Buchungen, Pausen, Kommentar, Abwesenheit, Prüfstatus und Tageswerte neu geladen.
+- Mehrere Arbeitsblöcke bleiben vollständig bearbeitbar.
+- Buchungen können hinzugefügt, geändert und nach Bestätigung gelöscht werden.
+- Zukünftige Tage können angesehen werden; Arbeitszeitbuchungen und Pausen sind dort gesperrt.
+- Zukünftige Abwesenheiten werden weiterhin ausschließlich über die Abwesenheitsfunktion gepflegt.
+
+4. Abwesenheiten
+- Anlegen, Öffnen, Bearbeiten, Verlängern, Verkürzen und Löschen zusammengehöriger Abwesenheitszeiträume bleiben erhalten.
+- Zukünftige Abwesenheiten bleiben zulässig.
+- Von- und Bis-Datum stehen ab 370 px in zwei gleich breiten Spalten innerhalb der Karten-Innenbreite.
+- Unter 370 px wird auf eine einspaltige Sicherheitsdarstellung gewechselt.
+- Alle beteiligten Grid-, Feld- und Datums-Elemente besitzen begrenzte Breiten und border-box-Berechnung.
+- Der große blaue Vorschau-Block wurde entfernt.
+- Arbeitstage, ausgelassene Wochenenden und Feiertage werden neutral und kompakt erläutert.
+- Nur echte Konflikte werden auffällig angezeigt; vorhandene Einträge werden nicht still überschrieben.
+
+5. Einstellungen „Urlaub und Feiertage“
+- Die bisherigen Hauptseitenblöcke wurden zu „Urlaub und Feiertage“ zusammengeführt.
+- Der Block enthält die kompakten Zeilen „Urlaubsanspruch“ und „Feiertage“.
+- Die Jahreszahl wurde aus dem Titel auf der Einstellungs-Hauptseite entfernt.
+- Urlaubsanspruch und Feiertage öffnen jeweils eine separate Bearbeitungskarte.
+- Der Urlaubsübertrag 0 wird in der Bearbeitung ausdrücklich als 0 angezeigt und kann später geändert werden.
+
+6. Urlaubsanspruch und Migration
+- Schema 14 ergänzt jahresbezogene Urlaubsansprüche und Überträge.
+- Für 2026 wird nur bei fehlendem Nutzerwert ein regulärer Anspruch von 139 Tagen ergänzt.
+- Ein vorhandener Anspruch oder Übertrag für 2026 wird nicht überschrieben.
+- Mehrere Kalenderjahre bleiben unterstützt.
+- JSON- und Excel-Sicherungen enthalten die jahresbezogenen Urlaubseinstellungen.
+
+7. Urlaubsauswertung
+- Genommener Urlaub verwendet die dunklere grüne Farbe der Verlaufsauswertung.
+- Geplanter Urlaub verwendet eine hellere Abstufung derselben grünen Farbfamilie.
+- Der große Block „Urlaubskonto – … Tage verfügbar“ oberhalb der Grafik wurde entfernt.
+- Der Detailbereich zeigt standardmäßig das Urlaubskonto des Jahres mit Anspruch, Übertrag, Gesamt, genommen, geplant und verbleibend.
+- Nach Monatsauswahl zeigt derselbe Bereich die Monatsdetails.
+- Eine kompakte Aktion führt zur Jahresgesamtansicht zurück.
+
+8. Monats-, Jahres-, Druck- und PDF-Berichte
+- Monatsbericht: Urlaub genommen, geplant und gesamt.
+- Jahresbericht: Urlaub genommen, geplant und gesamt.
+- Monatszeilen des Jahresberichts enthalten die Urlaubswerte je Monat.
+- Halbe Urlaubstage werden mit 0,5 gezählt.
+- Wochenenden sowie gesetzliche und betriebliche Feiertage werden nicht als Urlaubstage gezählt.
+- Der heutige Tag wird appweit als genommen behandelt; spätere Tage gelten als geplant.
+- Monats- und Jahres-PDF enthalten dieselben Urlaubswerte.
+
+9. Sicherungen und Persistenz
+- JSON- und Excel-Datei eines gemeinsamen Sicherungsvorgangs erhalten denselben Dateizeitstempel und denselben lastModified-Wert.
+- Urlaubsanspruch und Übertrag werden dauerhaft gespeichert und nach Neustart wieder geladen.
+- Reine UI- und Graphwechsel lösen keine Speicherung und keine Backup-Rotation aus.
+- Unveränderte saveState-Aufrufe erzeugen ebenfalls keine Backup-Rotation.
+- Sicherungen aus Schema 13 bleiben validierbar und migrierbar.
+- Der vollständige Wiederherstellungspfad wurde mit einem gesicherten Schema-14-Zustand geprüft.
+
+============================================================
+TECHNISCH GEPRÜFT
+============================================================
+
+- 87 automatisierte statische, funktionale, fachliche und responsive Einzelprüfungen: 87 bestanden, 0 fehlgeschlagen.
+- JavaScript-Syntax von app.js: bestanden.
+- JavaScript-Syntax von sw.js: bestanden.
+- Browserstart in Chromium ohne JavaScript- oder Konsolenfehler: bestanden.
+- 268 HTML-IDs geprüft: keine doppelten IDs.
+- Manifest als gültiges JSON und Version 5.38 geprüft.
+- Service-Worker-Assetliste und Cache-Kennung geprüft.
+- V5.37 und V5.38 mit demselben eingebetteten Datenbestand gegengeprüft.
+- Zeitberechnung, Nettozeit, Sollzeit und Zeitkonto blieben gegenüber V5.37 unverändert.
+- JSON-Datei technisch erzeugt und Inhalt geprüft.
+- Excel-Datei technisch erzeugt, ZIP-/XLSX-Struktur geöffnet und Einstellungswerte geprüft.
+- Monats- und Jahres-PDF technisch erzeugt und per Textextraktion auf Urlaubswerte geprüft.
+- Wiederherstellung eines vollständigen gesicherten Zustands technisch ausgeführt.
+- Viewports 320, 350, 375, 393 und 430 px auf horizontalen Überlauf geprüft.
+- Datumsfelder, Karten und Aktionsschaltflächen lagen bei allen geprüften Breiten vollständig innerhalb der Kartenränder.
+- 14 Browser-Sichtprüfungen und ein Kontaktbogen wurden im Ordner SICHTPRUEFUNG_V5_38 dokumentiert.
+
+============================================================
+FACHLICH GEPRÜFT
+============================================================
+
+- Zeitkontostand V5.37 und V5.38: jeweils 10.452 Minuten beziehungsweise +174:12 Stunden im verwendeten eingebetteten Datenbestand.
+- Netto-, Soll- und Differenzsummen der Ausgangsdaten blieben identisch.
+- 2026 ohne vorhandenen Nutzerwert: 139 Tage Anspruch und 0 Tage Übertrag.
+- Migration mit vorhandenem Nutzerwert: 35 Tage Anspruch und 5 Tage Übertrag blieben unverändert.
+- Mehrtägiger Urlaub über ein Wochenende berücksichtigte nur die drei Arbeitstage.
+- Zeitraum 24.12. bis 28.12.2026 berücksichtigte wegen betrieblichem Feiertag, gesetzlichem Feiertag und Wochenende nur den 28.12.2026.
+- Mehrtägige Krankheit wurde für alle Arbeitstage gespeichert.
+- Halber Tag wurde bei einem Mehrtageszeitraum automatisch verhindert.
+- Ein vorhandener Buchungskonflikt wurde erkannt und bei Konfliktregel „Abbrechen“ nicht überschrieben.
+- Ein halber Urlaubstag wurde mit 0,5 berechnet.
+- Urlaub am heutigen Tag wurde als genommen, zukünftiger Urlaub als geplant eingestuft.
+- Genommen + geplant entsprach in Monats- und Jahresauswertung dem Gesamtwert.
+
+============================================================
+DATENMIGRATION
+============================================================
+
+- Datenschema wurde kontrolliert von 13 auf 14 erhöht.
+- settings.vacationEntitlements wird als jahresbezogenes Objekt normalisiert.
+- Nur wenn der Schlüssel 2026 noch nicht existiert, wird {days: 139, carryover: 0} ergänzt.
+- Vorhandene Werte werden normalisiert, aber nicht durch die Vorgabe 139/0 ersetzt.
+- Bestehende Tages-, Buchungs-, Abwesenheits- und Zeitkontodaten werden nicht neu interpretiert.
+- Zusammengehörige Abwesenheitsgruppen bleiben erhalten.
+- Alte Backups bis Schema 13 bleiben importierbar und werden beim Laden migriert.
+- Neue Sicherungen tragen schemaVersion 14 und enthalten sämtliche jahresbezogenen Urlaubsansprüche und Überträge.
+
+============================================================
+NOCH AUF ECHTEM IPHONE PRAKTISCH ZU PRÜFEN
+============================================================
+
+- Darstellung und Bedienung der nativen Safari-Datumsfelder.
+- Touch-Bedienung, Fokuswechsel und Bildschirmtastatur.
+- Installation als PWA auf dem Home-Bildschirm.
+- Vollständiger Offline-Neustart nach vorheriger Installation und Cache-Aufbau.
+- iOS-Teilen-Menü für JSON, Excel und PDF.
+- Tatsächliche Safe-Area-Abstände bei Statusleiste, Dynamic Island und Home-Indikator.
+
+============================================================
+EINSCHRÄNKUNG DER DATENPRÜFUNG
+============================================================
+
+Im aktuellen Chat stand keine separate aktuelle JSON-Datei als eigenständige Datei zur Verfügung. Für Daten-, Migrations- und Zeitkontoprüfungen wurde deshalb der in der V5.37 enthaltene umfangreiche Bestand imported-data.js verwendet. Der JSON-Import und die Wiederherstellung wurden zusätzlich mit erzeugten vollständigen Sicherungszuständen sowie einem Schema-13-Backup geprüft. Eine namentlich separate aktuelle Nutzer-JSON konnte nicht gegen die App gegengeprüft werden.

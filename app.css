@@ -826,3 +826,99 @@ body.modal-open #today .today-quick-card.quick-action-row{visibility:hidden}
 #absenceModal .unified-card-head,#timeActionModal .unified-card-head{grid-template-columns:44px minmax(0,1fr) 44px}
 #absenceModalTitle,#timeActionModalTitle{font-size:16px!important}
 #timeActionTitle{max-width:100%;margin:0;font-size:16px!important;line-height:1.18;white-space:normal!important;overflow:hidden!important;text-overflow:clip!important;text-align:center;overflow-wrap:anywhere}
+
+
+/* V5.38 – schlanke Bedienlogik und grüne Urlaubsauswertung */
+.quick-today-sheet{width:min(calc(100vw - 24px),460px);max-width:calc(100vw - 24px)}
+.quick-today-body{display:grid;gap:14px}
+.number-unit-field{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:10px;width:100%;min-width:0}
+.number-unit-field input{width:100%;min-width:0;max-width:100%;box-sizing:border-box}
+.number-unit-field span{color:var(--muted);font-weight:700;white-space:nowrap}
+#quickTodayError[hidden]{display:none}
+.exact-two-actions button{min-height:62px}
+.quick-entry-card-body{padding-top:12px;padding-bottom:12px}
+
+.absence-date-grid{
+  display:grid!important;
+  grid-template-columns:minmax(0,1fr) minmax(0,1fr)!important;
+  gap:8px!important;
+  width:100%!important;
+  max-width:100%!important;
+  min-width:0!important;
+  box-sizing:border-box!important;
+}
+.absence-date-grid>.field,
+.absence-date-grid input[type="date"]{
+  width:100%!important;
+  max-width:100%!important;
+  min-width:0!important;
+  box-sizing:border-box!important;
+}
+.absence-date-grid input[type="date"]{padding-left:9px!important;padding-right:7px!important;font-size:14px}
+.absence-summary{border:0!important;border-radius:0!important;background:transparent!important;padding:2px 1px!important;display:grid!important;gap:7px!important;color:var(--muted)!important;font-size:12px!important;line-height:1.45}
+.absence-summary p{margin:0}
+.absence-summary .conflict{border:1px solid #efc4c4;border-radius:11px;background:var(--danger-soft);padding:9px 10px;color:var(--danger);font-weight:700}
+.absence-preview-error{border:1px solid #efc4c4;border-radius:11px;background:var(--danger-soft);padding:9px 10px;color:var(--danger);display:grid;gap:3px}
+.absence-summary.has-conflict{padding-top:2px!important}
+
+.vacation-chart-legend i.taken,.vacation-bars i.taken{background:var(--green-dark)!important}
+.vacation-chart-legend i.planned,.vacation-bars i.planned{background:#9fd5b2!important}
+.vacation-month.selected{background:var(--green-soft)!important}
+.vacation-month.selected b{color:var(--green-dark)!important}
+.vacation-month:focus-visible{outline:2px solid var(--green-dark);outline-offset:1px}
+.vacation-detail{margin-top:10px}
+.vacation-detail .vacation-detail-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:2px}
+.vacation-detail .vacation-detail-head h3{margin:0}
+.vacation-overall-link{border:0;background:transparent;color:var(--green-dark);font-size:11px;font-weight:800;padding:5px 0;text-decoration:underline;text-underline-offset:3px}
+.vacation-chart{border-bottom:1px solid var(--line);padding-bottom:3px}
+.vacation-bars i{transition:height .18s ease}
+
+.day-editor-date-row{display:grid;grid-template-columns:auto minmax(0,1fr);align-items:center;gap:12px;margin-bottom:12px}
+.day-editor-date-row label{font-size:12px;color:var(--muted);font-weight:800}
+.day-editor-date-row input{width:100%;min-width:0;max-width:100%;height:42px;border:1px solid var(--line);border-radius:12px;background:#fff;padding:0 10px;text-align:center;font-weight:750;box-sizing:border-box}
+.day-editor-status-grid{display:grid;grid-template-columns:1.25fr 1fr .85fr;gap:7px;margin-bottom:12px}
+.day-editor-status-grid>div{min-width:0;border:1px solid var(--line);border-radius:11px;background:#f8f9fb;padding:8px;display:grid;gap:4px}
+.day-editor-status-grid span{color:var(--muted);font-size:9px;font-weight:700}
+.day-editor-status-grid b{font-size:11px;line-height:1.25;overflow-wrap:anywhere}
+.day-editor-future-note,.day-editor-issue{margin-bottom:12px;border:1px solid var(--line);border-radius:12px;background:#f7f8fa;padding:10px 11px;display:grid;gap:3px;font-size:11px;line-height:1.4;color:var(--muted)}
+.day-editor-future-note b{color:var(--text)}
+.day-editor-issue{border-color:#f0d39d;background:#fff8e8;color:#865d16}
+#dayCardBody .unified-list-row:disabled{opacity:.58;background:#f7f8fa;color:var(--muted);cursor:default}
+#dayCardBody .unified-list-row:disabled .unified-row-end strong{color:var(--muted)}
+
+.settings-holiday-switches{border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.settings-inline-switch{min-height:62px;padding:10px 12px;display:flex;align-items:center;justify-content:space-between;gap:12px;background:#fff}
+.settings-inline-switch+.settings-inline-switch{border-top:1px solid var(--line)}
+.settings-inline-switch>span:first-child{display:grid;gap:3px}
+.settings-inline-switch b{font-size:13px}
+.settings-inline-switch small{font-size:11px;color:var(--muted)}
+.settings-inline-switch .switch{flex:0 0 auto}
+
+.mobile-report-table{overflow-x:auto;-webkit-overflow-scrolling:touch}
+.mobile-report-table table{min-width:100%}
+.mobile-report-table th{white-space:normal}
+.print-report .summary{grid-template-columns:repeat(3,minmax(0,1fr))}
+
+@media(max-width:369px){
+  .absence-date-grid{grid-template-columns:minmax(0,1fr)!important;gap:10px!important}
+}
+@media(max-width:350px){
+  .day-editor-status-grid{grid-template-columns:1fr 1fr}
+  .day-editor-status-grid>div:first-child{grid-column:1/-1}
+}
+
+/* V5.38 – vollständige Tagesbearbeitung: Titel auf schmalen Viewports vollständig lesbar */
+#dayModal .unified-card-head{
+  grid-template-columns:44px minmax(0,1fr) 44px;
+}
+#dayModalTitle{
+  max-width:100%;
+  margin:0;
+  font-size:16px !important;
+  line-height:1.18;
+  white-space:normal !important;
+  overflow:visible !important;
+  text-overflow:clip !important;
+  text-align:center;
+  overflow-wrap:anywhere;
+}

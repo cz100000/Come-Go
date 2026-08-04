@@ -1,0 +1,28 @@
+TESTUEBERSICHT V5.39
+====================
+
+Automatisch bzw. statisch ausgeführt
+------------------------------------
+[OK] app.js besteht die JavaScript-Syntaxprüfung.
+[OK] APP_VERSION ist 5.39.
+[OK] Service-Worker-Cache wurde auf v5-39 angehoben.
+[OK] openTimeAction öffnet direkt die vollständige Tagesbearbeitung.
+[OK] Aktion ohne Buchung lautet „Kommen hinzufügen“.
+[OK] Aktion nach offenem Kommen lautet „Gehen ergänzen“.
+[OK] Aktion nach vollständigem Arbeitsblock lautet „Weiteren Arbeitsblock hinzufügen“.
+[OK] Dokumentierte Uhrzeit ist im vollständigen Tageseditor schreibgeschützt.
+[OK] Dokumentierte Uhrzeit ist in vorhandenen Einzelbuchungsformularen schreibgeschützt.
+[OK] Speichern im Tageseditor berechnet die dokumentierte Uhrzeit neu.
+[OK] Manuelle Schnell-/Einzelbuchungen berechnen die dokumentierte Uhrzeit neu.
+[OK] Datenschema blieb unverändert; keine Migration erforderlich.
+
+Praktischer iPhone-Test erforderlich
+------------------------------------
+[OFFEN] Plus-Menü > Vollständigen Tag bearbeiten.
+[OFFEN] Tageszustand ohne Buchung: „Kommen hinzufügen“.
+[OFFEN] Tageszustand mit offenem Kommen: „Gehen ergänzen“.
+[OFFEN] Vollständiges Paar: „Weiteren Arbeitsblock hinzufügen“.
+[OFFEN] Kommen 17:53 wird dokumentiert als 17:55.
+[OFFEN] Gehen 18:03 wird dokumentiert als 18:00.
+[OFFEN] Dokumentierte Uhrzeit lässt sich nicht manuell verändern.
+[OFFEN] PWA-Update und Offline-Neustart auf physischem iPhone.
