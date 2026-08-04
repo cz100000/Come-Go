@@ -964,3 +964,9 @@ body.modal-open #today .today-quick-card.quick-action-row{visibility:hidden}
 .vacation-bars{height:88px;gap:2px}
 .vacation-bars i{width:min(10px,44%);border-radius:4px 4px 1px 1px}
 @media(max-width:370px){.vacation-chart{padding-left:28px!important}.vacation-gridlines,.vacation-months{left:28px}.vacation-axis{width:26px}.vacation-bars i{width:min(8px,46%)}.vacation-month b{font-size:7px}}
+
+
+/* V5.41 – Schnelleinträge exakt links neben dem Plus-Button auf identischer Höhe. */
+#today .today-quick-card.quick-action-row{position:fixed!important;z-index:45!important;left:max(17px,calc((100vw - 620px)/2 + 17px))!important;right:max(89px,calc((100vw - 620px)/2 + 89px))!important;bottom:calc(var(--nav-h) + env(safe-area-inset-bottom) + 22px)!important;width:auto!important;max-width:none!important;height:56px!important;min-height:56px!important;margin:0!important;padding:0!important;align-self:auto!important}
+#today .today-quick-card.quick-action-row .today-quick-row{height:56px!important;min-height:56px!important;padding-top:6px!important;padding-bottom:6px!important}
+@media(max-height:760px){#today .today-quick-card.quick-action-row{right:max(84px,calc((100vw - 620px)/2 + 84px))!important;bottom:calc(var(--nav-h) + env(safe-area-inset-bottom) + 19px)!important;height:52px!important;min-height:52px!important}#today .today-quick-card.quick-action-row .today-quick-row{height:52px!important;min-height:52px!important}}

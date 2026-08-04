@@ -1,4 +1,4 @@
-Arbeitszeit PWA – Version 5.40
+Arbeitszeit PWA – Version 5.41
 Stand: 04.08.2026
 
 Zweck
@@ -109,3 +109,9 @@ Wichtige Änderungen in V5.40
 - Die alte Zwischenansicht „Zeit ergänzen oder korrigieren“ wird nicht mehr aufgerufen; alle entsprechenden Wege öffnen direkt „Vollständigen Tag bearbeiten“.
 - Die nächste Buchungsaktion wird eindeutig als „Kommen hinzufügen“, „Gehen ergänzen“ oder „Weiteren Arbeitsblock hinzufügen“ bezeichnet.
 - Dokumentierte Uhrzeiten sind nicht mehr frei editierbar und werden beim Speichern verbindlich aus der tatsächlichen Uhrzeit berechnet: Kommen aufwärts, Gehen abwärts auf 5 Minuten.
+
+
+Wichtige Änderungen in V5.41
+- Die Schnelleintragskarte steht fest unmittelbar links neben dem Plus-Button und beginnt nicht oberhalb dessen Oberkante.
+- Der bestätigte 24.03.2026 ist mit Kommen 09:40, Gehen 21:00 und 45 Minuten Pause in der Importbasis hinterlegt; eine gezielte Migration behebt leere Altstände, ohne neuere manuelle Änderungen zu überschreiben.
+- Die Urlaubsgrafik verwendet standardmäßig eine Y-Achse bis 15 Tage. Erst bei einem tatsächlichen Monatswert über 15 Tagen wird die Achse in 5-Tage-Schritten erweitert.

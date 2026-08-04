@@ -1,0 +1,7 @@
+Arbeitszeit PWA – Änderungen V5.41
+
+1. Schnelleinträge exakt auf Höhe des Plus-Buttons und unmittelbar links daneben positioniert.
+2. Bestätigten Datensatz 24.03.2026 aus dem aktuellen JSON in die Importbasis übernommen.
+3. Gezielte Migration für einen leeren Altstand des 24.03.2026 ergänzt; neuere manuelle Daten bleiben geschützt.
+4. Urlaubsskala standardmäßig 0–15 Tage; dynamische Erweiterung nur bei Monatswerten über 15 Tagen.
+5. App-, Manifest- und Service-Worker-Version auf 5.41 aktualisiert.

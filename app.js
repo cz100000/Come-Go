@@ -4,9 +4,9 @@ const STORAGE_BACKUP_KEYS=[1,2,3].map(n=>`${STORAGE_KEY}-backup-${n}`);
 const STORAGE_CORRUPT_KEY=STORAGE_KEY+'-corrupt';
 const BACKUP_FORMAT='arbeitszeit-pwa-backup';
 const TRACKING_START_DATE='2022-11-01';
-const APP_VERSION='5.40';
+const APP_VERSION='5.41';
 const CURRENT_SCHEMA=14;
-const IMPORT_DATA_VERSION=4;
+const IMPORT_DATA_VERSION=5;
 const CALCULATION_VERSION=2;
 const HOLIDAY_REGIONS=Object.freeze({BW:'Baden-Württemberg',BY:'Bayern',BE:'Berlin',BB:'Brandenburg',HB:'Bremen',HH:'Hamburg',HE:'Hessen',MV:'Mecklenburg-Vorpommern',NI:'Niedersachsen',NW:'Nordrhein-Westfalen',RP:'Rheinland-Pfalz',SL:'Saarland',SN:'Sachsen',ST:'Sachsen-Anhalt',SH:'Schleswig-Holstein',TH:'Thüringen'});
 let storageNotice='';
@@ -82,6 +82,7 @@ const migrated=raw&&typeof raw==='object'?raw:{days:{},settings:clone(typeof IMP
 migrated.days=migrated.days&&typeof migrated.days==='object'?migrated.days:{};
 migrated.settings={...(typeof IMPORTED_SETTINGS==='object'?clone(IMPORTED_SETTINGS):{}),...(migrated.settings&&typeof migrated.settings==='object'?migrated.settings:{})};
 for(const original of IMPORTED){const existing=migrated.days[original.date];if(!existing||!isProtectedLocalDay(existing))migrated.days[original.date]=clone(original)}
+const verifiedMarch24=IMPORTED_BY_DATE['2026-03-24'];if(verifiedMarch24){const current=migrated.days['2026-03-24'];const hasVerifiedPair=Array.isArray(current?.entries)&&current.entries.some(e=>e.type==='in'&&(e.logged||e.actual)==='09:40')&&current.entries.some(e=>e.type==='out'&&(e.logged||e.actual)==='21:00')&&Number(current.pauseMinutes)===45;const hasNewerManualData=!!current?.modifiedAt||current?.entries?.some(e=>e.edited||e.source==='manual');if(!hasVerifiedPair&&!hasNewerManualData)migrated.days['2026-03-24']=clone(verifiedMarch24)}
 Object.keys(migrated.days).filter(k=>k<TRACKING_START_DATE).forEach(k=>delete migrated.days[k]);
 const s=migrated.settings;
 s.targetRules=normalizeTargetRules(s.targetRules);s.holidayRegionRules=normalizeHolidayRegionRules(s.holidayRegionRules);s.targetMinutes=targetMinutesFromSettings(todayKey(),s);s.holidayRegion=holidayRegionFromSettings(todayKey(),s);
@@ -1618,12 +1619,11 @@ renderVacationOverview=function(){
   const selected=Number(yearSel.value)||new Date().getFullYear();yearSel.innerHTML=vacationYearOptions().map(y=>`<option value="${y}">${y}</option>`).join('');yearSel.value=String(selected);
   const s=vacationSummary(selected);if(vacationChartSelection.year!==selected)vacationChartSelection={year:selected,month:null};
   const monthData=Array.from({length:12},(_,month)=>{let taken=0,planned=0;for(const r of s.records)for(const d of r.days){if(Number(d.date.slice(5,7))-1!==month)continue;const u=absenceDuration(d)==='half'?0.5:1;if(d.date<=todayKey())taken+=u;else planned+=u}return{month,taken,planned,total:taken+planned}});
-  const rawMax=Math.max(1,...monthData.map(x=>x.total));
-  const step=rawMax<=5?1:rawMax<=10?2:rawMax<=20?5:10;
-  const axisMax=Math.max(step,Math.ceil(rawMax/step)*step);
-  const ticks=[axisMax,axisMax/2,0];
+  const rawMax=Math.max(0,...monthData.map(x=>x.total));
+  const axisMax=rawMax<=15?15:Math.ceil(rawMax/5)*5;
+  const ticks=[];for(let value=axisMax;value>=0;value-=5)ticks.push(value);
   const bars=monthData.map(item=>{const takenHeight=item.taken/axisMax*82,plannedHeight=item.planned/axisMax*82,selectedMonth=vacationChartSelection.month===item.month;return `<button type="button" class="vacation-month ${selectedMonth?'selected':''}" data-vacation-month="${item.month}" aria-pressed="${selectedMonth}" aria-label="${['Januar','Februar','März','April','Mai','Juni','Juli','August','September','Oktober','November','Dezember'][item.month]}: ${formatVacationDays(item.taken)} genommen, ${formatVacationDays(item.planned)} geplant"><span class="vacation-bars"><i class="taken" style="height:${takenHeight}px"></i><i class="planned" style="height:${plannedHeight}px"></i></span><b>${['Jan','Feb','Mär','Apr','Mai','Jun','Jul','Aug','Sep','Okt','Nov','Dez'][item.month]}</b></button>`}).join('');
-  $('vacationChart').innerHTML=`<div class="vacation-axis" aria-hidden="true">${ticks.map((v,i)=>`<span style="top:${i*50}%">${formatVacationNumber(v)} T.</span>`).join('')}</div><div class="vacation-gridlines" aria-hidden="true">${ticks.map((_,i)=>`<i style="top:${i*50}%"></i>`).join('')}</div><div class="vacation-months">${bars}</div>`;
+  $('vacationChart').innerHTML=`<div class="vacation-axis" aria-hidden="true">${ticks.map(v=>`<span style="top:${(axisMax-v)/axisMax*100}%">${formatVacationNumber(v)} T.</span>`).join('')}</div><div class="vacation-gridlines" aria-hidden="true">${ticks.map(v=>`<i style="top:${(axisMax-v)/axisMax*100}%"></i>`).join('')}</div><div class="vacation-months">${bars}</div>`;
   $('vacationChart').querySelectorAll('[data-vacation-month]').forEach(button=>button.addEventListener('click',()=>{const clicked=Number(button.dataset.vacationMonth);vacationChartSelection={year:selected,month:vacationChartSelection.month===clicked?null:clicked};renderVacationOverview()}));
   renderVacationDetail(selected,s,monthData);renderVacationManager();
 };

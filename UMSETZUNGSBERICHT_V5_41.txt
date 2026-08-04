@@ -1,0 +1,9 @@
+UMSETZUNGSBERICHT V5.41
+
+Umgesetzt:
+- Startseiten-Aktionszeile: Schnelleinträge und Plus besitzen denselben unteren Abstand, dieselbe Höhe und liegen direkt nebeneinander.
+- JSON-Datenprüfung: 24.03.2026 mit 09:40–21:00 und 45 Minuten Pause übernommen.
+- Migrationsschutz: Ein leerer, nicht manuell neuer bearbeiteter Altstand wird auf den bestätigten Datensatz korrigiert.
+- Urlaubsgraph: feste Standardskala bis 15 Tage; automatische Erweiterung in 5-Tage-Schritten bei Bedarf.
+
+Das aktuelle JSON-Backup liegt zusätzlich unverändert im Auslieferungspaket.

@@ -1,0 +1,12 @@
+TESTÜBERSICHT V5.41
+
+[OK] APP_VERSION, Manifest und Service-Worker auf 5.41 aktualisiert.
+[OK] 24.03.2026 in imported-data.js: Kommen 09:40, Gehen 21:00, Pause 45 Minuten.
+[OK] Migration korrigiert leeren Altstand des 24.03.2026, schützt aber manuell geänderte Daten.
+[OK] Urlaubsskala beträgt bei Monatswerten bis 15 Tagen exakt 15 Tage.
+[OK] Bei mehr als 15 Tagen erweitert sich die Skala auf den nächsten 5-Tage-Wert.
+[OK] Schnelleintragskarte und Plus-Button verwenden identische Höhe und Bottom-Position.
+[OK] JavaScript-Syntax geprüft.
+[OK] ZIP-Integrität geprüft.
+
+Offen: Sicht- und Installationstest auf dem realen iPhone.
