@@ -763,3 +763,12 @@ html,body,.app,.screen,.modal,.sheet{max-width:100%;overflow-x:hidden}
 
 /* V5.34 – bestätigte Kontrollhinweise */
 .workday-issues-list article>div:last-child{grid-template-columns:repeat(3,minmax(0,1fr))}.workday-issues-list .issue-reviewed-button{border-color:#5b6b7d;color:#334155;background:#f8fafc}.reviewed-day-card{display:grid;gap:5px;border-color:#b7d7bf;background:#f2faf4}.reviewed-day-card b{color:#276738;font-size:13px}.reviewed-day-card span{color:var(--muted);font-size:12px;line-height:1.4}@media(max-width:430px){.workday-issues-list article>div:last-child{grid-template-columns:1fr}}
+
+/* V5.35 – einheitliche Kartenabstände und integrierter Prüfstatus */
+.screen .card, #timesContent .card, #reports .card, #settings .card{margin-bottom:12px}
+#timesContent .compact-day-summary,#timesContent .compact-booking-card{margin-bottom:12px}
+.reviewed-day-card{display:none!important}
+.review-status-row{align-items:center}
+.review-status-chip{display:inline-flex;align-items:center;justify-content:center;padding:4px 8px;border-radius:999px;background:#eef4f8;color:#334155;font-size:11px;font-weight:700}
+.review-status-meta{margin:-2px 0 8px;padding:0 0 8px;color:var(--muted);font-size:11px;line-height:1.35;border-bottom:1px solid var(--line)}
+.critical-setting-note{border-color:#e4c36a;background:#fff9e8}

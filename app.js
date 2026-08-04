@@ -4,7 +4,7 @@ const STORAGE_BACKUP_KEYS=[1,2,3].map(n=>`${STORAGE_KEY}-backup-${n}`);
 const STORAGE_CORRUPT_KEY=STORAGE_KEY+'-corrupt';
 const BACKUP_FORMAT='arbeitszeit-pwa-backup';
 const TRACKING_START_DATE='2022-11-01';
-const APP_VERSION='5.34';
+const APP_VERSION='5.35';
 const CURRENT_SCHEMA=12;
 const IMPORT_DATA_VERSION=4;
 const CALCULATION_VERSION=2;
@@ -15,7 +15,7 @@ let calculationCache=null;
 let calculationRevision=0;
 let state=loadState();
 let currentView='day';
-let cursorDate=parseDateKey(state.settings.lastEditedDay||todayKey());
+let cursorDate=parseDateKey(todayKey());
 let monthDrill=null;
 let editingEntries=[];
 let expandedDayEntryIndex=-1;
@@ -287,7 +287,7 @@ document.querySelectorAll('.screen').forEach(screen=>screen.classList.toggle('ac
 document.querySelectorAll('.tabbar button').forEach(button=>button.classList.toggle('active',button.dataset.screen===id));
 if(id==='today')renderToday();
 if(id==='times'){
-currentView='day';monthDrill=null;cursorDate=parseDateKey(state.settings.lastEditedDay||todayKey());
+currentView='day';monthDrill=null;cursorDate=parseDateKey(todayKey());
 document.querySelectorAll('[data-view]').forEach(button=>button.classList.toggle('active',button.dataset.view==='day'));
 renderTimes();
 }
@@ -497,8 +497,9 @@ let inNo=0,outNo=0;
 const mobileRows=entries.length?`<div class="booking-compact-head"><span></span><span>Tatsächlich</span><span>Dokumentiert</span><span></span></div>${entries.map((entry,index)=>{const no=entry.type==='in'?++inNo:++outNo,label=entry.type==='in'?`Kommen ${no}`:`Gehen ${no}`;return `<div class="booking-compact-row ${entry.type}"><div class="booking-compact-label"><span class="booking-type-icon">${entry.type==='in'?SVG.in:SVG.out}</span><span><b>${label}</b><small>${esc(entrySource(d,entry))}</small></span></div><b class="booking-compact-time">${esc(entry.actual||'–')}</b><b class="booking-compact-time">${esc(entry.logged||'–')}</b><button type="button" class="edit-icon-btn" onclick="openSingleEntryEditor('${k}',${index})" aria-label="${label} bearbeiten">${SVG.edit}</button></div>`}).join('')}`:`<div class="empty-day-state"><b>Für diesen Tag sind noch keine Zeiten erfasst.</b><span>Nutze den Plus-Button oder eine der direkten Aktionen.</span><div><button type="button" onclick="openTimeAction('${k}')">Zeit ergänzen</button><button type="button" onclick="openAbsenceTypePicker('${k}')">Abwesenheit eintragen</button></div></div>`;
 const groupCount=d.absenceGroupId?absenceGroupDays(d.absenceGroupId).length:1;
 const reviewIssue=workdayIssueForDate(k,{includeReviewed:true});
-const reviewCard=d.workdayIssueReview&&reviewIssue?.reviewed?`<div class="card reviewed-day-card"><b>Geprüft – Minusstunden sind korrekt</b><span>Der Kontrollhinweis wurde am ${esc(new Intl.DateTimeFormat('de-DE',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'}).format(new Date(d.workdayIssueReview.reviewedAt)))} bestätigt.</span></div>`:'';
-const absenceCard=d.absence?`<div class="card detail-list absence-detail-card"><div class="detail-row"><span>Abwesenheit</span><b>${esc(d.absence)}</b></div><div class="detail-row"><span>Umfang</span><b>${absenceDuration(d)==='half'?'Halber Tag':'Ganzer Tag'}</b></div><div class="detail-row"><span>Sollzeit an diesem Tag</span><b class="absence-credit">${formatDuration(targetMinutesForDate(d.date,d),{signed:false})}</b></div><div class="detail-row"><span>Notiz</span><div class="value">${esc(d.absenceNote||'–')}</div></div><div class="absence-actions-inline"><button type="button" onclick="openAbsenceEditorForDay('${k}','day')">Diesen Tag bearbeiten</button>${groupCount>1?`<button type="button" onclick="openAbsenceEditorForDay('${k}','group')">Zeitraum bearbeiten</button>`:''}<button type="button" class="danger" onclick="deleteAbsenceForDay('${k}','day')">Diesen Tag löschen</button>${groupCount>1?`<button type="button" class="danger" onclick="deleteAbsenceForDay('${k}','group')">Zeitraum löschen</button>`:''}</div></div>`:'';
+const reviewStatus=d.workdayIssueReview&&reviewIssue?.reviewed?`<div class="detail-row review-status-row"><span>Prüfstatus</span><b class="review-status-chip">Geprüft</b></div><div class="review-status-meta">Minusstunden bestätigt am ${esc(new Intl.DateTimeFormat('de-DE',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'}).format(new Date(d.workdayIssueReview.reviewedAt)))}</div>`:'';
+const reviewCard='';
+const absenceCard=d.absence?`<div class="card detail-list absence-detail-card"><div class="detail-row"><span>Abwesenheit</span><b>${esc(d.absence)}</b></div><div class="detail-row"><span>Umfang</span><b>${absenceDuration(d)==='half'?'Halber Tag':'Ganzer Tag'}</b></div><div class="detail-row"><span>Sollzeit an diesem Tag</span><b class="absence-credit">${formatDuration(targetMinutesForDate(d.date,d),{signed:false})}</b></div>${reviewStatus}<div class="detail-row"><span>Notiz</span><div class="value">${esc(d.absenceNote||'–')}</div></div><div class="absence-actions-inline"><button type="button" onclick="openAbsenceEditorForDay('${k}','day')">Diesen Tag bearbeiten</button>${groupCount>1?`<button type="button" onclick="openAbsenceEditorForDay('${k}','group')">Zeitraum bearbeiten</button>`:''}<button type="button" class="danger" onclick="deleteAbsenceForDay('${k}','day')">Diesen Tag löschen</button>${groupCount>1?`<button type="button" class="danger" onclick="deleteAbsenceForDay('${k}','group')">Zeitraum löschen</button>`:''}</div></div>`:'';
 const diffClass=c.diff<0?'red':c.diff>0?'green':'neutral';
 const balance=balanceThrough(k),balanceClass=balance<0?'red':balance>0?'green':'neutral';
 $('timesContent').innerHTML=`
@@ -687,12 +688,12 @@ function continueEditing(){pendingDiscardModalId=null;pendingDiscardAction=null;
 function discardChanges(){const id=pendingDiscardModalId,action=pendingDiscardAction;pendingDiscardModalId=null;pendingDiscardAction=null;closeModal('discardConfirmModal');if(id)closeModal(id);if(typeof action==='function')action()}
 function openPauseModal(){$('quickPause').value=Number(dayObject(todayKey()).pauseMinutes)||0;openModal('pauseModal');setTimeout(()=>$('quickPause').focus(),80)}
 function saveQuickPause(){const k=todayKey(),d=dayObject(k,true);d.pauseMinutes=Math.max(0,Number($('quickPause').value)||0);d.edited=true;d.modifiedAt=new Date().toISOString();state.days[k]=d;touchDay(k);closeModal('pauseModal');renderToday();showToast('Pause gespeichert')}
-let chartMode=['month','year','history'].includes(state.settings.chartMode)?state.settings.chartMode:'month',chartSelection=null;
+let chartMode=(()=>{try{const m=sessionStorage.getItem('arbeitszeit-chart-mode');return ['month','year','history'].includes(m)?m:'month'}catch(_e){return'month'}})(),chartSelection=null;
 function renderReports(){
 const t=todayKey(),bal=balanceThrough(t);$('reportBalance').textContent=formatDuration(bal);$('reportBalance').className=bal<0?'red':'green';$('reportDay').max=t;$('reportDay').value=t;$('reportMonth').max=t.slice(0,7);$('reportMonth').value=t.slice(0,7);
 const years=[];for(let y=new Date().getFullYear();y>=earliestYear();y--)years.push(`<option value="${y}">${y}</option>`);$('reportYear').innerHTML=years.join('');$('chartYear').innerHTML=years.join('');if(!$('chartYear').value)$('chartYear').value=String(new Date().getFullYear());renderOvertimeChart();
 }
-function setChartMode(mode){chartMode=mode;chartSelection=null;state.settings.chartMode=mode;saveState();renderOvertimeChart()}
+function setChartMode(mode){chartMode=mode;chartSelection=null;try{sessionStorage.setItem('arbeitszeit-chart-mode',mode)}catch(_e){}renderOvertimeChart()}
 function chartSelect(kind,key){chartSelection={kind,key};renderOvertimeChart()}
 function chartHistoryItems(){
 const first=earliestYear(),now=new Date(),items=[];
@@ -756,23 +757,25 @@ function openAbsenceTypePicker(date=quickContextDate){
 quickContextDate=date;closeModal('quickAddModal');$('absenceTypeQuickTitle').textContent='Abwesenheit eintragen';$('absenceTypeContext').textContent=`Bezugsdatum: ${formatContextDate(date)}`;openModal('absenceTypeModal')
 }
 function openQuickAbsence(code,date=quickContextDate){
-quickContextDate=date;quickAbsenceCode=code;closeModal('absenceTypeModal');$('quickAbsenceTitle').textContent=`${absenceLabel(code)} eintragen`;$('quickAbsenceContext').textContent=`${absenceLabel(code)} für ${formatContextDate(date)}`;$('quickAbsenceTypeLabel').textContent=absenceLabel(code);$('quickAbsenceExtent').value='full';$('quickAbsenceNote').value='';updateQuickAbsenceConflict();openModal('quickAbsenceModal')
+quickContextDate=date;quickAbsenceCode=code;closeModal('absenceTypeModal');$('quickAbsenceTitle').textContent=`${absenceLabel(code)} eintragen`;$('quickAbsenceTypeLabel').textContent=absenceLabel(code);$('quickAbsenceFrom').value=date;$('quickAbsenceTo').value=date;$('quickAbsenceExtent').value='full';$('quickAbsenceNote').value='';updateQuickAbsenceConflict();openModal('quickAbsenceModal')
+}
+function quickAbsencePlan(){
+const from=$('quickAbsenceFrom').value,to=$('quickAbsenceTo').value,extent=$('quickAbsenceExtent').value;if(!from||!to||from>to)return{error:'Das Von-Datum darf nicht nach dem Bis-Datum liegen.'};
+if(extent==='half'&&from!==to)return{error:'Ein halber Tag ist nur bei einem einzelnen Datum möglich.'};
+const range=dateRange(from,to),workdays=range.filter(isAbsenceWorkday),conflicts=workdays.filter(k=>absenceConflict(k,null));return{from,to,extent,range,workdays,conflicts};
 }
 function quickAbsenceConflictText(){
-const k=quickContextDate,d=dayObject(k),extent=$('quickAbsenceExtent').value;
-if(!isAbsenceWorkday(k))return 'Für dieses Datum liegt kein regulärer Soll-Arbeitstag vor. Nutze für Sonderfälle „Weitere Optionen“.';
-if(d.absence)return `Für diesen Tag ist bereits ${d.absence} eingetragen. Vorhandene Daten werden nicht überschrieben.`;
-if(extent==='full'&&((d.entries||[]).length||Number(d.pauseMinutes)))return 'Für diesen Tag bestehen Arbeitszeit- oder Pausenbuchungen. Eine ganztägige Abwesenheit kann hier nicht ohne Prüfung gespeichert werden.';
-return'';
+const plan=quickAbsencePlan();if(plan.error)return plan.error;if(!plan.workdays.length)return'Im ausgewählten Zeitraum liegt kein regulärer Soll-Arbeitstag.';if(plan.conflicts.length)return`An ${plan.conflicts.length} Tag(en) bestehen bereits Buchungen oder Abwesenheiten. Diese werden nicht überschrieben.`;return'';
 }
 function updateQuickAbsenceConflict(){
-const box=$('quickAbsenceConflict');if(!box)return;const text=quickAbsenceConflictText();box.hidden=!text;box.textContent=text;$('saveQuickAbsence').disabled=!!text;
+const plan=quickAbsencePlan(),box=$('quickAbsenceConflict'),preview=$('quickAbsencePreview');if(plan.error){preview.innerHTML=`<b>Eingaben prüfen</b>${esc(plan.error)}`;}else{const skipped=plan.range.length-plan.workdays.length;preview.innerHTML=`<b>${esc(absenceLabel(quickAbsenceCode))} · ${plan.extent==='half'?'Halber Tag':'Ganzer Tag'}</b><div class="summary-line"><span>Berücksichtigte Arbeitstage</span><strong>${plan.workdays.length}</strong></div>${skipped?`<div class="summary-line"><span>Ausgelassene Wochenend-/Feiertage</span><strong>${skipped}</strong></div>`:''}`;}
+const text=quickAbsenceConflictText();box.hidden=!text;box.textContent=text;$('saveQuickAbsence').disabled=!!text;
 }
 function saveQuickAbsence(){
-const k=quickContextDate,extent=$('quickAbsenceExtent').value,note=$('quickAbsenceNote').value.trim(),conflict=quickAbsenceConflictText();if(conflict){alert(conflict);return}
-const d=clone(dayObject(k,true)),nowIso=new Date().toISOString(),label=absenceLabel(quickAbsenceCode);d.absence=label;d.absenceCode=quickAbsenceCode;d.absenceDuration=extent;delete d.absenceMinutes;d.absenceNote=note;d.absenceGroupId=newAbsenceGroupId();d.absenceCreatedAt=nowIso;d.absenceUpdatedAt=nowIso;d.edited=true;d.modifiedAt=nowIso;d.archived=Number(k.slice(0,4))<new Date().getFullYear();state.days[k]=d;touchDay(k);cursorDate=parseDateKey(k);closeModal('quickAbsenceModal');refreshAllDerivedViews();showToast(`${label} für ${formatContextDate(k)} gespeichert.`)
+const plan=quickAbsencePlan(),conflict=quickAbsenceConflictText();if(conflict){alert(conflict);return}const note=$('quickAbsenceNote').value.trim(),nowIso=new Date().toISOString(),label=absenceLabel(quickAbsenceCode),groupId=newAbsenceGroupId();
+plan.workdays.forEach(k=>{const d=clone(dayObject(k,true));d.absence=label;d.absenceCode=quickAbsenceCode;d.absenceDuration=plan.extent;delete d.absenceMinutes;d.absenceNote=note;d.absenceGroupId=groupId;d.absenceCreatedAt=nowIso;d.absenceUpdatedAt=nowIso;d.edited=true;d.modifiedAt=nowIso;d.archived=Number(k.slice(0,4))<new Date().getFullYear();state.days[k]=d});
+state.settings.lastActivityAt=nowIso;saveState();closeModal('quickAbsenceModal');refreshAllDerivedViews();showToast(`${label} für ${plan.workdays.length} Arbeitstag(e) gespeichert.`)
 }
-function openQuickAbsenceFurther(){const k=quickContextDate;runAfterDirtyCheck('quickAbsenceModal',()=>openFullDayForDate(k))}
 function timeActionDescription(d){
 const status=dayStatus(d);if(hasFullAbsence(d))return `${status}. Für Arbeitszeitänderungen ist der vollständige Tageseditor erforderlich.`;
 if(!(d.entries||[]).length)return 'Für diesen Tag ist noch keine Buchung vorhanden.';
@@ -1056,7 +1059,7 @@ document.addEventListener('keydown',event=>{trapModalFocus(event);if(event.key==
 bindPunchButton($('punchAction'));
 $('todayAbsenceEdit').addEventListener('click',()=>openAbsenceEditorForDay(todayKey(),'day'));
 $('pauseToday').addEventListener('click',openPauseModal);$('savePauseBtn').addEventListener('click',saveQuickPause);$('quickAddBtn').addEventListener('click',()=>openQuickAdd(todayKey()));$('timesQuickAddBtn').addEventListener('click',()=>openQuickAdd(dateKey(cursorDate)));$('pastWorkdayNotice').addEventListener('click',openWorkdayIssues);
-$('quickAbsenceStart').addEventListener('click',()=>openAbsenceTypePicker(quickContextDate));$('quickTimeStart').addEventListener('click',()=>openTimeAction(quickContextDate));$('quickCommentStart').addEventListener('click',()=>openCommentEditor(quickContextDate,'direct'));document.querySelectorAll('[data-simple-absence]').forEach(button=>button.addEventListener('click',()=>openQuickAbsence(button.dataset.simpleAbsence,quickContextDate)));$('quickAbsenceExtent').addEventListener('change',updateQuickAbsenceConflict);$('saveQuickAbsence').addEventListener('click',saveQuickAbsence);$('quickAbsenceFurther').addEventListener('click',openQuickAbsenceFurther);
+$('quickAbsenceStart').addEventListener('click',()=>openAbsenceTypePicker(quickContextDate));$('quickTimeStart').addEventListener('click',()=>openTimeAction(quickContextDate));$('quickCommentStart').addEventListener('click',()=>openCommentEditor(quickContextDate,'direct'));document.querySelectorAll('[data-simple-absence]').forEach(button=>button.addEventListener('click',()=>openQuickAbsence(button.dataset.simpleAbsence,quickContextDate)));$('quickAbsenceExtent').addEventListener('change',updateQuickAbsenceConflict);$('quickAbsenceFrom').addEventListener('change',updateQuickAbsenceConflict);$('quickAbsenceTo').addEventListener('change',updateQuickAbsenceConflict);$('saveQuickAbsence').addEventListener('click',saveQuickAbsence);
 ['absenceType','absenceFrom','absenceTo','absenceExtent','absenceConflictPolicy'].forEach(id=>$(id).addEventListener('change',updateAbsenceSummary));$('absenceNote').addEventListener('input',updateAbsenceSummary);$('saveAbsenceBtn').addEventListener('click',saveAbsence);$('deleteAbsenceDayBtn').addEventListener('click',()=>deleteAbsenceFromModal('day'));$('deleteAbsenceGroupBtn').addEventListener('click',()=>deleteAbsenceFromModal('group'));
 $('headerWeekendToggle')?.addEventListener('change',event=>{state.settings.showWeekends=event.target.checked;saveState();if(currentView==='day')renderDayView(dateKey(cursorDate));else if(currentView==='week')renderWeekView(dateKey(cursorDate))});$('addEntryBtn').addEventListener('click',addEditingEntry);$('saveDayBtn').addEventListener('click',saveEditedDay);$('dayNoteOpen').addEventListener('click',()=>openCommentEditor($('editDate').value,'dayEditor'));$('todayCommentRow').addEventListener('click',()=>openCommentEditor(todayKey(),'direct'));$('cancelCommentBtn').addEventListener('click',cancelCommentEditor);$('applyCommentBtn').addEventListener('click',applyCommentEditor);$('editNote').addEventListener('input',updateDayNoteSummary);$('saveSingleEntry').addEventListener('click',saveSingleEntry);$('deleteSingleEntry').addEventListener('click',deleteSingleEntry);$('openFullDayFromEntry').addEventListener('click',openFullDayFromSingleEntry);$('singleEntryActual').addEventListener('input',event=>{$('singleEntryLogged').value=roundLogged(event.target.value,$('singleEntryType').value)});$('singleEntryType').addEventListener('change',()=>{if($('singleEntryActual').value)$('singleEntryLogged').value=roundLogged($('singleEntryActual').value,$('singleEntryType').value)});$('saveManualQuick').addEventListener('click',saveManualQuick);$('manualFullEditor').addEventListener('click',openFullTodayEditor);$('manualActual').addEventListener('input',event=>{$('manualLogged').value=roundLogged(event.target.value,manualQuickType)});document.querySelectorAll('[data-time-info]').forEach(button=>button.addEventListener('click',()=>toggleTimeInfo(button.dataset.timeInfo)));$('continueEditingBtn').addEventListener('click',continueEditing);$('discardChangesBtn').addEventListener('click',discardChanges);$('advancedActions').addEventListener('toggle',()=>{if(!$('advancedActions').open)return;requestAnimationFrame(()=>{const scroll=$('dayModal').querySelector('.day-editor-scroll'),section=$('advancedActions');if(!scroll||!section)return;const targetBottom=section.offsetTop+section.offsetHeight,visibleBottom=scroll.scrollTop+scroll.clientHeight;if(targetBottom>visibleBottom)scroll.scrollTo({top:Math.max(0,targetBottom-scroll.clientHeight+18),behavior:'smooth'})})});$('deleteDayBtn').addEventListener('click',deleteEditedDay);$('restoreImportBtn').addEventListener('click',restoreImportedDay);$('manageAbsenceFromDay').addEventListener('click',manageAbsenceFromDayEditor);
 $('dayReportBtn').addEventListener('click',()=>{const k=$('reportDay').value||todayKey();if(k>todayKey()){$('reportDay').value=todayKey();showToast('Tagesberichte sind nur bis heute möglich');return}dayReport(k)});
@@ -1299,7 +1302,7 @@ function addEditingEntry(){const entries=dayCardDraft?.entries||[],type=!entries
 function effectiveTargetRuleToday(){return effectiveRule(normalizeTargetRules(state.settings.targetRules),todayKey())||{from:TRACKING_START_DATE,minutes:480}}
 function effectiveRegionRuleToday(){return effectiveRule(normalizeHolidayRegionRules(state.settings.holidayRegionRules),todayKey())||{from:TRACKING_START_DATE,region:'HE'}}
 function renderSettings(){
-  $('employeeName').value=state.settings.employeeName||'';$('checkpointBalance').value=formatDuration(state.settings.startBalanceMinutes||0);$('freeChristmasEve').checked=state.settings.freeChristmasEve!==false;$('freeNewYearsEve').checked=state.settings.freeNewYearsEve!==false;$('countdownEnabled').checked=state.settings.countdownEnabled!==false;$('bookingSoundEnabled').checked=state.settings.bookingSoundEnabled===true;$('reportSignature').checked=state.settings.reportSignature!==false;
+  $('employeeName').value=state.settings.employeeName||'';if($('checkpointBalance'))$('checkpointBalance').value=formatDuration(state.settings.startBalanceMinutes||0);if($('startBalanceCurrentValue'))$('startBalanceCurrentValue').textContent=formatDuration(state.settings.startBalanceMinutes||0);$('freeChristmasEve').checked=state.settings.freeChristmasEve!==false;$('freeNewYearsEve').checked=state.settings.freeNewYearsEve!==false;$('countdownEnabled').checked=state.settings.countdownEnabled!==false;$('bookingSoundEnabled').checked=state.settings.bookingSoundEnabled===true;$('reportSignature').checked=state.settings.reportSignature!==false;
   const target=effectiveTargetRuleToday(),region=effectiveRegionRuleToday();$('targetCurrentValue').textContent=`${formatDuration(target.minutes,{signed:false})} h`;$('targetCurrentSince').textContent=`Gültig seit ${formatDate(target.from,{day:'2-digit',month:'2-digit',year:'numeric'})}`;$('holidayRegionCurrentValue').textContent=HOLIDAY_REGIONS[region.region];$('holidayRegionCurrentSince').textContent=`Gültig seit ${formatDate(region.from,{day:'2-digit',month:'2-digit',year:'numeric'})}`;$('lastExternalBackup').textContent=formatExternalBackup(state.settings.lastExternalBackupAt);$('appVersion').textContent=`Version ${APP_VERSION}`;
 }
 function saveSettings(){
@@ -1308,15 +1311,16 @@ function saveSettings(){
 }
 function settingsCardFormSnapshot(){
   if(settingsCardView==='target')return JSON.stringify({hours:$('settingsTargetHours')?.value||'',from:$('settingsTargetFrom')?.value||''});
-  if(settingsCardView==='region')return JSON.stringify({region:$('settingsRegionValue')?.value||'',from:$('settingsRegionFrom')?.value||''});return'';
+  if(settingsCardView==='region')return JSON.stringify({region:$('settingsRegionValue')?.value||'',from:$('settingsRegionFrom')?.value||''});
+  if(settingsCardView==='balance')return JSON.stringify({balance:$('settingsStartBalance')?.value||''});return'';
 }
 function settingsCardDirty(){const snap=settingsCardFormSnapshot();return !!snap&&!!settingsCardBaseline&&snap!==settingsCardBaseline}
 function openSettingsCard(view){settingsCardView=view;settingsCardConfirmState=null;openModal('settingsModal');renderSettingsCard()}
 function settingsCardFooter(html){$('settingsCardFooter').innerHTML=html}
 function renderSettingsCard(){
   $('settingsCardBack').hidden=true;$('settingsModalContext').textContent='';
-  if(settingsCardView==='target')renderSettingsTarget();else if(settingsCardView==='region')renderSettingsRegion();else if(settingsCardView==='offline')renderSettingsOffline();else if(settingsCardView==='confirm')renderSettingsConfirm();
-  if(settingsCardRestoreForm){const data=settingsCardRestoreForm;settingsCardRestoreForm=null;requestAnimationFrame(()=>{if($('settingsTargetHours'))$('settingsTargetHours').value=data.hours;if($('settingsTargetFrom'))$('settingsTargetFrom').value=data.from;if($('settingsRegionValue'))$('settingsRegionValue').value=data.region;if($('settingsRegionFrom'))$('settingsRegionFrom').value=data.from;settingsCardBaseline=settingsCardFormSnapshot()})}
+  if(settingsCardView==='target')renderSettingsTarget();else if(settingsCardView==='region')renderSettingsRegion();else if(settingsCardView==='balance')renderSettingsBalance();else if(settingsCardView==='offline')renderSettingsOffline();else if(settingsCardView==='confirm')renderSettingsConfirm();
+  if(settingsCardRestoreForm){const data=settingsCardRestoreForm;settingsCardRestoreForm=null;requestAnimationFrame(()=>{if($('settingsTargetHours'))$('settingsTargetHours').value=data.hours;if($('settingsTargetFrom'))$('settingsTargetFrom').value=data.from;if($('settingsRegionValue'))$('settingsRegionValue').value=data.region;if($('settingsRegionFrom'))$('settingsRegionFrom').value=data.from;if($('settingsStartBalance'))$('settingsStartBalance').value=data.balance;settingsCardBaseline=settingsCardFormSnapshot()})}
 }
 function renderSettingsTarget(){
   const current=effectiveTargetRuleToday();$('settingsModalTitle').textContent='Sollzeit bearbeiten';$('settingsModalContext').textContent=`Aktuell ${formatDuration(current.minutes,{signed:false})} h seit ${formatDate(current.from,{day:'2-digit',month:'2-digit',year:'numeric'})}`;
@@ -1327,6 +1331,18 @@ function renderSettingsRegion(){
   const current=effectiveRegionRuleToday(),options=Object.entries(HOLIDAY_REGIONS).map(([key,label])=>`<option value="${key}" ${key===current.region?'selected':''}>${esc(label)}</option>`).join('');$('settingsModalTitle').textContent='Bundesland bearbeiten';$('settingsModalContext').textContent=`Aktuell ${HOLIDAY_REGIONS[current.region]} seit ${formatDate(current.from,{day:'2-digit',month:'2-digit',year:'numeric'})}`;
   $('settingsCardBody').innerHTML=`<div class="unified-form"><div class="field"><label for="settingsRegionValue">Bundesland</label><select id="settingsRegionValue">${options}</select></div><div class="field"><label for="settingsRegionFrom">Gültig ab</label><input id="settingsRegionFrom" type="date" min="${TRACKING_START_DATE}" value="${todayKey()}"></div><div id="settingsCardError" class="unified-inline-error" hidden role="alert"></div><div class="unified-rule-note"><b>Feiertagsberechnung</b><p>Gesetzliche Feiertage werden vollständig offline aus dem ab diesem Datum gültigen Bundesland abgeleitet. Betriebliche Feiertage bleiben unabhängig davon erhalten. Frühere Zeiträume werden nicht verändert.</p></div></div>`;
   settingsCardFooter('<button type="button" class="cancel" id="settingsRegionCancel">Abbrechen</button><button type="button" class="save" id="settingsRegionApply">Übernehmen</button>');$('settingsRegionCancel').addEventListener('click',requestSettingsCardClose);$('settingsRegionApply').addEventListener('click',applyHolidayRegionRule);settingsCardBaseline=settingsCardFormSnapshot();
+}
+
+function renderSettingsBalance(){
+  $('settingsModalTitle').textContent='Startwert Zeitkonto';$('settingsModalContext').textContent=`Gültig am ${formatDate(TRACKING_START_DATE,{day:'2-digit',month:'2-digit',year:'numeric'})}`;
+  $('settingsCardBody').innerHTML=`<div class="unified-form"><div class="field"><label for="settingsStartBalance">Startwert</label><input id="settingsStartBalance" inputmode="text" value="${formatDuration(state.settings.startBalanceMinutes||0)}" placeholder="+00:00"></div><div id="settingsCardError" class="unified-inline-error" hidden role="alert"></div><div class="unified-rule-note critical-setting-note"><b>Kritische Einstellung</b><p>Eine Änderung verschiebt das gesamte Zeitkonto ab dem Beginn der Zeiterfassung. Prüfe den Wert sorgfältig.</p></div></div>`;
+  settingsCardFooter('<button type="button" class="cancel" id="settingsBalanceCancel">Abbrechen</button><button type="button" class="save" id="settingsBalanceApply">Startwert ändern</button>');
+  $('settingsBalanceCancel').addEventListener('click',requestSettingsCardClose);$('settingsBalanceApply').addEventListener('click',applyStartBalance);settingsCardBaseline=settingsCardFormSnapshot();
+}
+function applyStartBalance(){
+  const value=parseSignedTime($('settingsStartBalance').value),err=$('settingsCardError');if(value===null){err.hidden=false;err.textContent='Startwert im Format +HH:MM oder -HH:MM eingeben.';return}
+  if(value===Number(state.settings.startBalanceMinutes||0)){showToast('Der Startwert ist unverändert');closeModal('settingsModal');return}
+  settingsAskConfirm({title:'Startwert wirklich ändern?',message:`Das gesamte Zeitkonto wird um die Differenz zum bisherigen Startwert verschoben. Neuer Startwert: ${formatDuration(value)}.`,confirmLabel:'Verbindlich ändern',returnView:'balance',form:{balance:$('settingsStartBalance').value},danger:true,onConfirm:()=>{state.settings.startBalanceMinutes=value;saveState();refreshAllDerivedViews();renderSettings();closeModal('settingsModal');showToast('Startwert Zeitkonto geändert')}})
 }
 function renderSettingsOffline(){
   $('settingsModalTitle').textContent='Offline-Nutzung';$('settingsModalContext').textContent='Installation und lokaler Datenspeicher';$('settingsCardBody').innerHTML='<div class="unified-info-state"><h3>Vollständig offline nutzbar</h3><p>Die App speichert Arbeitszeitdaten ausschließlich lokal auf diesem Gerät. In Safari kann sie über „Teilen“ und „Zum Home-Bildschirm“ installiert werden. Für Erfassung, Auswertung, PDF, JSON und Excel ist keine Internetverbindung erforderlich.</p><p>Bestehende Daten werden über den unveränderten lokalen Speicherschlüssel weiterverwendet.</p></div>';settingsCardFooter('<button type="button" class="cancel single-footer-action" id="settingsOfflineClose">Schließen</button>');$('settingsOfflineClose').addEventListener('click',()=>closeModal('settingsModal'));settingsCardBaseline='';
@@ -1340,7 +1356,7 @@ function renderSettingsConfirm(){
 function requestSettingsCardClose(){
   if(settingsCardView==='confirm'){const state=settingsCardConfirmState;settingsCardView=state.returnView;settingsCardRestoreForm=state.form;settingsCardConfirmState=null;renderSettingsCard();return}
   if(settingsCardDirty()){
-    const view=settingsCardView,form=view==='target'?{hours:$('settingsTargetHours').value,from:$('settingsTargetFrom').value}:{region:$('settingsRegionValue').value,from:$('settingsRegionFrom').value};settingsAskConfirm({title:'Eingaben verwerfen?',message:'Die noch nicht übernommenen Änderungen gehen verloren.',confirmLabel:'Verwerfen',danger:true,returnView:view,form,onConfirm:()=>closeModal('settingsModal')});return;
+    const view=settingsCardView,form=view==='target'?{hours:$('settingsTargetHours').value,from:$('settingsTargetFrom').value}:view==='region'?{region:$('settingsRegionValue').value,from:$('settingsRegionFrom').value}:{balance:$('settingsStartBalance').value};settingsAskConfirm({title:'Eingaben verwerfen?',message:'Die noch nicht übernommenen Änderungen gehen verloren.',confirmLabel:'Verwerfen',danger:true,returnView:view,form,onConfirm:()=>closeModal('settingsModal')});return;
   }
   closeModal('settingsModal');
 }
@@ -1407,7 +1423,7 @@ function deleteAbsenceForDay(k,scope='day'){
 }
 
 function initV530Enhancements(){
-  $('dayCardBack').addEventListener('click',()=>dayCardBack());$('dayCardClose').addEventListener('click',requestDayCardClose);$('settingsCardBack').addEventListener('click',requestSettingsCardClose);$('settingsCardClose').addEventListener('click',requestSettingsCardClose);$('openTargetRuleBtn').addEventListener('click',()=>openSettingsCard('target'));$('openHolidayRegionBtn').addEventListener('click',()=>openSettingsCard('region'));$('openOfflineInfoBtn').addEventListener('click',()=>openSettingsCard('offline'));$('restoreConfirmClose').addEventListener('click',cancelRestore);$('restoreCancelBtn').addEventListener('click',cancelRestore);$('restoreProceedBtn').addEventListener('click',proceedRestore);renderSettings();
+  $('dayCardBack').addEventListener('click',()=>dayCardBack());$('dayCardClose').addEventListener('click',requestDayCardClose);$('settingsCardBack').addEventListener('click',requestSettingsCardClose);$('settingsCardClose').addEventListener('click',requestSettingsCardClose);$('openTargetRuleBtn').addEventListener('click',()=>openSettingsCard('target'));$('openStartBalanceBtn').addEventListener('click',()=>openSettingsCard('balance'));$('openHolidayRegionBtn').addEventListener('click',()=>openSettingsCard('region'));$('openOfflineInfoBtn').addEventListener('click',()=>openSettingsCard('offline'));$('restoreConfirmClose').addEventListener('click',cancelRestore);$('restoreCancelBtn').addEventListener('click',cancelRestore);$('restoreProceedBtn').addEventListener('click',proceedRestore);renderSettings();
 }
 document.addEventListener('DOMContentLoaded',initV530Enhancements);
 

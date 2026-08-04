@@ -124,10 +124,11 @@
 <span class="settings-row-copy"><b>Tägliche Sollzeit</b><small id="targetCurrentSince">Gültig seit 01.11.2022</small></span>
 <span class="settings-row-value"><strong id="targetCurrentValue">8:00 h</strong><i aria-hidden="true">›</i></span>
 </button>
-<label class="settings-compact-row settings-input-row" for="checkpointBalance">
-<span class="settings-row-copy"><b>Startwert Zeitkonto</b><small>Am 01.11.2022</small></span>
-<input aria-label="Startwert Zeitkonto" id="checkpointBalance" inputmode="text" type="text"/>
-</label>
+<button class="settings-compact-row settings-disclosure" id="openStartBalanceBtn" type="button">
+<span class="settings-row-copy"><b>Startwert Zeitkonto</b><small>Am 01.11.2022 · kritische Einstellung</small></span>
+<span class="settings-row-value"><strong id="startBalanceCurrentValue">+0:00 h</strong><i aria-hidden="true">›</i></span>
+</button>
+<input id="checkpointBalance" type="hidden"/>
 <label class="settings-compact-row" for="countdownEnabled">
 <span class="settings-row-copy"><b>Countdown auf der Startseite</b><small>Mindestpause und Zielhinweis</small></span>
 <span class="switch"><input id="countdownEnabled" type="checkbox"/><span></span></span>
@@ -283,7 +284,7 @@
 </div>
 <div aria-labelledby="quickAbsenceTitle" aria-modal="true" class="modal" id="quickAbsenceModal" role="dialog">
 <div class="sheet quick-absence-sheet canonical-card-shell">
-<div class="unified-card-head canonical-card-head"><span aria-hidden="true" class="unified-card-head-spacer"></span><div class="unified-card-title-wrap"><h2 id="quickAbsenceTitle">Abwesenheit eintragen</h2></div><button aria-label="Schließen" class="close-btn" data-close="quickAbsenceModal" type="button">×</button></div><div class="unified-card-body canonical-card-body"><div class="context-date" id="quickAbsenceContext"></div><div class="field"><label>Ausgewählte Abwesenheitsart</label><div class="readonly-field" id="quickAbsenceTypeLabel"></div></div><div class="field"><label for="quickAbsenceExtent">Zeitraum</label><select id="quickAbsenceExtent"><option value="full">Ganzer Tag</option><option value="half">Halber Tag</option></select></div><div class="field"><label for="quickAbsenceNote">Optionale kurze Notiz</label><textarea id="quickAbsenceNote" maxlength="180" placeholder="Kurze Notiz" rows="2"></textarea></div><div aria-live="polite" class="quick-conflict" id="quickAbsenceConflict"></div><button class="dialog-action dialog-action-secondary" id="quickAbsenceFurther" type="button">Weitere Optionen</button></div>
+<div class="unified-card-head canonical-card-head"><span aria-hidden="true" class="unified-card-head-spacer"></span><div class="unified-card-title-wrap"><h2 id="quickAbsenceTitle">Abwesenheit eintragen</h2></div><button aria-label="Schließen" class="close-btn" data-close="quickAbsenceModal" type="button">×</button></div><div class="unified-card-body canonical-card-body"><div class="field"><label>Ausgewählte Abwesenheitsart</label><div class="readonly-field" id="quickAbsenceTypeLabel"></div></div><div class="absence-date-grid"><div class="field"><label for="quickAbsenceFrom">Von</label><input id="quickAbsenceFrom" type="date"/></div><div class="field"><label for="quickAbsenceTo">Bis</label><input id="quickAbsenceTo" type="date"/></div></div><div class="field"><label for="quickAbsenceExtent">Umfang</label><select id="quickAbsenceExtent"><option value="full">Ganzer Tag</option><option value="half">Halber Tag</option></select></div><div class="field"><label for="quickAbsenceNote">Optionale kurze Notiz</label><textarea id="quickAbsenceNote" maxlength="180" placeholder="Kurze Notiz" rows="2"></textarea></div><div aria-live="polite" class="absence-summary" id="quickAbsencePreview"></div><div aria-live="polite" class="quick-conflict" id="quickAbsenceConflict"></div></div>
 
 
 

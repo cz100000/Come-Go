@@ -1,0 +1,13 @@
+ÄNDERUNGEN V5.35
+================
+
+- Urlaub und Krankheit können über die Plus-Funktion als Von-bis-Zeitraum erfasst werden.
+- Von und Bis sind standardmäßig mit dem Bezugsdatum vorbelegt und dürfen in der Zukunft liegen.
+- Wochenenden sowie gesetzliche und betriebliche Feiertage werden automatisch ausgelassen.
+- Vorhandene Buchungen oder Abwesenheiten werden als Konflikt angezeigt und nicht überschrieben.
+- Halbe Abwesenheit ist nur für einen einzelnen Tag zulässig.
+- Zeiten öffnet beim normalen Aufruf immer mit dem heutigen Datum.
+- Der Zeitkonto-Startwert ist auf der Einstellungsseite nur noch sichtbar; Bearbeitung erfolgt in einer geschützten Unterkarte mit Warnung und zusätzlicher Bestätigung.
+- Der Prüfstatus wird kompakt in die bestehende Abwesenheitskarte integriert; der separate grüne Block entfällt.
+- Der Wechsel zwischen Monat, Jahr und Verlauf speichert nur noch sitzungsbezogen und löst keine Komplettspeicherung oder Backup-Rotation aus.
+- Zwischen eigenständigen Karten gilt appweit der Standardabstand von 12 px.

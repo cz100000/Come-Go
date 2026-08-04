@@ -1,0 +1,18 @@
+TESTÜBERSICHT V5.35
+===================
+
+[OK] App-Version 5.35
+[OK] Zeiten startet heute
+[OK] Graphmodus ohne saveState
+[OK] Urlaub/Krankheit Von-Bis
+[OK] Halber Tag nur Einzeltag
+[OK] Konflikte ohne Überschreiben
+[OK] Wochenenden/Feiertage auslassen
+[OK] Startwert nur Unterkarte
+[OK] Startwert Bestätigung
+[OK] Prüfstatus integriert
+[OK] 12px Kartenabstand
+[OK] Manifest 5.35
+[OK] Service Worker 5.35
+
+Ergebnis: 13 bestanden, 0 fehlgeschlagen.

@@ -1,0 +1,14 @@
+UMSETZUNGSBERICHT V5.35
+=======================
+
+Technische Basis: V5.34.
+
+Umgesetzt wurden die gemeinsam festgelegten Abschlusskorrekturen für Abwesenheitszeiträume, Startdatum des Zeiten-Bereichs, geschützten Zeitkonto-Startwert, integrierten Prüfstatus, Graphmodus-Speicherung und Kartenabstände.
+
+Prüfungen:
+- JavaScript-Syntaxprüfung mit node --check
+- HTML-ID-Prüfung auf Duplikate
+- statische Funktions- und Versionsprüfungen
+- bestehender Daten- und Importschlüssel unverändert
+
+Hinweis: Die endgültige Bedien- und Sichtprüfung des iOS-Datumsfelds und der Kartenabstände ist auf dem iPhone 16 durchzuführen.
