@@ -922,3 +922,45 @@ body.modal-open #today .today-quick-card.quick-action-row{visibility:hidden}
   text-align:center;
   overflow-wrap:anywhere;
 }
+
+
+/* V5.40 – kompakte Schnellaktionen, Urlaubsachse und globale Feldbreiten */
+/* Systemweite Schutzregel: Formularfelder dürfen die tatsächliche Karten-Innenbreite nie überschreiten. */
+.card input,.card select,.card textarea,.sheet input,.sheet select,.sheet textarea,
+.unified-card-shell input,.unified-card-shell select,.unified-card-shell textarea,
+.field,.number-unit-field,.day-editor-date-row{min-width:0;max-width:100%;box-sizing:border-box}
+.card input,.card select,.card textarea,.sheet input,.sheet select,.sheet textarea,
+.unified-card-shell input,.unified-card-shell select,.unified-card-shell textarea{width:100%}
+.day-editor-date-row{display:grid!important;grid-template-columns:88px minmax(0,1fr)!important;align-items:center;gap:10px;width:100%;padding:0!important}
+.day-editor-date-row label{min-width:0;margin:0!important}
+.day-editor-date-row input[type=date]{display:block;width:100%!important;min-width:0!important;max-width:100%!important;margin:0!important;box-sizing:border-box!important}
+@media(max-width:350px){.day-editor-date-row{grid-template-columns:1fr!important}.day-editor-date-row label{margin-bottom:4px!important}}
+
+/* Schnelleinträge-Dialog rund ein Drittel niedriger, ohne kleinere Touch-Ziele. */
+.quick-today-sheet{max-height:min(72dvh,610px)!important;height:auto!important}
+.quick-today-body{gap:14px!important;padding-top:14px!important;padding-bottom:14px!important;overflow-y:auto!important}
+.quick-today-body .field{margin:0!important}
+.quick-today-body textarea{min-height:108px!important;height:108px!important;resize:none}
+.quick-today-sheet .canonical-card-head{padding-top:14px!important;padding-bottom:14px!important}
+.quick-today-sheet .canonical-card-footer{padding-top:12px!important;padding-bottom:14px!important}
+
+/* Startseite: Schnelleinträge und Plus bilden eine ruhige gemeinsame Aktionszeile. */
+#today .today-quick-card.quick-action-row{width:calc(100% - 82px)!important;max-width:calc(100% - 82px)!important;align-self:end!important;margin-bottom:0!important}
+#today .today-floating-quick{bottom:calc(var(--nav-h) + env(safe-area-inset-bottom) + 22px)!important}
+#today .today-quick-row{min-height:52px!important}
+@media(max-height:760px){#today .today-quick-card.quick-action-row{width:calc(100% - 76px)!important;max-width:calc(100% - 76px)!important}#today .today-floating-quick{bottom:calc(var(--nav-h) + env(safe-area-inset-bottom) + 19px)!important}}
+
+/* Zeiten: zusätzliche Aktion kompakter; schwebendes Plus bleibt visuell gleichrangig. */
+#timesContent .quick-action-row,#timesContent .additional-details-card{max-width:calc(100% - 72px)}
+
+/* Urlaubsgraph mit breiteren Balken, Tagesachse und dezenten Hilfslinien. */
+.vacation-chart{position:relative;height:146px;display:block!important;padding:8px 0 0 31px!important;overflow:hidden}
+.vacation-axis{position:absolute;left:0;top:8px;bottom:25px;width:28px;color:var(--muted);font-size:8px;font-weight:700;font-variant-numeric:tabular-nums}
+.vacation-axis span{position:absolute;right:4px;transform:translateY(-50%);white-space:nowrap}.vacation-axis span:last-child{transform:translateY(-100%)}
+.vacation-gridlines{position:absolute;left:31px;right:0;top:8px;bottom:25px;pointer-events:none}
+.vacation-gridlines i{position:absolute;left:0;right:0;height:1px;background:var(--line)}
+.vacation-months{position:absolute;left:31px;right:0;top:8px;bottom:0;display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:2px;align-items:end}
+.vacation-month{height:132px;padding:4px 0;gap:5px}
+.vacation-bars{height:88px;gap:2px}
+.vacation-bars i{width:min(10px,44%);border-radius:4px 4px 1px 1px}
+@media(max-width:370px){.vacation-chart{padding-left:28px!important}.vacation-gridlines,.vacation-months{left:28px}.vacation-axis{width:26px}.vacation-bars i{width:min(8px,46%)}.vacation-month b{font-size:7px}}

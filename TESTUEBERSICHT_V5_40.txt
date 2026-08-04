@@ -1,0 +1,18 @@
+TESTÜBERSICHT V5.40
+
+Automatisch geprüft:
+- JavaScript-Syntax mit Node.js
+- JSON-Syntax des Manifests
+- Service-Worker-Syntax
+- ZIP-Integrität
+- Versionskonsistenz 5.40
+- Vorhandensein der Urlaubsachse und Gridlines
+- Globale min-width/max-width/box-sizing-Regeln
+- Kompaktregeln für Schnelleinträge
+- Aktuelles JSON-Backup syntaktisch gültig
+
+Manuell auf dem iPhone zu prüfen:
+- Urlaubsgraph bei 393 px Breite
+- Ausrichtung Schnelleinträge und Plus-Button
+- Datumsfeld in Vollständigen Tag bearbeiten
+- Dialoghöhe Schnelleinträge

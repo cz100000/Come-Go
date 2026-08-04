@@ -4,7 +4,7 @@ const STORAGE_BACKUP_KEYS=[1,2,3].map(n=>`${STORAGE_KEY}-backup-${n}`);
 const STORAGE_CORRUPT_KEY=STORAGE_KEY+'-corrupt';
 const BACKUP_FORMAT='arbeitszeit-pwa-backup';
 const TRACKING_START_DATE='2022-11-01';
-const APP_VERSION='5.39';
+const APP_VERSION='5.40';
 const CURRENT_SCHEMA=14;
 const IMPORT_DATA_VERSION=4;
 const CALCULATION_VERSION=2;
@@ -1524,7 +1524,7 @@ function saveAbsence(){
 }
 
 
-/* V5.39 – eindeutige Tagesbearbeitung und verbindliche Rundung */
+/* V5.40 – eindeutige Tagesbearbeitung und verbindliche Rundung */
 renderToday=function(){
   ensureHolidayYear(new Date().getFullYear());
   const d=dayObject(todayKey());
@@ -1618,8 +1618,12 @@ renderVacationOverview=function(){
   const selected=Number(yearSel.value)||new Date().getFullYear();yearSel.innerHTML=vacationYearOptions().map(y=>`<option value="${y}">${y}</option>`).join('');yearSel.value=String(selected);
   const s=vacationSummary(selected);if(vacationChartSelection.year!==selected)vacationChartSelection={year:selected,month:null};
   const monthData=Array.from({length:12},(_,month)=>{let taken=0,planned=0;for(const r of s.records)for(const d of r.days){if(Number(d.date.slice(5,7))-1!==month)continue;const u=absenceDuration(d)==='half'?0.5:1;if(d.date<=todayKey())taken+=u;else planned+=u}return{month,taken,planned,total:taken+planned}});
-  const max=Math.max(1,...monthData.map(x=>x.total));
-  $('vacationChart').innerHTML=monthData.map(item=>{const takenHeight=item.taken/max*76,plannedHeight=item.planned/max*76,selectedMonth=vacationChartSelection.month===item.month;return `<button type="button" class="vacation-month ${selectedMonth?'selected':''}" data-vacation-month="${item.month}" aria-pressed="${selectedMonth}" aria-label="${['Januar','Februar','März','April','Mai','Juni','Juli','August','September','Oktober','November','Dezember'][item.month]}: ${formatVacationDays(item.taken)} genommen, ${formatVacationDays(item.planned)} geplant"><span class="vacation-bars"><i class="taken" style="height:${takenHeight}px"></i><i class="planned" style="height:${plannedHeight}px"></i></span><b>${['Jan','Feb','Mär','Apr','Mai','Jun','Jul','Aug','Sep','Okt','Nov','Dez'][item.month]}</b></button>`}).join('');
+  const rawMax=Math.max(1,...monthData.map(x=>x.total));
+  const step=rawMax<=5?1:rawMax<=10?2:rawMax<=20?5:10;
+  const axisMax=Math.max(step,Math.ceil(rawMax/step)*step);
+  const ticks=[axisMax,axisMax/2,0];
+  const bars=monthData.map(item=>{const takenHeight=item.taken/axisMax*82,plannedHeight=item.planned/axisMax*82,selectedMonth=vacationChartSelection.month===item.month;return `<button type="button" class="vacation-month ${selectedMonth?'selected':''}" data-vacation-month="${item.month}" aria-pressed="${selectedMonth}" aria-label="${['Januar','Februar','März','April','Mai','Juni','Juli','August','September','Oktober','November','Dezember'][item.month]}: ${formatVacationDays(item.taken)} genommen, ${formatVacationDays(item.planned)} geplant"><span class="vacation-bars"><i class="taken" style="height:${takenHeight}px"></i><i class="planned" style="height:${plannedHeight}px"></i></span><b>${['Jan','Feb','Mär','Apr','Mai','Jun','Jul','Aug','Sep','Okt','Nov','Dez'][item.month]}</b></button>`}).join('');
+  $('vacationChart').innerHTML=`<div class="vacation-axis" aria-hidden="true">${ticks.map((v,i)=>`<span style="top:${i*50}%">${formatVacationNumber(v)} T.</span>`).join('')}</div><div class="vacation-gridlines" aria-hidden="true">${ticks.map((_,i)=>`<i style="top:${i*50}%"></i>`).join('')}</div><div class="vacation-months">${bars}</div>`;
   $('vacationChart').querySelectorAll('[data-vacation-month]').forEach(button=>button.addEventListener('click',()=>{const clicked=Number(button.dataset.vacationMonth);vacationChartSelection={year:selected,month:vacationChartSelection.month===clicked?null:clicked};renderVacationOverview()}));
   renderVacationDetail(selected,s,monthData);renderVacationManager();
 };

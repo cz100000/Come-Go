@@ -1,0 +1,6 @@
+UMSETZUNGSBERICHT V5.40
+
+Technische Basis: V5.39.
+Umgesetzt wurden die vier zuletzt abgestimmten UI-Korrekturen: Urlaubsachse und breitere Balken, kompakter Schnelleinträge-Dialog, ruhigere Ausrichtung der Schnellaktion zum Plus-Button sowie eine systemweite Breitenabsicherung aller Formularelemente.
+
+Die bestehende Daten-, Rundungs-, Backup-, Offline- und PWA-Logik wurde nicht fachlich verändert. Das aktuelle JSON-Backup wurde ausschließlich für Kompatibilitäts- und Plausibilitätsprüfungen genutzt und liegt der Auslieferung als separate Test-/Importdatei bei.

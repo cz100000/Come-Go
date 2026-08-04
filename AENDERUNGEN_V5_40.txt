@@ -1,0 +1,26 @@
+Arbeitszeit PWA – Änderungen V5.40
+
+1. Urlaubsgraph
+- Monatsbalken verbreitert.
+- Linke Y-Achse in Tagen ergänzt.
+- Dezente horizontale Hilfslinien ergänzt.
+- Skala passt sich automatisch an den höchsten Monatswert an.
+
+2. Schnelleinträge für heute
+- Dialoghöhe um etwa ein Drittel reduziert.
+- Überflüssige vertikale Leerflächen entfernt.
+- Eingabefelder und Schaltflächen bleiben gut bedienbar.
+
+3. Startseite und Zeiten
+- Schnelleintrags-Aktionszeile etwas schmaler.
+- Vertikale Beziehung zum blauen Plus-Button beruhigt.
+- Zusätzliche Aktionen auf Zeiten kompakter begrenzt.
+
+4. Systemweite Feldbreiten
+- Datums-, Text- und Auswahlfelder auf reale Karten-Innenbreite begrenzt.
+- Vollständigen Tag bearbeiten: Datumsfeld korrigiert.
+- min-width:0, max-width:100% und border-box systemweit abgesichert.
+
+5. Datenprüfung
+- Aktuelles Backup vom 04.08.2026, 18:29 Uhr als Testgrundlage verwendet.
+- Nutzerdaten wurden nicht fest in den Programmcode eingebettet.
