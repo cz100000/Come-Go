@@ -1,0 +1,132 @@
+TESTÜBERSICHT V5.37
+Stand: 04.08.2026
+
+A. STATISCHE STRUKTUR- UND SYNTAXPRÜFUNGEN – 18/18 BESTANDEN
+01 BESTANDEN – JavaScript-Syntax app.js
+02 BESTANDEN – JavaScript-Syntax Service Worker
+03 BESTANDEN – keine doppelten HTML-IDs
+04 BESTANDEN – vollständige Dokumentstruktur
+05 BESTANDEN – App-Version 5.37
+06 BESTANDEN – Datenschema 13
+07 BESTANDEN – Plus-Menü statisch genau zwei Aktionen
+08 BESTANDEN – Manifest-Version 5.37
+09 BESTANDEN – Manifest display standalone
+10 BESTANDEN – Service-Worker-Dateiliste vollständig
+11 BESTANDEN – Service-Worker-Cache V5.37
+12 BESTANDEN – HTML-Dateireferenzen vorhanden
+13 BESTANDEN – erforderliche V5.37-Oberflächen vorhanden
+14 BESTANDEN – alte statische Urlaubsübersicht entfernt
+15 BESTANDEN – Test-JSON syntaktisch gültig
+16 BESTANDEN – Test-JSON mit 1.148 Tagen und 1.792 Buchungen vollständig
+17 BESTANDEN – mobile Datumsfelder einspaltig
+18 BESTANDEN – eigenständige Karten mit 12 px Abstand
+
+B. BROWSER-BEDIENPRÜFUNGEN – 40/40 BESTANDEN
+01 BESTANDEN – Start ohne Laufzeitfehler
+02 BESTANDEN – bereitgestellter JSON-Bestand geladen
+03 BESTANDEN – Migration auf Schema 13
+04 BESTANDEN – Version 5.37 aktiv
+05 BESTANDEN – Heute-Seite ohne horizontalen Überlauf
+06 BESTANDEN – Plus-Menü genau zwei Aktionen
+07 BESTANDEN – Plus-Texte korrekt
+08 BESTANDEN – Plus-Menü kompakt
+09 BESTANDEN – Abwesenheitskarte öffnet direkt
+10 BESTANDEN – alle Abwesenheitsfelder innerhalb der Karte
+11 BESTANDEN – halber Tag bei Zeitraum deaktiviert
+12 BESTANDEN – Vorschau zählt sechs Arbeitstage korrekt
+13 BESTANDEN – zukünftiger Urlaubszeitraum gespeichert
+14 BESTANDEN – Zeitkonto durch zukünftigen Urlaub unverändert
+15 BESTANDEN – bestehende Abwesenheit erkannt
+16 BESTANDEN – zusammengehöriger Zeitraum geladen
+17 BESTANDEN – zukünftiger Urlaub geändert
+18 BESTANDEN – gesetzliche/betriebliche Feiertage ausgelassen
+19 BESTANDEN – Speichern ohne betroffenen Arbeitstag gesperrt
+20 BESTANDEN – Kommentar für heute gespeichert
+21 BESTANDEN – Kommentar in Schnellkarte angezeigt
+22 BESTANDEN – Pause für heute gespeichert
+23 BESTANDEN – vorhandene Buchungen angezeigt
+24 BESTANDEN – Buchung aus Korrekturkarte gelöscht
+25 BESTANDEN – zukünftige Arbeitszeit gesperrt
+26 BESTANDEN – eigener Urlaubsbereich in Einstellungen
+27 BESTANDEN – Jahresanspruch gespeichert
+28 BESTANDEN – Übertrag gespeichert
+29 BESTANDEN – kompakte Einstellung angezeigt
+30 BESTANDEN – Urlaubsgraph mit zwölf Monaten
+31 BESTANDEN – Urlaubskonto enthält Anspruch und Übertrag
+32 BESTANDEN – Monatsdetail reagiert auf Fingertipp
+33 BESTANDEN – vollständige Urlaubsverwaltung öffnet
+34 BESTANDEN – zusammengehöriger Urlaub als Zeitraum dargestellt
+35 BESTANDEN – neues Backup enthält Urlaubseinstellungen
+36 BESTANDEN – JSON und Excel mit gleichem Zeitstempel im Dateinamen
+37 BESTANDEN – JSON und Excel mit gleichem lastModified
+38 BESTANDEN – Zeitkonto nach Urlaub/Einstellungen unverändert
+39 BESTANDEN – keine JavaScript-Laufzeitfehler nach Bedienprüfung
+40 BESTANDEN – kein appweiter horizontaler Überlauf
+
+C. FACHLICHE RANDFALLPRÜFUNGEN – 21/21 BESTANDEN
+01 BESTANDEN – halber Urlaubstag am Einzeltag wählbar
+02 BESTANDEN – Vorschau für Einzeltag vorhanden
+03 BESTANDEN – halber Urlaubstag gespeichert
+04 BESTANDEN – halber Urlaubstag mit 0,5 bewertet
+05 BESTANDEN – mehrtägige Krankheit überspringt Wochenende
+06 BESTANDEN – Krankheit als drei tatsächliche Arbeitstage gespeichert
+07 BESTANDEN – Krankheit verändert Urlaubskonto nicht
+08 BESTANDEN – Konflikt mit Arbeitszeit sichtbar
+09 BESTANDEN – Konfliktstandard ist Abbruch
+10 BESTANDEN – Konflikt überschreibt nicht still
+11 BESTANDEN – zukünftiger Urlaub fachlich gruppiert
+12 BESTANDEN – Löschaktion für Gesamtzeitraum vorhanden
+13 BESTANDEN – Löschen verlangt Sicherheitsabfrage
+14 BESTANDEN – zukünftiger Urlaubszeitraum gelöscht
+15 BESTANDEN – bestehende Arbeitszeit bearbeitet
+16 BESTANDEN – altes Schema rückwärtskompatibel migriert
+17 BESTANDEN – fehlende Urlaubseinstellung startet mit 0/0
+18 BESTANDEN – heutiger Urlaub wird als genommen behandelt
+19 BESTANDEN – statische Urlaubs-Minitabelle entfernt
+20 BESTANDEN – eigenständige Kartenabstände 12 px
+21 BESTANDEN – keine JavaScript-Laufzeitfehler in Randtests
+
+D. REGRESSIONSTESTS – 8/8 BESTANDEN
+01 BESTANDEN – Zeiten startet auf heute
+02 BESTANDEN – Prüfung alter Tage verändert Startdatum nicht dauerhaft
+03 BESTANDEN – Graphwechsel löst keine Speicherung aus
+04 BESTANDEN – Graphwechsel ohne Speicherfehler
+05 BESTANDEN – Urlaub für heute über Oberfläche gespeichert
+06 BESTANDEN – heutiger Urlaub fachlich als genommen
+07 BESTANDEN – Zeitkonto-Startwert nur in geschützter Unterkarte
+08 BESTANDEN – keine Laufzeitfehler in Regressionstests
+
+E. VIEWPORT-PRÜFUNGEN – 4/4 BESTANDEN
+01 BESTANDEN – 320 × 700 px
+02 BESTANDEN – 350 × 750 px
+03 BESTANDEN – 393 × 852 px, iPhone-16-Zielviewport
+04 BESTANDEN – 430 × 900 px
+
+Je Viewport geprüft:
+- Heute-Seite ohne horizontalen Überlauf
+- Startseite ohne unerwünschtes Scrollen
+- Plus-Menü ohne Überlauf und mit zwei Aktionen
+- Abwesenheitsfelder innerhalb der Karte
+- lange Dialogtitel ohne Überdeckung der Schließen-Schaltfläche
+- Zeitkorrekturtitel ohne Überdeckung
+- keine JavaScript-Laufzeitfehler
+
+F. OFFLINE-/PWA-PRÜFUNG
+BESTANDEN – Manifest vorhanden, Version 5.37, standalone
+BESTANDEN – Service-Worker-Syntax
+BESTANDEN – Service-Worker-Cache V5.37
+BESTANDEN – vollständige Cache-Dateiliste
+NICHT AUSFÜHRBAR – echter automatisierter Offline-Neustart mit registriertem Service Worker. Die Chromium-Umgebung blockierte Navigation zu lokalen und simulierten Testadressen mit ERR_BLOCKED_BY_ADMINISTRATOR.
+OFFEN AUF ZIELGERÄT – Installation über Safari, Start aus dem Home-Bildschirm und erneuter Start bei vollständig getrennter Netzwerkverbindung.
+
+G. ABSCHLUSSPRÜFUNG DES ENDPACKETS
+BESTANDEN – ZIP lässt sich vollständig entpacken
+BESTANDEN – app.js aus dem Endpaket syntaktisch gültig
+BESTANDEN – sw.js aus dem Endpaket syntaktisch gültig
+BESTANDEN – Manifest aus dem Endpaket syntaktisch gültig
+BESTANDEN – erforderliche PWA-Dateien im Endpaket vorhanden
+
+GESAMTERGEBNIS
+91 von 91 ausgeführten Einzelprüfungen bestanden.
+Kein ausgeführter Test ist fehlgeschlagen.
+Der echte iPhone-/Safari-/Offline-Installationstest wurde nicht simuliert oder als bestanden ausgegeben und bleibt praktisch zu prüfen.

@@ -1,0 +1,14 @@
+Arbeitszeit PWA V5.37
+Stand: 04.08.2026
+
+- Plus-Menü auf zwei Hauptaktionen reduziert.
+- Schnelleinträge für Pause und Kommentar des heutigen Tages ergänzt.
+- Einheitlichen Abwesenheitseditor mit Zeitraum, Vorschau, Konfliktprüfung, Bearbeiten und Löschen umgesetzt.
+- Mobile Von-/Bis-Felder einspaltig und innerhalb der Kartenbreite gestaltet.
+- Zeitkorrekturkarte mit vorhandenen Buchungen, Bearbeiten, Löschen, Ergänzen und vollständigem Tageseditor verschlankt.
+- Jahresbezogenen Urlaubsanspruch und Übertrag in den Einstellungen ergänzt.
+- Urlaubsauswertung durch interaktiven Monatsgraph und dynamischen Detailbereich ersetzt.
+- Separate vollständige Urlaubsverwaltung mit gruppierten Zeiträumen ergänzt.
+- Datenschema kontrolliert von 12 auf 13 erweitert; alte Backups bleiben importierbar.
+- Gemeinsame Zeitstempel und Dateimetadaten für JSON- und Excel-Sicherung sichergestellt.
+- Appweite Kartenabstände, Überlaufschutz und lange Dialogtitel für mobile Viewports korrigiert.

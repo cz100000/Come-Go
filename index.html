@@ -60,13 +60,17 @@
 <span aria-hidden="true" class="today-comment-chev">›</span>
 </button>
 </section>
-<div aria-label="Manuelle Einträge" class="quick-action-row">
-<button class="pause-btn home-pressable" id="pauseToday" type="button">
-<svg class="icon" viewbox="0 0 24 24"><path d="M5 7h11v7a5 5 0 0 1-5 5H10a5 5 0 0 1-5-5Z"></path><path d="M16 9h2a3 3 0 0 1 0 6h-2M4 21h14"></path></svg>
-<span class="pause-copy"><b id="pauseButtonLabel">Manuelle Pause</b><small id="pauseButtonSub">Pause eintragen</small></span>
-<svg class="icon pause-chev" viewbox="0 0 24 24"><path d="m9 6 6 6-6 6"></path></svg>
+<section aria-labelledby="todayQuickTitle" class="today-quick-card card quick-action-row">
+<div class="today-quick-head"><h2 id="todayQuickTitle">Schnelleinträge für heute</h2></div>
+<button class="today-quick-row home-pressable" id="pauseToday" type="button">
+<span class="today-quick-icon" aria-hidden="true"><svg class="icon" viewbox="0 0 24 24"><path d="M5 7h11v7a5 5 0 0 1-5 5H10a5 5 0 0 1-5-5Z"></path><path d="M16 9h2a3 3 0 0 1 0 6h-2M4 21h14"></path></svg></span>
+<span class="today-quick-copy"><b id="pauseButtonLabel">Pause eintragen</b><small id="pauseButtonSub">Für den heutigen Tag</small></span><span class="today-quick-chev" aria-hidden="true">›</span>
 </button>
-</div>
+<button class="today-quick-row home-pressable" id="quickCommentToday" type="button">
+<span class="today-quick-icon" aria-hidden="true"><svg class="icon" viewbox="0 0 24 24"><path d="M21 12a8 8 0 0 1-8 8H7l-4 2 1.4-4.2A8 8 0 1 1 21 12Z"></path></svg></span>
+<span class="today-quick-copy"><b id="quickTodayCommentLabel">Kommentar eintragen</b><small id="quickTodayCommentSub">Für den heutigen Tag</small></span><span class="today-quick-chev" aria-hidden="true">›</span>
+</button>
+</section>
 <button aria-label="Eintrag für heute öffnen" class="quick-add-btn floating-quick-add today-floating-quick home-pressable" id="quickAddBtn" type="button"><span aria-hidden="true" class="plus-glyph"></span></button>
 </section>
 <section aria-label="Zeiten" class="screen" id="times">
@@ -93,10 +97,12 @@
 <div aria-live="polite" class="chart-detail" id="chartDetail"></div>
 </section>
 <section aria-labelledby="vacationOverviewTitle" class="card vacation-overview-card">
-<div class="vacation-overview-head"><div><h2 class="card-title" id="vacationOverviewTitle">Urlaub</h2><p>Anspruch, Planung und bisherige Nutzung</p></div><select aria-label="Urlaubsjahr" id="vacationYear"></select></div>
-<div class="vacation-metrics" id="vacationMetrics"></div>
-<div class="vacation-list" id="vacationList"></div>
-<button class="dialog-action dialog-action-secondary vacation-manage-btn" id="openVacationEntitlementFromReports" type="button">Urlaubsanspruch bearbeiten</button>
+<div class="vacation-overview-head"><div><h2 class="card-title" id="vacationOverviewTitle">Urlaub</h2><p>Jahreskonto und Monatsverlauf</p></div><select aria-label="Urlaubsjahr" id="vacationYear"></select></div>
+<button class="vacation-account-selector" id="vacationAccountSelector" type="button"><span>Urlaubskonto</span><strong id="vacationAccountRemaining">0 Tage verfügbar</strong></button>
+<div class="vacation-chart-legend" aria-hidden="true"><span><i class="taken"></i>Genommen</span><span><i class="planned"></i>Geplant</span></div>
+<div aria-label="Urlaubsverlauf Januar bis Dezember" class="vacation-chart" id="vacationChart" role="img"></div>
+<div aria-live="polite" class="vacation-detail" id="vacationDetail"></div>
+<button class="dialog-action dialog-action-secondary vacation-manage-btn" id="openVacationManager" type="button">Alle Urlaube anzeigen</button>
 </section>
 <div class="card report-card">
 <h2 class="card-title">Berichte und PDF</h2>
@@ -139,6 +145,13 @@
 <span class="settings-row-copy"><b>Countdown auf der Startseite</b><small>Mindestpause und Zielhinweis</small></span>
 <span class="switch"><input id="countdownEnabled" type="checkbox"/><span></span></span>
 </label>
+</section>
+<section aria-labelledby="settingsVacationTitle" class="settings-topic-card card">
+<h2 class="settings-topic-title" id="settingsVacationTitle">Urlaub</h2>
+<button class="settings-compact-row settings-disclosure" id="openVacationEntitlementBtn" type="button">
+<span class="settings-row-copy"><b id="vacationSettingsTitle">Urlaub 2026</b><small id="vacationSettingsSummary">0 Tage Anspruch · 0 Tage Übertrag</small></span>
+<span class="settings-row-value"><strong id="vacationEntitlementCurrentValue">0 Tage</strong><i aria-hidden="true">›</i></span>
+</button>
 </section>
 <section aria-labelledby="settingsHolidayTitle" class="settings-topic-card card">
 <h2 class="settings-topic-title" id="settingsHolidayTitle">Feiertage</h2>
@@ -256,11 +269,9 @@
 </div>
 <div class="unified-card-body quick-entry-card-body">
 <div class="context-date" id="quickAddContext"></div>
-<div class="quick-list quick-add-actions">
-<button id="quickAbsenceStart" type="button"><span>Abwesenheit eintragen</span><small>Urlaub, Krankheit oder Sonstiges</small><b aria-hidden="true">›</b></button>
-<button id="quickSelectDay" type="button"><span>Tag auswählen und bearbeiten</span><small>Abwesenheiten prüfen, ändern oder löschen</small><b aria-hidden="true">›</b></button>
-<button id="quickTimeStart" type="button"><span>Zeit ergänzen / korrigieren</span><small>Fehlende oder vorhandene Buchung</small><b aria-hidden="true">›</b></button>
-<button id="quickCommentStart" type="button"><span id="quickCommentLabel">Kommentar eintragen</span><small id="quickCommentHint">Tageskommentar hinzufügen</small><b aria-hidden="true">›</b></button>
+<div class="quick-list quick-add-actions exact-two-actions">
+<button id="quickAbsenceStart" type="button"><span>Abwesenheit eintragen oder bearbeiten</span><small>Urlaub, Krankheit oder sonstige Abwesenheit</small><b aria-hidden="true">›</b></button>
+<button id="quickTimeStart" type="button"><span>Zeit ergänzen oder korrigieren</span><small>Arbeitszeiten ergänzen, ändern oder löschen</small><b aria-hidden="true">›</b></button>
 </div>
 </div>
 <div class="unified-card-footer quick-entry-card-footer">
@@ -303,7 +314,17 @@
 </div>
 <div aria-labelledby="timeActionTitle" aria-modal="true" class="modal" id="timeActionModal" role="dialog">
 <div class="sheet compact-action-sheet canonical-card-shell">
-<div class="unified-card-head canonical-card-head"><span aria-hidden="true" class="unified-card-head-spacer"></span><div class="unified-card-title-wrap"><h2 id="timeActionTitle">Zeit ergänzen</h2></div><button aria-label="Schließen" class="close-btn" data-close="timeActionModal" type="button">×</button></div><div class="unified-card-body canonical-card-body"><div class="context-date" id="timeActionContext"></div><div class="action-status" id="timeActionStatus"></div><div class="quick-list time-action-list" id="timeActionList"></div></div>
+<div class="unified-card-head canonical-card-head"><span aria-hidden="true" class="unified-card-head-spacer"></span><div class="unified-card-title-wrap"><h2 id="timeActionTitle">Zeit ergänzen oder korrigieren</h2></div><button aria-label="Schließen" class="close-btn" data-close="timeActionModal" type="button">×</button></div><div class="unified-card-body canonical-card-body time-correction-body">
+<div class="field"><label for="timeActionDate">Datum</label><input id="timeActionDate" type="date"/></div>
+<div class="field"><label for="timeActionEntryType">Eintragstyp</label><select id="timeActionEntryType"><option value="in">Kommen</option><option value="out">Gehen</option></select></div>
+<div class="time-existing-head"><b>Vorhandene Buchungen</b><span id="timeActionStatus"></span></div>
+<div class="time-existing-bookings" id="timeExistingBookings"></div>
+<div class="quick-conflict" hidden id="timeActionConflict"></div>
+<button class="dialog-action dialog-action-primary" id="timeAddBooking" type="button">Buchung hinzufügen</button>
+<button class="dialog-action dialog-action-secondary" id="timeOpenFullDay" type="button">Vollständigen Tag bearbeiten <span aria-hidden="true">›</span></button>
+<div class="context-date subtle-context-date" id="timeActionContext"></div>
+<div class="quick-list time-action-list" hidden id="timeActionList"></div>
+</div>
 
 
 
@@ -323,7 +344,7 @@
 <div class="unified-card-head canonical-card-head"><span aria-hidden="true" class="unified-card-head-spacer"></span><div class="unified-card-title-wrap"><h2 id="manualQuickTitle">Zeit ergänzen</h2></div><button aria-label="Schließen" class="close-btn" data-close="manualQuickModal" type="button">×</button></div><div class="unified-card-body canonical-card-body"><div class="manual-quick-date" id="manualQuickContext"></div><div id="manualQuickBookingType" hidden></div><div id="manualQuickHint" hidden></div><div class="manual-quick-grid">
 <div class="field"><label for="manualActual">Tatsächliche Uhrzeit <button aria-label="Erklärung tatsächliche Uhrzeit" class="info-dot" data-time-info="actual" type="button">i</button></label><input id="manualActual" type="time"/></div>
 <div class="field"><label for="manualLogged">Dokumentierte Uhrzeit <button aria-label="Erklärung dokumentierte Uhrzeit" class="info-dot" data-time-info="logged" type="button">i</button></label><input id="manualLogged" type="time"/></div>
-</div><div class="time-info-text" hidden="" id="timeInfoText"></div><button class="manual-full-editor" id="manualFullEditor" type="button">Vollständigen Tag bearbeiten</button></div>
+</div><div class="time-info-text" hidden="" id="timeInfoText"></div><button class="manual-full-editor" id="manualFullEditor" type="button"><span>Vollständigen Tag bearbeiten</span><b aria-hidden="true">›</b></button></div>
 
 
 
@@ -335,7 +356,16 @@
 </div>
 <div aria-labelledby="absenceModalTitle" aria-modal="true" class="modal" id="absenceModal" role="dialog">
 <div class="sheet absence-sheet canonical-card-shell">
-<div class="unified-card-head canonical-card-head"><span aria-hidden="true" class="unified-card-head-spacer"></span><div class="unified-card-title-wrap"><h2 id="absenceModalTitle">Abwesenheit eintragen</h2></div><button aria-label="Schließen" class="close-btn" data-close="absenceModal" type="button">×</button></div><div class="unified-card-body canonical-card-body"><div class="field"><label for="absenceType">Art der Abwesenheit</label><select id="absenceType"><option value="vacation">Urlaub</option><option value="sick">Krankheit</option><option value="timeOff">Zeitausgleich</option><option value="other">Sonstige Abwesenheit</option></select></div><div class="absence-date-grid"><div class="field"><label for="absenceFrom">Von</label><input id="absenceFrom" type="date"/></div><div class="field"><label for="absenceTo">Bis</label><input id="absenceTo" type="date"/></div></div><div class="field"><label for="absenceExtent">Umfang je Arbeitstag</label><select id="absenceExtent"><option value="full">Ganzer Tag</option><option value="half">Halber Tag</option></select></div><div class="field"><label for="absenceNote">Optionale Notiz</label><textarea id="absenceNote" placeholder="z. B. Arztbesuch oder Anlass" rows="2"></textarea></div><div class="field"><label for="absenceConflictPolicy">Bei vorhandenen Buchungen oder Abwesenheiten</label><select id="absenceConflictPolicy"><option value="abort">Vorgang abbrechen</option><option value="skip">Betroffene Tage überspringen</option><option value="replace">Vorhandene Einträge ersetzen</option></select></div><div aria-live="polite" class="absence-summary" id="absenceSummary"></div><div class="day-data-actions" hidden="" id="absenceDeleteActions"><button class="delete" id="deleteAbsenceDayBtn" type="button">Diesen Tag löschen</button><button class="delete" id="deleteAbsenceGroupBtn" type="button">Gesamten Zeitraum löschen</button></div></div>
+<div class="unified-card-head canonical-card-head"><span aria-hidden="true" class="unified-card-head-spacer"></span><div class="unified-card-title-wrap"><h2 id="absenceModalTitle">Abwesenheit eintragen oder bearbeiten</h2></div><button aria-label="Schließen" class="close-btn" data-close="absenceModal" type="button">×</button></div><div class="unified-card-body canonical-card-body absence-editor-body">
+<div class="absence-date-grid"><div class="field"><label for="absenceFrom">Von</label><input id="absenceFrom" type="date"/></div><div class="field"><label for="absenceTo">Bis</label><input id="absenceTo" type="date"/></div></div>
+<div class="absence-existing-notice" hidden id="absenceExistingNotice"><span id="absenceExistingText"></span><button id="loadExistingAbsenceBtn" type="button">Vorhandene Abwesenheit laden</button></div>
+<div class="field"><label for="absenceType">Abwesenheitsart</label><select id="absenceType"><option value="vacation">Urlaub</option><option value="sick">Krankheit</option><option value="timeOff">Zeitausgleich</option><option value="other">Sonstige Abwesenheit</option></select></div>
+<div class="field"><label for="absenceExtent">Umfang</label><select id="absenceExtent"><option value="full">Ganzer Tag</option><option value="half">Halber Tag</option></select></div>
+<div class="field"><label for="absenceNote">Optionaler Kommentar</label><textarea id="absenceNote" placeholder="Kommentar zur Abwesenheit" rows="2"></textarea></div>
+<div class="field absence-conflict-policy" hidden id="absenceConflictPolicyField"><label for="absenceConflictPolicy">Konflikte behandeln</label><select id="absenceConflictPolicy"><option value="abort">Nicht speichern</option><option value="skip">Betroffene Tage überspringen</option><option value="replace">Nach Bestätigung ersetzen</option></select></div>
+<div aria-live="polite" class="absence-summary" id="absenceSummary"></div>
+<div class="day-data-actions" hidden="" id="absenceDeleteActions"><button class="delete" id="deleteAbsenceDayBtn" type="button">Einzelnen Eintrag löschen</button><button class="delete" id="deleteAbsenceGroupBtn" type="button">Vollständigen Zeitraum löschen</button></div>
+</div>
 
 
 
@@ -404,8 +434,6 @@
 <button class="print-action" id="printReportBtn" type="button">Drucken / als PDF sichern</button>
 </div>
 </section>
-<script src="./imported-data.js"></script>
-<script src="./app.js"></script>
 
 <div aria-labelledby="dayPickerTitle" aria-modal="true" class="modal" id="dayPickerModal" role="dialog">
 <div class="sheet unified-card-shell compact-picker-sheet">
@@ -419,5 +447,14 @@
 <div class="unified-card-body"><div class="field"><label for="vacationEntitlementYear">Jahr</label><select id="vacationEntitlementYear"></select></div><div class="field"><label for="vacationEntitlementDays">Jahresanspruch</label><input id="vacationEntitlementDays" inputmode="decimal" min="0" max="366" step="0.5" type="number"></div><div class="field"><label for="vacationCarryoverDays">Übertragener Resturlaub</label><input id="vacationCarryoverDays" inputmode="decimal" min="0" max="366" step="0.5" type="number"></div><div class="vacation-entitlement-summary" id="vacationEntitlementSummary"></div></div>
 <div class="unified-card-footer"><button class="cancel" data-close="vacationEntitlementModal" type="button">Abbrechen</button><button class="save" id="saveVacationEntitlement" type="button">Speichern</button></div>
 </div></div>
+
+<div aria-labelledby="vacationManagerTitle" aria-modal="true" class="modal" id="vacationManagerModal" role="dialog">
+<div class="sheet unified-card-shell vacation-manager-sheet">
+<div class="unified-card-head"><span class="unified-card-head-spacer"></span><div class="unified-card-title-wrap"><h2 id="vacationManagerTitle">Alle Urlaube</h2><div class="unified-card-context">Chronologische Urlaubsverwaltung</div></div><button aria-label="Schließen" class="close-btn" data-close="vacationManagerModal" type="button">×</button></div>
+<div class="unified-card-body vacation-manager-body"><div class="field"><label for="vacationManagerYear">Jahr</label><select id="vacationManagerYear"></select></div><div class="vacation-manager-list" id="vacationManagerList"></div></div>
+<div class="unified-card-footer"><button class="cancel" data-close="vacationManagerModal" type="button">Schließen</button><button class="save" id="vacationManagerAdd" type="button">Urlaub eintragen</button></div>
+</div></div>
+<script src="./imported-data.js"></script>
+<script src="./app.js"></script>
 </body>
 </html>

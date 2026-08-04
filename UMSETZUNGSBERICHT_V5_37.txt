@@ -1,0 +1,116 @@
+UMSETZUNGSBERICHT V5.37
+Stand: 04.08.2026
+
+AUSGANGSBASIS
+- Ausschließliche technische Ausgangsbasis: Arbeitszeit_PWA_Offline_V5_36_HighEnd_iPhone16_Urlaubsverwaltung.zip.
+- Der zusätzlich bereitgestellte JSON-Datenbestand wurde ausschließlich für realistische Lade-, Migrations-, Berechnungs- und Regressionstests verwendet.
+- Der Testbestand wurde nicht fest in die Anwendung übernommen und nicht als neuer Ausgangsdatenbestand eingebaut.
+- Die bestehende Dateistruktur, der lokale Speicherschlüssel arbeitszeit-pwa-v1, Manifest, Service Worker und die PWA-Struktur wurden erhalten.
+
+TATSÄCHLICH UMGESETZT
+
+1. Plus-Funktion
+- Plus-Menü auf genau zwei Hauptaktionen reduziert:
+  - Abwesenheit eintragen oder bearbeiten
+  - Zeit ergänzen oder korrigieren
+- Redundante eigenständige Plus-Wege entfernt.
+- Karte „Eintrag hinzufügen“ kompakt im bestehenden Ein-Karten-Prinzip umgesetzt.
+
+2. Schnelleinträge für heute
+- Neue kompakte Karte „Schnelleinträge für heute“ auf der Heute-Seite ergänzt.
+- Direkte Aktionen für Pause und Kommentar ohne Datumswahl.
+- Beide Aktionen beziehen sich ausschließlich auf den aktuellen Tag.
+
+3. Abwesenheit eintragen oder bearbeiten
+- Einheitlichen Editor mit Von-Datum, Bis-Datum, Abwesenheitsart, Umfang, Kommentar und Arbeitstagsvorschau umgesetzt.
+- Von und Bis auf mobilen Viewports immer einspaltig und innerhalb der realen Karten-Innenbreite.
+- Wochenenden sowie gesetzliche und betriebliche Feiertage werden bei Urlaub und Krankheit ausgelassen.
+- Halber Tag nur für einen einzelnen Kalendertag zulässig.
+- Konflikte mit vorhandenen Daten werden angezeigt und nicht still überschrieben.
+- Zukünftige Abwesenheiten können angelegt, geladen, geändert und gelöscht werden.
+- Neu gemeinsam erfasste Zeiträume erhalten eine Gruppen-ID und bleiben als zusammengehöriger Vorgang rekonstruierbar.
+- Ältere, nicht gruppierte Urlaubsbestände werden für die Anzeige fachlich zusammengefasst, ohne die Quelldaten umzuschreiben.
+
+4. Zeit ergänzen oder korrigieren
+- Schlanke Karte mit Datumsauswahl, vorhandenen Buchungen und Aktionen zum Ergänzen, Bearbeiten und Löschen umgesetzt.
+- Zukunftssperre für Arbeitszeitbuchungen bleibt aktiv.
+- „Vollständigen Tag bearbeiten“ als echte sekundäre Aktion gestaltet.
+- Redundante Kontextzeilen und übergroße Normalfall-Hinweise entfernt.
+
+5. Urlaubseinstellungen
+- Eigener Themenbereich „Urlaub“ in den Einstellungen ergänzt.
+- Jahresspezifische Speicherung von regulärem Urlaubsanspruch und Übertrag aus dem Vorjahr.
+- Hauptseite zeigt nur eine kompakte Zusammenfassung.
+- Genommene und geplante Urlaubstage werden weiterhin ausschließlich aus Abwesenheitsdaten berechnet.
+
+6. Urlaubsauswertung
+- Frühere statische Kennzahlen-/Listenansicht durch eine interaktive Jahresauswertung ersetzt.
+- Monatsgraph Januar bis Dezember mit unterscheidbarer Darstellung von genommenem und geplantem Urlaub.
+- Fingertipp auf einen Monat aktualisiert einen dynamischen Detailbereich.
+- Gesamtansicht zeigt Anspruch, Übertrag, Gesamt verfügbar, genommen, geplant und verbleibend.
+- Heutiger Urlaub wird fachlich als genommen behandelt; zukünftiger Urlaub als geplant; halbe Tage zählen mit 0,5.
+
+7. Vollständige Urlaubsverwaltung
+- Separate Ansicht mit Jahresauswahl, gruppierten Urlaubszeiträumen, Status, Kommentar, Bearbeiten und Löschen umgesetzt.
+- Die vollständige Liste ist nicht Bestandteil der Standardauswertung.
+
+8. Appweite mobile Gestaltung
+- Eigenständige Karten mit 12 px vertikalem Abstand.
+- Formulare gegen horizontales Überlaufen abgesichert.
+- Lange Dialogtitel so begrenzt, dass sie die Schließen-Schaltfläche nicht überdecken.
+- Verdeckte beziehungsweise nicht aktive Löschaktionen ragen nicht mehr am Kartenrand hervor.
+- Sichtprüfungen bei 320 × 700, 350 × 750, 393 × 852 und 430 × 900 Pixeln durchgeführt.
+
+9. Sicherung und Dateizeitstempel
+- JSON- und Excel-Datei eines gemeinsamen Sicherungsvorgangs erhalten denselben Zeitstempel im Dateinamen.
+- Beide File-Objekte erhalten denselben lastModified-Zeitpunkt.
+- exportedAt bleibt in der JSON-Sicherung erhalten.
+
+DATENMIGRATION
+- Datenschema kontrolliert von 12 auf 13 erhöht.
+- Neue Struktur: settings.vacationEntitlements mit jahresbezogenen Werten days und carryover.
+- Bei älteren Sicherungen werden fehlende Werte migrationssicher mit 0 Tagen Anspruch und 0 Tagen Übertrag ergänzt.
+- Bestehende Tages-, Buchungs-, Abwesenheits-, Prüf- und Zeitkontodaten werden nicht rückwirkend umgeschrieben.
+- Der bereitgestellte Schema-12-Datenbestand mit 1.148 Tagen und 1.792 Buchungen wurde vollständig geladen und auf Schema 13 migriert.
+
+TECHNISCH GEPRÜFT
+- JavaScript-Syntax von app.js.
+- JavaScript-Syntax des Service Workers.
+- Manifest-Version und Standalone-Konfiguration.
+- Service-Worker-Cachebezeichnung V5.37 und vollständige Referenzdateiliste.
+- Keine doppelten HTML-IDs.
+- Keine JavaScript-Laufzeitfehler in den automatisierten Bedien-, Randfall- und Regressionstests.
+- Keine horizontalen Überläufe in den geprüften Viewports.
+- Erzeugung von JSON- und Excel-Datei mit identischen Zeitstempeln und Dateimetadaten.
+- Abschließende ZIP-Integritätsprüfung und Syntaxprüfung aus dem entpackten Endpaket.
+
+FACHLICH GEPRÜFT
+- Urlaub für heute, zukünftiger Einzelurlaub und zukünftiger Zeitraum.
+- Mehrtägige Krankheit.
+- Auslassen von Wochenenden, gesetzlichen Feiertagen und betrieblichen Feiertagen.
+- Halber Urlaubstag mit 0,5 und Sperre bei mehrtägigen Zeiträumen.
+- Konflikte mit bestehenden Arbeitszeitdaten ohne stilles Überschreiben.
+- Bearbeiten und Löschen zusammengehöriger zukünftiger Urlaubszeiträume.
+- Zukunftssperre für Arbeitszeitbuchungen.
+- Bearbeiten und Löschen bestehender Buchungen.
+- Jahresanspruch und Übertrag.
+- Einordnung als genommen beziehungsweise geplant, einschließlich des heutigen Tages.
+- Dynamische Monatsauswertung und vollständige Urlaubsverwaltung.
+- Zeitkonto bleibt durch zukünftige Urlaubsplanung und reine Urlaubseinstellungen unverändert.
+- Alte Sicherung bleibt importierbar; neue Sicherung enthält Urlaubseinstellungen.
+
+PRÜFERGEBNIS
+- 18 statische Prüfungen bestanden.
+- 40 Browser-Bedienprüfungen bestanden.
+- 21 fachliche Randfallprüfungen bestanden.
+- 8 Regressionstests bestanden.
+- 4 Viewport-Prüfungen bestanden.
+- Gesamt: 91 von 91 ausgeführten Einzelprüfungen bestanden.
+
+NICHT REAL GEPRÜFT
+- Ein physischer Installationstest und die Touch-/Safari-Datumsdarstellung auf einem echten iPhone 16 waren in der Entwicklungsumgebung nicht möglich.
+- Ein echter Service-Worker-Offline-Neustart über eine lokale HTTP-/HTTPS-Adresse konnte in der bereitgestellten Chromium-Umgebung nicht automatisiert ausgeführt werden, weil Browsernavigation zu lokalen beziehungsweise simulierten Testadressen mit ERR_BLOCKED_BY_ADMINISTRATOR gesperrt wurde.
+- Manifest, Service-Worker-Syntax, Cacheversion und Cache-Dateiliste wurden statisch geprüft; der praktische Offline-Neustart ist daher zusätzlich auf dem Zielgerät zu prüfen.
+
+ERGEBNIS
+Version 5.37 ist als eigenständiges Endpaket erstellt. Die oben genannten praktischen iPhone-/Safari- und Offline-Installationstests bleiben ausdrücklich offen und werden nicht als durchgeführt dargestellt.

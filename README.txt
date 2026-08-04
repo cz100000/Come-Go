@@ -1,5 +1,5 @@
-Arbeitszeit PWA – Version 5.32
-Stand: 03.08.2026
+Arbeitszeit PWA – Version 5.37
+Stand: 04.08.2026
 
 Zweck
 Vollständig offlinefähige Arbeitszeiterfassung für das iPhone 16 im Hochformat. Die Anwendung speichert ausschließlich lokal im Browser und benötigt nach der Erstinstallation keine Internetverbindung.
@@ -12,7 +12,7 @@ Installation über GitHub Pages
 
 Daten und Kompatibilität
 - Lokaler Speicherschlüssel unverändert: arbeitszeit-pwa-v1
-- Datenschema: 12
+- Datenschema: 13
 - Datenbeginn: 01.11.2022
 - Eingebetteter Ausgangsdatenstand: JSON-Sicherung vom 03.08.2026
 - 1.128 Kalendertage und 1.792 Buchungen im eingebetteten Referenzbestand
@@ -28,12 +28,13 @@ Ein-Karten-Bearbeitung
 - Alle Dialogkarten verwenden 16 px Seitenabstand bei 393 px Viewportbreite, 12 px auf sehr schmalen Geräten und höchstens 480 px Kartenbreite auf größeren Geräten.
 
 Einstellungen
-Die Einstellungsseite ist in fünf kompakte Themenkarten gegliedert:
+Die Einstellungsseite ist in kompakte Themenkarten gegliedert:
 - Persönliche Angaben
 - Arbeitszeit
 - Feiertage
 - Darstellung und Berichte
 - App und Daten
+- Urlaub
 
 Sollzeit und Bundesland werden auf der Hauptseite nur mit aktuellem Wert und Gültigkeitsdatum angezeigt. Die Bearbeitung erfolgt in einheitlichen Ein-Karten-Editoren mit Schutz vor unbeabsichtigten rückwirkenden Änderungen.
 
@@ -90,3 +91,16 @@ Wichtige Änderungen in V5.32
 - Sichere Innenabstände sowie begrenzte Titel-, Text- und Aktionsbereiche.
 - Zusätzliche Schutzregeln gegen Inhaltsüberlauf in Bestandsdialogen.
 - Keine fachlichen oder datenbezogenen Änderungen.
+
+
+Wichtige Änderungen in V5.37
+- Plus-Menü auf „Abwesenheit eintragen oder bearbeiten“ und „Zeit ergänzen oder korrigieren“ reduziert.
+- Neue kompakte Karte „Schnelleinträge für heute“ für Pause und Kommentar ohne Datumswahl.
+- Einheitlicher Abwesenheitseditor mit Von-/Bis-Datum in getrennten mobilen Zeilen, Arbeitstagsvorschau, Konfliktbehandlung sowie Bearbeiten und Löschen zusammengehöriger Zeiträume.
+- Zukünftige Abwesenheiten bleiben zulässig; zukünftige Arbeitszeitbuchungen bleiben gesperrt.
+- Urlaubsanspruch und Resturlaubsübertrag werden jahresbezogen ausschließlich in den Einstellungen geführt.
+- Neue Urlaubsübersicht mit Monatsgraph, dynamischem Detailbereich und separater vollständiger Urlaubsverwaltung.
+- Zusammengehörige neue Urlaubszeiträume erhalten eine Gruppen-ID; ältere Einzelbestände werden für die Anzeige fachlich zusammengefasst, ohne die Quelldaten umzuschreiben.
+- JSON- und Excel-Dateien eines Sicherungsvorgangs erhalten denselben Zeitstempel im Namen und in den Dateimetadaten.
+- Schema 13 ergänzt migrationssicher `settings.vacationEntitlements`; bei älteren Sicherungen startet jedes Jahr mit Anspruch 0 und Übertrag 0.
+- Mobile Sichtprüfung automatisiert bei 320 × 700, 350 × 750, 393 × 852 und 430 × 900 Pixeln. Ein physischer iPhone-/Safari-Test bleibt erforderlich.
