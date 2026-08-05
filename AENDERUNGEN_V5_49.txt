@@ -1,0 +1,7 @@
+ARBEITSZEIT-PWA V5.49 – TECHNISCHE BEREINIGUNG UND OPTIMIERUNG
+
+1. Nicht mehr verwendete CSS-Regeln früherer Heute-Seiten-Strukturen entfernt.
+2. Produktives ZIP von historischen Entwicklungsartefakten bereinigt.
+3. Auslieferungsstruktur auf Laufzeitdateien, aktuelle Dokumentation, Bereinigungsregeln und Sicherung reduziert.
+4. App-Version, Manifest und Service-Worker-Cachekennung auf 5.49 aktualisiert.
+5. Keine Änderung an Berechnung, Buchungslogik, Datenmodell, Backup-Schema oder vorhandenen Daten.

@@ -1,0 +1,10 @@
+ARBEITSZEIT-PWA V5.49 – TECHNISCHE PRÜFUNG
+
+- JavaScript-Syntax geprüft
+- Manifest-JSON geprüft
+- Sicherungs-JSON geprüft
+- CSS-Klammerstruktur geprüft
+- Service-Worker-Dateiliste geprüft
+- Alle lokalen Laufzeitdateien vorhanden
+- Versionsstand in App, Manifest und Cachekennung konsistent
+- Backup-Datei unverändert übernommen

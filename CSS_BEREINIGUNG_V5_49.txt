@@ -1,0 +1,78 @@
+Entfernte veraltete CSS-Regeln:
+- .pause-btn
+- .pause-btn .icon
+- .pause-btn
+- .pause-btn
+- .pause-btn
+- .pause-btn .icon
+- .pause-btn .pause-chev
+- .pause-btn:active
+- .pause-btn
+- .pause-btn .icon
+- .pause-btn
+- .pause-btn
+- .quick-action-row
+- .quick-action-row .pause-btn
+- .quick-action-row
+- .quick-action-row
+- .quick-action-row .pause-btn,.quick-add-btn
+- .quick-action-row
+- .quick-action-row
+- .quick-entry-overview
+- .quick-entry-overview>span
+- .quick-entry-overview>span+span
+- .quick-entry-overview b,.quick-entry-overview small
+- .quick-entry-overview b
+- .quick-entry-overview small
+- .past-workday-notice
+- .past-workday-notice[hidden]
+- .past-workday-notice b,.past-workday-notice small
+- .past-workday-notice b
+- .past-workday-notice small
+- .quick-entry-overview
+- .past-workday-notice
+- .quick-entry-overview
+- .quick-entry-overview small
+- #today .past-workday-notice
+- #today .quick-action-row
+- #today .past-workday-notice
+- #today .quick-action-row
+- #today .quick-action-row
+- #today .quick-action-row .pause-btn
+- .past-workday-notice
+- .past-workday-notice b
+- .past-workday-notice small
+- #today .quick-action-row
+- #today .quick-action-row .pause-btn
+- #today .past-workday-notice
+- #today .past-workday-notice
+- #today .quick-action-row
+- #today .quick-action-row .pause-btn
+- body.modal-open #today .quick-action-row
+- #today .quick-action-row
+- #today .quick-action-row .pause-btn
+- #today .past-workday-notice
+- #today .today-quick-card.quick-action-row
+- body.modal-open #today .today-quick-card.quick-action-row
+- #today .today-quick-card.quick-action-row
+- /* Startseite: Schnelleinträge und Plus bilden eine ruhige gemeinsame Aktionszeile. */
+#today .today-quick-card.quick-action-row
+- #today .today-quick-card.quick-action-row
+- /* Zeiten: zusätzliche Aktion kompakter; schwebendes Plus bleibt visuell gleichrangig. */
+#timesContent .quick-action-row,#timesContent .additional-details-card
+- /* V5.41 – Schnelleinträge exakt links neben dem Plus-Button auf identischer Höhe. */
+#today .today-quick-card.quick-action-row
+- #today .today-quick-card.quick-action-row .today-quick-row
+- #today .today-quick-card.quick-action-row
+- #today .today-quick-card.quick-action-row .today-quick-row
+- /* Schnelleinträge und Plus bilden eine gemeinsame, exakt fluchtende Aktionszeile. */
+#today .today-quick-card.quick-action-row
+- #today .today-quick-card.quick-action-row .today-quick-row
+- #today .today-quick-card.quick-action-row,#today .today-floating-quick
+- #today .today-manual-pause,
+#today .today-action-row
+- #today .today-action-row
+- #today .today-action-row+.today-action-row
+- #today .today-action-row .today-action-copy b
+- #today .today-action-row
+- #today .today-action-row .today-action-copy b
