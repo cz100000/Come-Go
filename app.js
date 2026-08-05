@@ -4,7 +4,7 @@ const STORAGE_BACKUP_KEYS=[1,2,3].map(n=>`${STORAGE_KEY}-backup-${n}`);
 const STORAGE_CORRUPT_KEY=STORAGE_KEY+'-corrupt';
 const BACKUP_FORMAT='arbeitszeit-pwa-backup';
 const TRACKING_START_DATE='2022-11-01';
-const APP_VERSION='5.44';
+const APP_VERSION='5.45';
 const CURRENT_SCHEMA=14;
 const IMPORT_DATA_VERSION=5;
 const CALCULATION_VERSION=2;
@@ -292,7 +292,7 @@ clearPendingUndo();const t=$('toast');t.replaceChildren();const span=document.cr
 }
 function updateDayQuickButton(){
 const button=$('timesQuickAddBtn');if(!button)return;
-const visible=$('times').classList.contains('active')&&currentView==='day'&&!document.body.classList.contains('modal-open');
+const visible=$('times').classList.contains('active')&&!document.body.classList.contains('modal-open');
 button.hidden=!visible;
 }
 function showScreen(id){
@@ -1705,7 +1705,7 @@ renderDayOverview=function(){
 };
 renderDayCard=function(){
   if(!$('dayModal')?.classList.contains('open')&&!dayCardDraft)return;
-  const view=dayCardCurrent.view;$('dayModalTitle').textContent=dayCardTitle(view);$('dayModalContext').textContent=view==='overview'?'':formatContextDate($('editDate').value);$('dayCardBack').hidden=view==='overview'||view==='confirm';
+  const view=dayCardCurrent.view;$('dayModalTitle').textContent=dayCardTitle(view);$('dayModalContext').textContent=view==='overview'?formatContextDate($('editDate').value):formatContextDate($('editDate').value);$('dayCardBack').hidden=view==='overview'||view==='confirm';if($('dayPrevDate'))$('dayPrevDate').hidden=view!=='overview';if($('dayNextDate'))$('dayNextDate').hidden=view!=='overview';
   if(view==='overview')renderDayOverview();else if(view==='entry')renderDayEntry();else if(view==='pause')renderDayPause();else if(view==='absence')renderDayAbsence();else if(view==='comment')renderDayComment();else if(view==='actions')renderDayActions();else if(view==='confirm')renderDayConfirm();
   if(dayCardRestoreForm){const form=dayCardRestoreForm;dayCardRestoreForm=null;restoreDayCardForm(form)}
   requestAnimationFrame(()=>$('dayCardBody')?.scrollTo({top:0}));
@@ -1833,6 +1833,9 @@ createReportPdfFile=function(type,y,m){
 document.addEventListener('DOMContentLoaded',()=>{
   $('quickTodayEntries')?.addEventListener('click',openQuickTodayEntries);
   $('saveQuickToday')?.addEventListener('click',saveQuickTodayEntries);
+  const shiftDayEditor=delta=>{const current=parseDateKey($('editDate')?.value||todayKey());current.setDate(current.getDate()+delta);const target=dateKey(current);if(target<TRACKING_START_DATE){showToast('Vor Beginn der Zeiterfassung ist kein Wechsel möglich.');return}requestDayEditorDateChange(target)};
+  $('dayPrevDate')?.addEventListener('click',()=>shiftDayEditor(-1));
+  $('dayNextDate')?.addEventListener('click',()=>shiftDayEditor(1));
   $('quickFullDayStart')?.addEventListener('click',()=>openFullDayForDate(quickContextDate,'quickAddModal'));
   $('openHolidayRegionBtn')?.addEventListener('click',event=>{event.preventDefault();event.stopImmediatePropagation();openSettingsCard('holidays')},true);
   setTimeout(()=>{renderSettings();renderVacationOverview()},0);

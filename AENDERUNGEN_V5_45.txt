@@ -1,0 +1,7 @@
+Arbeitszeit-PWA V5.45 – Screenshotkorrekturen
+
+1. Jahresauswahl in Zeitkonto- und Urlaubsdiagramm appweit optisch vereinheitlicht: identische Breite, Höhe, Schriftgröße, Schriftstärke, Pfeildarstellung und Innenabstände.
+2. Urlaubsdiagramm: Y-Achse bleibt erhalten; Standardskala 0/5/10/15 Tage, automatische Erweiterung nur bei höheren Monatswerten.
+3. Monatsnamen im Urlaubsdiagramm bleiben an ihrer Position, werden aber nicht mehr vertikal abgeschnitten.
+4. Dialog „Vollständigen Tag bearbeiten“: Schaltflächen für vorherigen und nächsten Kalendertag ergänzt. Ungespeicherte Änderungen werden vor dem Wechsel weiterhin geschützt.
+5. Seite „Zeiten“: blauer Plus-Button unten rechts in Woche, Monat und Jahr sichtbar; öffnet die Eintragsaktionen für den aktuell angezeigten Datumsbezug.

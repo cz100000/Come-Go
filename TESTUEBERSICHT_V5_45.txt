@@ -1,0 +1,8 @@
+Arbeitszeit-PWA V5.45 – Kurztest
+
+- Syntaxprüfung app.js: ausführen.
+- Jahresauswahl Zeitkonto/Urlaub: gleiche Abmessungen und Typografie.
+- Urlaubsskala: bei Werten <=15 Achse 0/5/10/15; bei >15 dynamische Erweiterung.
+- Monatsnamen vollständig sichtbar.
+- Tageseditor: Pfeile wechseln vor/zurück; bei ungespeicherten Änderungen erscheint Bestätigung.
+- Zeiten-Seite: Plus-Button in Woche/Monat/Jahr sichtbar und öffnet Eintragsmenü.
