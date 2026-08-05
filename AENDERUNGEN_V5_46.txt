@@ -1,0 +1,6 @@
+Arbeitszeit PWA V5.46 – Tageseditor und Wochenauswahl
+
+1. Beim Öffnen der Seite „Zeiten“ ist die standardmäßige Wochenansicht nun auch im Segment-Schalter sichtbar aktiv hinterlegt.
+2. Das Datumsfeld im Dialog „Vollständigen Tag bearbeiten“ ist horizontal auf die gesamte Dialogbreite bezogen und vertikal sauber zentriert.
+3. Prüfstatus, Netto / Soll und Tagessaldo werden in drei exakt gleich breiten Statusboxen dargestellt.
+4. Der Tageseditor wurde durch reduzierte Abstände, kompaktere Zeilen und eine schlankere Fußleiste verdichtet. Bei einem üblichen Tag mit einem Arbeitsblock sind Kommentar und „Weitere Aktionen“ ohne Scrollen erreichbar; umfangreiche Tage bleiben kontrolliert scrollbar.

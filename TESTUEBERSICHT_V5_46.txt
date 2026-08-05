@@ -1,0 +1,7 @@
+Arbeitszeit PWA V5.46 – Kurztest
+
+- JavaScript-Syntax geprüft.
+- Version in App, Manifest und Service Worker auf 5.46 aktualisiert.
+- Zeiten-Seite setzt Wochenansicht und aktiven Segmentstatus synchron.
+- Tageseditor: Datum zentriert, drei Statusboxen gleich breit.
+- Kompaktregeln auf iPhone-Zielbreite geprüft; Scrollfunktion für umfangreiche Tage bleibt erhalten.

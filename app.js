@@ -4,7 +4,7 @@ const STORAGE_BACKUP_KEYS=[1,2,3].map(n=>`${STORAGE_KEY}-backup-${n}`);
 const STORAGE_CORRUPT_KEY=STORAGE_KEY+'-corrupt';
 const BACKUP_FORMAT='arbeitszeit-pwa-backup';
 const TRACKING_START_DATE='2022-11-01';
-const APP_VERSION='5.45';
+const APP_VERSION='5.46';
 const CURRENT_SCHEMA=14;
 const IMPORT_DATA_VERSION=5;
 const CALCULATION_VERSION=2;
@@ -302,7 +302,7 @@ document.querySelectorAll('.tabbar button').forEach(button=>button.classList.tog
 if(id==='today')renderToday();
 if(id==='times'){
 currentView='week';monthDrill=null;cursorDate=parseDateKey(todayKey());
-document.querySelectorAll('[data-view]').forEach(button=>button.classList.toggle('active',button.dataset.view==='day'));
+document.querySelectorAll('[data-view]').forEach(button=>button.classList.toggle('active',button.dataset.view==='week'));
 renderTimes();
 }
 if(id==='reports')renderReports();

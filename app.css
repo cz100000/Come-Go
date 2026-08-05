@@ -1215,3 +1215,85 @@ body.modal-open #today .today-quick-card.quick-action-row{visibility:hidden}
 /* Plus-Schaltfläche auf der gesamten Zeiten-Seite verfügbar. */
 #times .times-floating-quick{display:grid}
 #times .times-floating-quick[hidden]{display:none!important}
+
+
+/* V5.46 – korrekter Wochenstatus und kompakter Tageseditor */
+/* Die standardmäßig geladene Wochenansicht bleibt auch optisch ausgewählt. */
+#times .segmented button.active{
+  background:#fff!important;
+  color:var(--text)!important;
+  box-shadow:0 2px 8px rgba(22,34,52,.10)!important;
+}
+
+/* Datum bezogen auf die gesamte Dialogbreite zentrieren; rechts entsteht
+   derselbe Ausgleichsraum wie links durch das Label. */
+#dayModal .day-editor-date-row{
+  display:grid!important;
+  grid-template-columns:minmax(0,78px) minmax(0,1fr) minmax(0,78px)!important;
+  gap:8px!important;
+  align-items:center!important;
+  margin-bottom:8px!important;
+  overflow:visible!important;
+}
+#dayModal .day-editor-date-row>label{
+  grid-column:1;
+  align-self:center;
+}
+#dayModal .day-editor-date-row>.date-input-shell{
+  grid-column:2;
+  width:100%!important;
+  height:40px!important;
+  block-size:40px!important;
+  align-self:center;
+}
+#dayModal .day-editor-date-row input[type="date"]{
+  height:40px!important;
+  min-height:40px!important;
+  line-height:40px!important;
+  padding-top:0!important;
+  padding-bottom:0!important;
+  text-align:center!important;
+}
+#dayModal .day-editor-date-row input[type="date"]::-webkit-date-and-time-value{
+  min-height:40px!important;
+  line-height:40px!important;
+  text-align:center!important;
+}
+
+/* Ruhige, exakt gleich breite Statuskarten. */
+#dayModal .day-editor-status-grid{
+  grid-template-columns:repeat(3,minmax(0,1fr))!important;
+  gap:7px!important;
+  margin-bottom:9px!important;
+}
+#dayModal .day-editor-status-grid>div{
+  min-height:50px!important;
+  padding:7px!important;
+  align-content:center;
+}
+#dayModal .day-editor-status-grid span{font-size:9px!important}
+#dayModal .day-editor-status-grid b{
+  font-size:11px!important;
+  line-height:1.2!important;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+
+/* Normaler Arbeitstag vollständig sichtbar; nur umfangreiche Tage scrollen. */
+#dayModal .unified-card-head{min-height:60px!important;padding-top:7px!important;padding-bottom:7px!important}
+#dayModal .unified-card-body{padding:10px 14px 10px!important;scroll-padding-bottom:10px!important}
+#dayModal .unified-list-section{margin-bottom:10px!important}
+#dayModal .unified-list-section h3{margin-bottom:5px!important}
+#dayModal .unified-list-row{min-height:54px!important;padding:7px 11px!important}
+#dayModal .unified-empty-row{padding:11px!important}
+#dayModal .unified-row-main{gap:2px!important}
+#dayModal .unified-row-main b{font-size:13.5px!important}
+#dayModal .unified-row-main small{font-size:10.5px!important;line-height:1.25!important}
+#dayModal .unified-card-footer{padding:8px 14px calc(8px + env(safe-area-inset-bottom))!important}
+#dayModal .unified-card-footer button{min-height:44px!important;padding-top:8px!important;padding-bottom:8px!important}
+
+@media(max-width:350px){
+  #dayModal .day-editor-date-row{grid-template-columns:minmax(0,64px) minmax(0,1fr) minmax(0,64px)!important}
+  #dayModal .day-editor-status-grid b{font-size:10px!important}
+}
