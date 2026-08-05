@@ -1,0 +1,11 @@
+ARBEITSZEIT-PWA V5.50 – DATENINTEGRATIONSPRÜFUNG
+
+- Backup-JSON erfolgreich gelesen
+- Format: arbeitszeit-pwa-backup, Version 2
+- Schema-Version: 14
+- 1.148 Tage in imported-data.js integriert
+- 1.795 Datensätze laut Backup-Metadaten
+- Einstellungen vollständig übernommen
+- Original-Backup unverändert beigelegt
+- App-Version, Manifest und Cachekennung auf 5.50 aktualisiert
+- JavaScript-Syntax und ZIP-Struktur geprüft

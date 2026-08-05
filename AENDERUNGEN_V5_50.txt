@@ -1,0 +1,8 @@
+ARBEITSZEIT-PWA V5.50 – AKTUELLEN DATENSTAND INTEGRIERT
+
+1. Der vollständige Datenstand aus Arbeitszeit_Backup_2026-08-05_21-04-05.json wurde als werkseitiger Ausgangsdatenstand eingebaut.
+2. Enthalten sind 1.148 Kalendertage und 1.795 Datensätze laut Backup-Metadaten.
+3. Einstellungen, Urlaubsansprüche, Prüfbestätigungen, Buchungen, Pausen, Kommentare und Abwesenheiten wurden vollständig übernommen.
+4. Die Sicherungsdatei liegt zusätzlich unverändert im App-Paket.
+5. App-Version, Manifest und Service-Worker-Cache wurden auf 5.50 aktualisiert.
+6. Fachlogik, Datenmodell und Backup-Kompatibilität wurden nicht verändert.
