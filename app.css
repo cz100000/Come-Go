@@ -1344,7 +1344,7 @@ body.modal-open #today .today-actions-card{visibility:hidden}
 @media(max-height:760px){#today .today-floating-quick{width:52px!important;min-width:52px!important;height:52px!important;inline-size:52px!important;block-size:52px!important}}
 
 
-/* V5.52 – konsolidierte UI- und Feldregeln */
+/* V5.53 – konsolidierte UI- und Feldregeln */
 /* Unsichtbare Schalter dürfen trotz globaler Feldbreiten keinen Layoutplatz erzeugen. */
 #timesHeaderWeekend #headerWeekendToggle{position:absolute!important;width:1px!important;height:1px!important;min-width:0!important;max-width:1px!important;margin:0!important;padding:0!important;opacity:0!important;overflow:hidden!important;clip-path:inset(50%);}
 input,select,textarea{width:100%;max-width:100%;min-width:0;box-sizing:border-box}
@@ -1456,11 +1456,12 @@ body.modal-open #today .today-quick-actions{visibility:hidden}
 #dayModal .day-date-picker{position:relative;height:44px;min-width:0;border:1px solid var(--line);border-radius:13px;background:#fff;display:flex;align-items:center;justify-content:center;overflow:hidden;padding:0 8px}
 #dayModal .day-date-picker span{display:block;max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-align:center;font-size:14px;font-weight:760}
 #dayModal .day-date-picker input{position:absolute;inset:0;width:100%!important;height:100%;opacity:0;cursor:pointer;padding:0!important}
-#dayModal .day-status-line{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr) auto;align-items:center;gap:8px;min-height:44px;border:1px solid var(--line);border-radius:13px;background:#f8f9fb;padding:7px 9px;font-size:11px;min-width:0}
-#dayModal .day-status-line>span:first-child{font-weight:760;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-#dayModal .day-status-line>span:nth-child(2){display:grid;gap:1px;text-align:center;min-width:0}
-#dayModal .day-status-line small{font-size:9px;color:var(--muted)}
-#dayModal .day-status-line b,#dayModal .day-status-line strong{font-size:12px;font-variant-numeric:tabular-nums;white-space:nowrap}
+#dayModal .day-status-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;min-width:0}
+#dayModal .day-status-card{min-width:0;min-height:54px;border:1px solid var(--line);border-radius:13px;background:#f8f9fb;padding:7px 6px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;text-align:center}
+#dayModal .day-status-card small{font-size:8.5px;line-height:1.1;color:var(--muted)}
+#dayModal .day-status-card b{max-width:100%;font-size:11.5px;line-height:1.18;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+#dayModal .day-status-state b{font-weight:760}
+#dayModal .day-status-difference b{font-size:12.5px;white-space:nowrap}
 #dayModal .day-future-hint,#dayModal .day-conflict-banner{border:1px solid #dbe4ef;border-radius:12px;background:#f5f8fc;padding:9px 10px;display:grid;gap:2px;font-size:11px;color:var(--muted)}
 #dayModal .day-future-hint b{color:var(--text)}
 #dayModal .day-conflict-banner{border-color:#efd293;background:#fff8e8;color:#805b18}
@@ -1482,16 +1483,19 @@ body.modal-open #today .today-quick-actions{visibility:hidden}
 #dayModal .day-booking-empty{padding:14px;text-align:center;color:var(--muted);font-size:12px}
 #dayModal .booking-row-error{padding:0 9px 7px;color:var(--danger);font-size:10px}
 #dayModal .day-booking-row-wrap.has-error{background:#fff5f5}
-#dayModal .day-inline-editor{border-top:1px solid var(--line);background:#f8fafc;padding:9px}
-#dayModal .day-inline-grid{display:grid;grid-template-columns:minmax(88px,.9fr) repeat(2,minmax(0,1fr));gap:7px}
-#dayModal .day-inline-grid .field{margin:0}
+#dayModal .day-inline-editor{border-top:1px solid var(--line);background:#f8fafc;padding:10px 9px 9px;min-width:0}
+#dayModal .day-inline-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;min-width:0}
+#dayModal .day-inline-grid .field{margin:0;min-width:0}
+#dayModal .day-inline-grid .day-inline-type-field{grid-column:1/-1}
 #dayModal .day-inline-grid label{font-size:9px}
-#dayModal .day-inline-grid input,#dayModal .day-inline-grid select{height:39px;padding:0 6px;font-size:13px}
-#dayModal .day-inline-error{margin-top:7px;color:var(--danger);font-size:10px}
-#dayModal .day-inline-actions{display:grid;grid-template-columns:auto minmax(0,1fr) auto auto;align-items:center;gap:7px;margin-top:8px}
-#dayModal .day-inline-actions button,#dayModal .panel-actions button{min-height:36px;border:1px solid var(--line);border-radius:10px;background:#fff;padding:6px 10px;font-size:11px;font-weight:700}
+#dayModal .day-inline-grid input,#dayModal .day-inline-grid select{display:block;width:100%!important;max-width:100%!important;min-width:0!important;height:40px;box-sizing:border-box!important;padding:0 6px!important;font-size:12.5px}
+#dayModal .day-inline-grid input[type=time]{text-align:center;font-variant-numeric:tabular-nums}
+#dayModal .day-inline-error{margin-top:7px;border-radius:9px;background:#fff0f0;color:var(--danger);padding:7px 8px;font-size:10px}
+#dayModal .day-inline-actions{display:grid;gap:7px;margin-top:9px;min-width:0}
+#dayModal .day-inline-action-buttons{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;min-width:0}
+#dayModal .day-inline-actions button,#dayModal .panel-actions button{width:100%;min-width:0;min-height:40px;border:1px solid var(--line);border-radius:11px;background:#fff;padding:7px 10px;font-size:12px;font-weight:700}
 #dayModal .day-inline-actions .primary,#dayModal .panel-actions .primary{border-color:var(--blue);background:var(--blue);color:#fff}
-#dayModal .day-inline-actions .danger-link{border-color:transparent;background:transparent;color:var(--danger);padding-left:0}
+#dayModal .day-inline-actions .danger-link{width:auto;justify-self:start;min-height:30px;border-color:transparent;background:transparent;color:var(--danger);padding:2px 0;font-size:11px}
 #dayModal .day-detail-tabs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;min-width:0}
 #dayModal .day-detail-tabs button{min-width:0;min-height:48px;border:1px solid var(--line);border-radius:12px;background:#fff;padding:6px;display:grid;gap:2px;text-align:left}
 #dayModal .day-detail-tabs button.active{border-color:#9cc5ff;background:#f1f7ff}
@@ -1509,7 +1513,7 @@ body.modal-open #today .today-quick-actions{visibility:hidden}
 #dayModal .pause-presets button.active{border-color:var(--blue);background:var(--blue-soft);color:var(--blue)}
 #dayModal .panel-actions{display:flex;justify-content:flex-end;gap:7px}
 #dayModal .absence-inline-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
-@media(max-width:360px){#dayModal .day-editor-sheet{width:calc(100vw - 16px)!important;max-width:calc(100vw - 16px)!important}#dayModal .unified-card-body{padding-inline:9px!important}#dayModal .day-status-line{grid-template-columns:minmax(0,1fr) auto;gap:5px}#dayModal .day-status-line>span:nth-child(2){display:none}#dayModal .day-booking-row{grid-template-columns:minmax(0,1fr) 66px 76px;gap:5px;padding-inline:7px}#dayModal .day-inline-grid{grid-template-columns:1fr 1fr}#dayModal .day-inline-grid .field:first-child{grid-column:1/-1}#dayModal .day-detail-tabs{gap:4px}#dayModal .day-detail-tabs button{padding:5px}#dayModal .day-detail-tabs b{font-size:10px}}
+@media(max-width:360px){#dayModal .day-editor-sheet{width:calc(100vw - 16px)!important;max-width:calc(100vw - 16px)!important}#dayModal .unified-card-body{padding-inline:9px!important}#dayModal .day-status-grid{gap:5px}#dayModal .day-status-card{min-height:52px;padding-inline:4px}#dayModal .day-status-card small{font-size:8px}#dayModal .day-status-card b{font-size:10.5px}#dayModal .day-status-difference b{font-size:11.5px}#dayModal .day-booking-row{grid-template-columns:minmax(0,1fr) repeat(2,71px);gap:5px;padding-inline:7px}#dayModal .day-detail-tabs{gap:4px}#dayModal .day-detail-tabs button{padding:5px}#dayModal .day-detail-tabs b{font-size:10px}}
 
 /* Tagesbericht: eigenes A4-Hochformat */
 .print-report.report-day{width:100%;max-width:184mm;margin:0 auto;font-size:10.5pt;line-height:1.35}
@@ -1542,15 +1546,4 @@ body.modal-open #today .today-quick-actions{visibility:hidden}
   grid-column:auto!important;
   grid-row:auto!important;
   justify-self:end!important;
-}
-@media(max-width:360px){
-  #dayModal .day-status-line{
-    grid-template-columns:minmax(0,1fr) minmax(76px,.85fr) auto!important;
-    gap:3px!important;
-    padding:6px!important;
-    font-size:10px!important;
-  }
-  #dayModal .day-status-line>span:nth-child(2){display:grid!important}
-  #dayModal .day-status-line small{font-size:8px!important}
-  #dayModal .day-status-line b,#dayModal .day-status-line strong{font-size:10px!important}
 }

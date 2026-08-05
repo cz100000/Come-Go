@@ -1,0 +1,46 @@
+Arbeitszeit-PWA Offline – V5.53
+Technische Basis: Arbeitszeit_PWA_Offline_V5_52_HighEnd_iPhone16_UI_Korrekturen
+Erstellt am: 06.08.2026
+
+UMGESETZTE ÄNDERUNGEN
+
+1. Tag bearbeiten – Tagesstatus
+- Der bisherige durchgehende graue Statusbalken wurde in drei klar getrennte Kennzahlenfelder aufgeteilt.
+- Die Felder heißen „Status“, „Netto / Soll“ und „Differenz“.
+- Status- und Saldenlogik wurden nicht verändert.
+- Negative und positive Differenzen behalten ihre vorhandene Farblogik.
+
+2. Buchung hinzufügen oder bearbeiten
+- „Art“ steht nun in einer eigenen vollständigen Zeile.
+- „Tatsächlich“ und „Dokumentiert“ stehen darunter in zwei exakt gleich breiten Spalten.
+- Beide nativen Zeitfelder besitzen width/max-width 100 %, min-width 0 und korrektes box-sizing.
+- Überlappungen und Überstände am rechten Kartenrand wurden beseitigt.
+- Die vorhandene 5-Minuten-Rundung sowie die Buchungsprüfung wurden nicht verändert.
+
+3. Aktionsschaltflächen
+- „Abbrechen“ und „Speichern“ sind als gleich breite, sauber ausgerichtete Zweiergruppe gestaltet.
+- Die Schaltflächen nutzen die vollständige verfügbare Innenbreite des Editors.
+- Beim Bearbeiten einer vorhandenen Buchung wird „Buchung löschen“ getrennt oberhalb der beiden Hauptaktionen angezeigt.
+
+DURCHGEFÜHRTE PRÜFUNGEN
+
+- JavaScript-Syntaxprüfung bestanden.
+- Darstellung bei 393 × 852 CSS-Pixeln geprüft.
+- Darstellung bei 350 × 760 CSS-Pixeln geprüft.
+- Drei getrennte Statusfelder vorhanden und vollständig innerhalb der Karte.
+- Zeitfelder überlappen nicht.
+- Zeitfelder sind exakt gleich breit.
+- Zeitfelder und Aktionsschaltflächen bleiben vollständig innerhalb des Editors.
+- „Abbrechen“ und „Speichern“ sind gleich breit.
+- Keine horizontale Dokumentüberbreite bei beiden Zielgrößen.
+- Buchung „Gehen“ mit tatsächlicher Uhrzeit 18:03 ergibt weiterhin dokumentiert 18:00.
+- Nach Ergänzung der fehlenden Gehen-Buchung wird der Tagesstatus korrekt neu berechnet.
+- Bearbeitung einer vorhandenen Buchung einschließlich Löschaktion geprüft.
+- Keine JavaScript-Seitenfehler im automatisierten Chromium-Test.
+- Tagesobjekte und Buchungsdatensätze unverändert.
+
+NICHT ZUVERLÄSSIG AUTOMATISIERBAR
+
+- Exakte Darstellung nativer Zeitfelder im realen Safari auf einem physischen iPhone.
+- Haptik, Tastaturöffnung und native iOS-Zeitwahldialoge.
+- Aktualisierung einer bereits installierten PWA auf dem Gerät.
