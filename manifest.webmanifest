@@ -1,6 +1,6 @@
 {
-  "name": "Arbeitszeit – High-End Offline Zeiterfassung V5.46",
-  "short_name": "Arbeitszeit 5.46",
+  "name": "Arbeitszeit – High-End Offline Zeiterfassung V5.47",
+  "short_name": "Arbeitszeit 5.47",
   "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#f7f8fb",
@@ -27,6 +27,6 @@
       "purpose": "any maskable"
     }
   ],
-  "description": "Offline-Arbeitszeiterfassung mit schlanker Bedienlogik, Urlaubskonto und Berichten.",
-  "version": "5.46"
+  "description": "Offline-Arbeitszeiterfassung mit ruhiger Heute-Seite, offenen Arbeitstagen unter Zeiten, Urlaubskonto und Berichten.",
+  "version": "5.47"
 }

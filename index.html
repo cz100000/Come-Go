@@ -18,58 +18,75 @@
 <main class="app">
 <section aria-label="Heute" class="screen active" id="today">
 <header class="today-head">
-<div class="today-title-group">
-<h1>Arbeitszeit</h1>
+<h1 class="visually-hidden">Arbeitszeit heute</h1>
 <div aria-live="polite" class="today-date-btn" id="todayDateShort"></div>
-</div>
 </header>
-<section aria-live="polite" class="today-absence-banner" hidden="" id="todayAbsenceBanner">
+<section aria-live="polite" class="today-absence-banner" hidden id="todayAbsenceBanner">
 <div><b id="todayAbsenceTitle"></b><span id="todayAbsenceText"></span></div>
 <button id="todayAbsenceEdit" type="button">Bearbeiten</button>
 </section>
+<section aria-label="Heutige Zeiterfassung" class="today-primary-area">
 <div aria-label="Arbeitszeit buchen" class="punch-grid single">
 <button class="punch-btn punch-in" data-punch="in" id="punchAction" type="button">
-<span aria-hidden="true" class="punch-icon-box"><svg class="icon" viewbox="0 0 32 32"><path class="door" d="M11 5.5h12v21H11"></path><path d="M4.5 16h16M15.5 10.5 21 16l-5.5 5.5"></path></svg></span>
+<span aria-hidden="true" class="punch-icon-box"><svg class="icon" viewBox="0 0 32 32"><path class="door" d="M11 5.5h12v21H11"></path><path d="M4.5 16h16M15.5 10.5 21 16l-5.5 5.5"></path></svg></span>
 <span class="label" id="punchActionLabel">Kommen</span>
 <span class="clock" id="punchActionClock">--:--</span>
 <span class="punch-status" id="punchActionStatus">Jetzt möglich</span>
 </button>
 </div>
-<section aria-live="polite" class="work-countdown" hidden="" id="workCountdown">
+<button class="today-manual-pause home-pressable" id="pauseToday" type="button">
+<span aria-hidden="true" class="today-action-icon pause"><svg class="icon" viewBox="0 0 24 24"><path d="M5 7h11v7a5 5 0 0 1-5 5H10a5 5 0 0 1-5-5Z"></path><path d="M16 9h2a3 3 0 0 1 0 6h-2M4 21h14"></path></svg></span>
+<span class="today-action-copy"><b id="pauseButtonLabel">Manuelle Pause</b><small id="pauseButtonSub">Direkt für den heutigen Tag</small></span>
+<span aria-hidden="true" class="today-action-chev">›</span>
+</button>
+<section aria-live="polite" class="work-countdown today-countdown-compact" hidden id="workCountdown">
 <div class="countdown-main">
-<span aria-hidden="true" class="countdown-icon"><svg class="icon" viewbox="0 0 24 24"><circle cx="12" cy="12" r="8"></circle><path d="M12 7v5l3 2"></path></svg></span>
+<span aria-hidden="true" class="countdown-icon"><svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"></circle><path d="M12 7v5l3 2"></path></svg></span>
 <div class="countdown-copy"><strong id="countdownHeadline">Countdown startet nach dem Kommen</strong><span id="countdownEnd">Tagesziel wird nach der ersten Buchung berechnet.</span></div>
 <span aria-hidden="true" class="countdown-ring" id="countdownRing"></span>
 </div>
-<div class="countdown-pause"><svg class="icon" viewbox="0 0 24 24"><path d="M5 7h11v7a5 5 0 0 1-5 5H10a5 5 0 0 1-5-5Z"></path><path d="M16 9h2a3 3 0 0 1 0 6h-2M4 21h14"></path></svg><span id="countdownPause">Mindestpause wird berücksichtigt.</span></div>
+<div class="countdown-pause"><svg class="icon" viewBox="0 0 24 24"><path d="M5 7h11v7a5 5 0 0 1-5 5H10a5 5 0 0 1-5-5Z"></path><path d="M16 9h2a3 3 0 0 1 0 6h-2M4 21h14"></path></svg><span id="countdownPause">Mindestpause wird berücksichtigt.</span></div>
 </section>
-<button aria-live="polite" class="past-workday-notice" hidden="" id="pastWorkdayNotice" type="button">
-<span aria-hidden="true" class="past-workday-icon">!</span>
-<span><b id="pastWorkdayNoticeTitle">Offene Arbeitstage</b><small id="pastWorkdayNoticeText"></small></span>
-<span aria-hidden="true" class="past-workday-chev">›</span>
-</button>
+</section>
 <section aria-labelledby="capturedTitle" class="today-capture">
 <div class="capture-head">
 <h2 id="capturedTitle">Heute erfasst</h2>
-<span id="todayBookingCount">0 Buchungen</span>
+<span id="todayBookingCount">0 Einträge</span>
 </div>
 <div class="capture-list" id="todayCaptureList"></div>
-<button aria-label="Kommentar für heute anzeigen und bearbeiten" class="today-comment-row" hidden="" id="todayCommentRow" type="button">
-<span aria-hidden="true" class="today-comment-icon"><svg class="icon" viewbox="0 0 24 24"><path d="M21 12a8 8 0 0 1-8 8H7l-4 2 1.4-4.2A8 8 0 1 1 21 12Z"></path></svg></span>
+<button aria-label="Kommentar für heute anzeigen und bearbeiten" class="today-comment-row" hidden id="todayCommentRow" type="button">
+<span aria-hidden="true" class="today-comment-icon"><svg class="icon" viewBox="0 0 24 24"><path d="M21 12a8 8 0 0 1-8 8H7l-4 2 1.4-4.2A8 8 0 1 1 21 12Z"></path></svg></span>
 <span class="today-comment-copy"><b>Kommentar</b><small id="todayCommentPreview"></small></span>
 <span aria-hidden="true" class="today-comment-chev">›</span>
 </button>
 </section>
-<section aria-labelledby="todayQuickTitle" class="today-quick-card card quick-action-row">
-<button class="today-quick-row home-pressable" id="quickTodayEntries" type="button">
-<span class="today-quick-icon" aria-hidden="true"><svg class="icon" viewbox="0 0 24 24"><path d="M5 7h11v7a5 5 0 0 1-5 5H10a5 5 0 0 1-5-5Z"></path><path d="M16 9h2a3 3 0 0 1 0 6h-2M4 21h14"></path></svg></span>
-<span class="today-quick-copy"><b id="todayQuickTitle">Schnelleinträge</b><small id="todayQuickSummary">Pause oder Kommentar für heute</small></span><span class="today-quick-chev" aria-hidden="true">›</span>
+<section aria-labelledby="todayActionsTitle" class="today-actions-card">
+<h2 class="visually-hidden" id="todayActionsTitle">Heutige Aktionen</h2>
+<button class="today-action-row home-pressable" id="quickCommentToday" type="button">
+<span aria-hidden="true" class="today-action-icon comment"><svg class="icon" viewBox="0 0 24 24"><path d="M21 12a8 8 0 0 1-8 8H7l-4 2 1.4-4.2A8 8 0 1 1 21 12Z"></path></svg></span>
+<span class="today-action-copy"><b id="quickTodayCommentLabel">Kommentar für heute</b><small id="quickTodayCommentSub">Direkt für den heutigen Tag</small></span>
+<span aria-hidden="true" class="today-action-chev">›</span>
+</button>
+<button class="today-action-row home-pressable" id="todayActionAbsence" type="button">
+<span aria-hidden="true" class="today-action-icon absence"><svg class="icon" viewBox="0 0 24 24"><path d="M7 3v3M17 3v3M4 9h16"></path><rect x="4" y="5" width="16" height="16" rx="3"></rect><path d="M8 13h3M8 17h6"></path></svg></span>
+<span class="today-action-copy"><b>Abwesenheit eintragen oder bearbeiten</b></span>
+<span aria-hidden="true" class="today-action-chev">›</span>
+</button>
+<button class="today-action-row home-pressable" id="todayActionFullDay" type="button">
+<span aria-hidden="true" class="today-action-icon edit"><svg class="icon" viewBox="0 0 24 24"><path d="M4 20h4l11-11-4-4L4 16v4Z"></path><path d="m13.5 6.5 4 4"></path></svg></span>
+<span class="today-action-copy"><b>Vollständigen Tag bearbeiten</b></span>
+<span aria-hidden="true" class="today-action-chev">›</span>
 </button>
 </section>
 <button aria-label="Eintrag für heute öffnen" class="quick-add-btn floating-quick-add today-floating-quick home-pressable" id="quickAddBtn" type="button"><span aria-hidden="true" class="plus-glyph"></span></button>
 </section>
 <section aria-label="Zeiten" class="screen" id="times">
 <header class="page-header times-page-header"><div><h1>Zeiten</h1><div class="sub">Woche, Monat und Jahr</div></div><label class="weekend-switch times-header-weekend" id="timesHeaderWeekend"><span>Wochenende</span><input aria-label="Wochenende anzeigen" id="headerWeekendToggle" type="checkbox"/><i aria-hidden="true"></i></label></header>
+<button aria-live="polite" class="times-open-workdays" hidden id="timesOpenWorkdays" type="button">
+<span aria-hidden="true" class="times-open-icon">!</span>
+<span class="times-open-copy"><b id="timesOpenWorkdaysTitle">Offene Arbeitstage</b><small>Antippen, um die Tage zu prüfen</small></span>
+<span aria-hidden="true" class="times-open-chev">›</span>
+</button>
 <div class="segmented" role="tablist">
 <button data-view="day" type="button" hidden aria-hidden="true" tabindex="-1">Tag</button>
 <button class="active" data-view="week" type="button">Woche</button>
@@ -180,7 +197,7 @@
 </main>
 <nav aria-label="Hauptnavigation" class="tabbar">
 <button class="active" data-screen="today" type="button"><svg class="icon" viewbox="0 0 24 24"><path d="m3 11 9-8 9 8v10h-6v-6H9v6H3z"></path></svg><span>Heute</span></button>
-<button data-screen="times" type="button"><svg class="icon" viewbox="0 0 24 24"><circle cx="10" cy="10" r="7"></circle><path d="M10 6v4l3 2M15.5 15.5 20 20"></path></svg><span>Zeiten</span></button>
+<button data-screen="times" type="button"><span class="tab-icon-wrap"><svg class="icon" viewbox="0 0 24 24"><circle cx="10" cy="10" r="7"></circle><path d="M10 6v4l3 2M15.5 15.5 20 20"></path></svg><span aria-label="Offene Arbeitstage" class="times-nav-badge" hidden id="timesOpenBadge"></span></span><span>Zeiten</span></button>
 <button data-screen="reports" type="button"><svg class="icon" viewbox="0 0 24 24"><path d="M4 20V10h4v10M10 20V4h4v16M16 20v-7h4v7"></path></svg><span>Auswertung</span></button>
 <button data-screen="settings" type="button"><svg class="icon" viewbox="0 0 24 24"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1-2.8 2.8-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.6v.2h-4V21a1.7 1.7 0 0 0-1-1.6 1.7 1.7 0 0 0-1.9.3l-.1.1L4.2 17l.1-.1a1.7 1.7 0 0 0 .3-1.9A1.7 1.7 0 0 0 3 14H2.8v-4H3a1.7 1.7 0 0 0 1.6-1 1.7 1.7 0 0 0-.3-1.9L4.2 7 7 4.2l.1.1A1.7 1.7 0 0 0 9 4.6a1.7 1.7 0 0 0 1-1.6v-.2h4V3a1.7 1.7 0 0 0 1 1.6 1.7 1.7 0 0 0 1.9-.3l.1-.1L19.8 7l-.1.1a1.7 1.7 0 0 0-.3 1.9 1.7 1.7 0 0 0 1.6 1h.2v4H21a1.7 1.7 0 0 0-1.6 1Z"></path></svg><span>Einstellungen</span></button>
 </nav>
@@ -219,8 +236,6 @@
 </div>
 </div>
 <div aria-hidden="true" hidden="" id="legacyBindingFields">
-<button id="pauseToday" type="button"></button><span id="pauseButtonLabel"></span><span id="pauseButtonSub"></span>
-<button id="quickCommentToday" type="button"></button><span id="quickTodayCommentLabel"></span><span id="quickTodayCommentSub"></span>
 <button id="quickTimeStart" type="button"></button><div id="quickAddContext"></div>
 <button id="vacationAccountSelector" type="button"><span id="vacationAccountRemaining"></span></button>
 
@@ -250,17 +265,6 @@
 
 
 <div class="modal-actions unified-card-footer canonical-card-footer"><button class="cancel" data-close="pauseModal" type="button">Abbrechen</button><button class="save" id="savePauseBtn" type="button">Speichern</button></div></div>
-</div>
-<div aria-labelledby="quickTodayModalTitle" aria-modal="true" class="modal" id="quickTodayModal" role="dialog">
-<div class="sheet canonical-card-shell quick-today-sheet">
-<div class="unified-card-head canonical-card-head"><span aria-hidden="true" class="unified-card-head-spacer"></span><div class="unified-card-title-wrap"><h2 id="quickTodayModalTitle">Schnelleinträge für heute</h2></div><button aria-label="Schnelleinträge schließen" class="close-btn" data-close="quickTodayModal" type="button">×</button></div>
-<div class="unified-card-body canonical-card-body quick-today-body">
-<div class="field"><label for="quickTodayPause">Pause eintragen</label><div class="number-unit-field"><input id="quickTodayPause" inputmode="numeric" min="0" step="1" type="number"/><span>Minuten</span></div></div>
-<div class="field"><label for="quickTodayNote">Kommentar für heute</label><textarea id="quickTodayNote" maxlength="500" placeholder="Kommentar hinzufügen" rows="4"></textarea></div>
-<div aria-live="polite" class="quick-conflict" hidden id="quickTodayError"></div>
-</div>
-<div class="modal-actions unified-card-footer canonical-card-footer"><button class="cancel" data-close="quickTodayModal" type="button">Abbrechen</button><button class="save" id="saveQuickToday" type="button">Speichern</button></div>
-</div>
 </div>
 <div aria-labelledby="quickAddTitle" aria-modal="true" class="modal" id="quickAddModal" role="dialog">
 <div class="sheet unified-card-shell quick-entry-card">

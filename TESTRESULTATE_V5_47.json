@@ -1,0 +1,254 @@
+{
+  "layout_393x852": {
+    "viewport": {
+      "w": 393,
+      "h": 852,
+      "docW": 393,
+      "docH": 852
+    },
+    "date": "Mittwoch, 05. August 2026",
+    "punch": {
+      "x": 17.3,
+      "y": 61.5,
+      "w": 358.4,
+      "h": 165,
+      "bottom": 226.5,
+      "right": 375.7
+    },
+    "pause": {
+      "x": 17.3,
+      "y": 234.5,
+      "w": 358.4,
+      "h": 46,
+      "bottom": 280.5,
+      "right": 375.7
+    },
+    "capture": {
+      "x": 17.3,
+      "y": 370.5,
+      "w": 358.4,
+      "h": 92,
+      "bottom": 462.5,
+      "right": 375.7
+    },
+    "actions": {
+      "x": 17.3,
+      "y": 474.5,
+      "w": 358.4,
+      "h": 128,
+      "bottom": 602.5,
+      "right": 375.7
+    },
+    "plus": {
+      "x": 320,
+      "y": 708,
+      "w": 56,
+      "h": 56,
+      "bottom": 764,
+      "right": 376
+    },
+    "nav": {
+      "x": 9,
+      "y": 774,
+      "w": 375,
+      "h": 70,
+      "bottom": 844,
+      "right": 384
+    },
+    "overflow": [],
+    "bodyScroll": "hidden",
+    "actionLabels": [
+      "Kommentar für heute",
+      "Abwesenheit eintragen oder bearbeiten",
+      "Vollständigen Tag bearbeiten"
+    ],
+    "pastNotice": false,
+    "badge": {
+      "hidden": false,
+      "text": "1"
+    },
+    "checks": {
+      "no_horizontal_overflow": true,
+      "punch_full_width": true,
+      "pause_below_punch": true,
+      "actions_above_navigation": true,
+      "three_actions": true,
+      "old_notice_removed": true
+    },
+    "browser_errors": 0
+  },
+  "layout_350x760": {
+    "viewport": {
+      "w": 350,
+      "h": 760,
+      "docW": 350,
+      "docH": 760
+    },
+    "date": "Mittwoch, 05. August 2026",
+    "punch": {
+      "x": 15.4,
+      "y": 47,
+      "w": 319.2,
+      "h": 152,
+      "bottom": 199,
+      "right": 334.6
+    },
+    "pause": {
+      "x": 15.4,
+      "y": 207,
+      "w": 319.2,
+      "h": 40,
+      "bottom": 247,
+      "right": 334.6
+    },
+    "capture": {
+      "x": 15.4,
+      "y": 316,
+      "w": 319.2,
+      "h": 84,
+      "bottom": 400,
+      "right": 334.6
+    },
+    "actions": {
+      "x": 15.4,
+      "y": 407,
+      "w": 319.2,
+      "h": 116,
+      "bottom": 523,
+      "right": 334.6
+    },
+    "plus": {
+      "x": 281,
+      "y": 623,
+      "w": 52,
+      "h": 52,
+      "bottom": 675,
+      "right": 333
+    },
+    "nav": {
+      "x": 9,
+      "y": 682,
+      "w": 332,
+      "h": 70,
+      "bottom": 752,
+      "right": 341
+    },
+    "overflow": [],
+    "bodyScroll": "hidden",
+    "actionLabels": [
+      "Kommentar für heute",
+      "Abwesenheit eintragen oder bearbeiten",
+      "Vollständigen Tag bearbeiten"
+    ],
+    "pastNotice": false,
+    "badge": {
+      "hidden": false,
+      "text": "1"
+    },
+    "checks": {
+      "no_horizontal_overflow": true,
+      "punch_full_width": true,
+      "pause_below_punch": true,
+      "actions_above_navigation": true,
+      "three_actions": true,
+      "old_notice_removed": true
+    },
+    "browser_errors": 0
+  },
+  "functional": {
+    "version": "5.47",
+    "rounding": {
+      "in": "08:05",
+      "out": "17:00",
+      "exactIn": "08:05",
+      "exactOut": "17:05"
+    },
+    "issue_exclusions": {
+      "today": true,
+      "holidayTarget": 0,
+      "holiday": true,
+      "fullAbsenceDate": "2022-11-21",
+      "fullAbsence": true
+    },
+    "initial_issue_ui": {
+      "badge": "1",
+      "badgeHidden": false
+    },
+    "pause_action": {
+      "open": [
+        "pauseModal"
+      ],
+      "title": "Pause bearbeiten"
+    },
+    "comment_action": {
+      "open": [
+        "commentModal"
+      ],
+      "title": "Kommentar bearbeiten"
+    },
+    "absence_action": {
+      "open": [
+        "absenceModal"
+      ]
+    },
+    "plus_action": {
+      "open": [
+        "quickAddModal"
+      ],
+      "actions": [
+        "Vollständigen Tag bearbeiten",
+        "Abwesenheit eintragen oder bearbeiten"
+      ]
+    },
+    "full_day_action": {
+      "screen": "today",
+      "open": [
+        "dayModal"
+      ],
+      "date": "2026-08-05"
+    },
+    "times_ui": {
+      "screen": "times",
+      "rowHidden": false,
+      "rowTitle": "1 offener Arbeitstag",
+      "badge": "1"
+    },
+    "issue_dialog": {
+      "open": [
+        "workdayIssuesModal"
+      ],
+      "primary": "Tag öffnen",
+      "confirm": "Als geprüft bestätigen",
+      "date": "2023-03-24"
+    },
+    "issue_open_day": {
+      "screen": "times",
+      "open": [
+        "dayModal"
+      ],
+      "date": "2023-03-24"
+    },
+    "issue_confirmed": {
+      "badgeHidden": true,
+      "badgeText": "0",
+      "rowHidden": true,
+      "remaining": 0,
+      "open": []
+    },
+    "punch_before": {
+      "label": "Kommen",
+      "count": "0 Einträge"
+    },
+    "punch_press": {
+      "pressedDuring": true,
+      "pressedAfter": false,
+      "labelAfter": "Gehen",
+      "countAfter": "1 Eintrag",
+      "timeline": [
+        "Kommen"
+      ]
+    },
+    "browser_errors": 0,
+    "browser_error_details": []
+  }
+}

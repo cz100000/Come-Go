@@ -1297,3 +1297,136 @@ body.modal-open #today .today-quick-card.quick-action-row{visibility:hidden}
   #dayModal .day-editor-date-row{grid-template-columns:minmax(0,64px) minmax(0,1fr) minmax(0,64px)!important}
   #dayModal .day-editor-status-grid b{font-size:10px!important}
 }
+
+
+/* V5.47 – ruhige, priorisierte Heute-Seite und offene Arbeitstage unter Zeiten */
+.visually-hidden{position:absolute!important;width:1px!important;height:1px!important;padding:0!important;margin:-1px!important;overflow:hidden!important;clip:rect(0,0,0,0)!important;white-space:nowrap!important;border:0!important}
+#today.active{
+  grid-template-areas:"head" "absence" "primary" "capture" "actions";
+  grid-template-rows:auto auto auto minmax(118px,1fr) auto;
+  gap:12px;
+  overflow:hidden;
+}
+#today .today-head{grid-area:head;min-height:34px;padding:2px 2px 0;justify-content:flex-start}
+#today .today-date-btn{padding:4px 0;font-size:clamp(16px,4.4vw,19px);font-weight:700;letter-spacing:-.015em;white-space:normal}
+#today .today-absence-banner{grid-area:absence;margin:0;min-height:44px;padding:8px 10px;border-radius:14px}
+#today .today-primary-area{grid-area:primary;display:grid;gap:8px;min-width:0}
+#today .punch-grid{margin:0;min-width:0}
+#today .punch-btn{min-height:clamp(108px,14.3dvh,126px);border-radius:22px;padding:10px;gap:2px}
+#today .punch-btn .punch-icon-box .icon{width:31px;height:31px}
+#today .punch-btn .label{font-size:clamp(22px,6vw,27px)}
+#today .punch-btn .clock{font-size:clamp(18px,5vw,23px)}
+#today .punch-btn .punch-status{font-size:11px}
+#today .today-manual-pause,
+#today .today-action-row{width:100%;min-width:0;border:0;background:#fff;color:var(--text);display:grid;grid-template-columns:32px minmax(0,1fr) 18px;align-items:center;gap:9px;text-align:left}
+#today .today-manual-pause{min-height:46px;border:1px solid #d8e5f7;border-radius:15px;padding:6px 10px;box-shadow:0 3px 12px rgba(22,34,52,.035)}
+#today .today-action-icon{width:30px;height:30px;border-radius:10px;display:grid;place-items:center;background:var(--blue-soft);color:var(--blue)}
+#today .today-action-icon .icon{width:17px;height:17px}
+#today .today-action-icon.pause{background:#edf5ff}
+#today .today-action-icon.absence{background:#eef7f2;color:var(--green-dark)}
+#today .today-action-icon.edit{background:#f2f0ff;color:#6957c7}
+#today .today-action-copy{min-width:0;display:grid;gap:1px}
+#today .today-action-copy b{font-size:13px;line-height:1.25;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#today .today-action-copy small{font-size:10px;line-height:1.25;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#today .today-action-chev{font-size:21px;line-height:1;color:#9aa2ae;text-align:right}
+#today .today-countdown-compact{margin:0;padding:8px 10px;border-radius:14px;box-shadow:none}
+#today .today-countdown-compact .countdown-main{min-height:31px}
+#today .today-countdown-compact .countdown-copy strong{font-size:12px}
+#today .today-countdown-compact .countdown-copy span{font-size:10px}
+#today .today-countdown-compact .countdown-pause{display:none}
+#today .today-countdown-compact .countdown-ring{width:30px;height:30px}
+#today .today-capture{grid-area:capture;min-height:0;padding:0;overflow:hidden}
+#today .capture-head{margin:0 2px 5px;min-height:24px}
+#today .capture-head h2{margin:0;font-size:15px;font-weight:780;letter-spacing:-.01em}
+#today #todayBookingCount{font-size:10.5px;color:var(--muted)}
+#today .capture-list{min-height:0;overflow:hidden;display:flex;flex-direction:column;background:#fff;border:1px solid var(--line);border-radius:17px;box-shadow:0 4px 16px rgba(22,34,52,.035)}
+#today .today-timeline{min-height:0;overflow:auto;overscroll-behavior:contain}
+#today .today-timeline-row{position:relative;width:100%;min-width:0;min-height:38px;border:0;border-bottom:1px solid #eef0f3;background:#fff;padding:5px 10px 5px 8px;display:grid;grid-template-columns:18px 48px minmax(0,1fr) 14px;align-items:center;gap:6px;text-align:left}
+#today .today-timeline-row:last-child{border-bottom:0}
+#today .today-timeline-line{position:relative;align-self:stretch;display:grid;place-items:center}
+#today .today-timeline-line::before{content:"";position:absolute;top:-6px;bottom:-6px;left:50%;width:1px;background:#dfe3e8;transform:translateX(-50%)}
+#today .today-timeline-row:first-child .today-timeline-line::before{top:50%}
+#today .today-timeline-row:last-child .today-timeline-line::before{bottom:50%}
+#today .today-timeline-line i{position:relative;z-index:1;width:8px;height:8px;border-radius:50%;background:var(--green);box-shadow:0 0 0 3px #fff}
+#today .today-timeline-row.out .today-timeline-line i{background:var(--out)}
+#today .today-timeline-time{font-size:13px;font-weight:760;font-variant-numeric:tabular-nums}
+#today .today-timeline-copy{min-width:0;display:grid;gap:0}
+#today .today-timeline-copy b{font-size:12px;line-height:1.2}
+#today .today-timeline-copy small{font-size:9px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#today .today-timeline-chev{font-size:18px;color:#a0a7b1;text-align:right}
+#today .today-timeline-empty{width:100%;min-height:58px;border:0;background:#fff;padding:9px 11px;display:grid;grid-template-columns:minmax(0,1fr) 16px;align-items:center;text-align:left;color:var(--text)}
+#today .today-timeline-empty span:first-child{display:grid;gap:2px}
+#today .today-timeline-empty b{font-size:12px}
+#today .today-timeline-empty small{font-size:10px;line-height:1.3;color:var(--muted)}
+#today .today-balance-row{min-height:32px;margin:0;border-top:1px solid var(--line);padding:6px 10px;font-size:11px;background:#fafbfc}
+#today .today-balance-row b{font-size:12px}
+#today .today-actions-card{grid-area:actions;margin:0;padding:0;border:1px solid var(--line);border-radius:17px;background:#fff;overflow:hidden;box-shadow:0 4px 16px rgba(22,34,52,.035)}
+#today .today-action-row{min-height:42px;padding:5px 10px}
+#today .today-action-row+.today-action-row{border-top:1px solid var(--line)}
+#today .today-action-row .today-action-copy b{font-size:12.5px}
+#today .today-floating-quick{bottom:calc(var(--nav-h) + env(safe-area-inset-bottom) + 18px)!important;right:max(17px,calc((100vw - 620px)/2 + 17px))!important;width:52px!important;height:52px!important}
+body.modal-open #today .today-actions-card{visibility:hidden}
+.tab-icon-wrap{position:relative;display:block;line-height:0}
+.times-nav-badge{position:absolute;top:-6px;right:-10px;min-width:17px;height:17px;padding:0 4px;border-radius:999px;background:#e23b3b;color:#fff;border:2px solid rgba(250,251,253,.96);font-size:9px;font-weight:850;line-height:13px;text-align:center;font-variant-numeric:tabular-nums;box-shadow:0 1px 4px rgba(127,24,24,.28)}
+.times-nav-badge[hidden]{display:none!important}
+.times-open-workdays{width:100%;min-height:42px;margin:0 0 10px;border:1px solid #f2d4d4;border-radius:14px;background:#fff7f7;color:var(--text);padding:6px 9px;display:grid;grid-template-columns:26px minmax(0,1fr) 16px;align-items:center;gap:8px;text-align:left}
+.times-open-workdays[hidden]{display:none!important}
+.times-open-icon{width:24px;height:24px;border-radius:50%;display:grid;place-items:center;background:#e23b3b;color:#fff;font-weight:850;font-size:13px}
+.times-open-copy{min-width:0;display:grid;gap:1px}
+.times-open-copy b{font-size:12.5px}
+.times-open-copy small{font-size:10px;color:var(--muted)}
+.times-open-chev{font-size:21px;color:#9aa2ae;text-align:right}
+.workday-issues-list article>div:last-child{grid-template-columns:1fr 1fr}
+.workday-issues-list .issue-primary-button{background:var(--blue);color:#fff}
+.workday-issues-list .issue-reviewed-button{grid-column:1/-1;border-color:#cfd5de;color:#4d5868}
+@media(max-height:760px){
+  #today.active{gap:7px;grid-template-rows:auto auto auto minmax(102px,1fr) auto}
+  #today .today-head{min-height:28px;padding-top:0}
+  #today .today-date-btn{font-size:14px;padding:2px 0}
+  #today .punch-btn{min-height:94px;border-radius:19px;padding:7px}
+  #today .punch-btn .punch-icon-box .icon{width:27px;height:27px}
+  #today .punch-btn .label{font-size:20px}
+  #today .punch-btn .clock{font-size:17px}
+  #today .today-manual-pause{min-height:40px;padding-top:4px;padding-bottom:4px}
+  #today .today-countdown-compact{padding:6px 9px}
+  #today .today-countdown-compact .countdown-copy span{display:none}
+  #today .today-action-row{min-height:38px;padding-top:4px;padding-bottom:4px}
+  #today .today-action-icon{width:27px;height:27px}
+  #today .today-timeline-row{min-height:34px;padding-top:3px;padding-bottom:3px}
+  #today .today-timeline-empty{min-height:50px}
+  #today .today-floating-quick{bottom:calc(var(--nav-h) + env(safe-area-inset-bottom) + 15px)!important;width:48px!important;height:48px!important}
+}
+@media(max-width:370px){
+  #today .today-action-copy b{font-size:12px}
+  #today .today-action-row .today-action-copy b{font-size:11.5px}
+  #today .today-timeline-row{grid-template-columns:16px 45px minmax(0,1fr) 12px;gap:5px}
+}
+
+/* V5.47 Sichtkorrektur – alte benannte Gridbereiche innerhalb des neuen Hauptbereichs neutralisieren */
+#today .today-primary-area{
+  grid-template-columns:minmax(0,1fr)!important;
+  grid-template-areas:none!important;
+  grid-auto-flow:row!important;
+}
+#today .today-primary-area>.punch-grid,
+#today .today-primary-area>.today-manual-pause,
+#today .today-primary-area>.work-countdown{
+  grid-area:auto!important;
+  width:100%!important;
+  min-width:0!important;
+}
+#today .today-floating-quick{
+  inline-size:52px!important;
+  block-size:52px!important;
+}
+@media(max-height:760px){#today .today-floating-quick{inline-size:48px!important;block-size:48px!important}}
+
+/* V5.47 – bestehende Größe und kreisrunde Form des Plus-Buttons beibehalten */
+#today .today-floating-quick{
+  width:56px!important;
+  min-width:56px!important;
+  height:56px!important;
+  inline-size:56px!important;
+  block-size:56px!important;
+}
+@media(max-height:760px){#today .today-floating-quick{width:52px!important;min-width:52px!important;height:52px!important;inline-size:52px!important;block-size:52px!important}}

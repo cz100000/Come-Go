@@ -1,0 +1,59 @@
+TESTÜBERSICHT V5.47
+
+Prüfdatum: 05.08.2026
+Ausgangsversion: V5.46
+Zielversion: V5.47
+
+1. Statische Prüfungen
+- app.js: Syntaxprüfung mit Node.js bestanden.
+- sw.js: Syntaxprüfung mit Node.js bestanden.
+- manifest.webmanifest: gültiges JSON.
+- index.html: keine doppelten IDs.
+- app.css: ausgeglichene Klammerstruktur.
+- Versionskennzeichnung in App, Manifest und Service Worker konsistent auf 5.47.
+- Alle im Service Worker aufgeführten Offline-Dateien vorhanden.
+- imported-data.js und mitgeliefertes JSON-Backup sind gegenüber V5.46 bytegleich geblieben.
+
+2. Sicht- und Layoutprüfung
+Geprüfte Viewports:
+- 393 × 852 px (iPhone-16-Zielbreite)
+- 350 × 760 px (zusätzliche schmale Belastungsprüfung)
+
+Ergebnis:
+- kein horizontaler Überstand
+- kein Dokument-Scrollen auf der Startseite erforderlich
+- Hauptbutton und Manuelle Pause gleich breit und korrekt untereinander
+- alle drei Zusatzaktionen vollständig oberhalb der Navigation sichtbar
+- blauer Plus-Button überdeckt keine Inhalte
+- alte Hinweisbox „Arbeitstag ohne Buchung“ auf „Heute“ nicht mehr vorhanden
+- roter Badge am Tab „Zeiten“ korrekt positioniert
+
+3. Funktionsprüfung
+- App-Version 5.47 wird geladen.
+- Dynamischer Hauptbutton startet mit „Kommen“ und wechselt nach Buchung auf „Gehen“.
+- Druckzustand wird beim Berühren gesetzt und beim Loslassen wieder entfernt.
+- Buchung erscheint anschließend in der Timeline als „Kommen“.
+- Rundung unverändert:
+  - Kommen 08:01 → 08:05
+  - Gehen 17:04 → 17:00
+  - bereits exakte Fünf-Minuten-Werte bleiben unverändert
+- Manuelle Pause öffnet als einzige Bearbeitungskarte.
+- Kommentar öffnet als einzige Bearbeitungskarte.
+- Abwesenheit öffnet als einzige Bearbeitungskarte.
+- Vollständiger Tag öffnet direkt den Tageseditor für das aktuelle Datum.
+- Plus-Button enthält weiterhin genau die zwei Hauptaktionen.
+- Seite „Zeiten“ zeigt die korrekte Hinweiszeile und den Badge-Zähler.
+- Ein offener Tag lässt sich aus der Liste direkt im vollständigen Tageseditor öffnen.
+- „Als geprüft bestätigen“ reduziert den Zähler; bei null verschwinden Badge und Hinweiszeile.
+- Aktueller Tag, gesetzlicher Feiertag und ganztägige Abwesenheit werden nicht als offen gezählt.
+- Während der automatisierten Prüfung wurden keine JavaScript-Ausnahmen oder Browser-Fehler protokolliert.
+
+4. Kompatibilität
+- Datenmodell nicht verändert.
+- Keine Migration erforderlich.
+- Importdaten und beigefügtes Backup unverändert.
+- Backup-, Import-, Export-, Berichts- und Berechnungsfunktionen nicht fachlich umgebaut.
+- Keine externe Abhängigkeit ergänzt.
+
+Testumgebung
+Die Oberfläche und die echten App-Skripte wurden in einer isolierten Chromium/CDP-Prüfumgebung mit flüchtigem Testspeicher ausgeführt. Die lokale Umgebung blockierte eine normale Browsernavigation per Administrationsrichtlinie; deshalb wurde die PWA-Installation beziehungsweise der reale Offline-Neustart nicht automatisiert simuliert. Service-Worker-Datei, Cacheliste und alle Offline-Ressourcen wurden statisch geprüft; die Service-Worker-Grundlogik blieb bis auf den neuen Versionscache unverändert.

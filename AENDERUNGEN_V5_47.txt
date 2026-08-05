@@ -1,0 +1,16 @@
+ÄNDERUNGEN V5.47
+
+- Seite „Heute“ vollständig verschlankt und visuell neu priorisiert.
+- Datum kompakt an den Seitenanfang gesetzt.
+- Vorhandenen dynamischen Kommen-/Gehen-Button inklusive Druckanimation und Buchungslogik unverändert weiterverwendet.
+- „Manuelle Pause“ als kompakte Direktaktion unmittelbar unter den Hauptbutton gesetzt.
+- Countdown funktional erhalten und kompakt in den Hauptbereich integriert.
+- „Heute erfasst“ in eine kompakte zeitliche Timeline umgebaut; dokumentierte Zeit bleibt Hauptwert, abweichende tatsächliche Zeit wird ergänzend angezeigt.
+- Schlanke Aktionsliste für Kommentar, Abwesenheit und vollständigen Tageseditor ergänzt.
+- Alte sichtbare „Schnelleinträge“-Zeile entfernt.
+- Große Hinweisbox für offene Arbeitstage von „Heute“ entfernt.
+- Roter Badge mit Anzahl offener vergangener Arbeitstage am Tab „Zeiten“ ergänzt.
+- Kompakte Hinweiszeile oberhalb der Zeitansichten ergänzt.
+- Liste offener Tage öffnet den vollständigen Tageseditor direkt; Abwesenheit und fachliche Bestätigung bleiben möglich.
+- Aktueller Tag, Feiertage, ganztägige Abwesenheiten und Tage ohne Sollzeit bleiben von der offenen-Tage-Zählung ausgeschlossen.
+- Version, Manifest und Service-Worker-Cache auf V5.47 angehoben.

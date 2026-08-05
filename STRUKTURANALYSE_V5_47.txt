@@ -1,0 +1,28 @@
+ARBEITSZEIT-PWA – STRUKTURANALYSE V5.46 VOR DER UX-ÜBERARBEITUNG
+
+Aktuell sichtbare Bereiche auf „Heute“
+1. Kopfbereich „Arbeitszeit“ mit aktuellem Datum
+2. Bedingter Abwesenheitsbanner
+3. Dynamischer Kommen-/Gehen-Hauptbutton
+4. Countdown-/Tageszielkarte
+5. Große Hinweiszeile für offene vergangene Arbeitstage
+6. Bereich „Heute erfasst“ mit Arbeitsblöcken und Tagessaldo
+7. Feste Zeile „Schnelleinträge“
+8. Blauer Plus-Button
+
+Einordnung
+- Erhalten: Datum, Abwesenheitsinformation, dynamischer Hauptbutton samt Animation und Rundung, Countdown, Manuelle Pause, heutige Buchungen, Kommentar, Abwesenheiten, vollständiger Tageseditor, Plus-Button.
+- Kompakter: Datum, Abwesenheitsbanner, Countdown, Manuelle Pause, „Heute erfasst“, Zusatzaktionen.
+- Verschoben: Offene vergangene Arbeitstage von „Heute“ nach „Zeiten“ einschließlich Zähler, Liste, direktem Öffnen und Bestätigung.
+- Entfernt: sichtbare alte „Schnelleinträge“-Zeile und große offene-Arbeitstage-Hinweisbox auf „Heute“.
+
+Neue Reihenfolge
+1. Aktuelles Datum
+2. Dynamischer Kommen-/Gehen-Hauptbutton
+3. Kompakte Manuelle Pause; Countdown funktional in denselben Hauptbereich integriert
+4. Kompakte Timeline „Heute erfasst“
+5. Schlanke Aktionsliste: Kommentar, Abwesenheit, vollständiger Tag
+6. Bestehender blauer Plus-Button oberhalb der Navigation
+
+Fachliche Absicherung
+Die Buchungslogik, 5-Minuten-Rundung, Pausenberechnung, Sollzeit, Zeitkonto, Datenstruktur, Speicherung, Backup-/Import-/Exportlogik, Urlaub, Krankheit, Feiertage, Berichte, Service Worker und Offline-Funktion werden nicht fachlich verändert.

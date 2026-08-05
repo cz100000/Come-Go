@@ -1,0 +1,12 @@
+UMSETZUNGSBERICHT V5.47
+
+Die UX-Spezifikation zur Neugestaltung der Seite „Heute“ wurde auf Basis von V5.46 umgesetzt. Die bestehende Fachlogik wurde nicht umgebaut. Der Schwerpunkt lag auf DOM-Struktur, Darstellung, Priorisierung und der Verlagerung der offenen Arbeitstage nach „Zeiten“.
+
+Wesentliche technische Punkte
+- Bestehende IDs und Handler für Pause und Kommentar wurden in die neue sichtbare Struktur übernommen.
+- Der Hauptbutton verwendet weiterhin updateTodayPunchState(), punchAvailability(), performPunch() und bindPunchButton().
+- workdayIssueForDate() und workdayIssues() bleiben die fachliche Quelle für offene vergangene Tage.
+- Neue Funktion renderWorkdayIssueIndicators() versorgt Badge und Hinweiszeile aus derselben Quelle.
+- Bestehendes workdayIssueReview bleibt kompatibel; keine Datenmigration erforderlich.
+- Die neue Timeline ist eine reine Darstellung derselben Eintragsdaten.
+- Keine externe Bibliothek oder neue Abhängigkeit ergänzt.
