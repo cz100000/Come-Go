@@ -1,6 +1,6 @@
 {
-  "name": "Arbeitszeit – High-End Offline Zeiterfassung V5.51",
-  "short_name": "Arbeitszeit 5.51",
+  "name": "Arbeitszeit – High-End Offline Zeiterfassung V5.52",
+  "short_name": "Arbeitszeit 5.52",
   "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#f7f8fb",
@@ -28,5 +28,5 @@
     }
   ],
   "description": "Offline-Arbeitszeiterfassung mit optimierter Heute-Seite, Tagescockpit, Zukunftsstatus, Urlaubskonto und Berichten.",
-  "version": "5.51"
+  "version": "5.52"
 }

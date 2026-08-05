@@ -4,7 +4,7 @@ const STORAGE_BACKUP_KEYS=[1,2,3].map(n=>`${STORAGE_KEY}-backup-${n}`);
 const STORAGE_CORRUPT_KEY=STORAGE_KEY+'-corrupt';
 const BACKUP_FORMAT='arbeitszeit-pwa-backup';
 const TRACKING_START_DATE='2022-11-01';
-const APP_VERSION='5.51';
+const APP_VERSION='5.52';
 const CURRENT_SCHEMA=14;
 const IMPORT_DATA_VERSION=5;
 const CALCULATION_VERSION=2;
@@ -99,7 +99,7 @@ s.targetRules=normalizeTargetRules(s.targetRules);s.holidayRegionRules=normalize
 for(const d of Object.values(migrated.days)){const generatedName=computedHolidayNameForSettings(d.date,s);if(generatedName&&d.sourceYear&&dayAbsenceCode(d)==='holiday'&&!d.edited){d.generatedHoliday=true;d.absence='Feiertag';d.absenceCode='holiday';d.absenceDuration='full';d.holiday=generatedName}}
 if(!s.vacationEntitlements||typeof s.vacationEntitlements!=='object'||Array.isArray(s.vacationEntitlements))s.vacationEntitlements={};
 for(const [year,value] of Object.entries(s.vacationEntitlements)){if(!/^\d{4}$/.test(year)||!value||typeof value!=='object'){delete s.vacationEntitlements[year];continue}s.vacationEntitlements[year]={days:Math.max(0,Number(value.days)||0),carryover:Math.max(0,Number(value.carryover)||0)}}
-if(!Object.prototype.hasOwnProperty.call(s.vacationEntitlements,'2026'))s.vacationEntitlements['2026']={days:139,carryover:0};
+if(s.vacationEntitlementsV552Applied!==true){for(const [year,days] of Object.entries({'2022':5,'2023':30,'2024':30,'2025':30,'2026':30})){const current=s.vacationEntitlements[year]||{};s.vacationEntitlements[year]={days,carryover:Math.max(0,Number(current.carryover)||0)}}s.vacationEntitlementsV552Applied=true}
 if(typeof s.lastExternalBackupAt!=='string')s.lastExternalBackupAt='';if(typeof s.employeeName!=='string')s.employeeName='';if(typeof s.freeChristmasEve!=='boolean')s.freeChristmasEve=true;if(typeof s.freeNewYearsEve!=='boolean')s.freeNewYearsEve=true;if(typeof s.reportSignature!=='boolean')s.reportSignature=true;if(typeof s.countdownEnabled!=='boolean')s.countdownEnabled=true;if(typeof s.bookingSoundEnabled!=='boolean')s.bookingSoundEnabled=false;if(typeof s.countdownCelebratedDate!=='string')s.countdownCelebratedDate=null;if(typeof s.showWeekends!=='boolean')s.showWeekends=false;
 if(!s.legacyBalanceCheckpoint&&Number.isFinite(Number(s.balanceCheckpointMinutes)))s.legacyBalanceCheckpoint={date:s.balanceCheckpointDate||'2026-07-22',minutes:Number(s.balanceCheckpointMinutes),version:s.balanceCheckpointVersion||2};
 s.startBalanceMinutes=0;s.trackingStartDate=TRACKING_START_DATE;s.calculationVersion=CALCULATION_VERSION;s.importDataVersion=IMPORT_DATA_VERSION;s.schemaVersion=CURRENT_SCHEMA;
@@ -475,25 +475,28 @@ playBookingSound(type);
 showToast(`${type==='in'?'Kommen':'Gehen'} gebucht · ${logged}`);
 }
 function bindPunchButton(button){
-let pointer=null,startX=0,startY=0,cancelled=false;
-const reset=()=>{button.classList.remove('pressed');pointer=null;cancelled=false};
+let pointer=null,cancelled=false;
+const isInside=e=>{const r=button.getBoundingClientRect();return e.clientX>=r.left&&e.clientX<=r.right&&e.clientY>=r.top&&e.clientY<=r.bottom};
+const reset=()=>{button.classList.remove('pressed','is-pressed');pointer=null;cancelled=false};
 button.addEventListener('pointerdown',e=>{
 if(button.disabled||(e.pointerType==='mouse'&&e.button!==0))return;
-pointer=e.pointerId;startX=e.clientX;startY=e.clientY;cancelled=false;button.classList.add('pressed');
-try{button.setPointerCapture(e.pointerId)}catch(err){}
+pointer=e.pointerId;cancelled=false;button.classList.add('pressed','is-pressed');
+try{button.setPointerCapture(e.pointerId)}catch(_err){}
 e.preventDefault();
 });
 button.addEventListener('pointermove',e=>{
 if(e.pointerId!==pointer)return;
-const r=button.getBoundingClientRect(),inside=e.clientX>=r.left&&e.clientX<=r.right&&e.clientY>=r.top&&e.clientY<=r.bottom;
-button.classList.toggle('pressed',inside);
+const inside=isInside(e);button.classList.toggle('pressed',inside);button.classList.toggle('is-pressed',inside);cancelled=!inside;
+e.preventDefault();
 });
 button.addEventListener('pointerup',e=>{
 if(e.pointerId!==pointer)return;
-const r=button.getBoundingClientRect(),inside=e.clientX>=r.left&&e.clientX<=r.right&&e.clientY>=r.top&&e.clientY<=r.bottom;
-const valid=inside&&!button.disabled;reset();if(valid)performPunch(button.dataset.punch);
+const valid=!cancelled&&isInside(e)&&!button.disabled;reset();if(valid)performPunch(button.dataset.punch);
+e.preventDefault();
 });
-button.addEventListener('pointercancel',reset);button.addEventListener('lostpointercapture',()=>{if(pointer!==null)reset()});
+button.addEventListener('pointercancel',reset);
+button.addEventListener('lostpointercapture',()=>{if(pointer!==null)reset()});
+button.addEventListener('dragstart',e=>e.preventDefault());
 }
 function setTimesView(v){currentView=v;monthDrill=null;document.querySelectorAll('[data-view]').forEach(b=>b.classList.toggle('active',b.dataset.view===v));renderTimes();updateDayQuickButton()}
 function updateTimesWeekendControl(visible,disabled=false){const wrap=$('timesHeaderWeekend'),toggle=$('headerWeekendToggle');if(!wrap||!toggle)return;wrap.classList.toggle('is-hidden',!visible);toggle.checked=!!state.settings.showWeekends;toggle.disabled=!!disabled;wrap.title=disabled?'Wochenende wird angezeigt, weil dort Daten vorhanden sind.':''}
@@ -1228,12 +1231,12 @@ function renderSettingsCard(){
 }
 function renderSettingsTarget(){
   const current=effectiveTargetRuleToday();$('settingsModalTitle').textContent='Sollzeit bearbeiten';$('settingsModalContext').textContent=`Aktuell ${formatDuration(current.minutes,{signed:false})} h seit ${formatDate(current.from,{day:'2-digit',month:'2-digit',year:'numeric'})}`;
-  $('settingsCardBody').innerHTML=`<div class="unified-form"><div class="field"><label for="settingsTargetHours">Neue Sollzeit</label><input id="settingsTargetHours" type="time" value="${clockFromMinutes(current.minutes)}"></div><div class="field"><label for="settingsTargetFrom">Gültig ab</label><input id="settingsTargetFrom" type="date" min="${TRACKING_START_DATE}" value="${todayKey()}"></div><div id="settingsCardError" class="unified-inline-error" hidden role="alert"></div><div class="unified-rule-note"><b>Historische Grundregel</b><p>Seit dem 01.11.2022 beträgt die Grundsollzeit verbindlich 8:00 Stunden. Frühere Excel-Werte von 7:48 Stunden werden nicht übernommen. Eine neue Sollzeit gilt erst ab dem ausdrücklich gewählten Datum.</p></div></div>`;
+  $('settingsCardBody').innerHTML=`<div class="unified-form"><div class="field"><label for="settingsTargetHours">Neue Sollzeit</label><div class="native-input-shell"><input id="settingsTargetHours" type="time" value="${clockFromMinutes(current.minutes)}"></div></div><div class="field"><label for="settingsTargetFrom">Gültig ab</label><div class="native-input-shell"><input id="settingsTargetFrom" type="date" min="${TRACKING_START_DATE}" value="${todayKey()}"></div></div><div id="settingsCardError" class="unified-inline-error" hidden role="alert"></div><div class="unified-rule-note"><b>Historische Grundregel</b><p>Seit dem 01.11.2022 beträgt die Grundsollzeit verbindlich 8:00 Stunden. Frühere Excel-Werte von 7:48 Stunden werden nicht übernommen. Eine neue Sollzeit gilt erst ab dem ausdrücklich gewählten Datum.</p></div></div>`;
   settingsCardFooter('<button type="button" class="cancel" id="settingsTargetCancel">Abbrechen</button><button type="button" class="save" id="settingsTargetApply">Übernehmen</button>');$('settingsTargetCancel').addEventListener('click',requestSettingsCardClose);$('settingsTargetApply').addEventListener('click',applyTargetRule);settingsCardBaseline=settingsCardFormSnapshot();
 }
 function renderSettingsRegion(){
   const current=effectiveRegionRuleToday(),options=Object.entries(HOLIDAY_REGIONS).map(([key,label])=>`<option value="${key}" ${key===current.region?'selected':''}>${esc(label)}</option>`).join('');$('settingsModalTitle').textContent='Bundesland bearbeiten';$('settingsModalContext').textContent=`Aktuell ${HOLIDAY_REGIONS[current.region]} seit ${formatDate(current.from,{day:'2-digit',month:'2-digit',year:'numeric'})}`;
-  $('settingsCardBody').innerHTML=`<div class="unified-form"><div class="field"><label for="settingsRegionValue">Bundesland</label><select id="settingsRegionValue">${options}</select></div><div class="field"><label for="settingsRegionFrom">Gültig ab</label><input id="settingsRegionFrom" type="date" min="${TRACKING_START_DATE}" value="${todayKey()}"></div><div id="settingsCardError" class="unified-inline-error" hidden role="alert"></div><div class="unified-rule-note"><b>Feiertagsberechnung</b><p>Gesetzliche Feiertage werden vollständig offline aus dem ab diesem Datum gültigen Bundesland abgeleitet. Betriebliche Feiertage bleiben unabhängig davon erhalten. Frühere Zeiträume werden nicht verändert.</p></div></div>`;
+  $('settingsCardBody').innerHTML=`<div class="unified-form"><div class="field"><label for="settingsRegionValue">Bundesland</label><select id="settingsRegionValue">${options}</select></div><div class="field"><label for="settingsRegionFrom">Gültig ab</label><div class="native-input-shell"><input id="settingsRegionFrom" type="date" min="${TRACKING_START_DATE}" value="${todayKey()}"></div></div><div id="settingsCardError" class="unified-inline-error" hidden role="alert"></div><div class="unified-rule-note"><b>Feiertagsberechnung</b><p>Gesetzliche Feiertage werden vollständig offline aus dem ab diesem Datum gültigen Bundesland abgeleitet. Betriebliche Feiertage bleiben unabhängig davon erhalten. Frühere Zeiträume werden nicht verändert.</p></div></div>`;
   settingsCardFooter('<button type="button" class="cancel" id="settingsRegionCancel">Abbrechen</button><button type="button" class="save" id="settingsRegionApply">Übernehmen</button>');$('settingsRegionCancel').addEventListener('click',requestSettingsCardClose);$('settingsRegionApply').addEventListener('click',applyHolidayRegionRule);settingsCardBaseline=settingsCardFormSnapshot();
 }
 
@@ -1327,7 +1330,7 @@ function deleteAbsenceForDay(k,scope='day'){
 }
 
 function initV530Enhancements(){
-  $('dayCardBack')?.addEventListener('click',()=>dayCardBack());$('dayCardClose').addEventListener('click',requestDayCardClose);$('settingsCardBack').addEventListener('click',requestSettingsCardClose);$('settingsCardClose').addEventListener('click',requestSettingsCardClose);$('openTargetRuleBtn').addEventListener('click',()=>openSettingsCard('target'));$('openStartBalanceBtn').addEventListener('click',()=>openSettingsCard('balance'));$('openHolidayRegionBtn').addEventListener('click',()=>openSettingsCard('region'));$('openOfflineInfoBtn').addEventListener('click',()=>openSettingsCard('offline'));$('restoreConfirmClose').addEventListener('click',cancelRestore);$('restoreCancelBtn').addEventListener('click',cancelRestore);$('restoreProceedBtn').addEventListener('click',proceedRestore);renderSettings();
+  $('dayCardBack')?.addEventListener('click',()=>dayCardBack());$('dayCardClose').addEventListener('click',requestDayCardClose);$('settingsCardBack').addEventListener('click',requestSettingsCardClose);$('settingsCardClose').addEventListener('click',requestSettingsCardClose);$('openTargetRuleBtn').addEventListener('click',()=>openSettingsCard('target'));$('openStartBalanceBtn').addEventListener('click',()=>openSettingsCard('balance'));$('openHolidayRegionBtn').addEventListener('click',()=>openSettingsCard('holidays'));$('openOfflineInfoBtn').addEventListener('click',()=>openSettingsCard('offline'));$('restoreConfirmClose').addEventListener('click',cancelRestore);$('restoreCancelBtn').addEventListener('click',cancelRestore);$('restoreProceedBtn').addEventListener('click',proceedRestore);renderSettings();
 }
 document.addEventListener('DOMContentLoaded',initV530Enhancements);
 
@@ -1488,7 +1491,7 @@ settingsCardFormSnapshot=function(){
 function renderSettingsHolidays(){
   const current=effectiveRegionRuleToday(),options=Object.entries(HOLIDAY_REGIONS).map(([key,label])=>`<option value="${key}" ${key===current.region?'selected':''}>${esc(label)}</option>`).join('');
   $('settingsModalTitle').textContent='Feiertage';$('settingsModalContext').textContent=`Aktuell ${HOLIDAY_REGIONS[current.region]} seit ${formatDate(current.from,{day:'2-digit',month:'2-digit',year:'numeric'})}`;
-  $('settingsCardBody').innerHTML=`<div class="unified-form"><div class="field"><label for="settingsRegionValue">Bundesland</label><select id="settingsRegionValue">${options}</select></div><div class="field"><label for="settingsRegionFrom">Gültig ab</label><input id="settingsRegionFrom" type="date" min="${TRACKING_START_DATE}" value="${todayKey()}"></div><div class="settings-holiday-switches"><label class="settings-inline-switch" for="settingsChristmasEve"><span><b>Heiligabend betrieblich frei</b><small>Sollzeit 0 Stunden</small></span><span class="switch"><input id="settingsChristmasEve" type="checkbox" ${state.settings.freeChristmasEve!==false?'checked':''}><span></span></span></label><label class="settings-inline-switch" for="settingsNewYearsEve"><span><b>Silvester betrieblich frei</b><small>Sollzeit 0 Stunden</small></span><span class="switch"><input id="settingsNewYearsEve" type="checkbox" ${state.settings.freeNewYearsEve!==false?'checked':''}><span></span></span></label></div><div id="settingsCardError" class="unified-inline-error" hidden role="alert"></div><div class="unified-rule-note"><b>Feiertagsberechnung</b><p>Gesetzliche Feiertage werden offline aus dem gültigen Bundesland abgeleitet. Betriebliche Feiertage haben unabhängig davon eine Sollzeit von 0 Stunden.</p></div></div>`;
+  $('settingsCardBody').innerHTML=`<div class="unified-form"><div class="field"><label for="settingsRegionValue">Bundesland</label><select id="settingsRegionValue">${options}</select></div><div class="field"><label for="settingsRegionFrom">Gültig ab</label><div class="native-input-shell"><input id="settingsRegionFrom" type="date" min="${TRACKING_START_DATE}" value="${todayKey()}"></div></div><div class="settings-holiday-switches"><label class="settings-inline-switch" for="settingsChristmasEve"><span><b>Heiligabend betrieblich frei</b><small>Sollzeit 0 Stunden</small></span><span class="switch"><input id="settingsChristmasEve" type="checkbox" ${state.settings.freeChristmasEve!==false?'checked':''}><span></span></span></label><label class="settings-inline-switch" for="settingsNewYearsEve"><span><b>Silvester betrieblich frei</b><small>Sollzeit 0 Stunden</small></span><span class="switch"><input id="settingsNewYearsEve" type="checkbox" ${state.settings.freeNewYearsEve!==false?'checked':''}><span></span></span></label></div><div id="settingsCardError" class="unified-inline-error" hidden role="alert"></div><div class="unified-rule-note"><b>Feiertagsberechnung</b><p>Gesetzliche Feiertage werden offline aus dem gültigen Bundesland abgeleitet. Betriebliche Feiertage haben unabhängig davon eine Sollzeit von 0 Stunden.</p></div></div>`;
   settingsCardFooter('<button type="button" class="cancel" id="settingsHolidayCancel">Abbrechen</button><button type="button" class="save" id="settingsHolidayApply">Übernehmen</button>');
   $('settingsHolidayCancel').addEventListener('click',requestSettingsCardClose);$('settingsHolidayApply').addEventListener('click',applyHolidaySettings);settingsCardBaseline=settingsCardFormSnapshot();
 }
@@ -1712,9 +1715,35 @@ saveDayCard=function(){
   const originalImport=IMPORTED_BY_DATE[key];if(dayCardDraft.__deleteAll){if(originalImport)state.days[key]={date:key,entries:[],pauseMinutes:0,absence:null,absenceCode:null,note:'',holiday:null,absenceNote:'',edited:true,importCleared:true,modifiedAt:new Date().toISOString(),archived:Number(key.slice(0,4))<new Date().getFullYear()};else delete state.days[key]}else if(originalImport&&JSON.stringify(candidate)===JSON.stringify(originalImport))state.days[key]=clone(originalImport);else{candidate.date=key;candidate.edited=true;candidate.modifiedAt=new Date().toISOString();candidate.archived=Number(key.slice(0,4))<new Date().getFullYear();state.days[key]=candidate}
   cursorDate=parseDateKey(key);touchDay(key);dayCardDraft=null;dayCardOriginal=null;closeModal('dayModal');refreshAllDerivedViews();showToast('Tag gespeichert. Tagessaldo und Zeitkonto wurden aktualisiert.')
 };
+function concreteAbsenceStatus(d){
+  const code=dayAbsenceCode(d),half=absenceDuration(d)==='half';
+  if(d?.holiday)return d.holiday;
+  if(code==='vacation')return half?'½ Tag Urlaub':'Urlaub';
+  if(code==='sick')return half?'½ Tag Krankheit':'Krankheit';
+  if(code==='timeOff')return half?'½ Tag Zeitausgleich':(String(d?.absence||'').toLowerCase().includes('gleit')?'Gleittag':'Zeitausgleich');
+  if(code==='free')return half?'½ Tag frei':(d?.absence||'Frei');
+  if(code==='holiday')return d?.holiday||'Feiertag';
+  if(d?.absence)return half?`½ Tag ${d.absence}`:d.absence;
+  return'';
+}
+function weekDayStatus(d){
+  const absence=concreteAbsenceStatus(d),entries=d?.entries||[];
+  if(absence)return entries.length?`${absence} + Arbeitszeit`:absence;
+  return dayStatus(d);
+}
+function weekDayStatusClass(d,status){
+  if(concreteAbsenceStatus(d)||status==='Vollständig')return'success';
+  if(['Keine Buchung','Kommen fehlt','Gehen fehlt','Unvollständig','Abwesenheit + Arbeitszeit'].includes(status)||status.includes('fehlt'))return'warning';
+  return'neutral';
+}
 renderWeekView=function(k){
   const currentStart=weekStart(todayKey());let start=weekStart(k);if(start>currentStart)start=currentStart;cursorDate=new Date(start);const force=weekHasWeekendData(start),show=state.settings.showWeekends||force,count=show?7:5,days=[],isCurrent=dateKey(start)===dateKey(currentStart);
-  for(let i=0;i<count;i++){const dt=new Date(start);dt.setDate(start.getDate()+i);const key=dateKey(dt),d=dayObject(key),c=calculateDay(d),future=key>todayKey();let status=esc(dayStatus(d)),action=`openDayEditor('${key}')`,disabled='';if(future){status=esc(dayCockpitFutureLabel(key,d));const code=dayAbsenceCode(d),editable=!!d.absence&&code!=='holiday';action=editable?`openAbsenceEditorForDay('${key}',${d.absenceGroupId?"'group'":"'day'"})`:'';disabled=action?'':'disabled'}days.push(`<button type="button" class="week-day-card${future?' future-day':''}" ${disabled} ${action?`onclick="${action}"`:''}><span><b>${formatDate(key,{weekday:'short',day:'2-digit',month:'2-digit'})}</b><small>${status}</small></span><strong class="${future?'neutral':c.diff<0?'red':c.diff>0?'green':'neutral'}">${future?'–':formatDuration(c.diff)}</strong></button>`)}
+  for(let i=0;i<count;i++){
+    const dt=new Date(start);dt.setDate(start.getDate()+i);const key=dateKey(dt),d=dayObject(key),c=calculateDay(d),future=key>todayKey();
+    let rawStatus=weekDayStatus(d),status=esc(rawStatus),statusClass=weekDayStatusClass(d,rawStatus),action=`openDayEditor('${key}')`,disabled='';
+    if(future){rawStatus=concreteAbsenceStatus(d)||dayCockpitFutureLabel(key,d);status=esc(rawStatus);statusClass=concreteAbsenceStatus(d)?'success':'neutral';const code=dayAbsenceCode(d),editable=!!d.absence&&code!=='holiday';action=editable?`openAbsenceEditorForDay('${key}',${d.absenceGroupId?"'group'":"'day'"})`:'';disabled=action?'':'disabled'}
+    days.push(`<button type="button" class="week-day-card${future?' future-day':''}" ${disabled} ${action?`onclick="${action}"`:''}><span><b>${formatDate(key,{weekday:'short',day:'2-digit',month:'2-digit'})}</b><small class="week-status ${statusClass}">${status}</small></span><strong class="${future?'neutral':c.diff<0?'red':c.diff>0?'green':'neutral'}">${future?'–':formatDuration(c.diff)}</strong></button>`)
+  }
   const end=new Date(start);end.setDate(start.getDate()+6);$('timesContent').innerHTML=`<div class="week-toolbar"><button type="button" onclick="changeWeek(-1)" aria-label="Vorherige Woche">‹</button><b>${formatDate(dateKey(start),{day:'2-digit',month:'2-digit'})} – ${formatDate(dateKey(end),{day:'2-digit',month:'2-digit',year:'numeric'})}</b><button type="button" onclick="changeWeek(1)" aria-label="Nächste Woche" ${isCurrent?'disabled':''}>›</button></div><div class="week-options week-options-today-only">${isCurrent?'':`<button type="button" class="today-week-btn" onclick="cursorDate=parseDateKey(todayKey());renderWeekView(todayKey())">Aktuelle Woche</button>`}</div>${force?'<p class="weekend-note">Wochenende wird angezeigt, weil dort Daten vorhanden sind.</p>':''}<div class="week-list">${days.join('')}</div>`;updateTimesWeekendControl(true,force)
 };
 document.addEventListener('DOMContentLoaded',()=>{

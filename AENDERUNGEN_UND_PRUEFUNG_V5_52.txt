@@ -1,0 +1,104 @@
+Arbeitszeit-PWA Offline – V5.52
+Technische Basis: Arbeitszeit_PWA_Offline_V5_51_HighEnd_iPhone16_UI_Optimiert
+Erstellt am: 05.08.2026
+
+UMGESETZTE ÄNDERUNGEN
+
+1. Heute – Buchungsliste
+- Die senkrechte Verbindung zwischen Kommen- und Gehen-Punkt bleibt erhalten.
+- Die horizontale Trennung zwischen Buchungen ist nun sehr dünn und gepunktet.
+- Buchungsdaten und Antippfunktion wurden nicht verändert.
+
+2. Zeiten – Wochenansicht
+- „Vollständig“ wird dezent grün dargestellt.
+- Fehlende oder ausstehende Buchungen werden dezent rot-orange dargestellt.
+- Abwesenheiten werden konkret aus den vorhandenen Daten bezeichnet, unter anderem Urlaub, ½ Tag Urlaub, Krankheit, Zeitausgleich/Gleittag und der konkrete Feiertagsname.
+- Die vorhandene Zukunftslogik bleibt erhalten.
+
+3. Abwesenheit eintragen oder bearbeiten
+- Von/Bis bleiben in zwei gleich breiten Spalten.
+- Native Datumswerte sind horizontal und vertikal zentriert.
+- Feldbreiten, min-width und box-sizing wurden konsolidiert.
+- Die Karte wurde vertikal verdichtet; bei 393 × 852 und 350 × 760 ist kein internes Scrollen erforderlich.
+
+4. Sollzeit bearbeiten
+- „Neue Sollzeit“ und „Gültig ab“ bleiben vollständig innerhalb der Karten-Innenbreite.
+- Native Zeit- und Datumsfelder sind in begrenzten Feldhüllen untergebracht.
+- Sollzeitlogik, Gültigkeit und Speicherung wurden nicht verändert.
+
+5. Urlaubsanspruch
+- 2022: 5 Tage
+- 2023: 30 Tage
+- 2024: 30 Tage
+- 2025: 30 Tage
+- 2026: 30 Tage
+- Bestehende Überträge und Urlaubsbuchungen wurden nicht verändert.
+- Eine einmalige V5.52-Migration korrigiert vorhandene V5.51-Zustände; spätere bewusste Änderungen des Nutzers werden nicht bei jedem Start überschrieben.
+
+6. Betriebliche Feiertage
+- Der sichtbare Einstellungszugang „Feiertage“ öffnet wieder die kombinierte Feiertagskarte.
+- Bundesland, Heiligabend betrieblich frei und Silvester betrieblich frei sind gemeinsam erreichbar.
+- Vorhandene Toggles, Listener, Speicher- und Feiertagslogik werden weiterverwendet.
+
+7. Heute – Scroll- und Hauptbutton-Verhalten
+- Die Scrollsperre gilt ausschließlich für die Seite „Heute“.
+- Pointer-Bewegungen auf dem Hauptbutton werden nicht an das Seitenscrollen weitergegeben.
+- Beim Verlassen der Buttonfläche wird der gedrückte Zustand aufgehoben.
+- Loslassen außerhalb löst keine Buchung aus.
+- Ein vollständiges Antippen innerhalb löst weiterhin die vorhandene Buchungsfunktion aus.
+- Druckanimation sowie Kommen-/Gehen- und Rundungslogik bleiben erhalten.
+
+8. Technische Bereinigung
+- Manifest und Service-Worker-Cache wurden auf V5.52 gesetzt.
+- Ein versteckter Wochenend-Schalter, der wegen globaler Feldbreiten horizontalen Überstand erzeugte, wurde ohne Änderung seiner Funktion korrekt aus dem Layout genommen.
+- Keine doppelten HTML-IDs gefunden.
+- Jeweils nur ein Hauptbutton-Binding und ein sichtbarer Feiertags-Einstellungszugang vorhanden.
+
+DATENPRÜFUNG
+
+Ausgangssicherung:
+- Format: arbeitszeit-pwa-backup, Version 2, Schema 14
+- Tagesobjekte: 1.148
+- Buchungsdatensätze: 1.795
+- Frühestes gespeichertes Objekt: 2022-01-01
+- Spätestes gespeichertes Objekt: 2027-12-31
+- Fachlicher Erfassungsbeginn: 2022-11-01
+- Bundesland: Hessen
+- Heiligabend betrieblich frei: aktiviert
+- Silvester betrieblich frei: aktiviert
+- Sollzeitregel seit 01.11.2022: 480 Minuten
+
+Ergebnis:
+- Tagesobjekte nach Änderung: 1.148
+- Buchungsdatensätze nach Änderung: 1.795
+- Die vollständigen integrierten Tagesdaten der V5.51 und V5.52 sind byte-inhaltlich nach kanonischer Sortierung identisch.
+- Der SHA-256-Hash des vollständigen days-Bestands der ursprünglichen und der neuen JSON-Sicherung ist identisch:
+  72fd4d3db794aac4007e1cc6630ceb88abc25ba39931cae9009fc5d33d43b69a
+- Integrierte Daten und beigefügte V5.52-Sicherungsdatei stimmen überein.
+
+DURCHGEFÜHRTE TECHNISCHE PRÜFUNGEN
+
+- JavaScript-Syntaxprüfung für app.js und imported-data.js: bestanden.
+- Browser-Smoke-Test ohne JavaScript-Seitenfehler: bestanden.
+- Viewport 393 × 852: alle vier Hauptseiten ohne horizontalen Überstand.
+- Viewport 350 × 760: alle vier Hauptseiten ohne horizontalen Überstand.
+- Heute-Seite: Dokument-, App- und Seitenhöhe entsprechen der Viewporthöhe; kein vertikales Scrollen.
+- Abwesenheitseditor: Datumsfelder zweispaltig, zentriert, kein Überstand, kein interner Scrollbedarf.
+- Sollzeiteditor: Felder innerhalb der Kartenbreite.
+- Feiertagskarte: beide Schalter sichtbar, aktueller Wert geladen und Änderung speicherbar.
+- Hauptbutton: Herausziehen beendet Druckzustand und löst keine Buchung aus; gültiges Loslassen innerhalb löst genau eine Aktion aus.
+- Rundung geprüft: Kommen 09:31 → 09:35; Gehen 17:59 → 17:55; exakte Fünf-Minuten-Werte bleiben unverändert.
+- Wochenstatus geprüft: Vollständig = success; fehlende Buchung = warning; konkrete Urlaubs-/Krankheits-/Zeitausgleichs-/Feiertagstexte.
+- JSON-Erzeugung: gültige V5.52-Sicherung mit 1.148 Tagesobjekten und 1.795 Buchungen.
+- Excel-Erzeugung: gültiger ZIP/XLSX-Dateikopf und nicht leere Arbeitsmappe.
+- Export-, Backup-, Excel- und Berichtsfunktionen wurden gegenüber V5.51 nicht inhaltlich verändert.
+- Manifest-Icons und alle Service-Worker-Cachedateien vorhanden.
+- Keine doppelten HTML-IDs.
+
+NICHT ZUVERLÄSSIG AUTOMATISIERBAR GETESTET
+
+- Das exakte native Verhalten auf einem physischen iPhone 16 mit Safari/PWA, insbesondere Gummiband-Scrollen und Fingerbewegung am realen Touchscreen.
+- Installation und Service-Worker-Aktualisierung einer bereits installierten PWA auf einem echten Gerät; Cacheversion und Dateiliste wurden statisch geprüft.
+- Native iOS-Teilen-Ansicht und tatsächliche Speicherung der JSON-/Excel-Dateien auf dem Gerät.
+- PDF-Druckdialog und optischer Ausdruck auf jedem möglichen Drucker/PDF-Viewer; Berichtscode blieb unverändert.
+- Visueller Langzeittest mit bereits vorhandenen lokalen V5.51-Daten auf dem konkreten Nutzergerät; Migration und Datenbestand wurden in einer isolierten Browserumgebung geprüft.
