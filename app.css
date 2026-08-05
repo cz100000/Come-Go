@@ -744,7 +744,7 @@ html,body,.app,.screen,.modal,.sheet{max-width:100%;overflow-x:hidden}
 .dialog-action-primary{width:100%;min-height:46px;border:1px solid var(--blue);border-radius:12px;background:var(--blue);color:#fff;font-weight:800}.time-correction-body>.dialog-action-secondary{width:100%;display:flex;align-items:center;justify-content:space-between}.subtle-context-date{margin:0!important;background:transparent!important;padding:0 2px!important;color:var(--muted)!important;font-size:11px!important}
 .manual-full-editor{width:100%;min-height:46px;border:1px solid var(--blue)!important;border-radius:12px!important;background:#fff!important;color:var(--blue)!important;font-weight:750!important;padding:11px 13px!important;display:flex;align-items:center;justify-content:space-between;text-align:left}.manual-full-editor b{font-size:20px}.manual-quick-date{font-size:11px;color:var(--muted);font-weight:700;margin-bottom:10px}
 .vacation-overview-card{min-width:0}.vacation-account-selector{width:100%;min-height:50px;margin-top:12px;border:1px solid var(--line);border-radius:13px;background:#fff;padding:9px 12px;display:flex;align-items:center;justify-content:space-between;gap:10px;text-align:left}.vacation-account-selector.selected{border-color:var(--blue);background:var(--blue-soft)}.vacation-account-selector span{font-weight:800}.vacation-account-selector strong{font-size:12px;color:var(--blue)}
-.vacation-chart-legend{display:flex;justify-content:flex-end;gap:12px;margin:10px 0 3px;color:var(--muted);font-size:10px}.vacation-chart-legend span{display:flex;align-items:center;gap:4px}.vacation-chart-legend i{width:8px;height:8px;border-radius:2px}.vacation-chart-legend i.taken,.vacation-bars i.taken{background:var(--blue)}.vacation-chart-legend i.planned,.vacation-bars i.planned{background:#8fbef8}
+.vacation-chart-legend{display:flex;justify-content:flex-end;gap:12px;margin:10px 0 3px;color:var(--muted);font-size:10px}.vacation-chart-legend span{display:flex;align-items:center;gap:4px}.vacation-chart-legend i{width:8px;height:8px;border-radius:2px}.vacation-chart-legend i.taken,.vacation-bars i.taken{background:var(--blue)}.vacation-chart-legend i.planned,.vacation-bars i.planned{background:#0A84FF}
 .vacation-chart{height:126px;display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:2px;align-items:end;padding:5px 0 0;overflow:hidden}.vacation-month{height:116px;min-width:0;border:0;border-radius:8px;background:transparent;padding:4px 1px;display:grid;grid-template-rows:1fr auto;align-items:end;gap:4px}.vacation-month.selected{background:var(--blue-soft)}.vacation-bars{height:82px;display:flex;align-items:flex-end;justify-content:center;gap:1px}.vacation-bars i{display:block;width:min(7px,42%);min-height:0;border-radius:3px 3px 1px 1px}.vacation-month b{font-size:8px;color:var(--muted);font-weight:750;white-space:nowrap}.vacation-month.selected b{color:var(--blue)}
 .vacation-detail{margin-top:10px;border:1px solid var(--line);border-radius:14px;background:#fff;padding:11px 12px;display:grid;gap:7px}.vacation-detail h3{margin:0 0 3px;font-size:14px}.vacation-detail>div{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;font-size:12px}.vacation-detail span{color:var(--muted)}.vacation-detail strong{text-align:right}.vacation-detail .vacation-periods{display:grid;gap:4px}.vacation-detail .vacation-periods strong{text-align:left;font-weight:650;line-height:1.4}
 .vacation-manager-sheet{width:min(calc(100vw - 24px),480px);max-height:min(88dvh,760px)}.vacation-manager-body{overflow-y:auto}.vacation-manager-list{display:grid;gap:8px}.vacation-manager-row{border:1px solid var(--line);border-radius:14px;padding:10px;background:#fff;display:grid;gap:10px}.vacation-manager-row>div:first-child{display:grid;gap:3px}.vacation-manager-row span,.vacation-manager-row small{color:var(--muted);font-size:11px}.vacation-manager-row>div:last-child{display:grid;grid-template-columns:1fr 1fr;gap:7px}.vacation-manager-row button{min-height:39px;border:1px solid var(--blue);border-radius:10px;background:#fff;color:var(--blue);font-weight:750}.vacation-manager-row button.delete{border-color:var(--danger);color:var(--danger)}
@@ -799,7 +799,7 @@ html,body,.app,.screen,.modal,.sheet{max-width:100%;overflow-x:hidden}
 .absence-summary.has-conflict{padding-top:2px!important}
 
 .vacation-chart-legend i.taken,.vacation-bars i.taken{background:var(--green-dark)!important}
-.vacation-chart-legend i.planned,.vacation-bars i.planned{background:#9fd5b2!important}
+.vacation-chart-legend i.planned,.vacation-bars i.planned{background:#0A84FF!important}
 .vacation-month.selected{background:var(--green-soft)!important}
 .vacation-month.selected b{color:var(--green-dark)!important}
 .vacation-month:focus-visible{outline:2px solid var(--green-dark);outline-offset:1px}
@@ -1044,10 +1044,7 @@ html,body,.app,.screen,.modal,.sheet{max-width:100%;overflow-x:hidden}
 .modal input,.modal select,.modal textarea{border-radius:14px}
 .modal-actions button,.day-editor-actions button{min-height:50px;border-radius:14px}
 
-/* Tagesbericht: klarer Abstand zwischen Datum und Aktion */
-.report-controls{display:grid!important;grid-template-columns:minmax(0,1fr) minmax(150px,.82fr)!important;gap:12px!important;align-items:stretch}
-.report-controls input,.report-controls button{min-width:0!important;width:100%!important}
-@media(max-width:370px){.report-controls{grid-template-columns:minmax(0,1fr) minmax(132px,.78fr)!important;gap:8px!important}}
+
 
 /* Einheitliche graue Jahresauswahl in beiden Diagrammkarten */
 #chartYear,#vacationYear{
@@ -1345,4 +1342,173 @@ body.modal-open #today .today-actions-card{visibility:hidden}
   block-size:56px!important;
 }
 @media(max-height:760px){#today .today-floating-quick{width:52px!important;min-width:52px!important;height:52px!important;inline-size:52px!important;block-size:52px!important}}
-\n\n/* V5.48 – Standardheader und separater Schnellzugriff auf Heute */\n#today.active{\n  grid-template-areas:"head" "absence" "primary" "capture";\n  grid-template-rows:auto auto auto minmax(118px,1fr);\n  gap:12px;\n}\n#today .today-page-header{grid-area:head;padding:12px 2px 16px;min-height:0;align-items:flex-start}\n#today .today-page-header h1{margin:0;font-size:clamp(28px,8vw,38px);line-height:1.05;letter-spacing:-.035em}\n#today .today-page-header .sub{margin-top:5px;color:var(--muted);font-size:13px}\n#today .today-primary-area{gap:8px}\n#today .today-actions-card,#today .today-manual-pause{display:none!important}\n#today .today-quick-entry-control{\n  position:fixed;z-index:46;\n  left:max(17px,calc((100vw - 620px)/2 + 17px));\n  bottom:calc(var(--nav-h) + env(safe-area-inset-bottom) + 18px);\n}\n#today .today-quick-entry-btn{\n  height:52px;min-width:154px;max-width:calc(100vw - 104px);\n  border:1px solid #d8e5f7;border-radius:18px;background:#fff;color:var(--text);\n  box-shadow:0 8px 22px rgba(22,34,52,.12);padding:0 14px 0 10px;\n  display:flex;align-items:center;gap:9px;font-size:13px;font-weight:780;white-space:nowrap;\n}\n#today .today-quick-entry-main-icon{width:32px;height:32px;border-radius:11px;background:var(--blue-soft);color:var(--blue);display:grid;place-items:center}\n#today .today-quick-entry-main-icon .icon{width:18px;height:18px}\n#today .today-quick-entry-popup{\n  position:absolute;left:0;bottom:calc(100% + 9px);width:min(286px,calc(100vw - 34px));\n  border:1px solid var(--line);border-radius:18px;background:#fff;overflow:hidden;\n  box-shadow:0 16px 42px rgba(22,34,52,.18);\n}\n#today .today-quick-entry-popup[hidden]{display:none!important}\n#today .today-quick-popup-row{\n  width:100%;min-width:0;min-height:55px;border:0;background:#fff;color:var(--text);padding:8px 11px;\n  display:grid;grid-template-columns:34px minmax(0,1fr);align-items:center;gap:10px;text-align:left;\n}\n#today .today-quick-popup-row+.today-quick-popup-row{border-top:1px solid var(--line)}\n#today .today-quick-popup-row:active{background:#f4f7fb}\n#today .today-quick-popup-row .today-action-copy b{font-size:13px;line-height:1.25}\n#today .today-quick-popup-row .today-action-copy small{font-size:10.5px;line-height:1.25;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}\nbody.modal-open #today .today-quick-entry-control{visibility:hidden}\n#today .today-floating-quick{bottom:calc(var(--nav-h) + env(safe-area-inset-bottom) + 18px)!important;right:max(17px,calc((100vw - 620px)/2 + 17px))!important;width:52px!important;height:52px!important}\n@media(max-height:760px){\n  #today.active{gap:7px;grid-template-rows:auto auto auto minmax(102px,1fr)}\n  #today .today-page-header{padding-top:7px;padding-bottom:10px}\n  #today .today-quick-entry-control,#today .today-floating-quick{bottom:calc(var(--nav-h) + env(safe-area-inset-bottom) + 14px)!important}\n  #today .today-quick-entry-btn{height:48px;min-width:148px}\n  #today .today-floating-quick{width:48px!important;height:48px!important}\n}\n@media(max-width:350px){#today .today-quick-entry-btn{min-width:140px;padding-right:11px;font-size:12.5px}}\n
+
+
+/* V5.51 – konsolidierte UI-Regeln */
+input,select,textarea{width:100%;max-width:100%;min-width:0;box-sizing:border-box}
+
+/* Einstellungen: Name im Bericht */
+.settings-input-row #employeeName{justify-self:end;width:126px!important;max-width:126px!important;min-width:0!important;text-align:right}
+@media(max-width:360px){.settings-input-row #employeeName{width:112px!important;max-width:112px!important}}
+
+/* Berichte und PDF */
+.report-controls{display:grid!important;grid-template-columns:124px minmax(0,1fr)!important;gap:12px!important;align-items:stretch!important}
+.report-date-shell{width:124px;max-width:124px;min-width:0;overflow:hidden;border:1px solid var(--line);border-radius:13px;background:#fff}
+.report-date-shell input[type=date]{display:block;width:100%!important;max-width:100%!important;min-width:0!important;height:46px;border:0!important;border-radius:0!important;padding:0 7px!important;background:transparent!important;font-size:13px!important;line-height:46px!important}
+.report-controls button{min-width:0;width:100%}
+@media(max-width:360px){.report-controls{grid-template-columns:116px minmax(0,1fr)!important;gap:10px!important}.report-date-shell{width:116px;max-width:116px}.report-date-shell input[type=date]{padding-inline:4px!important;font-size:12.5px!important}}
+.action-row#jsonRestoreBtn small{white-space:nowrap;font-size:10.5px}
+
+/* Verlauf: statischer Zeitraum */
+.chart-period-display{display:flex;align-items:center;justify-content:center;min-height:40px;padding:0 14px;border-radius:13px;background:#f2f5f9;color:#344054;font-size:13px;font-weight:750;white-space:nowrap}
+.chart-period-display[hidden]{display:none!important}
+
+/* Urlaub: geplant verbindlich Apple-Systemblau */
+.vacation-chart-legend i.planned,.vacation-bars i.planned{background:#0A84FF!important}
+.vacation-detail .planned-value{color:#0A84FF!important}
+
+/* Heute: luftiger Verlauf und dauerhaft kompakte Schnellaktionen */
+#today.active{grid-template-areas:"head" "absence" "primary" "capture";grid-template-rows:auto auto auto minmax(150px,1fr);gap:12px}
+#today .today-capture{display:flex;flex-direction:column;min-height:0;overflow:hidden}
+#today .capture-list{flex:1;min-height:72px}
+#today .today-timeline-row{min-height:47px;padding:7px 11px 7px 9px;grid-template-columns:19px 52px minmax(0,1fr) 14px;gap:7px}
+#today .today-timeline-time{font-size:14px}
+#today .today-timeline-copy b{font-size:13px}
+#today .today-timeline-copy small{font-size:10px;line-height:1.3}
+#today .today-quick-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:8px;min-width:0}
+#today .today-quick-action{min-width:0;min-height:45px;border:1px solid #dfe6ef;border-radius:14px;background:#fff;padding:6px 9px;display:grid;grid-template-columns:29px minmax(0,1fr);align-items:center;gap:7px;text-align:left;box-shadow:0 2px 10px rgba(22,34,52,.035)}
+#today .today-quick-action:active{background:#f4f7fb}
+#today .today-quick-action .today-action-icon{width:29px;height:29px;border-radius:10px}
+#today .today-quick-action .today-action-copy b{font-size:12.5px}
+#today .today-quick-action .today-action-copy small{font-size:9.5px}
+body.modal-open #today .today-quick-actions{visibility:hidden}
+#today .today-floating-quick{right:max(17px,calc((100vw - 620px)/2 + 17px))!important;bottom:calc(var(--nav-h) + env(safe-area-inset-bottom) + 16px)!important;width:54px!important;min-width:54px!important;height:54px!important;inline-size:54px!important;block-size:54px!important}
+@media(max-height:760px){#today.active{gap:7px;grid-template-rows:auto auto auto minmax(132px,1fr)}#today .today-timeline-row{min-height:40px;padding-block:4px}#today .today-quick-action{min-height:40px;padding-block:4px}#today .today-floating-quick{width:50px!important;min-width:50px!important;height:50px!important;inline-size:50px!important;block-size:50px!important}}
+@media(max-width:350px){#today .today-quick-actions{gap:6px}#today .today-quick-action{padding-inline:7px;grid-template-columns:27px minmax(0,1fr);gap:6px}#today .today-quick-action .today-action-copy b{font-size:12px}}
+
+/* Wochenansicht: Zukunft bleibt sichtbar, ohne Saldo */
+.week-day-card.future-day{opacity:.64}
+.week-day-card.future-day:not(:disabled){opacity:.76}
+.week-day-card.future-day strong{color:var(--muted)!important}
+
+/* Tagescockpit */
+#dayModal .day-editor-sheet{width:min(calc(100vw - 24px),520px)!important;max-width:calc(100vw - 24px)!important;height:min(92dvh,760px)!important;max-height:92dvh!important;display:grid!important;grid-template-rows:auto minmax(0,1fr) auto!important;overflow:hidden!important;padding:0!important}
+#dayModal .day-cockpit-head{position:relative;min-height:58px!important;padding:10px 12px!important;display:grid!important;grid-template-columns:minmax(0,1fr) auto!important;align-items:center!important;gap:10px!important}
+#dayModal .day-cockpit-head .unified-card-title-wrap{text-align:left!important;min-width:0}
+#dayModal .day-cockpit-head h2{font-size:19px!important;white-space:nowrap}
+#dayModal .day-head-actions{display:flex;align-items:center;gap:4px}
+#dayModal .day-menu-btn,#dayModal .close-btn{width:42px;height:42px;min-width:42px;border:0;border-radius:13px;background:transparent;display:grid;place-items:center;font-size:23px;font-weight:750;letter-spacing:1px}
+#dayModal .day-menu-btn:active,#dayModal .close-btn:active{background:#eef1f5}
+#dayModal .day-menu-popover{position:absolute;z-index:5;top:53px;right:54px;width:min(290px,calc(100vw - 56px));border:1px solid var(--line);border-radius:15px;background:#fff;box-shadow:0 16px 38px rgba(22,34,52,.18);overflow:hidden}
+#dayModal .day-menu-popover[hidden]{display:none!important}
+#dayModal .day-menu-popover button{width:100%;min-height:46px;border:0;border-bottom:1px solid #edf0f3;background:#fff;padding:10px 13px;text-align:left;font-size:13px;font-weight:650}
+#dayModal .day-menu-popover button:last-child{border-bottom:0}
+#dayModal .day-menu-popover button.danger{color:var(--danger)}
+#dayModal .day-menu-empty{padding:14px;color:var(--muted);font-size:12px}
+#dayModal .unified-card-body{min-height:0!important;overflow-y:auto!important;overflow-x:hidden!important;padding:10px 12px 12px!important;scroll-padding-bottom:90px!important}
+#dayModal .unified-card-footer{padding:9px 12px calc(9px + env(safe-area-inset-bottom))!important;background:#fff;border-top:1px solid var(--line)}
+#dayModal .unified-card-footer .single-footer-action{width:100%;min-height:48px}
+#dayModal .day-cockpit{display:grid;gap:10px;min-width:0}
+#dayModal .day-date-strip{display:grid;grid-template-columns:44px minmax(0,1fr) 44px;align-items:center;gap:3px;min-width:0}
+#dayModal .day-date-strip>button{width:44px;height:44px;border:0;border-radius:13px;background:#f5f7fa;font-size:28px;line-height:1}
+#dayModal .day-date-picker{position:relative;height:44px;min-width:0;border:1px solid var(--line);border-radius:13px;background:#fff;display:flex;align-items:center;justify-content:center;overflow:hidden;padding:0 8px}
+#dayModal .day-date-picker span{display:block;max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-align:center;font-size:14px;font-weight:760}
+#dayModal .day-date-picker input{position:absolute;inset:0;width:100%!important;height:100%;opacity:0;cursor:pointer;padding:0!important}
+#dayModal .day-status-line{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr) auto;align-items:center;gap:8px;min-height:44px;border:1px solid var(--line);border-radius:13px;background:#f8f9fb;padding:7px 9px;font-size:11px;min-width:0}
+#dayModal .day-status-line>span:first-child{font-weight:760;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#dayModal .day-status-line>span:nth-child(2){display:grid;gap:1px;text-align:center;min-width:0}
+#dayModal .day-status-line small{font-size:9px;color:var(--muted)}
+#dayModal .day-status-line b,#dayModal .day-status-line strong{font-size:12px;font-variant-numeric:tabular-nums;white-space:nowrap}
+#dayModal .day-future-hint,#dayModal .day-conflict-banner{border:1px solid #dbe4ef;border-radius:12px;background:#f5f8fc;padding:9px 10px;display:grid;gap:2px;font-size:11px;color:var(--muted)}
+#dayModal .day-future-hint b{color:var(--text)}
+#dayModal .day-conflict-banner{border-color:#efd293;background:#fff8e8;color:#805b18}
+#dayModal .day-bookings-section{min-width:0}
+#dayModal .day-section-head{display:flex;align-items:center;justify-content:space-between;margin:0 2px 5px}
+#dayModal .day-section-head h3{margin:0;font-size:11px;letter-spacing:.06em}
+#dayModal .day-section-head button{width:34px;height:34px;border:0;border-radius:11px;background:var(--blue-soft);color:var(--blue);font-size:22px;font-weight:650}
+#dayModal .day-booking-list{border:1px solid var(--line);border-radius:14px;background:#fff;overflow:auto;max-height:245px;min-width:0}
+#dayModal .day-booking-row-wrap+.day-booking-row-wrap{border-top:1px solid #edf0f3}
+#dayModal .day-booking-row{width:100%;min-width:0;min-height:49px;border:0;background:#fff;padding:6px 9px;display:grid;grid-template-columns:minmax(0,1fr) 72px 84px;align-items:center;gap:7px;text-align:left}
+#dayModal .day-booking-row:active{background:#f6f8fb}
+#dayModal .day-booking-kind{display:flex;align-items:center;gap:7px;min-width:0}
+#dayModal .day-booking-kind i{width:8px;height:8px;border-radius:50%;background:var(--green);flex:0 0 auto}
+#dayModal .day-booking-row.out .day-booking-kind i{background:var(--out)}
+#dayModal .day-booking-kind b{font-size:13px}
+#dayModal .day-booking-row>span:not(.day-booking-kind){display:grid;gap:1px;min-width:0}
+#dayModal .day-booking-row small{font-size:8.5px;color:var(--muted)}
+#dayModal .day-booking-row strong{font-size:13px;font-variant-numeric:tabular-nums}
+#dayModal .day-booking-empty{padding:14px;text-align:center;color:var(--muted);font-size:12px}
+#dayModal .booking-row-error{padding:0 9px 7px;color:var(--danger);font-size:10px}
+#dayModal .day-booking-row-wrap.has-error{background:#fff5f5}
+#dayModal .day-inline-editor{border-top:1px solid var(--line);background:#f8fafc;padding:9px}
+#dayModal .day-inline-grid{display:grid;grid-template-columns:minmax(88px,.9fr) repeat(2,minmax(0,1fr));gap:7px}
+#dayModal .day-inline-grid .field{margin:0}
+#dayModal .day-inline-grid label{font-size:9px}
+#dayModal .day-inline-grid input,#dayModal .day-inline-grid select{height:39px;padding:0 6px;font-size:13px}
+#dayModal .day-inline-error{margin-top:7px;color:var(--danger);font-size:10px}
+#dayModal .day-inline-actions{display:grid;grid-template-columns:auto minmax(0,1fr) auto auto;align-items:center;gap:7px;margin-top:8px}
+#dayModal .day-inline-actions button,#dayModal .panel-actions button{min-height:36px;border:1px solid var(--line);border-radius:10px;background:#fff;padding:6px 10px;font-size:11px;font-weight:700}
+#dayModal .day-inline-actions .primary,#dayModal .panel-actions .primary{border-color:var(--blue);background:var(--blue);color:#fff}
+#dayModal .day-inline-actions .danger-link{border-color:transparent;background:transparent;color:var(--danger);padding-left:0}
+#dayModal .day-detail-tabs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;min-width:0}
+#dayModal .day-detail-tabs button{min-width:0;min-height:48px;border:1px solid var(--line);border-radius:12px;background:#fff;padding:6px;display:grid;gap:2px;text-align:left}
+#dayModal .day-detail-tabs button.active{border-color:#9cc5ff;background:#f1f7ff}
+#dayModal .day-detail-tabs small{font-size:9px;color:var(--muted)}
+#dayModal .day-detail-tabs b{font-size:10.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#dayModal .day-detail-panel{border:1px solid var(--line);border-radius:14px;background:#f8fafc;padding:10px;display:grid;gap:9px}
+#dayModal .day-detail-panel h4{margin:0;font-size:13px}
+#dayModal .day-detail-panel p{margin:0;font-size:11px;line-height:1.4;color:var(--muted)}
+#dayModal .day-detail-panel textarea{min-height:84px;resize:vertical}
+#dayModal .pause-stepper{display:grid;grid-template-columns:42px minmax(0,1fr) 42px;gap:7px;align-items:center}
+#dayModal .pause-stepper button{height:42px;border:1px solid var(--line);border-radius:11px;background:#fff;font-size:22px}
+#dayModal .pause-stepper input{height:42px;text-align:center;font-weight:760}
+#dayModal .pause-presets{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}
+#dayModal .pause-presets button{height:35px;border:1px solid var(--line);border-radius:10px;background:#fff;font-size:11px;font-weight:700}
+#dayModal .pause-presets button.active{border-color:var(--blue);background:var(--blue-soft);color:var(--blue)}
+#dayModal .panel-actions{display:flex;justify-content:flex-end;gap:7px}
+#dayModal .absence-inline-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+@media(max-width:360px){#dayModal .day-editor-sheet{width:calc(100vw - 16px)!important;max-width:calc(100vw - 16px)!important}#dayModal .unified-card-body{padding-inline:9px!important}#dayModal .day-status-line{grid-template-columns:minmax(0,1fr) auto;gap:5px}#dayModal .day-status-line>span:nth-child(2){display:none}#dayModal .day-booking-row{grid-template-columns:minmax(0,1fr) 66px 76px;gap:5px;padding-inline:7px}#dayModal .day-inline-grid{grid-template-columns:1fr 1fr}#dayModal .day-inline-grid .field:first-child{grid-column:1/-1}#dayModal .day-detail-tabs{gap:4px}#dayModal .day-detail-tabs button{padding:5px}#dayModal .day-detail-tabs b{font-size:10px}}
+
+/* Tagesbericht: eigenes A4-Hochformat */
+.print-report.report-day{width:100%;max-width:184mm;margin:0 auto;font-size:10.5pt;line-height:1.35}
+.print-report.report-day header{margin-bottom:7mm;break-inside:avoid}
+.print-report.report-day header h1{font-size:18pt;margin:0 0 2mm}
+.print-report.report-day header h2{font-size:13pt;margin:0 0 2mm}
+.print-report.report-day .meta{display:flex;justify-content:space-between;gap:8mm;font-size:8.5pt}
+.print-report.report-day .hero{padding:4mm 5mm;margin-bottom:4mm;break-inside:avoid}
+.print-report.report-day .hero strong{font-size:20pt}
+.print-report.report-day .summary{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:2.5mm 5mm!important;margin-bottom:5mm!important}
+.print-report.report-day .summary>div{min-width:0;break-inside:avoid;padding:2.2mm 0}
+.print-report.report-day .summary span{font-size:8pt}
+.print-report.report-day .summary b{font-size:9.5pt;overflow-wrap:anywhere}
+.print-report.report-day table{width:100%!important;table-layout:fixed;border-collapse:collapse;font-size:8.5pt;break-inside:auto}
+.print-report.report-day thead{display:table-header-group}
+.print-report.report-day tr{break-inside:avoid;page-break-inside:avoid}
+.print-report.report-day th,.print-report.report-day td{padding:2.2mm 2mm;vertical-align:top;overflow-wrap:anywhere}
+.print-report.report-day th:nth-child(1){width:8%}.print-report.report-day th:nth-child(2){width:18%}.print-report.report-day th:nth-child(3),.print-report.report-day th:nth-child(4){width:18%}.print-report.report-day th:nth-child(5){width:38%}
+.print-report.report-day .signatures{break-inside:avoid;margin-top:12mm}
+@media(max-width:560px){.print-report.report-day .summary{grid-template-columns:1fr!important}.print-report.report-day .meta{display:grid;gap:1mm}}
+@media print{.print-report.report-day{max-width:none;font-size:9.5pt}.print-report.report-day .summary{grid-template-columns:repeat(2,minmax(0,1fr))!important}.print-report.report-day table{font-size:8pt}}
+/* V5.51 final header consolidation: remove inherited three-column placement. */
+#dayModal .day-cockpit-head .unified-card-title-wrap{
+  grid-column:auto!important;
+  grid-row:auto!important;
+  justify-self:start!important;
+  text-align:left!important;
+}
+#dayModal .day-cockpit-head .day-head-actions{
+  grid-column:auto!important;
+  grid-row:auto!important;
+  justify-self:end!important;
+}
+@media(max-width:360px){
+  #dayModal .day-status-line{
+    grid-template-columns:minmax(0,1fr) minmax(76px,.85fr) auto!important;
+    gap:3px!important;
+    padding:6px!important;
+    font-size:10px!important;
+  }
+  #dayModal .day-status-line>span:nth-child(2){display:grid!important}
+  #dayModal .day-status-line small{font-size:8px!important}
+  #dayModal .day-status-line b,#dayModal .day-status-line strong{font-size:10px!important}
+}

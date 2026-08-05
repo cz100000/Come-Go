@@ -4,7 +4,7 @@ const STORAGE_BACKUP_KEYS=[1,2,3].map(n=>`${STORAGE_KEY}-backup-${n}`);
 const STORAGE_CORRUPT_KEY=STORAGE_KEY+'-corrupt';
 const BACKUP_FORMAT='arbeitszeit-pwa-backup';
 const TRACKING_START_DATE='2022-11-01';
-const APP_VERSION='5.50';
+const APP_VERSION='5.51';
 const CURRENT_SCHEMA=14;
 const IMPORT_DATA_VERSION=5;
 const CALCULATION_VERSION=2;
@@ -419,8 +419,8 @@ if(document.body.classList.contains('today-fixed')){updateTodayPunchState();upda
 function renderToday(){
 ensureHolidayYear(new Date().getFullYear());const d=dayObject(todayKey()),pause=Number(d.pauseMinutes)||0;
 document.title=`Arbeitszeit PWA · Version ${APP_VERSION}`;updateClock();
-$('pauseButtonLabel').textContent='Manuelle Pause';$('pauseButtonSub').textContent=pause?`${pause} Minuten für heute eingetragen`:'Direkt für den heutigen Tag';
-const note=normalizeNoteText(d.note);$('quickTodayCommentLabel').textContent=note?'Kommentar bearbeiten':'Kommentar eintragen';$('quickTodayCommentSub').textContent=note?notePreview(note,82):'Direkt für den heutigen Tag';
+$('pauseButtonLabel').textContent='Pause';$('pauseButtonSub').textContent=pause?`${pause} Min. eingetragen`:'Heute';
+const note=normalizeNoteText(d.note);$('quickTodayCommentLabel').textContent='Kommentar';$('quickTodayCommentSub').textContent=note?notePreview(note,52):'Heute';
 const legacyComment=$('todayCommentRow');if(legacyComment)legacyComment.hidden=true;
 const banner=$('todayAbsenceBanner'),full=hasFullAbsence(d),half=d.absence&&absenceDuration(d)==='half';banner.hidden=!d.absence;document.querySelector('.punch-grid').classList.toggle('absence-full',full);
 if(d.absence){$('todayAbsenceTitle').textContent=half?`Heute: ${d.absence} (halber Tag)`:`Heute ist ${d.absence} eingetragen`;$('todayAbsenceText').textContent=half?`Die Sollzeit ist auf ${formatDuration(targetMinutesForDate(d.date,d),{signed:false})} Stunden reduziert; Arbeitszeitbuchungen bleiben möglich.`:`Die Sollzeit beträgt heute ${formatDuration(targetMinutesForDate(d.date,d),{signed:false})} Stunden.`}
@@ -440,7 +440,7 @@ const balance=liveTodayBalanceMinutes(d),balanceClass=balance>0?'positive':balan
 const saldo=`<div class="today-balance-row ${balanceClass}" aria-live="polite"><span>Tagessaldo</span><b>${formatDuration(balance)} Std.</b></div>`;
 $('todayCaptureList').innerHTML=`<div class="today-timeline">${empty||rows}</div>${saldo}`;
 }
-function openTodayInTimes(){state.settings.lastEditedDay=todayKey();saveState();showScreen('times')}
+function openTodayInTimes(){openDayEditor(todayKey())}
 let bookingAudioContext=null;
 function playBookingSound(type){
 if(!state.settings.bookingSoundEnabled)return;
@@ -604,11 +604,6 @@ const d=clone(dayObject(date,true)),entries=clone(d.entries||[]);entries.splice(
 if(!validation.plausible){alert('Die Buchung konnte nicht wiederhergestellt werden, weil sich der Tag inzwischen geändert hat.');return}
 d.entries=entries;d.edited=true;d.modifiedAt=new Date().toISOString();state.days[date]=d;touchDay(date);refreshAllDerivedViews();showToast(`${entry.type==='in'?'Kommen':'Gehen'} ${entry.logged||entry.actual} wiederhergestellt.`);
 }
-function deleteSingleEntry(){
-if(singleEntryDate===null||singleEntryIndex<0)return;
-const date=singleEntryDate,index=singleEntryIndex,d=clone(dayObject(date,true)),entry=(d.entries||[])[index];if(!entry)return;
-d.entries.splice(index,1);d.edited=true;d.importCleared=!!IMPORTED_BY_DATE[date];d.modifiedAt=new Date().toISOString();state.days[date]=d;touchDay(date);closeModal('entryModal');refreshAllDerivedViews();const label=entry.type==='in'?'Kommen':'Gehen',time=entry.logged||entry.actual||'';showUndoToast(`${label} ${time} gelöscht.`,()=>restoreDeletedEntry(date,index,entry));
-}
 function openFullDayFromSingleEntry(){const k=singleEntryDate;if(k)runAfterDirtyCheck('entryModal',()=>openFullDayForDate(k))}
 function dayEditorEntryLabel(index){
 const entry=editingEntries[index]||{},type=entry.type==='out'?'out':'in';let no=0;for(let i=0;i<=index;i++)if((editingEntries[i]?.type==='out'?'out':'in')===type)no++;return type==='in'?`Kommen ${no}`:`Gehen ${no}`;
@@ -649,7 +644,6 @@ document.querySelectorAll('[data-entry-logged]').forEach(el=>el.addEventListener
 document.querySelectorAll('[data-remove-entry]').forEach(el=>el.addEventListener('click',()=>removeEditingEntry(Number(el.dataset.removeEntry))));
 updateDayEditorAddButton();if(scroll)requestAnimationFrame(()=>{scroll.scrollTop=scrollTop})
 }
-function addEditingEntry(){const type=!editingEntries.length||editingEntries.at(-1)?.type==='out'?'in':'out',actual=hm();editingEntries.push({type,actual,logged:roundLogged(actual,type),source:'manual',edited:true});expandedDayEntryIndex=editingEntries.length-1;renderEntryEditors();requestAnimationFrame(()=>document.querySelector(`[data-entry-card="${expandedDayEntryIndex}"]`)?.scrollIntoView({block:'nearest',behavior:'smooth'}))}
 function collectDayEditorEntries(){const changedAt=new Date().toISOString();return editingEntries.map((entry,i)=>{const type=document.querySelector(`[data-entry-type="${i}"]`)?.value||entry.type,actual=document.querySelector(`[data-entry-actual="${i}"]`)?.value||'',logged=document.querySelector(`[data-entry-logged="${i}"]`)?.value||'',unchanged=entry.type===type&&String(entry.actual||'')===actual&&String(entry.logged||'')===logged;if(unchanged)return clone(entry);return{...(entry||{}),type,actual,logged,source:'manual',edited:true,editedAt:changedAt}})}
 function validateDayEditorEntries(entries,date){
 const errors=entries.map(()=>[]);entries.forEach((entry,i)=>{const expected=i%2===0?'in':'out';if(entry.type!==expected)errors[i].push(`Hier wird ${expected==='in'?'Kommen':'Gehen'} erwartet.`);if(!entry.actual||!isClock(entry.actual))errors[i].push('Tatsächliche Uhrzeit fehlt oder ist ungültig.');if(!entry.logged||!isClock(entry.logged))errors[i].push('Dokumentierte Uhrzeit fehlt oder ist ungültig.')});
@@ -665,40 +659,13 @@ result.errors.forEach((messages,index)=>{const card=document.querySelector(`[dat
 function commitEditedDay({close=true,notify=true}={}){
 const key=$('editDate').value;if(!key)return false;const existing=dayObject(key),d=clone(existing);d.date=key;d.entries=collectDayEditorEntries();d.pauseMinutes=Math.max(0,Number($('editPause').value)||0);d.note=$('editNote').value.trim();const validation=validateDayEditorEntries(d.entries,key);if(!validation.valid){showDayEditorValidation(validation);return false}const global=$('dayEditorValidation');if(global)global.hidden=true;const before=JSON.stringify({entries:existing.entries||[],pauseMinutes:Number(existing.pauseMinutes)||0,note:String(existing.note||'')}),after=JSON.stringify({entries:d.entries,pauseMinutes:d.pauseMinutes,note:d.note});cursorDate=parseDateKey(key);if(before===after){editingEntries=clone(existing.entries||[]);if(close)closeModal('dayModal');else modalBaselines.set('dayModal',modalSnapshot('dayModal'));refreshAllDerivedViews();if(notify)showToast('Keine Änderungen vorhanden.');return true}editingEntries=clone(d.entries);d.edited=true;d.modifiedAt=new Date().toISOString();d.archived=Number(key.slice(0,4))<new Date().getFullYear();state.days[key]=d;touchDay(key);if(close)closeModal('dayModal');else modalBaselines.set('dayModal',modalSnapshot('dayModal'));refreshAllDerivedViews();if(notify)showToast('Tag gespeichert. Tagessaldo und Zeitkonto wurden aktualisiert.');return true
 }
-function saveEditedDay(){commitEditedDay()}
-function manageAbsenceFromDayEditor(){
-const key=$('editDate').value;if(isModalDirty('dayModal')&&!commitEditedDay({close:false,notify:false}))return;closeModal('dayModal');const d=dayObject(key);d.absence?openAbsenceEditorForDay(key,d.absenceGroupId&&absenceGroupDays(d.absenceGroupId).length>1?'group':'day'):openNewAbsence('vacation',key)
-}
-function deleteEditedDay(){
-const k=$('editDate').value,d=clone(dayObject(k,true));if(!confirm('Alle Kommen-, Gehen- und Pausenbuchungen dieses Tages dauerhaft löschen? Eine vorhandene Abwesenheit und der Kommentar bleiben erhalten.'))return;
-d.entries=[];d.pauseMinutes=0;d.edited=true;d.importCleared=!!IMPORTED_BY_DATE[k];d.modifiedAt=new Date().toISOString();state.days[k]=d;touchDay(k);closeModal('dayModal');refreshAllDerivedViews();showToast('Buchungen und Pause gelöscht');
-}
-function modalSnapshot(id){
-const modal=$(id);if(!modal)return'';
-if(id==='dayModal')return JSON.stringify({date:$('editDate').value,pause:$('editPause').value,note:$('editNote').value,entries:editingEntries.map((entry,index)=>({...entry,type:document.querySelector(`[data-entry-type=\"${index}\"]`)?.value||entry.type,actual:document.querySelector(`[data-entry-actual=\"${index}\"]`)?.value||'',logged:document.querySelector(`[data-entry-logged=\"${index}\"]`)?.value||''}))});
-const values=[...modal.querySelectorAll('input,select,textarea')].map(element=>({id:element.id||element.name||element.type,type:element.type,value:element.type==='checkbox'?element.checked:element.value}));
-return JSON.stringify(values);
-}
-function isModalDirty(id){return guardedModalIds.has(id)&&modalBaselines.has(id)&&modalBaselines.get(id)!==modalSnapshot(id)}
 
 function topOpenModal(){return[...document.querySelectorAll('.modal.open')].at(-1)||null}
 function modalFocusable(modal){return[...modal.querySelectorAll('button:not([disabled]),input:not([disabled]):not([type="hidden"]),select:not([disabled]),textarea:not([disabled]),[href],[tabindex]:not([tabindex="-1"])')].filter(el=>!el.hidden&&el.getClientRects().length&&getComputedStyle(el).visibility!=='hidden')}
 function trapModalFocus(event){if(event.key!=='Tab')return;const modal=topOpenModal();if(!modal)return;const items=modalFocusable(modal);if(!items.length){event.preventDefault();modal.focus();return}const first=items[0],last=items.at(-1);if(event.shiftKey&&document.activeElement===first){event.preventDefault();last.focus()}else if(!event.shiftKey&&document.activeElement===last){event.preventDefault();first.focus()}else if(!modal.contains(document.activeElement)){event.preventDefault();first.focus()}}
-function openModal(id){const modal=$(id);if(!modal)return;if(!modal.classList.contains('open'))modalFocusOrigins.set(id,document.activeElement);modal.classList.add('open');document.body.classList.add('modal-open');if(id==='dayModal')$('dayModal').dataset.originalDate=$('editDate').value;modalBaselines.set(id,modalSnapshot(id));updateDayQuickButton();setTimeout(()=>{const target=id==='dayModal'?modal.querySelector('.close-btn'):modalFocusable(modal)[0];target?.focus()},60)}
-function closeModal(id){const modal=$(id);if(!modal)return;modal.classList.remove('open');modalBaselines.delete(id);const origin=modalFocusOrigins.get(id);modalFocusOrigins.delete(id);if(!document.querySelector('.modal.open'))document.body.classList.remove('modal-open');updateDayQuickButton();const remaining=topOpenModal();if(remaining){const target=origin&&remaining.contains(origin)?origin:modalFocusable(remaining)[0];target?.focus({preventScroll:true})}else if(origin&&document.contains(origin))origin.focus({preventScroll:true})}
-function runAfterDirtyCheck(id,action){
-if(isModalDirty(id)){pendingDiscardModalId=id;pendingDiscardAction=action;openModal('discardConfirmModal');return}
-closeModal(id);if(typeof action==='function')action();
-}
-function requestCloseModal(id){
-if(id==='discardConfirmModal'){closeModal(id);return}
-if(isModalDirty(id)){pendingDiscardModalId=id;pendingDiscardAction=null;openModal('discardConfirmModal');return}
-closeModal(id);
-}
 function continueEditing(){pendingDiscardModalId=null;pendingDiscardAction=null;closeModal('discardConfirmModal')}
 function discardChanges(){const id=pendingDiscardModalId,action=pendingDiscardAction;pendingDiscardModalId=null;pendingDiscardAction=null;closeModal('discardConfirmModal');if(id)closeModal(id);if(typeof action==='function')action()}
-function closeTodayQuickEntries(){const popup=$('todayQuickEntriesPopup'),button=$('todayQuickEntriesBtn');if(!popup||!button)return;popup.hidden=true;button.setAttribute('aria-expanded','false')}
-function toggleTodayQuickEntries(){const popup=$('todayQuickEntriesPopup'),button=$('todayQuickEntriesBtn');if(!popup||!button)return;const opening=popup.hidden;closeTodayQuickEntries();if(opening){popup.hidden=false;button.setAttribute('aria-expanded','true')}}
+function closeTodayQuickEntries(){}
 function openPauseModal(){$('quickPause').value=Number(dayObject(todayKey()).pauseMinutes)||0;closeTodayQuickEntries();openModal('pauseModal');setTimeout(()=>$('quickPause').focus(),80)}
 function saveQuickPause(){const k=todayKey(),d=dayObject(k,true);d.pauseMinutes=Math.max(0,Number($('quickPause').value)||0);d.edited=true;d.modifiedAt=new Date().toISOString();state.days[k]=d;touchDay(k);closeModal('pauseModal');renderToday();showToast('Pause gespeichert')}
 let chartMode=(()=>{try{const m=sessionStorage.getItem('arbeitszeit-chart-mode');return ['month','year','history'].includes(m)?m:'month'}catch(_e){return'month'}})(),chartSelection=null;
@@ -736,9 +703,9 @@ function renderOvertimeChart(){
 const host=$('overtimeChart'),detail=$('chartDetail');if(!host||!detail)return;
 $('chartMonthMode').classList.toggle('active',chartMode==='month');$('chartYearMode').classList.toggle('active',chartMode==='year');$('chartHistoryMode').classList.toggle('active',chartMode==='history');$('chartYear').disabled=chartMode==='year';
 $('chartSubtitle').textContent='Verlauf des gesamten Zeitkontostands';
-const chartFilter=document.querySelector('.chart-filter');chartFilter.style.visibility=chartMode==='year'?'hidden':'visible';chartFilter.setAttribute('aria-hidden',chartMode==='year'?'true':'false');chartFilter.querySelector('label').textContent=chartMode==='history'?'Zeitraum':'Jahr';
+const chartFilter=document.querySelector('.chart-filter'),historyRange=$('chartHistoryRange'),yearSelect=$('chartYear'),filterLabel=chartFilter.querySelector('label');chartFilter.style.visibility=chartMode==='year'?'hidden':'visible';chartFilter.setAttribute('aria-hidden',chartMode==='year'?'true':'false');filterLabel.hidden=chartMode==='history';yearSelect.hidden=chartMode==='history';historyRange.hidden=chartMode!=='history';
 if(chartMode==='history'){
-const items=chartHistoryItems(),first=items[0].key.slice(0,4),last=items.at(-1).key.slice(0,4);$('chartYear').innerHTML=`<option>${first} – ${last}</option>`;renderHistoryChart(host,detail,items);return;
+const items=chartHistoryItems(),first=items[0].key.slice(0,4),last=items.at(-1).key.slice(0,4);$('chartHistoryRange').textContent=`Zeitraum ${first}–${last}`;renderHistoryChart(host,detail,items);return;
 }
 const years=[];for(let y=new Date().getFullYear();y>=earliestYear();y--)years.push(`<option value="${y}">${y}</option>`);const selectedYear=$('chartYear').value;if(chartMode==='month'){$('chartYear').innerHTML=years.join('');$('chartYear').value=years.some(o=>o.includes(`value="${selectedYear}"`))?selectedYear:String(new Date().getFullYear())}
 const items=chartMode==='month'?Array.from({length:12},(_,m)=>{const y=Number($('chartYear').value)||new Date().getFullYear(),s=monthSummary(y,m);return{key:`${y}-${pad(m+1)}`,label:['Jan','Feb','Mär','Apr','Mai','Jun','Jul','Aug','Sep','Okt','Nov','Dez'][m],name:new Intl.DateTimeFormat('de-DE',{month:'long',year:'numeric'}).format(new Date(y,m,1)),value:s.diff,summary:s,available:s.days.length>0}}):Array.from({length:new Date().getFullYear()-earliestYear()+1},(_,i)=>earliestYear()+i).map(y=>{const s=yearSummary(y);return{key:String(y),label:String(y),name:`Jahr ${y}`,value:s.diff,summary:s,available:s.days.length>0}});
@@ -755,11 +722,6 @@ renderToday();
 if($('times').classList.contains('active'))renderTimes();
 if($('reports').classList.contains('active'))renderReports();
 if($('settings').classList.contains('active'))renderSettings();
-}
-function restoreImportedDay(){
-const k=$('editDate').value,original=IMPORTED_BY_DATE[k];if(!original)return;
-if(!confirm('Lokale Änderungen dieses Tages verwerfen und die ursprünglichen Importdaten vollständig wiederherstellen?'))return;
-state.days[k]=clone(original);touchDay(k);closeModal('dayModal');refreshAllDerivedViews();showToast('Importdaten wiederhergestellt');
 }
 function formatContextDate(k){return formatDate(k,{weekday:'long',day:'2-digit',month:'2-digit',year:'numeric'})}
 function quickMenuTitle(k){return 'Eintrag hinzufügen'}
@@ -878,39 +840,8 @@ const plan=absencePlan(),policyField=$('absenceConflictPolicyField');syncAbsence
 const type=absenceLabel($('absenceType').value),extent=$('absenceExtent').value==='half'?'Halber Tag':'Ganzer Tag',weekendCount=plan.range.length-plan.workdays.length;policyField.hidden=!plan.conflicts.length;if(!plan.conflicts.length)$('absenceConflictPolicy').value='abort';
 box.innerHTML=`<b>${esc(type)} · ${extent}</b><div class="summary-line"><span>Kalenderzeitraum</span><strong>${formatDate(plan.from,{day:'2-digit',month:'2-digit',year:'numeric'})} – ${formatDate(plan.to,{day:'2-digit',month:'2-digit',year:'numeric'})}</strong></div><div class="summary-line"><span>Berücksichtigte Arbeitstage</span><strong>${plan.workdays.length}</strong></div>${weekendCount?`<div class="summary-line"><span>Ausgelassene Wochenend-/Feiertage</span><strong>${weekendCount}</strong></div>`:''}${plan.conflicts.length?`<div class="conflict">Konflikte an ${plan.conflicts.length} Tag(en): ${plan.conflicts.slice(0,4).map(k=>formatDate(k,{day:'2-digit',month:'2-digit'})).join(', ')}${plan.conflicts.length>4?' …':''}. Es wird nichts still überschrieben.</div>`:'<div class="summary-line"><span>Konflikte</span><strong>Keine</strong></div>'}`;$('saveAbsenceBtn').disabled=!plan.workdays.length;
 }
-function saveAbsence(){
-const plan=absencePlan();if(plan.error){alert(plan.error);return}if(!plan.workdays.length){alert('Im ausgewählten Zeitraum liegt kein berücksichtigter Arbeitstag. Wochenenden und Feiertage werden ausgelassen.');return}
-const policy=$('absenceConflictPolicy').value;if(plan.conflicts.length&&policy==='abort'){alert('Es bestehen Konflikte mit vorhandenen Buchungen oder einer anderen Abwesenheit. Wähle „überspringen“ oder „ersetzen“, oder passe den Zeitraum an.');return}
-if(plan.conflicts.length&&policy==='replace'&&!confirm(`${plan.conflicts.length} betroffene Tag(e) enthalten vorhandene Buchungen oder Abwesenheiten. Diese Einträge wirklich ersetzen?`))return;
-const context=absenceEditorContext||{mode:'new'},oldGroup=context.originalGroupId,groupId=context.scope==='group'&&oldGroup?oldGroup:newAbsenceGroupId(),code=$('absenceType').value,label=absenceLabel(code),extent=$('absenceExtent').value,note=$('absenceNote').value.trim(),nowIso=new Date().toISOString();
-const selected=policy==='skip'?plan.workdays.filter(k=>!plan.conflicts.includes(k)):plan.workdays;
-if(!selected.length){alert('Alle berücksichtigten Tage wurden wegen vorhandener Konflikte übersprungen.');return}
-if(context.mode==='edit'){
-const oldDates=context.scope==='group'&&oldGroup?absenceGroupDays(oldGroup).map(d=>d.date):[context.sourceDate];
-oldDates.forEach(k=>{const d=state.days[k];if(d){clearAbsenceFields(d);d.edited=true;d.modifiedAt=nowIso;state.days[k]=d}});
-}
-selected.forEach(k=>{
-const d=clone(dayObject(k,true));
-if(policy==='replace'&&plan.conflicts.includes(k)){d.entries=[];d.pauseMinutes=0;if(IMPORTED_BY_DATE[k])d.importCleared=true;clearAbsenceFields(d)}
-d.absence=label;d.absenceCode=code;d.absenceDuration=extent;delete d.absenceMinutes;d.absenceNote=note;d.absenceGroupId=groupId;d.absenceCreatedAt=d.absenceCreatedAt||nowIso;d.absenceUpdatedAt=nowIso;d.edited=true;d.modifiedAt=nowIso;d.archived=Number(k.slice(0,4))<new Date().getFullYear();state.days[k]=d;
-});
-state.settings.lastEditedDay=selected[0];state.settings.lastActivityAt=nowIso;saveState();cursorDate=parseDateKey(selected[0]);closeModal('absenceModal');refreshAllDerivedViews();showToast(`${label} für ${selected.length} Arbeitstag(e) gespeichert`);
-}
-function deleteAbsenceForDay(k,scope='day'){
-const d=state.days[k];if(!d?.absence)return;const dates=scope==='group'&&d.absenceGroupId?absenceGroupDays(d.absenceGroupId).map(x=>x.date):[k],what=dates.length>1?`den gesamten Abwesenheitszeitraum mit ${dates.length} Arbeitstagen`:'die Abwesenheit dieses Tages';
-if(!confirm(`${what} löschen? Vorhandene Arbeitszeitbuchungen bleiben erhalten.`))return;
-const nowIso=new Date().toISOString();dates.forEach(date=>{const day=state.days[date];if(!day)return;clearAbsenceFields(day);day.edited=true;day.modifiedAt=nowIso;if(IMPORTED_BY_DATE[date])day.importCleared=true;state.days[date]=day});state.settings.lastEditedDay=k;saveState();closeModal('absenceModal');refreshAllDerivedViews();showToast(dates.length>1?'Abwesenheitszeitraum gelöscht':'Abwesenheit gelöscht');
-}
 function deleteAbsenceFromModal(scope){const k=absenceEditorContext?.sourceDate||$('absenceFrom').value;deleteAbsenceForDay(k,scope)}
-function renderSettings(){
-const targetDate=$('targetValidFrom')?.value||todayKey(),regionDate=$('holidayRegionValidFrom')?.value||todayKey();$('employeeName').value=state.settings.employeeName||'';$('targetValidFrom').min=TRACKING_START_DATE;$('targetValidFrom').value=targetDate;$('targetHours').value=clockFromMinutes(targetMinutesFromSettings(targetDate,state.settings));$('checkpointBalance').value=formatDuration(state.settings.startBalanceMinutes||0);$('holidayRegionValidFrom').min=TRACKING_START_DATE;$('holidayRegionValidFrom').value=regionDate;$('holidayRegion').value=holidayRegionFromSettings(regionDate,state.settings);$('freeChristmasEve').checked=state.settings.freeChristmasEve!==false;$('freeNewYearsEve').checked=state.settings.freeNewYearsEve!==false;$('countdownEnabled').checked=state.settings.countdownEnabled!==false;$('bookingSoundEnabled').checked=state.settings.bookingSoundEnabled===true;$('reportSignature').checked=state.settings.reportSignature!==false;$('targetRuleStatus').textContent=normalizeTargetRules(state.settings.targetRules).map(r=>`${formatDate(r.from,{day:'2-digit',month:'2-digit',year:'numeric'})}: ${formatDuration(r.minutes,{signed:false})}`).join(' · ');$('holidayRegionRuleStatus').textContent=normalizeHolidayRegionRules(state.settings.holidayRegionRules).map(r=>`${formatDate(r.from,{day:'2-digit',month:'2-digit',year:'numeric'})}: ${HOLIDAY_REGIONS[r.region]}`).join(' · ');const y=new Date().getFullYear(),e=vacationEntitlementForYear(y);$('vacationSettingsTitle').textContent=`Urlaub ${y}`;$('vacationSettingsSummary').textContent=`${formatVacationNumber(e.days)} Tage Anspruch · ${formatVacationNumber(e.carryover)} Tage Übertrag`;$('vacationEntitlementCurrentValue').textContent=formatVacationDays(e.days+e.carryover);$('appVersion').textContent=`Arbeitszeit PWA · Version ${APP_VERSION}`
-}
-function saveSettings(){const startBalance=parseSignedTime($('checkpointBalance').value);if(startBalance===null){showToast('Startwert im Format +HH:MM mit Minuten von 00 bis 59 eingeben');$('checkpointBalance').value=formatDuration(state.settings.startBalanceMinutes||0);return}state.settings.employeeName=$('employeeName').value.trim();state.settings.startBalanceMinutes=startBalance;state.settings.trackingStartDate=TRACKING_START_DATE;state.settings.calculationVersion=CALCULATION_VERSION;state.settings.freeChristmasEve=$('freeChristmasEve').checked;state.settings.freeNewYearsEve=$('freeNewYearsEve').checked;state.settings.countdownEnabled=$('countdownEnabled').checked;state.settings.bookingSoundEnabled=$('bookingSoundEnabled').checked;state.settings.reportSignature=$('reportSignature').checked;state.settings.targetMinutes=targetMinutesFromSettings(todayKey(),state.settings);state.settings.holidayRegion=holidayRegionFromSettings(todayKey(),state.settings);ensureHolidayYears();saveState();refreshAllDerivedViews();if(!state.settings.countdownEnabled)stopConfetti();showToast('Einstellungen gespeichert')}
 
-function applyTargetRule(){const from=$('targetValidFrom').value,value=$('targetHours').value,newMinutes=minutes(value);if(!isDateKey(from)||from<TRACKING_START_DATE){showToast('Gültigkeitsdatum ab 01.11.2022 wählen');return}if(!isClock(value)||newMinutes<=0){showToast('Gültige tägliche Sollzeit eingeben');return}const previous=targetMinutesFromSettings(from,state.settings);if(previous===newMinutes&&normalizeTargetRules(state.settings.targetRules).some(r=>r.from===from&&r.minutes===newMinutes)){showToast('Diese Sollzeitregel besteht bereits');return}if(from<=todayKey()&&!confirm(`Sollzeit ab ${formatDate(from,{day:'2-digit',month:'2-digit',year:'numeric'})} auf ${formatDuration(newMinutes,{signed:false})} ändern? Alle Tage ab diesem Datum werden neu berechnet. Frühere Zeiträume bleiben unverändert.`))return;state.settings.targetRules=upsertEffectiveRule(normalizeTargetRules(state.settings.targetRules),{from,minutes:newMinutes});state.settings.targetMinutes=targetMinutesFromSettings(todayKey(),state.settings);saveState();refreshAllDerivedViews();renderSettings();showToast(`Sollzeit ab ${formatDate(from,{day:'2-digit',month:'2-digit',year:'numeric'})} gespeichert`)}
-function applyHolidayRegionRule(){const from=$('holidayRegionValidFrom').value,region=$('holidayRegion').value;if(!isDateKey(from)||from<TRACKING_START_DATE||!HOLIDAY_REGIONS[region]){showToast('Bundesland und Gültigkeitsdatum prüfen');return}const previous=holidayRegionFromSettings(from,state.settings);if(previous===region&&normalizeHolidayRegionRules(state.settings.holidayRegionRules).some(r=>r.from===from&&r.region===region)){showToast('Diese Bundeslandregel besteht bereits');return}if(from<=todayKey()&&!confirm(`Feiertagsregion ab ${formatDate(from,{day:'2-digit',month:'2-digit',year:'numeric'})} auf ${HOLIDAY_REGIONS[region]} ändern? Gesetzliche Feiertage und Zeitkonto werden ab diesem Datum neu berechnet. Frühere Zeiträume bleiben unverändert.`))return;state.settings.holidayRegionRules=upsertEffectiveRule(normalizeHolidayRegionRules(state.settings.holidayRegionRules),{from,region});state.settings.holidayRegion=holidayRegionFromSettings(todayKey(),state.settings);ensureHolidayYears(Number(from.slice(0,4)),new Date().getFullYear()+1);saveState();refreshAllDerivedViews();renderSettings();showToast(`Feiertagsregion ab ${formatDate(from,{day:'2-digit',month:'2-digit',year:'numeric'})} gespeichert`)}
-function syncTargetRuleInput(){const date=$('targetValidFrom').value||todayKey();$('targetHours').value=clockFromMinutes(targetMinutesFromSettings(date,state.settings))}
-function syncHolidayRegionInput(){const date=$('holidayRegionValidFrom').value||todayKey();$('holidayRegion').value=holidayRegionFromSettings(date,state.settings)}
 function downloadBlob(name,blob){const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),2500)}
 function downloadFile(name,text,type){downloadBlob(name,new Blob([text],{type}))}
 function backupTimestamp(date=new Date()){return `${dateKey(date)}_${pad(date.getHours())}-${pad(date.getMinutes())}-${pad(date.getSeconds())}`}
@@ -918,15 +849,6 @@ function createBackupPayload(exportedAt=new Date()){return{format:BACKUP_FORMAT,
 function createBackupFile(stamp=backupTimestamp(),exportedAt=new Date()){const payload=createBackupPayload(exportedAt);return new File([JSON.stringify(payload,null,2)],`Arbeitszeit_Backup_${stamp}.json`,{type:'application/json',lastModified:exportedAt.getTime()})}
 function exportJSON(){const file=createBackupFile();downloadBlob(file.name,file);showToast('Sicherung erstellt')}
 function validateBackupEnvelope(raw){if(!raw||typeof raw!=='object'||raw.format!==BACKUP_FORMAT)throw new Error('Die Datei gehört nicht zu dieser Arbeitszeit-App.');if(!raw.state||typeof raw.state!=='object')throw new Error('Die Sicherung enthält keinen vollständigen App-Zustand.');const suppliedSchema=Math.max(Number(raw.schemaVersion)||0,Number(raw.state?.schemaVersion)||0,Number(raw.state?.settings?.schemaVersion)||0);if(suppliedSchema>CURRENT_SCHEMA)throw new Error(`Diese Sicherung verwendet Datenschema ${suppliedSchema}. Die installierte App unterstützt höchstens Schema ${CURRENT_SCHEMA}. Bitte zuerst die App aktualisieren.`);const checked=validateStateShape(raw.state),expanded=checked.compact===true?expandCompact(checked):checked;const days=Object.values(expanded.days||{}),entries=days.reduce((n,d)=>n+(d.entries?.length||0),0);return{state:expanded,meta:{exportedAt:raw.exportedAt||raw.savedAt||null,appVersion:raw.appVersion||'unbekannt',days:days.length,entries}}}
-function restoreJSON(file){if(!file)return;const r=new FileReader();r.onload=()=>{try{
-const result=validateBackupEnvelope(JSON.parse(r.result));
-const stamp=result.meta.exportedAt?new Intl.DateTimeFormat('de-DE',{dateStyle:'medium',timeStyle:'short'}).format(new Date(result.meta.exportedAt)):'unbekannt';
-const info=`Sicherungsdatum: ${stamp}\nApp-Version: ${result.meta.appVersion}\nKalendertage: ${result.meta.days}\nBuchungen: ${result.meta.entries}`;
-if(!confirm(`${info}\n\nDie aktuellen Daten werden vor dem Überschreiben gesichert. Wiederherstellung fortsetzen?`))return;
-const safety=createBackupFile();downloadBlob(safety.name.replace('.json','_vor_Wiederherstellung.json'),safety);
-state=migrateState(result.state);if(!saveState())throw new Error('Speichern fehlgeschlagen');
-refreshAllDerivedViews();showToast('Sicherung wiederhergestellt');setTimeout(()=>location.reload(),500);
-}catch(e){alert(`Sicherung konnte nicht wiederhergestellt werden: ${e.message||'ungültige Datei'}`)}finally{$('restoreFile').value=''}};r.onerror=()=>alert('Die Datei konnte nicht gelesen werden.');r.readAsText(file)}
 const CRC_TABLE=(()=>{const t=new Uint32Array(256);for(let n=0;n<256;n++){let c=n;for(let k=0;k<8;k++)c=(c&1)?0xedb88320^(c>>>1):c>>>1;t[n]=c>>>0}return t})();
 function crc32(data){let c=0xffffffff;for(const b of data)c=CRC_TABLE[(c^b)&255]^(c>>>8);return(c^0xffffffff)>>>0}
 function u16(n){return new Uint8Array([n&255,(n>>>8)&255])}function u32(n){return new Uint8Array([n&255,(n>>>8)&255,(n>>>16)&255,(n>>>24)&255])}
@@ -1053,7 +975,7 @@ function closePrintPreview(){$('printPreview').classList.remove('open');$('print
 function printCurrentReport(){window.print()}
 function dayReport(k){
 const d=dayObject(k),c=calculateDay(d),entries=d.entries||[],source=d.edited?'Nachträglich geändert':d.sourceYear?`Import ${d.sourceYear}`:'Lokale Erfassung';
-const summary=`<div class="hero"><span>Zeitkontostand nach diesem Tag</span><strong>${formatDuration(balanceThrough(k))}</strong></div><div class="summary"><div><span>Tagesstatus</span><b>${esc(dayStatus(d))}</b></div><div><span>Bruttoarbeitszeit</span><b>${formatDuration(c.gross,{signed:false})}</b></div><div><span>Nettoarbeitszeit</span><b>${formatDuration(c.net,{signed:false})}</b></div><div><span>Sollzeit</span><b>${formatDuration(c.target,{signed:false})}</b></div><div><span>Tagesdifferenz</span><b>${formatDuration(c.diff)}</b></div><div><span>Pause</span><b>${Number(d.pauseMinutes)||0} Min.</b></div><div><span>Abwesenheit</span><b>${esc(d.absence?`${d.absence} · ${absenceDuration(d)==='half'?'Halber Tag':'Ganzer Tag'}`:'–')}</b></div><div><span>Sollzeit nach Abwesenheit</span><b>${d.absence?formatDuration(targetMinutesForDate(d.date,d),{signed:false}):'–'}</b></div><div><span>Abwesenheitsnotiz</span><b class="wrap">${esc(d.absenceNote||'–')}</b></div><div><span>Herkunft / Änderung</span><b>${esc(source)}</b></div><div><span>Kommentar</span><b class="wrap">${esc(d.note||'–')}</b></div></div>`;
+const summary=`<div class="hero day-report-hero"><span>Zeitkontostand nach diesem Tag</span><strong>${formatDuration(balanceThrough(k))}</strong></div><div class="summary"><div><span>Tagesstatus</span><b>${esc(dayStatus(d))}</b></div><div><span>Bruttoarbeitszeit</span><b>${formatDuration(c.gross,{signed:false})}</b></div><div><span>Nettoarbeitszeit</span><b>${formatDuration(c.net,{signed:false})}</b></div><div><span>Sollzeit</span><b>${formatDuration(c.target,{signed:false})}</b></div><div><span>Tagesdifferenz</span><b>${formatDuration(c.diff)}</b></div><div><span>Pause</span><b>${Number(d.pauseMinutes)||0} Min.</b></div><div><span>Abwesenheit</span><b>${esc(d.absence?`${d.absence} · ${absenceDuration(d)==='half'?'Halber Tag':'Ganzer Tag'}`:'–')}</b></div><div><span>Sollzeit nach Abwesenheit</span><b>${d.absence?formatDuration(targetMinutesForDate(d.date,d),{signed:false}):'–'}</b></div><div><span>Abwesenheitsnotiz</span><b class="wrap">${esc(d.absenceNote||'–')}</b></div><div><span>Herkunft / Änderung</span><b>${esc(source)}</b></div><div><span>Kommentar</span><b class="wrap">${esc(d.note||'–')}</b></div></div>`;
 const body=entries.length?entries.map((e,i)=>`<tr><td>${i+1}</td><td>${e.type==='in'?'Kommen':'Gehen'}</td><td class="num">${esc(e.actual||'–')}</td><td class="num">${esc(e.logged||'–')}</td><td>${esc(entrySource(d,e))}</td></tr>`).join(''):'<tr><td colspan="5">Keine Buchungen</td></tr>';
 reportShell(`Tagesbericht ${formatDate(k,{day:'2-digit',month:'2-digit',year:'numeric'})}`,formatDate(k),summary,`<table><thead><tr><th>Nr.</th><th>Art</th><th class="num">Tatsächlich</th><th class="num">Dokumentiert</th><th>Herkunft</th></tr></thead><tbody>${body}</tbody></table>`,'day')
 }
@@ -1079,7 +1001,7 @@ document.querySelectorAll('.modal').forEach(modal=>modal.addEventListener('click
 document.addEventListener('keydown',event=>{trapModalFocus(event);if(event.key==='Escape'){const open=topOpenModal();if(open)requestCloseModal(open.id)}});
 bindPunchButton($('punchAction'));
 $('todayAbsenceEdit').addEventListener('click',()=>openAbsenceEditorForDay(todayKey(),'day'));
-$('todayQuickEntriesBtn').addEventListener('click',event=>{event.stopPropagation();toggleTodayQuickEntries()});$('todayQuickEntriesPopup').addEventListener('click',event=>event.stopPropagation());document.addEventListener('click',closeTodayQuickEntries);$('pauseToday').addEventListener('click',openPauseModal);$('savePauseBtn').addEventListener('click',saveQuickPause);$('quickAddBtn').addEventListener('click',()=>{closeTodayQuickEntries();openQuickAdd(todayKey())});$('timesQuickAddBtn').addEventListener('click',()=>openQuickAdd(dateKey(cursorDate)));$('timesOpenWorkdays')?.addEventListener('click',openWorkdayIssues);$('todayActionAbsence')?.addEventListener('click',()=>openAbsenceManager(todayKey()));$('todayActionFullDay')?.addEventListener('click',()=>openFullDayForDate(todayKey()));
+$('pauseToday').addEventListener('click',openPauseModal);$('savePauseBtn').addEventListener('click',saveQuickPause);$('quickAddBtn').addEventListener('click',()=>{closeTodayQuickEntries();openQuickAdd(todayKey())});$('timesQuickAddBtn').addEventListener('click',()=>openQuickAdd(dateKey(cursorDate)));$('timesOpenWorkdays')?.addEventListener('click',openWorkdayIssues);$('todayActionAbsence')?.addEventListener('click',()=>openAbsenceManager(todayKey()));$('todayActionFullDay')?.addEventListener('click',()=>openFullDayForDate(todayKey()));
 $('quickAbsenceStart').addEventListener('click',()=>openAbsenceManager(quickContextDate));$('quickTimeStart').addEventListener('click',()=>openTimeAction(quickContextDate));document.querySelectorAll('[data-simple-absence]').forEach(button=>button.addEventListener('click',()=>openQuickAbsence(button.dataset.simpleAbsence,quickContextDate)));$('quickAbsenceExtent').addEventListener('change',updateQuickAbsenceConflict);$('quickAbsenceFrom').addEventListener('change',updateQuickAbsenceConflict);$('quickAbsenceTo').addEventListener('change',updateQuickAbsenceConflict);$('saveQuickAbsence').addEventListener('click',saveQuickAbsence);
 ['absenceType','absenceExtent','absenceConflictPolicy'].forEach(id=>$(id).addEventListener('change',updateAbsenceSummary));$('absenceFrom').addEventListener('change',onAbsenceFromChanged);$('absenceTo').addEventListener('change',onAbsenceToChanged);['focus','pointerdown','click'].forEach(eventName=>$('absenceTo').addEventListener(eventName,prepareAbsenceToPicker,{passive:true}));$('absenceNote').addEventListener('input',updateAbsenceSummary);$('saveAbsenceBtn').addEventListener('click',saveAbsence);$('deleteAbsenceDayBtn').addEventListener('click',()=>deleteAbsenceFromModal('day'));$('deleteAbsenceGroupBtn').addEventListener('click',()=>deleteAbsenceFromModal('group'));
 $('headerWeekendToggle')?.addEventListener('change',event=>{state.settings.showWeekends=event.target.checked;saveState();if(currentView==='day')renderDayView(dateKey(cursorDate));else if(currentView==='week')renderWeekView(dateKey(cursorDate))});$('addEntryBtn').addEventListener('click',addEditingEntry);$('saveDayBtn').addEventListener('click',saveEditedDay);$('dayNoteOpen').addEventListener('click',()=>openCommentEditor($('editDate').value,'dayEditor'));$('todayCommentRow').addEventListener('click',()=>openCommentEditor(todayKey(),'direct'));$('cancelCommentBtn').addEventListener('click',cancelCommentEditor);$('applyCommentBtn').addEventListener('click',applyCommentEditor);$('editNote').addEventListener('input',updateDayNoteSummary);$('saveSingleEntry').addEventListener('click',saveSingleEntry);$('deleteSingleEntry').addEventListener('click',deleteSingleEntry);$('openFullDayFromEntry').addEventListener('click',openFullDayFromSingleEntry);$('singleEntryActual').addEventListener('input',event=>{$('singleEntryLogged').value=roundLogged(event.target.value,$('singleEntryType').value)});$('singleEntryType').addEventListener('change',()=>{if($('singleEntryActual').value)$('singleEntryLogged').value=roundLogged($('singleEntryActual').value,$('singleEntryType').value)});$('saveManualQuick').addEventListener('click',saveManualQuick);$('manualFullEditor').addEventListener('click',openFullTodayEditor);$('manualActual').addEventListener('input',event=>{$('manualLogged').value=roundLogged(event.target.value,manualQuickType)});document.querySelectorAll('[data-time-info]').forEach(button=>button.addEventListener('click',()=>toggleTimeInfo(button.dataset.timeInfo)));$('continueEditingBtn').addEventListener('click',continueEditing);$('discardChangesBtn').addEventListener('click',discardChanges);$('advancedActions').addEventListener('toggle',()=>{if(!$('advancedActions').open)return;requestAnimationFrame(()=>{const scroll=$('dayModal').querySelector('.day-editor-scroll'),section=$('advancedActions');if(!scroll||!section)return;const targetBottom=section.offsetTop+section.offsetHeight,visibleBottom=scroll.scrollTop+scroll.clientHeight;if(targetBottom>visibleBottom)scroll.scrollTo({top:Math.max(0,targetBottom-scroll.clientHeight+18),behavior:'smooth'})})});$('deleteDayBtn').addEventListener('click',deleteEditedDay);$('restoreImportBtn').addEventListener('click',restoreImportedDay);$('manageAbsenceFromDay').addEventListener('click',manageAbsenceFromDayEditor);
@@ -1152,7 +1074,7 @@ function renderTimeCorrectionCard(){const date=$('timeActionDate').value||todayK
 function deleteTimeEntryFromCard(date,index){const d=clone(dayObject(date,true)),entry=d.entries?.[index];if(!entry)return;const label=entry.type==='in'?'Kommen':'Gehen',time=entry.logged||entry.actual||'';showInlineModalConfirm('timeActionModal','Buchung löschen?',`${label}${time?` um ${time}`:''} wirklich löschen?`,'Löschen',()=>{d.entries.splice(index,1);d.edited=true;d.importCleared=!!IMPORTED_BY_DATE[date];d.modifiedAt=new Date().toISOString();state.days[date]=d;touchDay(date);renderTimeCorrectionCard();refreshAllDerivedViews();showToast(`${label} gelöscht`)})}
 function vacationMonthRange(year,month){return{from:`${year}-${pad(month+1)}-01`,to:dateKey(new Date(year,month+1,0,12))}}
 function vacationRecordLabel(record){return record.from===record.to?formatDate(record.from,{day:'2-digit',month:'2-digit',year:'numeric'}):`${formatDate(record.from,{day:'2-digit',month:'2-digit',year:'numeric'})}–${formatDate(record.to,{day:'2-digit',month:'2-digit',year:'numeric'})}`}
-function renderVacationDetail(year,s,monthData){const month=vacationChartSelection.month,detail=$('vacationDetail');if(month===null){detail.innerHTML=`<h3>Urlaubskonto ${year}</h3><div><span>Anspruch</span><strong>${formatVacationDays(s.ent.days)}</strong></div><div><span>Übertrag aus Vorjahr</span><strong>${formatVacationDays(s.ent.carryover)}</strong></div><div><span>Gesamt verfügbar</span><strong>${formatVacationDays(s.total)}</strong></div><div><span>Genommen</span><strong>${formatVacationDays(s.taken)}</strong></div><div><span>Zukünftig geplant</span><strong>${formatVacationDays(s.planned)}</strong></div><div><span>Verbleibend</span><strong class="${s.remaining<0?'red':'green'}">${formatVacationDays(s.remaining)}</strong></div>`;return}const range=vacationMonthRange(year,month),m=monthData[month],affected=s.records.filter(r=>r.days.some(d=>d.date>=range.from&&d.date<=range.to)),through=s.records.flatMap(r=>r.days).filter(d=>d.date<=range.to).reduce((n,d)=>n+(absenceDuration(d)==='half'?0.5:1),0),remaining=s.total-through;detail.innerHTML=`<h3>${new Intl.DateTimeFormat('de-DE',{month:'long',year:'numeric'}).format(new Date(year,month,1))}</h3><div><span>Genommen</span><strong>${formatVacationDays(m.taken)}</strong></div><div><span>Geplant</span><strong>${formatVacationDays(m.planned)}</strong></div><div class="vacation-periods"><span>Betroffene Zeiträume</span><strong>${affected.length?affected.map(vacationRecordLabel).join(', '):'Keine'}</strong></div><div><span>Verfügbar nach diesem Monat</span><strong class="${remaining<0?'red':'green'}">${formatVacationDays(remaining)}</strong></div>`}
+function renderVacationDetail(year,s,monthData){const month=vacationChartSelection.month,detail=$('vacationDetail');if(month===null){detail.innerHTML=`<h3>Urlaubskonto ${year}</h3><div><span>Anspruch</span><strong>${formatVacationDays(s.ent.days)}</strong></div><div><span>Übertrag aus Vorjahr</span><strong>${formatVacationDays(s.ent.carryover)}</strong></div><div><span>Gesamt verfügbar</span><strong>${formatVacationDays(s.total)}</strong></div><div><span>Genommen</span><strong>${formatVacationDays(s.taken)}</strong></div><div><span>Zukünftig geplant</span><strong>${formatVacationDays(s.planned)}</strong></div><div><span>Verbleibend</span><strong class="${s.remaining<0?'red':'green'}">${formatVacationDays(s.remaining)}</strong></div>`;return}const range=vacationMonthRange(year,month),m=monthData[month],affected=s.records.filter(r=>r.days.some(d=>d.date>=range.from&&d.date<=range.to)),through=s.records.flatMap(r=>r.days).filter(d=>d.date<=range.to).reduce((n,d)=>n+(absenceDuration(d)==='half'?0.5:1),0),remaining=s.total-through;detail.innerHTML=`<h3>${new Intl.DateTimeFormat('de-DE',{month:'long',year:'numeric'}).format(new Date(year,month,1))}</h3><div><span>Genommen</span><strong>${formatVacationDays(m.taken)}</strong></div><div><span>Geplant</span><strong class="planned-value">${formatVacationDays(m.planned)}</strong></div><div class="vacation-periods"><span>Betroffene Zeiträume</span><strong>${affected.length?affected.map(vacationRecordLabel).join(', '):'Keine'}</strong></div><div><span>Verfügbar nach diesem Monat</span><strong class="${remaining<0?'red':'green'}">${formatVacationDays(remaining)}</strong></div>`}
 function openVacationManagerView(year=Number($('vacationYear')?.value)||new Date().getFullYear()){const sel=$('vacationManagerYear');sel.innerHTML=vacationYearOptions().map(y=>`<option value="${y}">${y}</option>`).join('');sel.value=String(year);renderVacationManager();openModal('vacationManagerModal')}
 function renderVacationManager(){const host=$('vacationManagerList'),sel=$('vacationManagerYear');if(!host||!sel)return;const year=Number(sel.value)||new Date().getFullYear(),records=vacationRecordsForYear(year);host.innerHTML=records.length?records.map((r,index)=>`<article class="vacation-manager-row"><div><b>${vacationRecordLabel(r)}</b><span>${r.status==='planned'?'Geplant':r.status==='taken'?'Genommen':'Teilweise genommen und geplant'} · ${formatVacationDays(r.units)}</span>${r.note?`<small>${esc(notePreview(r.note,90))}</small>`:''}</div><div><button type="button" data-vacation-edit="${index}">Bearbeiten</button><button type="button" class="delete" data-vacation-delete="${index}">Löschen</button></div></article>`).join(''):'<div class="vacation-empty">Für dieses Jahr sind keine Urlaube eingetragen.</div>';host.querySelectorAll('[data-vacation-edit]').forEach(button=>button.addEventListener('click',()=>{const r=records[Number(button.dataset.vacationEdit)];closeModal('vacationManagerModal');openAbsenceEditorForDay(r.from,r.days[0].absenceGroupId?'group':'day')}));host.querySelectorAll('[data-vacation-delete]').forEach(button=>button.addEventListener('click',()=>{const r=records[Number(button.dataset.vacationDelete)],scope=r.days[0].absenceGroupId&&r.days.length>1?'group':'day';closeModal('vacationManagerModal');openAbsenceEditorForDay(r.from,scope);setTimeout(()=>deleteAbsenceForDay(r.from,scope),60)}))}
 
@@ -1242,8 +1164,8 @@ function dayCardBack(force=false){
   }
   dayCardCurrent=dayCardStack.pop()||{view:'overview',params:{}};renderDayCard();
 }
-function dayCardAskConfirm({title,message,confirmLabel='Bestätigen',danger=true,onConfirm}){
-  dayCardConfirmState={title,message,confirmLabel,danger,onConfirm,returnCurrent:dayCardCurrent,returnStack:[...dayCardStack],form:captureDayCardForm()};
+function dayCardAskConfirm({title,message,confirmLabel='Bestätigen',cancelLabel='Abbrechen',danger=true,onConfirm}){
+  dayCardConfirmState={title,message,confirmLabel,cancelLabel,danger,onConfirm,returnCurrent:dayCardCurrent,returnStack:[...dayCardStack],form:captureDayCardForm()};
   dayCardCurrent={view:'confirm',params:{}};renderDayCard();
 }
 function dayCardCancelConfirm(){
@@ -1266,129 +1188,14 @@ function nextBookingActionMeta(entries=[]){
   if(entries.at(-1)?.type==='in')return{type:'out',title:'Gehen ergänzen',subtitle:'Offenen Arbeitsblock abschließen'};
   return{type:'in',title:'Weiteren Arbeitsblock hinzufügen',subtitle:'Mit einer weiteren Kommen-Buchung beginnen'};
 }
-function renderDayOverview(){
-  const entries=dayCardDraft.entries||[],nextBooking=nextBookingActionMeta(entries);
-  const entryRows=entries.map((entry,index)=>`<button type="button" class="unified-list-row booking-disclosure" data-day-entry="${index}"><span class="unified-row-main"><b>${esc(dayCardEntryLabel(index))}</b><small>Tatsächlich ${esc(entry.actual||'–')} · Dokumentiert ${esc(entry.logged||'–')}</small></span><i aria-hidden="true">›</i></button>`).join('');
-  const note=normalizeNoteText(dayCardDraft.note);
-  $('dayCardBody').innerHTML=`
-    <section class="unified-list-section" aria-labelledby="dayCardBookings"><h3 id="dayCardBookings">Buchungen</h3><div class="unified-list">${entryRows||'<div class="unified-empty-row">Keine Buchungen vorhanden</div>'}<button type="button" class="unified-list-row unified-add-row" id="dayAddEntry"><span class="unified-row-main"><b>${nextBooking.title}</b><small>${nextBooking.subtitle}</small></span><i aria-hidden="true">›</i></button></div></section>
-    <section class="unified-list-section" aria-labelledby="dayCardDetails"><h3 id="dayCardDetails">Tagesangaben</h3><div class="unified-list">
-      <button type="button" class="unified-list-row" data-day-route="pause"><span class="unified-row-main"><b>Pause</b><small>Manuelle Pausenzeit</small></span><span class="unified-row-end"><strong>${Math.max(0,Number(dayCardDraft.pauseMinutes)||0)} Min.</strong><i aria-hidden="true">›</i></span></button>
-      <button type="button" class="unified-list-row" data-day-route="absence"><span class="unified-row-main"><b>Abwesenheit</b><small>${esc(dayCardDraft.absenceNote||'Einzelner ausgewählter Tag')}</small></span><span class="unified-row-end"><strong>${esc(dayCardAbsenceText())}</strong><i aria-hidden="true">›</i></span></button>
-      <button type="button" class="unified-list-row" data-day-route="comment"><span class="unified-row-main"><b>Kommentar</b><small>${esc(note?notePreview(note,72):'Kein Kommentar')}</small></span><i aria-hidden="true">›</i></button>
-    </div></section>
-    <section class="unified-list-section"><div class="unified-list"><button type="button" class="unified-list-row" data-day-route="actions"><span class="unified-row-main"><b>Weitere Aktionen</b><small>Löschen oder Importdaten wiederherstellen</small></span><i aria-hidden="true">›</i></button></div></section>`;
-  document.querySelectorAll('[data-day-entry]').forEach(button=>button.addEventListener('click',()=>dayCardNavigate('entry',{index:Number(button.dataset.dayEntry)})));
-  $('dayAddEntry').addEventListener('click',()=>dayCardNavigate('entry',{index:-1,type:nextBooking.type}));
-  document.querySelectorAll('[data-day-route]').forEach(button=>button.addEventListener('click',()=>dayCardNavigate(button.dataset.dayRoute)));
-  dayCardSetFooter('<button type="button" class="cancel" id="dayCancelEdit">Abbrechen</button><button type="button" class="save" id="daySaveEdit">Tag speichern</button>');
-  $('dayCancelEdit').addEventListener('click',requestDayCardClose);$('daySaveEdit').addEventListener('click',saveDayCard);
-  dayCardFormBaseline='';
-}
-function renderDayEntry(){
-  const index=Number(dayCardCurrent.params.index),existing=index>=0?dayCardDraft.entries[index]:null,type=existing?.type||dayCardCurrent.params.type||'in',actual=existing?.actual||hm(),logged=existing?.logged||roundLogged(actual,type);
-  const origin=existing?(existing.source==='excel'?'Importiert':'Manuell'):'Neue manuelle Buchung';
-  $('dayCardBody').innerHTML=`<div class="unified-form">
-    <div class="context-date">${formatContextDate($('editDate').value)}</div>
-    <div class="field"><label for="dayEntryType">Buchungsart</label><select id="dayEntryType"><option value="in" ${type==='in'?'selected':''}>Kommen</option><option value="out" ${type==='out'?'selected':''}>Gehen</option></select></div>
-    <div class="unified-time-grid"><div class="field"><label for="dayEntryActual">Tatsächliche Uhrzeit</label><input id="dayEntryActual" type="time" value="${esc(actual)}"></div><div class="field"><label for="dayEntryLogged">Dokumentierte Uhrzeit</label><input id="dayEntryLogged" type="time" value="${esc(logged)}" readonly aria-readonly="true"><small class="field-hint">Automatisch ${type==='in'?'auf den nächsten':'auf den vorherigen'} 5-Minuten-Wert gerundet.</small></div></div>
-    <div class="unified-origin"><b>Herkunft</b><span>${esc(origin)}</span></div>
-    <div id="dayEntryError" class="unified-inline-error" role="alert" hidden></div>
-    ${existing?'<button type="button" class="unified-danger-action" id="dayDeleteEntry">Buchung löschen</button>':''}
-  </div>`;
-  dayCardSetFooter('<button type="button" class="cancel" id="dayEntryCancel">Zurück</button><button type="button" class="save" id="dayEntryApply">Übernehmen</button>');
-  const reround=()=>{const value=$('dayEntryActual').value;if(value)$('dayEntryLogged').value=roundLogged(value,$('dayEntryType').value)};
-  $('dayEntryActual').addEventListener('input',reround);$('dayEntryType').addEventListener('change',reround);
-  $('dayEntryCancel').addEventListener('click',()=>dayCardBack());$('dayEntryApply').addEventListener('click',applyDayEntry);
-  $('dayDeleteEntry')?.addEventListener('click',()=>dayCardAskConfirm({title:'Buchung löschen?',message:'Die Buchung wird zunächst nur aus dem vorgemerkten Tageszustand entfernt. Dauerhaft gespeichert wird erst mit „Tag speichern“.',confirmLabel:'Buchung löschen',onConfirm:()=>{dayCardDraft.entries.splice(index,1);dayCardReturnToOverview()}}));
-  dayCardFormBaseline=dayCardFormSnapshot();
-}
-function applyDayEntry(){
-  const index=Number(dayCardCurrent.params.index),type=$('dayEntryType').value,actual=$('dayEntryActual').value,logged=roundLogged(actual,type),error=$('dayEntryError');
-  if(!isClock(actual)||!isClock(logged)){error.hidden=false;error.textContent='Bitte beide Uhrzeiten vollständig und gültig eingeben.';return}
-  if($('editDate').value===todayKey()&&minutes(actual)>minutes(hm())){error.hidden=false;error.textContent='Zukünftige Arbeitszeitbuchungen sind nicht zulässig.';return}
-  const entries=clone(dayCardDraft.entries||[]),old=index>=0?entries[index]:null,unchanged=old&&old.type===type&&String(old.actual||'')===actual&&String(old.logged||'')===logged;
-  const next=unchanged?old:{...(old||{}),type,actual,logged,source:'manual',createdAt:old?.createdAt||new Date().toISOString(),edited:true,editedAt:new Date().toISOString()};
-  if(index>=0)entries[index]=next;else entries.push(next);
-  const validation=validateDayEditorEntries(entries,$('editDate').value);if(!validation.valid){error.hidden=false;error.textContent=validation.errors.flat().filter(Boolean).join(' ')||'Die Buchungsfolge ist nicht plausibel.';return}
-  dayCardDraft.entries=entries;dayCardReturnToOverview();
-}
-function renderDayPause(){
-  $('dayCardBody').innerHTML=`<div class="unified-form"><div class="context-date">${formatContextDate($('editDate').value)}</div><div class="field"><label for="dayPauseMinutes">Pausenwert in Minuten</label><div class="stepper"><button type="button" id="dayPauseMinus" aria-label="Fünf Minuten abziehen">−</button><input id="dayPauseMinutes" type="number" min="0" step="1" inputmode="numeric" value="${Math.max(0,Number(dayCardDraft.pauseMinutes)||0)}"><button type="button" id="dayPausePlus" aria-label="Fünf Minuten hinzufügen">+</button></div></div><p class="unified-help">Der Wert kann nicht negativ sein. Die bestehende Pausenberechnung bleibt unverändert.</p></div>`;
-  dayCardSetFooter('<button type="button" class="cancel" id="dayPauseCancel">Zurück</button><button type="button" class="save" id="dayPauseApply">Übernehmen</button>');
-  const adjust=n=>{$('dayPauseMinutes').value=String(Math.max(0,(Number($('dayPauseMinutes').value)||0)+n))};$('dayPauseMinus').addEventListener('click',()=>adjust(-5));$('dayPausePlus').addEventListener('click',()=>adjust(5));$('dayPauseCancel').addEventListener('click',()=>dayCardBack());$('dayPauseApply').addEventListener('click',()=>{dayCardDraft.pauseMinutes=Math.max(0,Math.round(Number($('dayPauseMinutes').value)||0));dayCardReturnToOverview()});dayCardFormBaseline=dayCardFormSnapshot();
-}
-function renderDayAbsence(){
-  const currentCode=dayAbsenceCode(dayCardDraft)||'none';
-  if(currentCode==='holiday'){
-    $('dayCardBody').innerHTML=`<div class="unified-info-state"><div class="context-date">${formatContextDate($('editDate').value)}</div><h3>${esc(dayCardDraft.holiday||'Feiertag')}</h3><p>Dieser gesetzliche oder betriebliche Feiertag wird aus den gültigen Einstellungen abgeleitet und kann im Tageseditor nicht geändert werden.</p></div>`;
-    dayCardSetFooter('<button type="button" class="cancel single-footer-action" id="dayAbsenceBack">Zurück</button>');$('dayAbsenceBack').addEventListener('click',()=>dayCardBack(true));dayCardFormBaseline='';return;
-  }
-  $('dayCardBody').innerHTML=`<div class="unified-form"><div class="context-date">${formatContextDate($('editDate').value)}</div>
-    <div class="field"><label for="dayAbsenceType">Art der Abwesenheit</label><select id="dayAbsenceType"><option value="none">Keine Abwesenheit</option><option value="vacation">Urlaub</option><option value="sick">Krankheit</option><option value="timeOff">Zeitausgleich</option><option value="other">Sonstige Abwesenheit</option></select></div>
-    <div class="field"><label for="dayAbsenceExtent">Umfang</label><select id="dayAbsenceExtent"><option value="full">Ganzer Tag</option><option value="half">Halber Tag</option></select></div>
-    <div class="field"><label for="dayAbsenceNote">Optionale Notiz</label><textarea id="dayAbsenceNote" rows="3" placeholder="Notiz zur Abwesenheit">${esc(dayCardDraft.absenceNote||'')}</textarea></div>
-    <div id="dayAbsenceError" class="unified-inline-error" role="alert" hidden></div><p class="unified-help">Diese Bearbeitung gilt ausschließlich für den ausgewählten Tag. Zeiträume werden weiterhin über den gesonderten Abwesenheitsweg erfasst.</p></div>`;
-  $('dayAbsenceType').value=currentCode;$('dayAbsenceExtent').value=absenceDuration(dayCardDraft)==='half'?'half':'full';
-  dayCardSetFooter('<button type="button" class="cancel" id="dayAbsenceCancel">Zurück</button><button type="button" class="save" id="dayAbsenceApply">Übernehmen</button>');$('dayAbsenceCancel').addEventListener('click',()=>dayCardBack());$('dayAbsenceApply').addEventListener('click',applyDayAbsence);dayCardFormBaseline=dayCardFormSnapshot();
-}
-function applyDayAbsence(){
-  const code=$('dayAbsenceType').value,extent=$('dayAbsenceExtent').value,note=$('dayAbsenceNote').value.trim(),error=$('dayAbsenceError');
-  if(code!=='none'&&extent==='full'&&(dayCardDraft.entries||[]).length){error.hidden=false;error.textContent='Eine ganztägige Abwesenheit kann nicht zusammen mit Arbeitszeitbuchungen gespeichert werden. Entferne die Buchungen oder wähle einen halben Tag.';return}
-  if(code==='none'){clearAbsenceFields(dayCardDraft)}else{
-    const unchanged=dayAbsenceCode(dayCardDraft)===code&&absenceDuration(dayCardDraft)===extent&&String(dayCardDraft.absenceNote||'')===note;
-    dayCardDraft.absence=absenceLabel(code);dayCardDraft.absenceCode=code;dayCardDraft.absenceDuration=extent;dayCardDraft.absenceNote=note;delete dayCardDraft.absenceMinutes;
-    if(!unchanged){delete dayCardDraft.absenceGroupId;dayCardDraft.absenceUpdatedAt=new Date().toISOString();dayCardDraft.absenceCreatedAt=dayCardDraft.absenceCreatedAt||dayCardDraft.absenceUpdatedAt}
-  }
-  dayCardReturnToOverview();
-}
-function renderDayComment(){
-  $('dayCardBody').innerHTML=`<div class="unified-form"><div class="context-date">${formatContextDate($('editDate').value)}</div><div class="field"><label for="dayCommentText">Kommentar</label><textarea id="dayCommentText" class="day-comment-textarea" rows="7" placeholder="Kommentar für diesen Tag">${esc(dayCardDraft.note||'')}</textarea></div><p class="unified-help">Ein leeres Feld entfernt den Kommentar. Dauerhaft gespeichert wird erst mit „Tag speichern“.</p></div>`;
-  dayCardSetFooter('<button type="button" class="cancel" id="dayCommentCancel">Zurück</button><button type="button" class="save" id="dayCommentApply">Übernehmen</button>');$('dayCommentCancel').addEventListener('click',()=>dayCardBack());$('dayCommentApply').addEventListener('click',()=>{dayCardDraft.note=$('dayCommentText').value.trim();dayCardReturnToOverview()});dayCardFormBaseline=dayCardFormSnapshot();setTimeout(()=>$('dayCommentText')?.focus(),30);
-}
-function renderDayActions(){
-  const hasBookings=(dayCardDraft.entries||[]).length||Number(dayCardDraft.pauseMinutes),hasAnything=hasMeaningfulData(cleanDayCardDraft(dayCardDraft)),hasImport=!!IMPORTED_BY_DATE[$('editDate').value];
-  $('dayCardBody').innerHTML=`<div class="unified-action-list"><div class="context-date">${formatContextDate($('editDate').value)}</div>
-    <button type="button" class="unified-secondary-action" id="dayClearBookings" ${hasBookings?'':'disabled'}><b>Buchungen und Pause löschen</b><small>Abwesenheit und Kommentar bleiben erhalten</small></button>
-    <button type="button" class="unified-danger-action" id="dayDeleteAll" ${hasAnything?'':'disabled'}><b>Tag vollständig löschen</b><small>Alle Tagesdaten werden entfernt</small></button>
-    <button type="button" class="unified-secondary-action" id="dayRestoreImport" ${hasImport?'':'disabled'}><b>Importdaten wiederherstellen</b><small>Ursprünglichen eingebetteten Datenstand vormerken</small></button>
-    ${!hasBookings&&!hasAnything&&!hasImport?'<p class="unified-help">Für diesen Tag sind keine weiteren Aktionen verfügbar.</p>':''}</div>`;
-  dayCardSetFooter('<button type="button" class="cancel single-footer-action" id="dayActionsBack">Zurück</button>');$('dayActionsBack').addEventListener('click',()=>dayCardBack(true));
-  $('dayClearBookings').addEventListener('click',()=>dayCardAskConfirm({title:'Buchungen und Pause löschen?',message:'Abwesenheit und Kommentar bleiben erhalten. Die Änderung wird erst mit „Tag speichern“ dauerhaft.',confirmLabel:'Löschen',onConfirm:()=>{dayCardDraft.entries=[];dayCardDraft.pauseMinutes=0;if(IMPORTED_BY_DATE[$('editDate').value])dayCardDraft.importCleared=true;dayCardReturnToOverview()}}));
-  $('dayDeleteAll').addEventListener('click',()=>dayCardAskConfirm({title:'Tag vollständig löschen?',message:'Alle Buchungen, Pausen, Abwesenheiten und Kommentare dieses Tages werden entfernt. Dieser Vorgang wird erst mit „Tag speichern“ endgültig.',confirmLabel:'Tag löschen',onConfirm:()=>{const key=$('editDate').value;dayCardDraft={date:key,entries:[],pauseMinutes:0,absence:null,absenceCode:null,note:'',holiday:null,absenceNote:'',edited:true,importCleared:!!IMPORTED_BY_DATE[key],__deleteAll:true};dayCardReturnToOverview()}}));
-  $('dayRestoreImport').addEventListener('click',()=>dayCardAskConfirm({title:'Importdaten wiederherstellen?',message:'Alle vorgemerkten lokalen Änderungen dieses Tages werden durch die ursprünglichen Importdaten ersetzt.',confirmLabel:'Wiederherstellen',danger:false,onConfirm:()=>{dayCardDraft=clone(IMPORTED_BY_DATE[$('editDate').value]);dayCardReturnToOverview()}}));dayCardFormBaseline='';
-}
 function renderDayConfirm(){
   const state=dayCardConfirmState;$('dayCardBody').innerHTML=`<div class="unified-confirm-state"><div class="unified-confirm-icon ${state?.danger?'danger':''}" aria-hidden="true">${state?.danger?'!':'✓'}</div><p>${esc(state?.message||'')}</p></div>`;
-  dayCardSetFooter(`<button type="button" class="cancel" id="dayConfirmCancel">Abbrechen</button><button type="button" class="${state?.danger?'danger-button':'save'}" id="dayConfirmProceed">${esc(state?.confirmLabel||'Bestätigen')}</button>`);$('dayConfirmCancel').addEventListener('click',dayCardCancelConfirm);$('dayConfirmProceed').addEventListener('click',dayCardProceedConfirm);dayCardFormBaseline='';
-}
-function renderDayCard(){
-  if(!$('dayModal')?.classList.contains('open')&&!dayCardDraft)return;
-  const view=dayCardCurrent.view;$('dayModalTitle').textContent=dayCardTitle(view);$('dayModalContext').textContent=formatContextDate($('editDate').value);$('dayCardBack').hidden=view==='overview'||view==='confirm';
-  if(view==='overview')renderDayOverview();else if(view==='entry')renderDayEntry();else if(view==='pause')renderDayPause();else if(view==='absence')renderDayAbsence();else if(view==='comment')renderDayComment();else if(view==='actions')renderDayActions();else if(view==='confirm')renderDayConfirm();
-  if(dayCardRestoreForm){const form=dayCardRestoreForm;dayCardRestoreForm=null;restoreDayCardForm(form)}
-  requestAnimationFrame(()=>$('dayCardBody')?.scrollTo({top:0}));
-}
-function openDayEditor(k){
-  const d=clone(dayObject(k));dayCardOriginal=d;dayCardDraft=clone(d);dayCardCurrent={view:'overview',params:{}};dayCardStack=[];dayCardConfirmState=null;$('editDate').value=k;$('dayModalContext').textContent=formatContextDate(k);openModal('dayModal');renderDayCard();
+  dayCardSetFooter(`<button type="button" class="cancel" id="dayConfirmCancel">${esc(state?.cancelLabel||'Abbrechen')}</button><button type="button" class="${state?.danger?'danger-button':'save'}" id="dayConfirmProceed">${esc(state?.confirmLabel||'Bestätigen')}</button>`);$('dayConfirmCancel').addEventListener('click',dayCardCancelConfirm);$('dayConfirmProceed').addEventListener('click',dayCardProceedConfirm);dayCardFormBaseline='';
 }
 function requestDayCardClose(){
   if(dayCardCurrent.view==='confirm'){dayCardCancelConfirm();return}
-  const dirty=dayCardIsDirty()||dayCardSubviewDirty();if(dirty){dayCardAskConfirm({title:'Änderungen verwerfen?',message:'Alle noch nicht mit „Tag speichern“ gesicherten Änderungen gehen verloren.',confirmLabel:'Verwerfen',onConfirm:()=>{dayCardDraft=null;dayCardOriginal=null;closeModal('dayModal')}});return}
+  const dirty=dayCardIsDirty()||dayCockpitPendingDirty();if(dirty){dayCardAskConfirm({title:'Änderungen verwerfen?',message:'Alle noch nicht mit „Tag speichern“ gesicherten Änderungen gehen verloren.',confirmLabel:'Änderungen verwerfen',cancelLabel:'Weiter bearbeiten',onConfirm:()=>{dayCardDraft=null;dayCardOriginal=null;closeModal('dayModal')}});return}
   dayCardDraft=null;dayCardOriginal=null;closeModal('dayModal');
-}
-function saveDayCard(){
-  const key=$('editDate').value;if(!dayCardDraft||!key)return;
-  const candidate=cleanDayCardDraft(dayCardDraft),validation=validateDayEditorEntries(candidate.entries||[],key);if(!validation.valid){showToast('Buchungsfolge prüfen');const first=validation.errors.findIndex(x=>x.length);dayCardNavigate('entry',{index:Math.max(0,first)});return}
-  if(dayAbsenceCode(candidate)!=='holiday'&&candidate.absence&&absenceDuration(candidate)==='full'&&(candidate.entries||[]).length){showToast('Ganztägige Abwesenheit und Buchungen können nicht gemeinsam gespeichert werden');dayCardNavigate('absence');return}
-  if(!dayCardIsDirty()){dayCardDraft=null;dayCardOriginal=null;closeModal('dayModal');refreshAllDerivedViews();showToast('Keine Änderungen vorhanden.');return}
-  const originalImport=IMPORTED_BY_DATE[key];
-  if(dayCardDraft.__deleteAll){
-    if(originalImport)state.days[key]={date:key,entries:[],pauseMinutes:0,absence:null,absenceCode:null,note:'',holiday:null,absenceNote:'',edited:true,importCleared:true,modifiedAt:new Date().toISOString(),archived:Number(key.slice(0,4))<new Date().getFullYear()};else delete state.days[key];
-  }else if(originalImport&&JSON.stringify(candidate)===JSON.stringify(originalImport))state.days[key]=clone(originalImport);else{
-    candidate.date=key;candidate.edited=true;candidate.modifiedAt=new Date().toISOString();candidate.archived=Number(key.slice(0,4))<new Date().getFullYear();state.days[key]=candidate;
-  }
-  cursorDate=parseDateKey(key);touchDay(key);dayCardDraft=null;dayCardOriginal=null;closeModal('dayModal');refreshAllDerivedViews();showToast('Tag gespeichert. Tagessaldo und Zeitkonto wurden aktualisiert.');
 }
 function saveEditedDay(){saveDayCard()}
 function deleteEditedDay(){dayCardNavigate('actions')}
@@ -1520,7 +1327,7 @@ function deleteAbsenceForDay(k,scope='day'){
 }
 
 function initV530Enhancements(){
-  $('dayCardBack').addEventListener('click',()=>dayCardBack());$('dayCardClose').addEventListener('click',requestDayCardClose);$('settingsCardBack').addEventListener('click',requestSettingsCardClose);$('settingsCardClose').addEventListener('click',requestSettingsCardClose);$('openTargetRuleBtn').addEventListener('click',()=>openSettingsCard('target'));$('openStartBalanceBtn').addEventListener('click',()=>openSettingsCard('balance'));$('openHolidayRegionBtn').addEventListener('click',()=>openSettingsCard('region'));$('openOfflineInfoBtn').addEventListener('click',()=>openSettingsCard('offline'));$('restoreConfirmClose').addEventListener('click',cancelRestore);$('restoreCancelBtn').addEventListener('click',cancelRestore);$('restoreProceedBtn').addEventListener('click',proceedRestore);renderSettings();
+  $('dayCardBack')?.addEventListener('click',()=>dayCardBack());$('dayCardClose').addEventListener('click',requestDayCardClose);$('settingsCardBack').addEventListener('click',requestSettingsCardClose);$('settingsCardClose').addEventListener('click',requestSettingsCardClose);$('openTargetRuleBtn').addEventListener('click',()=>openSettingsCard('target'));$('openStartBalanceBtn').addEventListener('click',()=>openSettingsCard('balance'));$('openHolidayRegionBtn').addEventListener('click',()=>openSettingsCard('region'));$('openOfflineInfoBtn').addEventListener('click',()=>openSettingsCard('offline'));$('restoreConfirmClose').addEventListener('click',cancelRestore);$('restoreCancelBtn').addEventListener('click',cancelRestore);$('restoreProceedBtn').addEventListener('click',proceedRestore);renderSettings();
 }
 document.addEventListener('DOMContentLoaded',initV530Enhancements);
 
@@ -1558,11 +1365,11 @@ renderToday=function(){
   const d=dayObject(todayKey()),pause=Number(d.pauseMinutes)||0;
   document.title=`Arbeitszeit PWA · Version ${APP_VERSION}`;
   updateClock();
-  $('pauseButtonLabel').textContent='Manuelle Pause';
-  $('pauseButtonSub').textContent=pause?`${pause} Minuten für heute eingetragen`:'Direkt für den heutigen Tag';
+  $('pauseButtonLabel').textContent='Pause';
+  $('pauseButtonSub').textContent=pause?`${pause} Min. eingetragen`:'Heute';
   const note=normalizeNoteText(d.note);
-  $('quickTodayCommentLabel').textContent=note?'Kommentar bearbeiten':'Kommentar für heute';
-  $('quickTodayCommentSub').textContent=note?notePreview(note,82):'Direkt für den heutigen Tag';
+  $('quickTodayCommentLabel').textContent='Kommentar';
+  $('quickTodayCommentSub').textContent=note?notePreview(note,52):'Heute';
   const legacyComment=$('todayCommentRow');if(legacyComment)legacyComment.hidden=true;
   const banner=$('todayAbsenceBanner'),full=hasFullAbsence(d),half=d.absence&&absenceDuration(d)==='half';
   banner.hidden=!d.absence;document.querySelector('.punch-grid')?.classList.toggle('absence-full',full);
@@ -1617,12 +1424,12 @@ function vacationPeriodBreakdown(start,end){
 renderVacationDetail=function(year,s,monthData){
   const month=vacationChartSelection.month,detail=$('vacationDetail');if(!detail)return;
   if(month===null){
-    detail.innerHTML=`<h3>Urlaubskonto ${year}</h3><div><span>Anspruch</span><strong>${formatVacationDays(s.ent.days)}</strong></div><div><span>Übertrag</span><strong>${formatVacationDays(s.ent.carryover)}</strong></div><div><span>Gesamt verfügbar</span><strong>${formatVacationDays(s.total)}</strong></div><div><span>Genommen</span><strong>${formatVacationDays(s.taken)}</strong></div><div><span>Geplant</span><strong>${formatVacationDays(s.planned)}</strong></div><div><span>Verbleibend</span><strong class="${s.remaining<0?'red':'green'}">${formatVacationDays(s.remaining)}</strong></div>`;
+    detail.innerHTML=`<h3>Urlaubskonto ${year}</h3><div><span>Anspruch</span><strong>${formatVacationDays(s.ent.days)}</strong></div><div><span>Übertrag</span><strong>${formatVacationDays(s.ent.carryover)}</strong></div><div><span>Gesamt verfügbar</span><strong>${formatVacationDays(s.total)}</strong></div><div><span>Genommen</span><strong>${formatVacationDays(s.taken)}</strong></div><div><span>Geplant</span><strong class="planned-value">${formatVacationDays(s.planned)}</strong></div><div><span>Verbleibend</span><strong class="${s.remaining<0?'red':'green'}">${formatVacationDays(s.remaining)}</strong></div>`;
     return;
   }
   const range=vacationMonthRange(year,month),m=monthData[month],affected=s.records.filter(r=>r.days.some(d=>d.date>=range.from&&d.date<=range.to));
   const usedThrough=s.records.flatMap(r=>r.days).filter(d=>d.date<=range.to).reduce((n,d)=>n+(absenceDuration(d)==='half'?0.5:1),0),remaining=s.total-usedThrough;
-  detail.innerHTML=`<div class="vacation-detail-head"><h3>${new Intl.DateTimeFormat('de-DE',{month:'long',year:'numeric'}).format(new Date(year,month,1))}</h3><button type="button" class="vacation-overall-link" id="vacationShowOverall">Urlaubskonto anzeigen</button></div><div><span>Genommen</span><strong>${formatVacationDays(m.taken)}</strong></div><div><span>Geplant</span><strong>${formatVacationDays(m.planned)}</strong></div><div class="vacation-periods"><span>Betroffene Zeiträume</span><strong>${affected.length?affected.map(vacationRecordLabel).join(', '):'Keine'}</strong></div><div><span>Verfügbar nach den Planungen</span><strong class="${remaining<0?'red':'green'}">${formatVacationDays(remaining)}</strong></div>`;
+  detail.innerHTML=`<div class="vacation-detail-head"><h3>${new Intl.DateTimeFormat('de-DE',{month:'long',year:'numeric'}).format(new Date(year,month,1))}</h3><button type="button" class="vacation-overall-link" id="vacationShowOverall">Urlaubskonto anzeigen</button></div><div><span>Genommen</span><strong>${formatVacationDays(m.taken)}</strong></div><div><span>Geplant</span><strong class="planned-value">${formatVacationDays(m.planned)}</strong></div><div class="vacation-periods"><span>Betroffene Zeiträume</span><strong>${affected.length?affected.map(vacationRecordLabel).join(', '):'Keine'}</strong></div><div><span>Verfügbar nach den Planungen</span><strong class="${remaining<0?'red':'green'}">${formatVacationDays(remaining)}</strong></div>`;
   $('vacationShowOverall').addEventListener('click',()=>{vacationChartSelection={year,month:null};renderVacationOverview()});
 };
 renderVacationOverview=function(){
@@ -1661,8 +1468,8 @@ function loadDayEditorDate(k){
 function requestDayEditorDateChange(k){
   if(!isDateKey(k)||k<TRACKING_START_DATE){renderDayCard();return}
   if(k===$('editDate').value)return;
-  if(dayCardIsDirty()||dayCardSubviewDirty()){
-    dayCardAskConfirm({title:'Tag wechseln?',message:'Nicht gespeicherte Änderungen des aktuellen Tages gehen verloren.',confirmLabel:'Tag wechseln',onConfirm:()=>loadDayEditorDate(k)});return;
+  if(dayCardIsDirty()||dayCockpitPendingDirty()){
+    dayCardAskConfirm({title:'Tag wechseln?',message:'Nicht gespeicherte Änderungen des aktuellen Tages gehen verloren.',confirmLabel:'Tag wechseln',cancelLabel:'Weiter bearbeiten',onConfirm:()=>loadDayEditorDate(k)});return;
   }
   loadDayEditorDate(k);
 }
@@ -1670,59 +1477,6 @@ dayCardNavigate=function(view,params={}){
   const future=$('editDate').value>todayKey();
   if(future&&['entry','pause','absence','actions'].includes(view)){showToast('Zukünftige Arbeitszeitdaten sind gesperrt. Abwesenheiten werden über die separate Abwesenheitsfunktion gepflegt.');return}
   dayCardStack.push(dayCardCurrent);dayCardCurrent={view,params};renderDayCard();
-};
-renderDayOverview=function(){
-  const key=$('editDate').value,entries=dayCardDraft.entries||[],nextBooking=nextBookingActionMeta(entries),future=key>todayKey(),calc=calculateDay({...dayCardDraft,date:key}),validation=validateDayEditorEntries(entries,key);
-  const review=dayCardDraft.workdayIssueReview?.label||dayStatus({...dayCardDraft,date:key}),note=normalizeNoteText(dayCardDraft.note);
-  const entryRows=entries.map((entry,index)=>`<button type="button" class="unified-list-row booking-disclosure" data-day-entry="${index}" ${future?'disabled':''}><span class="unified-row-main"><b>${esc(dayCardEntryLabel(index))}</b><small>Tatsächlich ${esc(entry.actual||'–')} · Dokumentiert ${esc(entry.logged||'–')}</small></span>${future?'':'<i aria-hidden="true">›</i>'}</button>`).join('');
-  const issueText=!validation.valid?`<div class="day-editor-issue">Die Buchungsfolge enthält ${validation.errors.filter(Boolean).length} Hinweis(e). Bitte vor dem Speichern prüfen.</div>`:'';
-  const futureText=future?`<div class="day-editor-future-note"><b>Zukünftiger Tag</b><span>Arbeitszeitbuchungen und Pausen sind gesperrt. Zukünftige Abwesenheiten werden ausschließlich über „Abwesenheit eintragen oder bearbeiten“ gepflegt.</span></div>`:'';
-  $('dayCardBody').innerHTML=`
-    <div class="day-editor-date-row"><label for="dayEditorDateSelector">Datum</label><div class="date-input-shell"><input id="dayEditorDateSelector" type="date" min="${TRACKING_START_DATE}" value="${key}"></div></div>
-    <div class="day-editor-status-grid"><div><span>Prüfstatus</span><b>${esc(review)}</b></div><div><span>Netto / Soll</span><b>${formatDuration(calc.net,{signed:false})} / ${formatDuration(calc.target,{signed:false})}</b></div><div><span>Tagessaldo</span><b class="${calc.diff<0?'red':'green'}">${formatDuration(calc.diff)}</b></div></div>
-    ${futureText}${issueText}
-    <section class="unified-list-section" aria-labelledby="dayCardBookings"><h3 id="dayCardBookings">Buchungen</h3><div class="unified-list">${entryRows||'<div class="unified-empty-row">Keine Buchungen vorhanden</div>'}<button type="button" class="unified-list-row unified-add-row" id="dayAddEntry" ${future?'disabled':''}><span class="unified-row-main"><b>${future?'Buchung hinzufügen':nextBooking.title}</b><small>${future?'Für zukünftige Tage nicht zulässig':nextBooking.subtitle}</small></span>${future?'':'<i aria-hidden="true">›</i>'}</button></div></section>
-    <section class="unified-list-section" aria-labelledby="dayCardDetails"><h3 id="dayCardDetails">Tagesangaben</h3><div class="unified-list">
-      <button type="button" class="unified-list-row" data-day-route="pause" ${future?'disabled':''}><span class="unified-row-main"><b>Pause</b><small>${future?'Für zukünftige Tage gesperrt':'Manuelle Pausenzeit'}</small></span><span class="unified-row-end"><strong>${Math.max(0,Number(dayCardDraft.pauseMinutes)||0)} Min.</strong>${future?'':'<i aria-hidden="true">›</i>'}</span></button>
-      <button type="button" class="unified-list-row" data-day-route="absence" ${future?'disabled':''}><span class="unified-row-main"><b>Abwesenheit</b><small>${future?'Über die separate Abwesenheitsfunktion pflegen':esc(dayCardDraft.absenceNote||'Einzelner ausgewählter Tag')}</small></span><span class="unified-row-end"><strong>${esc(dayCardAbsenceText())}</strong>${future?'':'<i aria-hidden="true">›</i>'}</span></button>
-      <button type="button" class="unified-list-row" data-day-route="comment"><span class="unified-row-main"><b>Kommentar</b><small>${esc(note?notePreview(note,72):'Kein Kommentar')}</small></span><i aria-hidden="true">›</i></button>
-    </div></section>
-    <section class="unified-list-section"><div class="unified-list"><button type="button" class="unified-list-row" data-day-route="actions" ${future?'disabled':''}><span class="unified-row-main"><b>Weitere Aktionen</b><small>${future?'Für zukünftige Tage gesperrt':'Löschen oder Importdaten wiederherstellen'}</small></span>${future?'':'<i aria-hidden="true">›</i>'}</button></div></section>`;
-  $('dayEditorDateSelector').addEventListener('change',event=>requestDayEditorDateChange(event.target.value));
-  document.querySelectorAll('[data-day-entry]').forEach(button=>button.addEventListener('click',()=>dayCardNavigate('entry',{index:Number(button.dataset.dayEntry)})));
-  $('dayAddEntry').addEventListener('click',()=>dayCardNavigate('entry',{index:-1,type:nextBooking.type}));
-  document.querySelectorAll('[data-day-route]').forEach(button=>button.addEventListener('click',()=>dayCardNavigate(button.dataset.dayRoute)));
-  dayCardSetFooter('<button type="button" class="cancel" id="dayCancelEdit">Abbrechen</button><button type="button" class="save" id="daySaveEdit">Tag speichern</button>');
-  $('dayCancelEdit').addEventListener('click',requestDayCardClose);$('daySaveEdit').addEventListener('click',saveDayCard);dayCardFormBaseline='';
-};
-renderDayCard=function(){
-  if(!$('dayModal')?.classList.contains('open')&&!dayCardDraft)return;
-  const view=dayCardCurrent.view;$('dayModalTitle').textContent=dayCardTitle(view);$('dayModalContext').textContent=view==='overview'?formatContextDate($('editDate').value):formatContextDate($('editDate').value);$('dayCardBack').hidden=view==='overview'||view==='confirm';if($('dayPrevDate'))$('dayPrevDate').hidden=view!=='overview';if($('dayNextDate'))$('dayNextDate').hidden=view!=='overview';
-  if(view==='overview')renderDayOverview();else if(view==='entry')renderDayEntry();else if(view==='pause')renderDayPause();else if(view==='absence')renderDayAbsence();else if(view==='comment')renderDayComment();else if(view==='actions')renderDayActions();else if(view==='confirm')renderDayConfirm();
-  if(dayCardRestoreForm){const form=dayCardRestoreForm;dayCardRestoreForm=null;restoreDayCardForm(form)}
-  requestAnimationFrame(()=>$('dayCardBody')?.scrollTo({top:0}));
-};
-openDayEditor=function(k=todayKey()){
-  const key=isDateKey(k)&&k>=TRACKING_START_DATE?k:todayKey();$('editDate').value=key;openModal('dayModal');loadDayEditorDate(key);
-};
-saveDayCard=function(){
-  const key=$('editDate').value;if(!dayCardDraft||!key)return;
-  const candidate=cleanDayCardDraft(dayCardDraft),validation=validateDayEditorEntries(candidate.entries||[],key);
-  if(key>todayKey()){
-    const original=cleanDayCardDraft(dayCardOriginal||{});
-    const workChanged=JSON.stringify({entries:candidate.entries||[],pause:Number(candidate.pauseMinutes)||0,absence:candidate.absence||null,code:dayAbsenceCode(candidate),extent:absenceDuration(candidate)})!==JSON.stringify({entries:original.entries||[],pause:Number(original.pauseMinutes)||0,absence:original.absence||null,code:dayAbsenceCode(original),extent:absenceDuration(original)});
-    if(workChanged){showToast('Zukünftige Arbeitszeitdaten und Abwesenheiten können hier nicht geändert werden.');loadDayEditorDate(key);return}
-  }
-  if(!validation.valid){showToast('Buchungsfolge prüfen');const first=validation.errors.findIndex(x=>x.length);dayCardNavigate('entry',{index:Math.max(0,first)});return}
-  if(dayAbsenceCode(candidate)!=='holiday'&&candidate.absence&&absenceDuration(candidate)==='full'&&(candidate.entries||[]).length){showToast('Ganztägige Abwesenheit und Buchungen können nicht gemeinsam gespeichert werden');dayCardNavigate('absence');return}
-  if(!dayCardIsDirty()){dayCardDraft=null;dayCardOriginal=null;closeModal('dayModal');refreshAllDerivedViews();showToast('Keine Änderungen vorhanden.');return}
-  const originalImport=IMPORTED_BY_DATE[key];
-  if(dayCardDraft.__deleteAll){
-    if(originalImport)state.days[key]={date:key,entries:[],pauseMinutes:0,absence:null,absenceCode:null,note:'',holiday:null,absenceNote:'',edited:true,importCleared:true,modifiedAt:new Date().toISOString(),archived:Number(key.slice(0,4))<new Date().getFullYear()};else delete state.days[key];
-  }else if(originalImport&&JSON.stringify(candidate)===JSON.stringify(originalImport))state.days[key]=clone(originalImport);else{
-    candidate.date=key;candidate.edited=true;candidate.modifiedAt=new Date().toISOString();candidate.archived=Number(key.slice(0,4))<new Date().getFullYear();state.days[key]=candidate;
-  }
-  cursorDate=parseDateKey(key);touchDay(key);dayCardDraft=null;dayCardOriginal=null;closeModal('dayModal');refreshAllDerivedViews();showToast('Tag gespeichert. Tagessaldo und Zeitkonto wurden aktualisiert.');
 };
 
 settingsCardFormSnapshot=function(){
@@ -1823,10 +1577,147 @@ createReportPdfFile=function(type,y,m){
 };
 
 document.addEventListener('DOMContentLoaded',()=>{
-  const shiftDayEditor=delta=>{const current=parseDateKey($('editDate')?.value||todayKey());current.setDate(current.getDate()+delta);const target=dateKey(current);if(target<TRACKING_START_DATE){showToast('Vor Beginn der Zeiterfassung ist kein Wechsel möglich.');return}requestDayEditorDateChange(target)};
-  $('dayPrevDate')?.addEventListener('click',()=>shiftDayEditor(-1));
-  $('dayNextDate')?.addEventListener('click',()=>shiftDayEditor(1));
   $('quickFullDayStart')?.addEventListener('click',()=>openFullDayForDate(quickContextDate,'quickAddModal'));
-  $('openHolidayRegionBtn')?.addEventListener('click',event=>{event.preventDefault();event.stopImmediatePropagation();openSettingsCard('holidays')},true);
   setTimeout(()=>{renderSettings();renderVacationOverview()},0);
+});
+
+
+/* V5.51 – konsolidiertes Tagescockpit, Zukunftsstatus und UI-Bereinigung */
+let dayCockpitUI={inlineIndex:null,panel:null};
+function dayCockpitDateLabel(key){return formatDate(key,{weekday:'long',day:'numeric',month:'long',year:'numeric'})}
+function dayCockpitStatus(key,draft,validation){
+  if(draft.workdayIssueReview?.label)return'✓ Geprüft – Minusstunden korrekt';
+  if(!validation.valid)return'! Buchungsfolge prüfen';
+  const status=dayStatus({...draft,date:key});
+  return status==='Vollständig'||status==='Halbe Abwesenheit + Arbeitszeit'?'✓ Vollständig':status;
+}
+function dayCockpitFutureLabel(key,d){
+  const weekday=parseDateKey(key).getDay(),code=dayAbsenceCode(d);
+  if(d.holiday)return d.holiday;
+  if(weekday===0||weekday===6)return'Wochenende';
+  if(code==='vacation')return absenceDuration(d)==='half'?'½ Tag Urlaub geplant':'Urlaub geplant';
+  if(code==='timeOff')return'Zeitausgleich geplant';
+  if(code==='sick')return'Krankheit eingetragen';
+  if(d.absence)return`${d.absence} eingetragen`;
+  return'Noch nicht verfügbar';
+}
+function dayCockpitMenuHtml(){
+  const key=$('editDate').value,d=dayCardDraft||{},hasBookings=(d.entries||[]).length||Number(d.pauseMinutes),hasImport=!!IMPORTED_BY_DATE[key],reviewed=!!d.workdayIssueReview,issue=workdayIssueForDate(key,{includeReviewed:true});
+  return `${hasBookings?'<button role="menuitem" data-day-menu="clear" class="danger">Buchungen und Pause löschen</button>':''}${hasImport?'<button role="menuitem" data-day-menu="restore">Ursprüngliche Importdaten wiederherstellen</button>':''}${reviewed?'<button role="menuitem" data-day-menu="unreview">Prüfstatus zurücknehmen</button>':issue?'<button role="menuitem" data-day-menu="review">Prüfstatus setzen</button>':''}${!hasBookings&&!hasImport&&!reviewed&&!issue?'<div class="day-menu-empty">Keine weiteren Aktionen verfügbar</div>':''}`;
+}
+function closeDayCockpitMenu(){const pop=$('dayMenuPopover'),btn=$('dayMenuButton');if(pop)pop.hidden=true;if(btn)btn.setAttribute('aria-expanded','false')}
+function renderDayCockpitMenu(){const pop=$('dayMenuPopover');if(!pop)return;pop.innerHTML=dayCockpitMenuHtml();pop.querySelectorAll('[data-day-menu]').forEach(button=>button.addEventListener('click',()=>handleDayCockpitMenu(button.dataset.dayMenu)))}
+function handleDayCockpitMenu(action){
+  closeDayCockpitMenu();const key=$('editDate').value;
+  if(action==='clear'){dayCardAskConfirm({title:'Buchungen und Pause löschen?',message:'Abwesenheit und Kommentar bleiben erhalten. Die Änderung wird erst mit „Tag speichern“ dauerhaft.',confirmLabel:'Löschen',onConfirm:()=>{dayCardDraft.entries=[];dayCardDraft.pauseMinutes=0;if(IMPORTED_BY_DATE[key])dayCardDraft.importCleared=true;dayCockpitUI.inlineIndex=null;renderDayCard()}});return}
+  if(action==='restore'){dayCardAskConfirm({title:'Importdaten wiederherstellen?',message:'Vorgemerkte lokale Änderungen dieses Tages werden durch die ursprünglichen Importdaten ersetzt.',confirmLabel:'Wiederherstellen',danger:false,onConfirm:()=>{dayCardDraft=clone(IMPORTED_BY_DATE[key]);dayCardOriginal=clone(dayObject(key));dayCockpitUI={inlineIndex:null,panel:null};renderDayCard()}});return}
+  if(action==='unreview'){delete dayCardDraft.workdayIssueReview;renderDayCard();return}
+  if(action==='review'){const issue=workdayIssueForDate(key,{includeReviewed:true});if(issue)dayCardDraft.workdayIssueReview={signature:issue.signature,reviewedAt:new Date().toISOString(),label:'Geprüft – Minusstunden sind korrekt'};renderDayCard()}
+}
+function dayCockpitInlineEditor(index){
+  const adding=index===-1,entries=dayCardDraft.entries||[],next=nextBookingActionMeta(entries),entry=adding?{type:next.type,actual:hm(),logged:roundLogged(hm(),next.type),source:'manual',edited:true}:clone(entries[index]);
+  if(!entry)return'';
+  return `<div class="day-inline-editor" data-inline-editor="${index}"><div class="day-inline-grid"><div class="field"><label for="dayInlineType">Art</label><select id="dayInlineType" data-base="${entry.type}"><option value="in" ${entry.type==='in'?'selected':''}>Kommen</option><option value="out" ${entry.type==='out'?'selected':''}>Gehen</option></select></div><div class="field"><label for="dayInlineActual">Tatsächlich</label><input id="dayInlineActual" type="time" value="${esc(entry.actual||'')}"></div><div class="field"><label for="dayInlineLogged">Dokumentiert</label><input id="dayInlineLogged" type="time" value="${esc(entry.logged||'')}"></div></div><div class="day-inline-error" id="dayInlineError" hidden></div><div class="day-inline-actions">${adding?'':'<button type="button" class="danger-link" id="dayInlineDelete">Löschen</button>'}<span></span><button type="button" id="dayInlineCancel">Abbrechen</button><button type="button" class="primary" id="dayInlineSave">Speichern</button></div></div>`;
+}
+function dayCockpitPanel(key,future){
+  const panel=dayCockpitUI.panel,d=dayCardDraft;if(!panel)return'';
+  if(panel==='pause')return `<div class="day-detail-panel"><h4>Pause</h4>${future?'<p>Zukünftige Pausen sind gesperrt.</p>':`<div class="pause-stepper"><button type="button" id="dayPauseMinus" aria-label="Pause um fünf Minuten verringern">−</button><input id="dayPauseInline" inputmode="numeric" min="0" step="1" type="number" value="${Math.max(0,Number(d.pauseMinutes)||0)}"><button type="button" id="dayPausePlus" aria-label="Pause um fünf Minuten erhöhen">+</button></div><div class="pause-presets">${[15,30,45,60].map(v=>`<button type="button" data-pause-preset="${v}" class="${Number(d.pauseMinutes)===v?'active':''}">${v}</button>`).join('')}</div><div class="panel-actions"><button type="button" id="dayPanelCancel">Abbrechen</button><button type="button" class="primary" id="dayPauseApply">Übernehmen</button></div>`}</div>`;
+  if(panel==='comment')return `<div class="day-detail-panel"><h4>Kommentar</h4><textarea id="dayCommentInline" rows="4" placeholder="Kommentar für diesen Tag">${esc(d.note||'')}</textarea><div class="panel-actions"><button type="button" id="dayPanelCancel">Abbrechen</button><button type="button" class="primary" id="dayCommentApply">Übernehmen</button></div></div>`;
+  if(panel==='absence'){
+    const code=dayAbsenceCode(d)||'none',holiday=code==='holiday'||!!d.holiday;
+    if(holiday)return `<div class="day-detail-panel"><h4>Abwesenheit</h4><p><b>${esc(d.holiday||d.absence||'Feiertag')}</b></p><p>Feiertage werden aus der Feiertagslogik abgeleitet und hier nicht verändert.</p><div class="panel-actions"><button type="button" id="dayPanelCancel">Schließen</button></div></div>`;
+    return `<div class="day-detail-panel"><h4>Abwesenheit</h4><div class="absence-inline-grid"><div class="field"><label for="dayAbsenceInlineType">Art</label><select id="dayAbsenceInlineType" data-base="${code}"><option value="none">Keine Abwesenheit</option><option value="vacation" ${code==='vacation'?'selected':''}>Urlaub</option><option value="sick" ${code==='sick'?'selected':''}>Krankheit</option><option value="timeOff" ${code==='timeOff'?'selected':''}>Zeitausgleich</option><option value="other" ${code==='other'?'selected':''}>Sonstige</option></select></div><div class="field"><label for="dayAbsenceInlineExtent">Umfang</label><select id="dayAbsenceInlineExtent" data-base="${absenceDuration(d)==='half'?'half':'full'}"><option value="full" ${absenceDuration(d)!=='half'?'selected':''}>Ganzer Tag</option><option value="half" ${absenceDuration(d)==='half'?'selected':''}>Halber Tag</option></select></div></div><div class="field"><label for="dayAbsenceInlineNote">Notiz</label><textarea id="dayAbsenceInlineNote" rows="2">${esc(d.absenceNote||'')}</textarea></div><div class="day-inline-error" id="dayAbsenceInlineError" hidden></div><div class="panel-actions"><button type="button" id="dayPanelCancel">Abbrechen</button><button type="button" class="primary" id="dayAbsenceApplyInline">Übernehmen</button></div></div>`;
+  }
+  return'';
+}
+renderDayOverview=function(){
+  const key=$('editDate').value,d=dayCardDraft,entries=d.entries||[],future=key>todayKey(),calc=calculateDay({...d,date:key}),validation=validateDayEditorEntries(entries,key),status=dayCockpitStatus(key,d,validation),fullAbsence=!!d.absence&&absenceDuration(d)==='full',conflict=fullAbsence&&entries.length;
+  const rows=entries.map((entry,index)=>{const error=validation.errors[index]?.length,active=dayCockpitUI.inlineIndex===index;return `<div class="day-booking-row-wrap ${error?'has-error':''}"><button type="button" class="day-booking-row ${entry.type}" data-day-entry="${index}" ${future?'disabled':''}><span class="day-booking-kind"><i></i><b>${entry.type==='in'?'Kommen':'Gehen'}</b></span><span><small>Tatsächlich</small><strong>${esc(entry.actual||'–')}</strong></span><span><small>Dokumentiert</small><strong>${esc(entry.logged||'–')}</strong></span></button>${error?`<div class="booking-row-error">${esc(validation.errors[index].join(' '))}</div>`:''}${active?dayCockpitInlineEditor(index):''}</div>`}).join('');
+  const futureHint=future?`<div class="day-future-hint"><b>${esc(dayCockpitFutureLabel(key,d))}</b><span>Buchungen und Pause bleiben gesperrt. Abwesenheiten und Kommentare können bearbeitet werden.</span></div>`:'';
+  $('dayCardBody').innerHTML=`<div class="day-cockpit"><div class="day-date-strip"><button type="button" id="dayDatePrevious" aria-label="Vorheriger Tag">‹</button><label class="day-date-picker" for="dayEditorDateSelector"><span>${esc(dayCockpitDateLabel(key))}</span><input id="dayEditorDateSelector" type="date" min="${TRACKING_START_DATE}" value="${key}"></label><button type="button" id="dayDateNext" aria-label="Nächster Tag">›</button></div><div class="day-status-line"><span>${esc(status)}</span><span><small>Netto / Soll</small><b>${formatDuration(calc.net,{signed:false})} / ${formatDuration(calc.target,{signed:false})}</b></span><strong class="${future?'neutral':calc.diff<0?'red':calc.diff>0?'green':'neutral'}">${future?'–':formatDuration(calc.diff)}</strong></div>${futureHint}${conflict?'<div class="day-conflict-banner">Ganztägige Abwesenheit und vorhandene Buchungen widersprechen sich. Die Buchungen bleiben sichtbar und müssen vor dem Speichern geprüft werden.</div>':''}<section class="day-bookings-section"><div class="day-section-head"><h3>BUCHUNGEN</h3><button type="button" id="dayBookingAdd" aria-label="Buchung hinzufügen" ${future?'disabled':''}>＋</button></div><div class="day-booking-list">${rows||`<div class="day-booking-empty">${fullAbsence?esc(dayCockpitFutureLabel(key,d).replace(' geplant','')):'Keine Buchungen vorhanden'}</div>`}${dayCockpitUI.inlineIndex===-1?dayCockpitInlineEditor(-1):''}</div></section><div class="day-detail-tabs"><button type="button" data-day-panel="pause" class="${dayCockpitUI.panel==='pause'?'active':''}" ${future?'disabled':''}><small>Pause</small><b>${Math.max(0,Number(d.pauseMinutes)||0)} Min.</b></button><button type="button" data-day-panel="absence" class="${dayCockpitUI.panel==='absence'?'active':''}"><small>Abwesenheit</small><b>${esc(d.absence?`${d.absence}${absenceDuration(d)==='half'?' · ½ Tag':''}`:'Keine')}</b></button><button type="button" data-day-panel="comment" class="${dayCockpitUI.panel==='comment'?'active':''}"><small>Kommentar</small><b>${normalizeNoteText(d.note)?'Vorhanden':'Keiner'}</b></button></div>${dayCockpitPanel(key,future)}</div>`;
+  dayCardSetFooter('<button type="button" class="save single-footer-action" id="daySaveEdit">Tag speichern</button>');
+  $('dayEditorDateSelector').addEventListener('change',event=>requestDayEditorDateChange(event.target.value));
+  $('dayDatePrevious').addEventListener('click',()=>{const date=parseDateKey(key);date.setDate(date.getDate()-1);requestDayEditorDateChange(dateKey(date))});
+  $('dayDateNext').addEventListener('click',()=>{const date=parseDateKey(key);date.setDate(date.getDate()+1);requestDayEditorDateChange(dateKey(date))});
+  document.querySelectorAll('[data-day-entry]').forEach(button=>button.addEventListener('click',()=>requestDayCockpitUI({inlineIndex:Number(button.dataset.dayEntry),panel:null})));
+  $('dayBookingAdd')?.addEventListener('click',()=>requestDayCockpitUI({inlineIndex:-1,panel:null}));
+  document.querySelectorAll('[data-day-panel]').forEach(button=>button.addEventListener('click',()=>requestDayCockpitUI({inlineIndex:null,panel:dayCockpitUI.panel===button.dataset.dayPanel?null:button.dataset.dayPanel})));
+  $('daySaveEdit').addEventListener('click',saveDayCard);
+  bindDayCockpitInline();bindDayCockpitPanel();renderDayCockpitMenu();dayCardFormBaseline='';
+};
+function bindDayCockpitInline(){
+  const box=document.querySelector('[data-inline-editor]');if(!box)return;const index=Number(box.dataset.inlineEditor),actual=$('dayInlineActual'),logged=$('dayInlineLogged'),type=$('dayInlineType');
+  actual.addEventListener('input',()=>{logged.value=actual.value?roundLogged(actual.value,type.value):''});type.addEventListener('change',()=>{if(actual.value)logged.value=roundLogged(actual.value,type.value)});
+  $('dayInlineCancel').addEventListener('click',()=>{dayCockpitUI.inlineIndex=null;renderDayCard()});
+  $('dayInlineSave').addEventListener('click',()=>{const candidate={...(index>=0?dayCardDraft.entries[index]:{}),type:type.value,actual:actual.value,logged:logged.value,source:'manual',edited:true,editedAt:new Date().toISOString()},entries=clone(dayCardDraft.entries||[]);if(index>=0)entries[index]=candidate;else entries.push(candidate);const result=validateDayEditorEntries(entries,$('editDate').value);if(!result.valid){const err=index>=0?result.errors[index]:result.errors.at(-1);$('dayInlineError').hidden=false;$('dayInlineError').textContent=(err&&err.length?err.join(' '):'Die Buchungsfolge ist nicht plausibel.');return}dayCardDraft.entries=entries;dayCockpitUI.inlineIndex=null;renderDayCard()});
+  $('dayInlineDelete')?.addEventListener('click',()=>dayCardAskConfirm({title:'Buchung löschen?',message:'Diese Buchung wird aus dem Tagesentwurf entfernt. Dauerhaft wird die Änderung erst mit „Tag speichern“.',confirmLabel:'Löschen',onConfirm:()=>{dayCardDraft.entries.splice(index,1);dayCockpitUI.inlineIndex=null;renderDayCard()}}));
+}
+function bindDayCockpitPanel(){
+  $('dayPanelCancel')?.addEventListener('click',()=>{dayCockpitUI.panel=null;renderDayCard()});
+  if($('dayPauseInline')){const input=$('dayPauseInline'),adjust=n=>input.value=String(Math.max(0,Math.round(Number(input.value)||0)+n));$('dayPauseMinus').addEventListener('click',()=>adjust(-5));$('dayPausePlus').addEventListener('click',()=>adjust(5));document.querySelectorAll('[data-pause-preset]').forEach(button=>button.addEventListener('click',()=>input.value=button.dataset.pausePreset));$('dayPauseApply').addEventListener('click',()=>{dayCardDraft.pauseMinutes=Math.max(0,Math.round(Number(input.value)||0));dayCockpitUI.panel=null;renderDayCard()})}
+  $('dayCommentApply')?.addEventListener('click',()=>{dayCardDraft.note=$('dayCommentInline').value.trim();dayCockpitUI.panel=null;renderDayCard()});
+  $('dayAbsenceApplyInline')?.addEventListener('click',()=>{const code=$('dayAbsenceInlineType').value,extent=$('dayAbsenceInlineExtent').value,note=$('dayAbsenceInlineNote').value.trim();if(code==='none')clearAbsenceFields(dayCardDraft);else{dayCardDraft.absence=absenceLabel(code);dayCardDraft.absenceCode=code;dayCardDraft.absenceDuration=extent;dayCardDraft.absenceNote=note;delete dayCardDraft.absenceMinutes;if(!dayCardDraft.absenceCreatedAt)dayCardDraft.absenceCreatedAt=new Date().toISOString();dayCardDraft.absenceUpdatedAt=new Date().toISOString()}dayCockpitUI.panel=null;renderDayCard()});
+}
+function dayCockpitPendingDirty(){
+  const inline=document.querySelector('[data-inline-editor]');
+  if(inline&&$('dayInlineType')){
+    if($('dayInlineType').value!==$('dayInlineType').dataset.base||$('dayInlineActual').value!==$('dayInlineActual').defaultValue||$('dayInlineLogged').value!==$('dayInlineLogged').defaultValue)return true;
+  }
+  if($('dayPauseInline')&&Number($('dayPauseInline').value)!==Number($('dayPauseInline').defaultValue))return true;
+  if($('dayCommentInline')&&$('dayCommentInline').value!==$('dayCommentInline').defaultValue)return true;
+  if($('dayAbsenceInlineType')){
+    if($('dayAbsenceInlineType').value!==$('dayAbsenceInlineType').dataset.base||$('dayAbsenceInlineExtent').value!==$('dayAbsenceInlineExtent').dataset.base||$('dayAbsenceInlineNote').value!==$('dayAbsenceInlineNote').defaultValue)return true;
+  }
+  return false;
+}
+function requestDayCockpitUI(next){
+  const apply=()=>{dayCockpitUI={inlineIndex:next.inlineIndex??null,panel:next.panel??null};renderDayCard()};
+  if(dayCockpitPendingDirty()){dayCardAskConfirm({title:'Eingaben verwerfen?',message:'Die noch nicht übernommenen Eingaben dieses Bereichs gehen verloren.',confirmLabel:'Verwerfen',cancelLabel:'Weiter bearbeiten',onConfirm:apply});return}
+  apply();
+}
+const v551CaptureDayCardForm=captureDayCardForm;
+captureDayCardForm=function(){
+  if($('dayInlineType'))return{kind:'inline',type:$('dayInlineType').value,actual:$('dayInlineActual').value,logged:$('dayInlineLogged').value};
+  if($('dayPauseInline'))return{kind:'pause',pause:$('dayPauseInline').value};
+  if($('dayCommentInline'))return{kind:'comment',note:$('dayCommentInline').value};
+  if($('dayAbsenceInlineType'))return{kind:'absence',type:$('dayAbsenceInlineType').value,extent:$('dayAbsenceInlineExtent').value,note:$('dayAbsenceInlineNote').value};
+  return v551CaptureDayCardForm();
+};
+const v551RestoreDayCardForm=restoreDayCardForm;
+restoreDayCardForm=function(data){
+  if(!data)return;
+  if(!data.kind){v551RestoreDayCardForm(data);return}
+  requestAnimationFrame(()=>{
+    if(data.kind==='inline'&&$('dayInlineType')){$('dayInlineType').value=data.type;$('dayInlineActual').value=data.actual;$('dayInlineLogged').value=data.logged}
+    if(data.kind==='pause'&&$('dayPauseInline'))$('dayPauseInline').value=data.pause;
+    if(data.kind==='comment'&&$('dayCommentInline'))$('dayCommentInline').value=data.note;
+    if(data.kind==='absence'&&$('dayAbsenceInlineType')){$('dayAbsenceInlineType').value=data.type;$('dayAbsenceInlineExtent').value=data.extent;$('dayAbsenceInlineNote').value=data.note}
+  });
+};
+dayCardSubviewDirty=function(){return dayCockpitPendingDirty()};
+dayCardNavigate=function(view,params={}){if(view==='entry'){dayCockpitUI.panel=null;dayCockpitUI.inlineIndex=Number.isInteger(params.index)?params.index:-1}else if(['pause','absence','comment'].includes(view)){dayCockpitUI.inlineIndex=null;dayCockpitUI.panel=view}else if(view==='actions'){const btn=$('dayMenuButton');btn?.click();return}else if(view==='confirm'){dayCardCurrent={view,params};renderDayCard();return}dayCardCurrent={view:'overview',params:{}};renderDayCard()};
+renderDayCard=function(){
+  if(!$('dayModal')?.classList.contains('open')&&!dayCardDraft)return;const view=dayCardCurrent.view;$('dayModalTitle').textContent='Tag bearbeiten';$('dayModalContext').textContent='';$('dayCardBack')?.setAttribute('hidden','');$('dayMenuButton').hidden=view==='confirm';
+  if(view==='confirm')renderDayConfirm();else{dayCardCurrent={view:'overview',params:{}};renderDayOverview();if(dayCardRestoreForm){const data=dayCardRestoreForm;dayCardRestoreForm=null;restoreDayCardForm(data)}}
+};
+openDayEditor=function(k=todayKey()){const key=isDateKey(k)&&k>=TRACKING_START_DATE?k:todayKey();dayCockpitUI={inlineIndex:null,panel:null};$('editDate').value=key;openModal('dayModal');loadDayEditorDate(key)};
+const v551LoadDayEditorDate=loadDayEditorDate;
+loadDayEditorDate=function(k){dayCockpitUI={inlineIndex:null,panel:null};v551LoadDayEditorDate(k)};
+saveDayCard=function(){
+  const key=$('editDate').value;if(!dayCardDraft||!key)return;const candidate=cleanDayCardDraft(dayCardDraft),validation=validateDayEditorEntries(candidate.entries||[],key);
+  if(key>todayKey()){const original=cleanDayCardDraft(dayCardOriginal||{}),workChanged=JSON.stringify({entries:candidate.entries||[],pause:Number(candidate.pauseMinutes)||0})!==JSON.stringify({entries:original.entries||[],pause:Number(original.pauseMinutes)||0});if(workChanged){showToast('Zukünftige Buchungen und Pausen sind gesperrt.');loadDayEditorDate(key);return}}
+  if(!validation.valid){showToast('Buchungsfolge prüfen');dayCockpitUI.inlineIndex=Math.max(0,validation.errors.findIndex(x=>x.length));renderDayCard();return}
+  if(dayAbsenceCode(candidate)!=='holiday'&&candidate.absence&&absenceDuration(candidate)==='full'&&(candidate.entries||[]).length){showToast('Ganztägige Abwesenheit und Buchungen können nicht gemeinsam gespeichert werden');dayCockpitUI.panel='absence';renderDayCard();return}
+  if(!dayCardIsDirty()){dayCardDraft=null;dayCardOriginal=null;closeModal('dayModal');refreshAllDerivedViews();showToast('Keine Änderungen vorhanden.');return}
+  const originalImport=IMPORTED_BY_DATE[key];if(dayCardDraft.__deleteAll){if(originalImport)state.days[key]={date:key,entries:[],pauseMinutes:0,absence:null,absenceCode:null,note:'',holiday:null,absenceNote:'',edited:true,importCleared:true,modifiedAt:new Date().toISOString(),archived:Number(key.slice(0,4))<new Date().getFullYear()};else delete state.days[key]}else if(originalImport&&JSON.stringify(candidate)===JSON.stringify(originalImport))state.days[key]=clone(originalImport);else{candidate.date=key;candidate.edited=true;candidate.modifiedAt=new Date().toISOString();candidate.archived=Number(key.slice(0,4))<new Date().getFullYear();state.days[key]=candidate}
+  cursorDate=parseDateKey(key);touchDay(key);dayCardDraft=null;dayCardOriginal=null;closeModal('dayModal');refreshAllDerivedViews();showToast('Tag gespeichert. Tagessaldo und Zeitkonto wurden aktualisiert.')
+};
+renderWeekView=function(k){
+  const currentStart=weekStart(todayKey());let start=weekStart(k);if(start>currentStart)start=currentStart;cursorDate=new Date(start);const force=weekHasWeekendData(start),show=state.settings.showWeekends||force,count=show?7:5,days=[],isCurrent=dateKey(start)===dateKey(currentStart);
+  for(let i=0;i<count;i++){const dt=new Date(start);dt.setDate(start.getDate()+i);const key=dateKey(dt),d=dayObject(key),c=calculateDay(d),future=key>todayKey();let status=esc(dayStatus(d)),action=`openDayEditor('${key}')`,disabled='';if(future){status=esc(dayCockpitFutureLabel(key,d));const code=dayAbsenceCode(d),editable=!!d.absence&&code!=='holiday';action=editable?`openAbsenceEditorForDay('${key}',${d.absenceGroupId?"'group'":"'day'"})`:'';disabled=action?'':'disabled'}days.push(`<button type="button" class="week-day-card${future?' future-day':''}" ${disabled} ${action?`onclick="${action}"`:''}><span><b>${formatDate(key,{weekday:'short',day:'2-digit',month:'2-digit'})}</b><small>${status}</small></span><strong class="${future?'neutral':c.diff<0?'red':c.diff>0?'green':'neutral'}">${future?'–':formatDuration(c.diff)}</strong></button>`)}
+  const end=new Date(start);end.setDate(start.getDate()+6);$('timesContent').innerHTML=`<div class="week-toolbar"><button type="button" onclick="changeWeek(-1)" aria-label="Vorherige Woche">‹</button><b>${formatDate(dateKey(start),{day:'2-digit',month:'2-digit'})} – ${formatDate(dateKey(end),{day:'2-digit',month:'2-digit',year:'numeric'})}</b><button type="button" onclick="changeWeek(1)" aria-label="Nächste Woche" ${isCurrent?'disabled':''}>›</button></div><div class="week-options week-options-today-only">${isCurrent?'':`<button type="button" class="today-week-btn" onclick="cursorDate=parseDateKey(todayKey());renderWeekView(todayKey())">Aktuelle Woche</button>`}</div>${force?'<p class="weekend-note">Wochenende wird angezeigt, weil dort Daten vorhanden sind.</p>':''}<div class="week-list">${days.join('')}</div>`;updateTimesWeekendControl(true,force)
+};
+document.addEventListener('DOMContentLoaded',()=>{
+  $('dayMenuButton')?.addEventListener('click',event=>{event.stopPropagation();const pop=$('dayMenuPopover'),opening=pop.hidden;closeDayCockpitMenu();if(opening){renderDayCockpitMenu();pop.hidden=false;$('dayMenuButton').setAttribute('aria-expanded','true')}});
+  $('dayMenuPopover')?.addEventListener('click',event=>event.stopPropagation());document.addEventListener('click',closeDayCockpitMenu);
 });

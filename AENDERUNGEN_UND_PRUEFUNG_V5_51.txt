@@ -1,0 +1,52 @@
+Arbeitszeit-PWA V5.51 – UI optimiert
+
+UMGESETZTE ÄNDERUNGEN
+- Einstellungen: Feld „Name im Bericht“ auf 126 px begrenzt; auf sehr schmalen Geräten 112 px.
+- Auswertung: kompaktes Tagesberichtsdatum, 12-px-Rasterabstand und gekürzter JSON-Import-Untertext.
+- Tagesbericht: eigenes A4-Hochformatlayout mit kompakter Zusammenfassung, kontrollierten Tabellenbreiten und Druckregeln.
+- Verlauf: irreführende Zeitraumsauswahl entfernt; statische Anzeige „Zeitraum 2022–2026“.
+- Urlaubsgraph: „Geplant“ einheitlich auf Apple-Systemblau #0A84FF umgestellt.
+- Wochenansicht: Zukunftsstatus für Urlaub, halben Urlaub, Krankheit, Zeitausgleich, Feiertage und Wochenende; vorhandene Zukunftsabwesenheiten direkt bearbeitbar.
+- Tageseditor: neues kompaktes Tagescockpit mit zentrierter Datumsnavigation, Statuszeile, Buchungsliste, Inline-Bearbeitung, kleinem Buchungs-Plus, Pause, Kommentar, Abwesenheit, Drei-Punkte-Menü und Sicherheitsabfrage.
+- Heute: Bereich „Heute erfasst“ luftiger; Antippen öffnet direkt den neuen Tageseditor, ohne eine reine UI-Navigation zu speichern.
+- Schnelleinträge: ausschließlich Pause und Kommentar als kompakte Zwei-Aktionen-Leiste.
+- Blaues Plus-Menü: ausschließlich Abwesenheit und vollständiger Tageseditor.
+- Veraltete Tagesnavigations-Handler und ein doppelter Feiertags-Listener entfernt.
+- Manifest, Service Worker, Dokumenttitel und sichtbare App-Version auf 5.51 aktualisiert.
+
+DATENPRÜFUNG
+- Gespeicherte Tagesobjekte: 1.148
+- Buchungsdatensätze: 1.795
+- Frühestes gespeichertes Datum: 01.01.2022 (generierter Feiertag)
+- Spätestes gespeichertes Datum: 31.12.2027 (generierter Feiertag)
+- Früheste tatsächliche Arbeitsbuchung: 01.11.2022
+- Späteste tatsächliche Arbeitsbuchung: 05.08.2026
+- Integrierte Daten stimmen für alle 1.148 Tagesobjekte vollständig mit der beigefügten JSON-Sicherung überein.
+- Beigefügte JSON-Sicherung ist bytegleich mit der bereitgestellten Sicherheitsdatei.
+- SHA-256 der JSON-Sicherung: b6967b0246e2900290e5c7298ee4cb0b4c41b6fe9a0c7f51eca3a144673e8066
+
+AUTOMATISCH DURCHGEFÜHRTE PRÜFUNGEN
+- JavaScript-Syntax von app.js und sw.js.
+- Manifest als gültiges JSON und vollständige Service-Worker-Dateiliste.
+- Vorhandensein aller Laufzeitdateien und Icons.
+- DOM-IDs ohne Duplikate.
+- Laufzeittest in Chromium bei 393 × 852 und 350 × 760 CSS-Pixeln.
+- Keine horizontalen Überstände in den geprüften Ansichten.
+- Keine JavaScript-Laufzeitfehler und keine mehrfach registrierten aktiven Listener im Prüflauf.
+- Namensfeld 126 px, Berichtsdatum 122 px, Abstand zum Tagesbericht-Button 13 px.
+- Statische Zeitraum-Anzeige und Urlaubfarbe rgb(10, 132, 255) geprüft.
+- Tageseditor: Inline-Neuanlage, ungespeicherte Änderungen, vier Buchungen, sichtbarer Speicherbutton und schmaler Viewport geprüft.
+- Zukunftswoche: halber Urlaub und leerer Zukunftstag geprüft.
+- Tagesbericht als einseitiges A4-Hochformat-PDF erzeugt; zusätzlich langer Kommentar und vier Buchungen geprüft.
+- JSON-Importprüfung über die vorhandene Validierungs- und Migrationslogik: 1.148 Tage und 1.795 Buchungen akzeptiert.
+- Export-Payload: Formatversion 2, Datenschema 14, 1.148 Tage und 1.795 Buchungen.
+- Verbindliche Rundung stichprobenartig geprüft: Kommen 08:31 → 08:35; Gehen 17:34 → 17:30.
+- Kernfunktionen für Rundung, Berechnung, Speicherung, Importmigration, JSON-/Excel-Export und Feiertage sind gegenüber V5.50 unverändert.
+
+NICHT ZUVERLÄSSIG AUTOMATISIERBAR
+- Reales iOS-Safari-Verhalten nativer Datums- und Zeitfelder sowie der Bildschirmtastatur.
+- Installation und vollständiger Offline-Neustart als PWA auf einem realen iPhone.
+- Systemeigener iOS-Druck-/Teilen-Dialog und tatsächliches Speichern über diesen Dialog.
+- Darstellung der Dateimetadaten im iOS- beziehungsweise Windows-Dateisystem.
+
+Hinweis: Die Service-Worker-Struktur, Cache-Version und Dateiliste wurden statisch geprüft. Ein vollständiger Service-Worker-Offlinetest über den lokalen Loopback-Server war in der isolierten Prüfumgebung durch eine Browserrichtlinie blockiert.

@@ -53,23 +53,17 @@
 <span class="today-comment-copy"><b>Kommentar</b><small id="todayCommentPreview"></small></span>
 <span aria-hidden="true" class="today-comment-chev">›</span>
 </button>
-</section>
-<div class="today-quick-entry-control">
-<button aria-expanded="false" aria-haspopup="true" aria-controls="todayQuickEntriesPopup" class="today-quick-entry-btn home-pressable" id="todayQuickEntriesBtn" type="button">
-<span aria-hidden="true" class="today-quick-entry-main-icon"><svg class="icon" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"></path></svg></span>
-<span>Schnelleinträge</span>
-</button>
-<div aria-label="Schnelleinträge für heute" class="today-quick-entry-popup" hidden id="todayQuickEntriesPopup" role="menu">
-<button class="today-quick-popup-row" id="pauseToday" role="menuitem" type="button">
+<div aria-label="Schnelleinträge für heute" class="today-quick-actions">
+<button class="today-quick-action" id="pauseToday" type="button">
 <span aria-hidden="true" class="today-action-icon pause"><svg class="icon" viewBox="0 0 24 24"><path d="M5 7h11v7a5 5 0 0 1-5 5H10a5 5 0 0 1-5-5Z"></path><path d="M16 9h2a3 3 0 0 1 0 6h-2M4 21h14"></path></svg></span>
-<span class="today-action-copy"><b id="pauseButtonLabel">Manuelle Pause</b><small id="pauseButtonSub">Direkt für den heutigen Tag</small></span>
+<span class="today-action-copy"><b id="pauseButtonLabel">Pause</b><small id="pauseButtonSub">Heute</small></span>
 </button>
-<button class="today-quick-popup-row" id="quickCommentToday" role="menuitem" type="button">
+<button class="today-quick-action" id="quickCommentToday" type="button">
 <span aria-hidden="true" class="today-action-icon comment"><svg class="icon" viewBox="0 0 24 24"><path d="M21 12a8 8 0 0 1-8 8H7l-4 2 1.4-4.2A8 8 0 1 1 21 12Z"></path></svg></span>
-<span class="today-action-copy"><b id="quickTodayCommentLabel">Kommentar für heute</b><small id="quickTodayCommentSub">Direkt für den heutigen Tag</small></span>
+<span class="today-action-copy"><b id="quickTodayCommentLabel">Kommentar</b><small id="quickTodayCommentSub">Heute</small></span>
 </button>
 </div>
-</div>
+</section>
 <button aria-label="Eintrag für heute öffnen" class="quick-add-btn floating-quick-add today-floating-quick home-pressable" id="quickAddBtn" type="button"><span aria-hidden="true" class="plus-glyph"></span></button>
 </section>
 <section aria-label="Zeiten" class="screen" id="times">
@@ -96,7 +90,7 @@
 <div class="overtime-title-row"><h2 class="card-title" id="overtimeTitle">Verlauf</h2><div aria-label="Diagrammansicht" class="chart-toggle" role="group"><button class="active" id="chartMonthMode" type="button">Monat</button><button id="chartYearMode" type="button">Jahr</button><button id="chartHistoryMode" type="button">Verlauf</button></div></div>
 <p id="chartSubtitle">Verlauf des gesamten Zeitkontostands</p>
 </div>
-<div class="chart-filter"><label for="chartYear">Jahr</label><select id="chartYear"></select></div>
+<div class="chart-filter"><label for="chartYear">Jahr</label><select id="chartYear"></select><span class="chart-period-display" id="chartHistoryRange" hidden>Zeitraum 2022–2026</span></div>
 <div aria-label="Überstundengrafik" class="overtime-chart" id="overtimeChart" role="img"></div>
 <div aria-live="polite" class="chart-detail" id="chartDetail"></div>
 </section>
@@ -109,14 +103,14 @@
 </section>
 <div class="card report-card">
 <h2 class="card-title">Berichte und PDF</h2>
-<div class="report-controls"><input id="reportDay" type="date"/><button id="dayReportBtn" type="button">Tagesbericht</button></div>
+<div class="report-controls"><div class="report-date-shell"><input aria-label="Datum für Tagesbericht" id="reportDay" type="date"/></div><button id="dayReportBtn" type="button">Tagesbericht</button></div>
 <button class="report-entry" id="monthReportBtn" type="button"><span aria-hidden="true" class="report-icon"><svg class="icon" viewbox="0 0 24 24"><rect height="15" rx="2" width="16" x="4" y="5"></rect><path d="M8 3v4M16 3v4M4 9h16M8 13h2M14 13h2M8 17h2M14 17h2"></path></svg></span><span><b>Monatsbericht</b><small>Detaillierter Bericht und PDF</small></span><span class="chev">›</span></button>
 <button class="report-entry" id="yearReportBtn" type="button"><span aria-hidden="true" class="report-icon"><svg class="icon" viewbox="0 0 24 24"><rect height="15" rx="2" width="16" x="4" y="5"></rect><path d="M8 3v4M16 3v4M4 9h16M8 13h8M8 17h8"></path></svg></span><span><b>Jahresbericht</b><small>Detaillierter Bericht und PDF</small></span><span class="chev">›</span></button>
 <input hidden="" id="reportMonth" type="month"/><select hidden="" id="reportYear"></select>
 </div>
 <div class="action-list">
 <button class="action-row" id="shareBackupBtn" type="button"><span class="icon-wrap"><svg class="icon" viewbox="0 0 24 24"><path d="M12 16V4M8 8l4-4 4 4M5 12v8h14v-8"></path></svg></span><span><b>Sicherung und Excel teilen</b><small>JSON und Excel als zwei einzelne Dateien</small></span><span class="chev">›</span></button>
-<button class="action-row" id="jsonRestoreBtn" type="button"><span class="icon-wrap"><svg class="icon" viewbox="0 0 24 24"><path d="M4 12a8 8 0 1 0 2.3-5.7L4 8.5M4 4v4.5h4.5"></path></svg></span><span><b>Sicherung wiederherstellen</b><small>JSON-Datei prüfen und vollständig einlesen</small></span><span class="chev">›</span></button>
+<button class="action-row" id="jsonRestoreBtn" type="button"><span class="icon-wrap"><svg class="icon" viewbox="0 0 24 24"><path d="M4 12a8 8 0 1 0 2.3-5.7L4 8.5M4 4v4.5h4.5"></path></svg></span><span><b>Sicherung wiederherstellen</b><small>JSON-Datei prüfen und einlesen</small></span><span class="chev">›</span></button>
 <input accept="application/json" hidden="" id="restoreFile" type="file"/>
 </div>
 </section>
@@ -195,10 +189,13 @@
 </nav>
 <div aria-labelledby="dayModalTitle" aria-modal="true" class="modal" id="dayModal" role="dialog">
 <div class="sheet unified-card-shell day-editor-sheet">
-<div class="unified-card-head">
-<button aria-label="Zurück" class="unified-card-back" hidden="" id="dayCardBack" type="button">‹</button>
-<button aria-label="Vorheriger Tag" class="day-date-nav day-date-prev" id="dayPrevDate" type="button">‹</button><div class="unified-card-title-wrap"><h2 id="dayModalTitle">Tag bearbeiten</h2><div aria-live="polite" class="unified-card-context" id="dayModalContext"></div></div><button aria-label="Nächster Tag" class="day-date-nav day-date-next" id="dayNextDate" type="button">›</button>
+<div class="unified-card-head day-cockpit-head">
+<div class="unified-card-title-wrap"><h2 id="dayModalTitle">Tag bearbeiten</h2><div aria-live="polite" class="unified-card-context" id="dayModalContext"></div></div>
+<div class="day-head-actions">
+<button aria-expanded="false" aria-haspopup="menu" aria-label="Weitere Aktionen" class="day-menu-btn" id="dayMenuButton" type="button">···</button>
 <button aria-label="Tageseditor schließen" class="close-btn" id="dayCardClose" type="button">×</button>
+</div>
+<div aria-label="Weitere Aktionen" class="day-menu-popover" hidden id="dayMenuPopover" role="menu"></div>
 </div>
 <input id="editDate" type="hidden"/>
 <div class="unified-card-body day-card-body" id="dayCardBody"></div>
@@ -267,8 +264,8 @@
 </div>
 <div class="unified-card-body quick-entry-card-body">
 <div class="quick-list quick-add-actions exact-two-actions">
-<button id="quickFullDayStart" type="button"><span>Vollständigen Tag bearbeiten</span><small>Arbeitszeiten und Tagesangaben prüfen oder ändern</small><b aria-hidden="true">›</b></button>
 <button id="quickAbsenceStart" type="button"><span>Abwesenheit eintragen oder bearbeiten</span><small>Urlaub, Krankheit oder sonstige Abwesenheit</small><b aria-hidden="true">›</b></button>
+<button id="quickFullDayStart" type="button"><span>Vollständigen Tag bearbeiten</span><small>Arbeitszeiten und Tagesangaben prüfen oder ändern</small><b aria-hidden="true">›</b></button>
 </div>
 </div>
 <div class="unified-card-footer quick-entry-card-footer">
